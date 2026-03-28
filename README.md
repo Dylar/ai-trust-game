@@ -99,20 +99,22 @@ Hard mode:
 ## Tech stack
 
 - Go
-- gRPC
+- Flutter (WebApp later)
+- gRPC/http
 - Protobuf
 - JSON (LLM input/output)
 - Groq API
 - local LLM (later)
 - Docker (later)
 - Kubernetes (later)
+- RabbitMQ (later, for async communication between agents)
 
 ---
 
-## Development phases
+## Development phases (roughly)
 
 ### Phase 1 - minimal setup
-- gRPC service
+- http service
 - basic request/response
 - no AI yet
 
@@ -141,15 +143,16 @@ Hard mode:
 - policy enforcement
 
 ### Phase 7 - multi-LLM
-- switch providers
-- compare behavior
+- LLM Api switchable
+- different models for planner/validator etc
 
-### Phase 8 - packaging
-- Docker
-- reproducible setup
+### Phase 8 - multiple services
+- service split
+- gRPC communication
+- RabbitMQ for async
 
 ### Phase 9 - deployment
-- service split
+- Docker
 - Kubernetes
 
 ---
