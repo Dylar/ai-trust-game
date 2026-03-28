@@ -15,7 +15,7 @@ const localURL = "http://localhost:8080"
 const route = "/chat"
 
 func main() {
-	message := flag.String("message", "hello", "chat message")
+	message := flag.String("message", "What?", "chat message")
 	flag.Parse()
 
 	reqBody := service.ChatRequest{

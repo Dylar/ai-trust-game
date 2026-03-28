@@ -113,47 +113,81 @@ Hard mode:
 
 ## Development phases (roughly)
 
-### Phase 1 - minimal setup
-- http service
-- basic request/response
-- no AI yet
+### Phase 1 - Service foundation (check)
+- simple HTTP service
+- request / response handling
+- basic routing
+- initial test setup (BDD-style)
+- minimal project structure
 
-### Phase 2 - LLM integration
-- Groq client
-- prompt building
-- session + history
-
-### Phase 3 - basic game logic
-- roles
-- easy mode
-- user claims vs system state
-
-### Phase 4 - structure
-- modular design
-- interfaces (LLM, policy, etc.)
-- validation layer
-
-### Phase 5 - logging
-- structured logs
-- decision tracing
+### Phase 2 - Observability & runtime
+- structured logging
+- request lifecycle tracking (duration, status, path)
+- request IDs
+- basic audit events
 - error classification
 
-### Phase 6 - security modes
-- medium + hard mode
-- policy enforcement
+Goal: the system should not be a black box anymore
 
-### Phase 7 - multi-LLM
-- LLM Api switchable
-- different models for planner/validator etc
+### Phase 3 - Interaction core
+- introduce interaction/request model (instead of plain chat)
+- basic validation and error handling
+- initial domain concepts (role, mode - still simple)
+- clear separation between input, processing, and output
 
-### Phase 8 - multiple services
-- service split
-- gRPC communication
-- RabbitMQ for async
+Goal: shape the system behavior before adding AI
 
-### Phase 9 - deployment
+### Phase 4 - LLM integration
+- integrate first LLM provider (e.g. Groq)
+- simple prompt building
+- request -> LLM -> response flow
+- no trust or security logic yet
+
+Goal: get AI into the system without relying on it for decisions
+
+### Phase 5 - Policy & decision layer
+- introduce roles (Customer / Employee / Admin)
+- separate user claims from system state
+- basic policy checks
+- “easy mode” behavior
+
+Goal: start controlling what the system is allowed to do
+
+### Phase 6 - Security modes
+- implement medium and hard mode
+- stricter validation and policy enforcement
+- system becomes authoritative, not the model
+- validation layer for responses
+
+Goal: demonstrate the difference between model-driven and system-driven decisions
+
+### Phase 7 - Audit & analysis
+- enrich audit events (inputs, decisions, outcomes)
+- detect suspicious behavior (e.g. prompt injection patterns)
+- LLM-assisted analysis for complex cases
+
+Goal: make decisions traceable and explainable
+
+### Phase 8 - Multi-model / agent setup
+- support multiple LLM providers
+- different models for different roles (planner, validator, etc.)
+- interchangeable LLM layer
+
+Goal: decouple system behavior from a single model
+
+### Phase 9 - Service split
+- extract components into separate services
+- introduce gRPC communication
+- async communication (e.g. RabbitMQ)
+
+Goal: move from single service to scalable architecture
+
+### Phase 10 - Deployment
 - Docker
-- Kubernetes
+- Kubernetes setup
+- basic deployment and scaling
+
+Goal: run the system in a production-like environment
 
 ---
 
