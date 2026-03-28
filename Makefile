@@ -15,7 +15,7 @@ run:
 		echo "Example: make run SERVICE=main-service"; \
 		exit 1; \
 	fi
-	go run ./services/$(SERVICE)
+	go run ./services/$(SERVICE)/cmd
 
 build:
 	@if [ -z "$(SERVICE)" ]; then \
@@ -24,7 +24,7 @@ build:
 		exit 1; \
 	fi
 	mkdir -p bin
-	go build -o ./bin/$(SERVICE) ./services/$(SERVICE)
+	go build -o ./bin/$(SERVICE) ./services/$(SERVICE)/cmd
 
 docker-build:
 	@if [ -z "$(SERVICE)" ]; then \
@@ -32,7 +32,7 @@ docker-build:
 		echo "Example: make docker-build SERVICE=main-service"; \
 		exit 1; \
 	fi
-	docker build -t $(SERVICE):local ./services/$(SERVICE)
+	docker build -t $(SERVICE):local ./services/$(SERVICE)/cmd
 
 test:
 	go test ./...

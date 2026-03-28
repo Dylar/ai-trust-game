@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/Dylar/ai-trust-game/pkg/setup"
+	"github.com/Dylar/ai-trust-game/pkg/infra"
 	"github.com/Dylar/ai-trust-game/services/main-service/service"
 	"log"
 )
 
 func main() {
-	srv := setup.NewServer(setup.Config{
-		HTTP: []setup.HTTPConfig{
+	srv := infra.NewServer(infra.Config{
+		HTTP: []infra.HTTPConfig{
 			{
 				Name:     "main-service",
-				Port:     setup.GetEnv("PORT", setup.DefaultPort),
+				Port:     infra.GetEnv("PORT", infra.DefaultPort),
 				Register: service.RegisterRoutes,
 			},
 		},

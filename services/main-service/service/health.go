@@ -17,5 +17,5 @@ func handleHealth(rspWriter http.ResponseWriter, _ *http.Request) {
 		Status: "ok",
 	}
 
-	network.ResponseAsJSON(rspWriter, http.StatusOK, response)
+	network.WriteJSON(rspWriter, http.StatusOK, response)
 }
