@@ -3,7 +3,6 @@ package infra
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -11,7 +10,6 @@ import (
 const DefaultPort = "8080"
 
 type HTTPServer struct {
-	name       string
 	httpServer *http.Server
 	shutdown   SimpleContextFunc
 }
@@ -24,7 +22,6 @@ func NewHTTPServer(cfg HTTPConfig) *HTTPServer {
 	}
 
 	return &HTTPServer{
-		name: cfg.Name,
 		httpServer: &http.Server{
 			Addr:              ":" + cfg.Port,
 			Handler:           mux,
@@ -34,10 +31,8 @@ func NewHTTPServer(cfg HTTPConfig) *HTTPServer {
 	}
 }
 
-func (s *HTTPServer) Run() error {
-	fmt.Printf("%s listening on %s", s.name, s.httpServer.Addr)
-
-	err := s.httpServer.ListenAndServe()
+func (srv *HTTPServer) Run() error {
+	err := srv.httpServer.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -45,13 +40,13 @@ func (s *HTTPServer) Run() error {
 	return nil
 }
 
-func (s *HTTPServer) Shutdown(ctx context.Context) error {
-	if s.shutdown != nil {
-		err := s.shutdown(ctx)
+func (srv *HTTPServer) Shutdown(ctx context.Context) error {
+	if srv.shutdown != nil {
+		err := srv.shutdown(ctx)
 		if err != nil {
 			return err
 		}
 	}
 
-	return s.httpServer.Shutdown(ctx)
+	return srv.httpServer.Shutdown(ctx)
 }

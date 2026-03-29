@@ -33,14 +33,22 @@ func HttpLogging(logger Logger) func(http.Handler) http.Handler {
 			recorder := newStatusRecorder(w)
 			next.ServeHTTP(recorder, r)
 			duration := time.Since(start)
-			logger.Info(
-				r.Context(),
-				"http request completed",
+
+			logMsg := "http request completed"
+			fields := []Field{
 				WithField("method", r.Method),
 				WithField("path", r.URL.Path),
 				WithField("status", recorder.statusCode),
 				WithField("duration_ms", duration.Milliseconds()),
-			)
+			}
+			switch {
+			case recorder.statusCode >= 500:
+				logger.Error(r.Context(), logMsg, fields...)
+			case recorder.statusCode >= 400:
+				logger.Warn(r.Context(), logMsg, fields...)
+			default:
+				logger.Info(r.Context(), logMsg, fields...)
+			}
 		})
 	}
 }

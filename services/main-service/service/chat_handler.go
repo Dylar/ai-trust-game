@@ -21,18 +21,8 @@ func NewChatHandler(logger logging.Logger) *ChatHandler {
 
 func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	handler.logger.Info(
-		ctx,
-		"chat request received",
-	)
 
 	if req.Method != http.MethodPost {
-		handler.logger.Warn(
-			ctx,
-			"invalid HTTP method",
-			logging.WithField("method", req.Method),
-			logging.WithField("path", req.URL.Path),
-		)
 		network.WriteJSON(
 			w,
 			http.StatusMethodNotAllowed,
@@ -42,25 +32,11 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 	}
 
 	defer func() {
-		err := req.Body.Close()
-		if err != nil {
-			handler.logger.Warn(
-				ctx,
-				"failed to close request body",
-				logging.WithError(err),
-			)
-		}
+		_ = req.Body.Close()
 	}()
 
 	var request ChatRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		handler.logger.Warn(
-			ctx,
-			"failed to decode chat request",
-			logging.WithField("method", req.Method),
-			logging.WithField("path", req.URL.Path),
-			logging.WithError(err),
-		)
 		network.WriteJSON(
 			w,
 			http.StatusBadRequest,
@@ -70,9 +46,15 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 	}
 
 	response, err := handler.HandleChat(ctx, request)
-
 	if err != nil {
-		status, errorResponse := handler.mapChatError(ctx, err)
+		if !errors.Is(err, ErrEmptyMessage) {
+			handler.logger.Error(
+				ctx,
+				"chat request failed",
+				logging.WithError(err),
+			)
+		}
+		status, errorResponse := handler.mapChatError(err)
 		network.WriteJSON(w, status, errorResponse)
 		return
 	}
@@ -80,32 +62,24 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 	network.WriteJSON(w, http.StatusOK, response)
 }
 
-func (handler *ChatHandler) mapChatError(ctx context.Context, err error) (int, ChatResponse) {
+func (handler *ChatHandler) mapChatError(err error) (int, ChatResponse) {
 	if errors.Is(err, ErrEmptyMessage) {
-		handler.logger.Warn(
-			ctx,
-			"empty message received",
-		)
 		return http.StatusBadRequest, ChatResponse{
 			Message: "Are you shy? You didn't say anything :P",
 		}
 	}
 
-	handler.logger.Error(
-		ctx,
-		"unexpected error in chat handler",
-		logging.WithError(err),
-	)
 	return http.StatusInternalServerError, ChatResponse{
 		Message: "Something went wrong",
 	}
 }
 
-func (handler *ChatHandler) HandleChat(_ context.Context, req ChatRequest) (ChatResponse, error) {
+func (handler *ChatHandler) HandleChat(ctx context.Context, req ChatRequest) (ChatResponse, error) {
 	if req.Message == "" {
 		return ChatResponse{}, ErrEmptyMessage
 	}
 
+	handler.logger.Debug(ctx, "chat message accepted", logging.WithField("message_length", len(req.Message)))
 	return ChatResponse{
 		Message: "I could hear you, but I am shy to talk back :P",
 	}, nil
