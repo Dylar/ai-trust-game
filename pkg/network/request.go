@@ -1,31 +1,28 @@
 package network
 
 import (
-	"context"
 	"github.com/google/uuid"
 	"net/http"
 )
 
-type contextKey string
-
-const requestIDKey contextKey = "request_id"
 const RequestIDHeader = "X-Request-Id"
+const SessionIDHeader = "X-Session-Id"
+const UserIDHeader = "X-User-Id"
 
-func WithRequestID(ctx context.Context, requestID string) context.Context {
-	return context.WithValue(ctx, requestIDKey, requestID)
-}
-
-func RequestID(ctx context.Context) string {
-	value, _ := ctx.Value(requestIDKey).(string)
-	return value
-}
-
-func RequestIDMiddleware(next http.Handler) http.Handler {
+func RequestMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestID := uuid.NewString()
 		w.Header().Set(RequestIDHeader, requestID)
+		sessionID := r.Header.Get(SessionIDHeader)
+		userID := r.Header.Get(UserIDHeader)
 
-		ctx := WithRequestID(r.Context(), requestID)
+		meta := Metadata{
+			RequestID: requestID,
+			SessionID: sessionID,
+			UserID:    userID,
+		}
+
+		ctx := WithMetadata(r.Context(), meta)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -15,10 +15,20 @@ func NewConsoleLogger() *ConsoleLogger {
 }
 
 func (l *ConsoleLogger) log(ctx context.Context, level, msg string, fields ...Field) {
-	requestID := network.RequestID(ctx)
-	if requestID != "" {
-		fields = append(fields, WithField("request_id", requestID))
+	meta := network.GetMetadata(ctx)
+
+	if meta.RequestID != "" {
+		fields = append(fields, WithField("request_id", meta.RequestID))
 	}
+
+	if meta.SessionID != "" {
+		fields = append(fields, WithField("session_id", meta.SessionID))
+	}
+
+	if meta.UserID != "" {
+		fields = append(fields, WithField("user_id", meta.UserID))
+	}
+
 	fmt.Printf(
 		"ts=%q level=%s msg=%q %s\n",
 		time.Now().Format(time.RFC3339),

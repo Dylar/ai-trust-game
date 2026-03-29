@@ -9,7 +9,7 @@ import (
 func SetupRoutes(mux *http.ServeMux, logger logging.Logger, chatHandler *ChatHandler) {
 	chat := http.Handler(chatHandler)
 	chat = logging.HttpLogging(logger)(chat)
-	chat = network.RequestIDMiddleware(chat)
+	chat = network.RequestMiddleware(chat)
 
 	mux.Handle("/chat", chat)
 	mux.HandleFunc("/health", handleHealth)
