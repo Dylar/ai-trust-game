@@ -2,8 +2,9 @@ package service
 
 import (
 	"fmt"
-	"github.com/Dylar/ai-trust-game/pkg/network"
 	"net/http"
+
+	"github.com/Dylar/ai-trust-game/pkg/network"
 )
 
 type HealthResponse struct {

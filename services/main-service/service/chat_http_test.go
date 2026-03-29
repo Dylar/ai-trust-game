@@ -2,19 +2,20 @@ package service
 
 import (
 	"encoding/json"
+	"net/http"
+	"testing"
+
 	"github.com/Dylar/ai-trust-game/internal/tests"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
-	"net/http"
-	"testing"
 )
 
-func TestChatBehavior(t *testing.T) {
+func TestChatRoute(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewConsoleLogger()
-	authSink := tests.FakeAuditSink{}
-	chatHandler := NewChatHandler(logger, &authSink)
-	SetupRoutes(mux, logger, chatHandler)
+	auditSink := tests.FakeAuditSink{}
+	chatHandler := NewChatHandler(logger, &auditSink)
+	setupChatRoute(mux, logger, chatHandler)
 
 	type Given struct {
 		requestBody string

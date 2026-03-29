@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"strings"
+
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
-	"net/http"
-	"strings"
 )
 
 var ErrEmptyMessage = errors.New("message cannot be empty")
@@ -48,7 +49,7 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	response, err := handler.HandleChat(ctx, request)
+	response, err := handler.handleChat(ctx, request)
 	if err != nil {
 		if !errors.Is(err, ErrEmptyMessage) {
 			handler.logger.Error(
@@ -77,7 +78,7 @@ func (handler *ChatHandler) mapChatError(err error) (int, ChatResponse) {
 	}
 }
 
-func (handler *ChatHandler) HandleChat(ctx context.Context, req ChatRequest) (ChatResponse, error) {
+func (handler *ChatHandler) handleChat(ctx context.Context, req ChatRequest) (ChatResponse, error) {
 	if req.Message == "" {
 		return ChatResponse{}, ErrEmptyMessage
 	}

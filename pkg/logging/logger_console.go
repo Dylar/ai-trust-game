@@ -3,9 +3,10 @@ package logging
 import (
 	"context"
 	"fmt"
-	"github.com/Dylar/ai-trust-game/pkg/network"
 	"strings"
 	"time"
+
+	"github.com/Dylar/ai-trust-game/pkg/network"
 )
 
 type ConsoleLogger struct{}

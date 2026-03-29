@@ -1,12 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
+	"github.com/Dylar/ai-trust-game/internal/session"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/infra"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/services/main-service/service"
-	"log"
-	"net/http"
 )
 
 func main() {
@@ -18,6 +20,8 @@ func main() {
 
 	auditSink := audit.NewConsoleSink()
 	chatHandler := service.NewChatHandler(logger, auditSink)
+	sessionRepo := session.NewInMemoryRepository()
+	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
 
 	srv := infra.NewServer(
 		logger,
@@ -27,7 +31,7 @@ func main() {
 					Name: "main-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, chatHandler)
+						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler)
 					},
 				},
 			},

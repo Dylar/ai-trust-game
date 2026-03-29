@@ -2,8 +2,9 @@ package audit
 
 import (
 	"context"
-	"github.com/Dylar/ai-trust-game/pkg/network"
 	"time"
+
+	"github.com/Dylar/ai-trust-game/pkg/network"
 )
 
 type Event struct {

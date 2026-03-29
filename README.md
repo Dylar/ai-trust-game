@@ -180,7 +180,7 @@ Goal: decouple system behavior from a single model
 ### Phase 9 - Service split
 - extract components into separate services
 - introduce gRPC communication
-- async communication (e.g. RabbitMQ)
+- async communication (RabbitMQ? Proto?)
 
 Goal: move from single service to scalable architecture
 

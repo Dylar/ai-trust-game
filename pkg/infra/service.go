@@ -2,12 +2,13 @@ package infra
 
 import (
 	"context"
-	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/Dylar/ai-trust-game/pkg/logging"
 )
 
 type Server struct {

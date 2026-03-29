@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 )
 

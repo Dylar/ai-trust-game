@@ -10,7 +10,7 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/network"
 )
 
-func TestHandleChatBehavior(t *testing.T) {
+func TestHandleChat(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	type Given struct {
@@ -115,7 +115,7 @@ func TestHandleChatBehavior(t *testing.T) {
 				UserID:    given.userID,
 			})
 
-			response, err := handler.HandleChat(ctx, ChatRequest{
+			response, err := handler.handleChat(ctx, ChatRequest{
 				Message: given.message,
 			})
 
