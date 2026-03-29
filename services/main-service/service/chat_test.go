@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"net/http"
 	"testing"
 
@@ -10,7 +11,9 @@ import (
 
 func TestChatBehavior(t *testing.T) {
 	mux := http.NewServeMux()
-	RegisterRoutes(mux)
+	logger := logging.NewConsoleLogger()
+	chatHandler := NewChatHandler(logger)
+	SetupRoutes(mux, logger, chatHandler)
 
 	type Given struct {
 		requestBody string

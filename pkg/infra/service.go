@@ -2,7 +2,7 @@ package infra
 
 import (
 	"context"
-	"fmt"
+	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"os"
 	"os/signal"
 	"sync"
@@ -11,11 +11,12 @@ import (
 )
 
 type Server struct {
+	logger      logging.Logger
 	httpServers []*HTTPServer
 	shutdown    SimpleContextFunc
 }
 
-func NewServer(cfg Config) *Server {
+func NewServer(logger logging.Logger, cfg Config) *Server {
 	httpServers := make([]*HTTPServer, 0, len(cfg.HTTP))
 
 	for _, httpCfg := range cfg.HTTP {
@@ -23,49 +24,54 @@ func NewServer(cfg Config) *Server {
 	}
 
 	return &Server{
+		logger:      logger,
 		httpServers: httpServers,
 		shutdown:    cfg.Shutdown,
 	}
 }
 
 func (srv *Server) Run() error {
+	ctx := context.Background()
+	srv.logger.Info(ctx, "server starting")
 	serverErrCh := make(chan error, len(srv.httpServers))
 
 	for _, server := range srv.httpServers {
-		httpSrv := server
-		go func() {
-			serverErrCh <- httpSrv.Run()
-		}()
+		go func(server *HTTPServer) {
+			serverErrCh <- server.Run()
+		}(server)
 	}
 
-	signalCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	signalCtx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	select {
 	case err := <-serverErrCh:
 		if err != nil {
+			srv.logger.Error(ctx, "server runtime stopped due to error", logging.WithError(err))
 			return err
 		}
 	case <-signalCtx.Done():
-		fmt.Println("shutdown signal received")
+		srv.logger.Info(ctx, "shutdown signal received")
 	}
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	return srv.Shutdown(shutdownCtx)
 }
 
 func (srv *Server) Shutdown(ctx context.Context) error {
+	srv.logger.Info(context.Background(), "server shutdown starting")
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(srv.httpServers)+1)
 
 	for _, server := range srv.httpServers {
 		wg.Add(1)
-		go func(srv *HTTPServer) {
+		go func(server *HTTPServer) {
 			defer wg.Done()
-			err := srv.Shutdown(ctx)
+			err := server.Shutdown(ctx)
 			if err != nil {
+				srv.logger.Error(ctx, "http server shutdown failed", logging.WithError(err))
 				errCh <- err
 			}
 		}(server)
@@ -77,6 +83,7 @@ func (srv *Server) Shutdown(ctx context.Context) error {
 			defer wg.Done()
 			err := srv.shutdown(ctx)
 			if err != nil {
+				srv.logger.Error(ctx, "shutdown failed", logging.WithError(err))
 				errCh <- err
 			}
 		}()
@@ -91,6 +98,6 @@ func (srv *Server) Shutdown(ctx context.Context) error {
 		}
 	}
 
-	fmt.Println("application stopped cleanly")
+	srv.logger.Info(ctx, "server shutdown complete")
 	return nil
 }

@@ -4,19 +4,35 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"net/http"
 )
 
-type ChatHandler struct{}
+var ErrEmptyMessage = errors.New("message cannot be empty")
 
-func NewChatHandler() *ChatHandler {
-	return &ChatHandler{}
+type ChatHandler struct {
+	logger logging.Logger
+}
+
+func NewChatHandler(logger logging.Logger) *ChatHandler {
+	return &ChatHandler{logger: logger}
 }
 
 func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	handler.logger.Info(
+		ctx,
+		"chat request received",
+	)
+
 	if req.Method != http.MethodPost {
+		handler.logger.Warn(
+			ctx,
+			"invalid HTTP method",
+			logging.WithField("method", req.Method),
+			logging.WithField("path", req.URL.Path),
+		)
 		network.WriteJSON(
 			w,
 			http.StatusMethodNotAllowed,
@@ -26,13 +42,25 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 	}
 
 	defer func() {
-		if err := req.Body.Close(); err != nil {
-			fmt.Println("error closing request body:", err)
+		err := req.Body.Close()
+		if err != nil {
+			handler.logger.Warn(
+				ctx,
+				"failed to close request body",
+				logging.WithError(err),
+			)
 		}
 	}()
 
 	var request ChatRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		handler.logger.Warn(
+			ctx,
+			"failed to decode chat request",
+			logging.WithField("method", req.Method),
+			logging.WithField("path", req.URL.Path),
+			logging.WithError(err),
+		)
 		network.WriteJSON(
 			w,
 			http.StatusBadRequest,
@@ -41,25 +69,33 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	response, err := handler.HandleChat(req.Context(), request)
+	response, err := handler.HandleChat(ctx, request)
 
-	statusCode := http.StatusOK
 	if err != nil {
-		status, errorResponse := handler.mapChatError(err)
+		status, errorResponse := handler.mapChatError(ctx, err)
 		network.WriteJSON(w, status, errorResponse)
 		return
 	}
 
-	network.WriteJSON(w, statusCode, response)
+	network.WriteJSON(w, http.StatusOK, response)
 }
 
-func (handler *ChatHandler) mapChatError(err error) (int, ChatResponse) {
+func (handler *ChatHandler) mapChatError(ctx context.Context, err error) (int, ChatResponse) {
 	if errors.Is(err, ErrEmptyMessage) {
+		handler.logger.Warn(
+			ctx,
+			"empty message received",
+		)
 		return http.StatusBadRequest, ChatResponse{
 			Message: "Are you shy? You didn't say anything :P",
 		}
 	}
 
+	handler.logger.Error(
+		ctx,
+		"unexpected error in chat handler",
+		logging.WithError(err),
+	)
 	return http.StatusInternalServerError, ChatResponse{
 		Message: "Something went wrong",
 	}
