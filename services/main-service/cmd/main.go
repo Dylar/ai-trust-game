@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/infra"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/services/main-service/service"
@@ -15,7 +16,8 @@ func main() {
 		logging.WithField("env", "dev"),
 	)
 
-	chatHandler := service.NewChatHandler(logger)
+	auditSink := audit.NewConsoleSink()
+	chatHandler := service.NewChatHandler(logger, auditSink)
 
 	srv := infra.NewServer(
 		logger,

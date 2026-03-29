@@ -113,17 +113,19 @@ Hard mode:
 
 ## Development phases (roughly)
 
-### Phase 1 - Service foundation (check)
+### Phase 1 - Service foundation (done)
 - simple HTTP service
 - request / response handling
 - basic routing
 - initial test setup (BDD-style)
-- minimal project structure
+- initial project infrastructure
 
-### Phase 2 - Observability & runtime
+Goa: have a working service that can receive requests and send responses, with tests in place to build on
+
+### Phase 2 - Observability & runtime (done)
 - structured logging
 - request lifecycle tracking (duration, status, path)
-- request IDs
+- request metadata
 - basic audit events
 - error classification
 
@@ -186,6 +188,7 @@ Goal: move from single service to scalable architecture
 - Docker
 - Kubernetes setup
 - basic deployment and scaling
+- terraform(?)
 
 Goal: run the system in a production-like environment
 
