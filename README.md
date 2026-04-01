@@ -13,6 +13,17 @@ Depending on how the system is built, this either works... or fails (Hopefully x
 
 ---
 
+## Why this project?
+
+Most AI demos show what models can do.
+
+This one focuses on:
+
+> what goes wrong if you design the system incorrectly
+
+---
+
+
 ## Roles
 
 - `Customer`
@@ -96,7 +107,7 @@ Hard mode:
 
 ---
 
-## Tech stack
+## Tech stack (roughly)
 
 - Go
 - Flutter (WebApp later)
@@ -113,84 +124,132 @@ Hard mode:
 
 ## Development phases (roughly)
 
-### Phase 1 - Service foundation (done)
-- simple HTTP service
-- request / response handling
-- basic routing
-- initial test setup (BDD-style)
-- initial project infrastructure
+Phase 1 - Service foundation (done)
+-	simple HTTP service
+-	request / response handling
+-	basic routing
+-	initial test setup (BDD-style)
+-	initial project infrastructure
 
-Goa: have a working service that can receive requests and send responses, with tests in place to build on
+Goal: have a working service that can receive requests and send responses, with tests in place to build on
 
-### Phase 2 - Observability & runtime (done)
-- structured logging
-- request lifecycle tracking (duration, status, path)
-- request metadata
-- basic audit events
-- error classification
+⸻
+
+Phase 2 - Observability & runtime (done)
+-	structured logging
+-	request lifecycle tracking (duration, status, path)
+-	request metadata
+-	basic audit events
+-	error classification
 
 Goal: the system should not be a black box anymore
 
-### Phase 3 - Interaction core
-- introduce interaction/request model (instead of plain chat)
-- basic validation and error handling
-- initial domain concepts (role, mode - still simple)
-- clear separation between input, processing, and output
+⸻
 
-Goal: shape the system behavior before adding AI
+Phase 3 - Session & interaction foundation
+-	introduce first domain concepts (Session, Role, Mode)
+-	add session start flow
+-	in-memory session repository
+-	move from stateless chat to stateful interaction
+-	keep chat endpoint as simple playground / baseline
 
-### Phase 4 - LLM integration
-- integrate first LLM provider (e.g. Groq)
-- simple prompt building
-- request -> LLM -> response flow
-- no trust or security logic yet
+Goal: establish server-side state and the first real game foundation
+
+⸻
+
+Phase 4 - Interaction core
+-	introduce interaction request / response model
+-	load session state from sessionId
+-	basic validation and error handling
+-	clear separation between transport, processing, and domain logic
+-	prepare claim vs. verified state handling
+
+Goal: shape the interaction flow before adding AI
+
+⸻
+
+Phase 5 - Client / UI foundation
+-	build first Flutter client
+-	start session from UI
+-	send interaction requests from UI
+-	store and reuse session state in the client
+-	validate API and flow from a real user perspective
+
+Goal: make the system usable end-to-end and expose weak spots in API and state handling
+
+⸻
+
+Phase 6 - LLM integration
+-	integrate first LLM provider (e.g. Groq)
+-	simple prompt building
+-	interaction -> LLM -> response flow
+-	no trust or security logic yet
+-	keep model usage simple and observable
 
 Goal: get AI into the system without relying on it for decisions
 
-### Phase 5 - Policy & decision layer
-- introduce roles (Customer / Employee / Admin)
-- separate user claims from system state
-- basic policy checks
-- “easy mode” behavior
+⸻
+
+Phase 7 - Policy & decision layer
+-	introduce explicit difference between user claims and verified system state
+-	basic policy checks
+-	easy mode behavior
+-	first protected / restricted information flows
+-	start moving authority away from the model
 
 Goal: start controlling what the system is allowed to do
 
-### Phase 6 - Security modes
-- implement medium and hard mode
-- stricter validation and policy enforcement
-- system becomes authoritative, not the model
-- validation layer for responses
+⸻
+
+Phase 8 - Security modes
+-	implement medium and hard mode
+-	stricter validation and policy enforcement
+-	system becomes authoritative, not the model
+-	validation / guard layer for responses
+-	compare insecure vs. secure behavior explicitly
 
 Goal: demonstrate the difference between model-driven and system-driven decisions
 
-### Phase 7 - Audit & analysis
-- enrich audit events (inputs, decisions, outcomes)
-- detect suspicious behavior (e.g. prompt injection patterns)
-- LLM-assisted analysis for complex cases
+⸻
 
-Goal: make decisions traceable and explainable
+Phase 9 - Audit & analysis
+-	enrich audit events (inputs, decisions, outcomes, session context)
+-	detect suspicious behavior (e.g. prompt injection patterns, role escalation attempts)
+-	classify known vs. unknown suspicious inputs
+-	optional LLM-assisted analysis for complex cases
 
-### Phase 8 - Multi-model / agent setup
-- support multiple LLM providers
-- different models for different roles (planner, validator, etc.)
-- interchangeable LLM layer
+Goal: make decisions traceable, explainable, and analyzable
+
+⸻
+
+Phase 10 - Multi-model / agent setup
+-	support multiple LLM providers
+-	different models for different roles (planner, validator, analyzer, etc.)
+-	interchangeable LLM layer
+-	compare behavior, cost, and model fit by responsibility
 
 Goal: decouple system behavior from a single model
 
-### Phase 9 - Service split
-- extract components into separate services
-- introduce gRPC communication
-- async communication (RabbitMQ? Proto?)
+⸻
+
+Phase 11 - Service split
+-	extract components into separate services
+-	introduce gRPC / Proto contracts where useful
+-	move repositories / adapters behind clearer boundaries
+-	optional async communication (e.g. RabbitMQ)
 
 Goal: move from single service to scalable architecture
 
-### Phase 10 - Deployment
-- Docker
-- Kubernetes setup
-- basic deployment and scaling
-- terraform(?)
+⸻
+
+Phase 12 - Deployment
+-	Docker
+-	Kubernetes setup
+-	basic deployment and scaling
+-	infrastructure as code (e.g. Terraform, if still useful)
 
 Goal: run the system in a production-like environment
+
 
 ---
 
@@ -210,15 +269,5 @@ Goal: run the system in a production-like environment
 - RAG security scenarios
 - model comparison
 - cost-aware routing
-
----
-
-## Why this project
-
-Most AI demos show what models can do.
-
-This one focuses on:
-
-> what goes wrong if you design the system incorrectly
 
 ---
