@@ -73,13 +73,13 @@ func (handler *StartSessionHandler) ServeHTTP(w http.ResponseWriter, req *http.R
 	network.WriteJSON(w, http.StatusOK, response)
 }
 
-func (handler *StartSessionHandler) handleStartSession(ctx context.Context, request StartSessionRequest) (StartSessionResponse, error) {
-	role, ok := domain.ParseRole(request.Role)
+func (handler *StartSessionHandler) handleStartSession(ctx context.Context, req StartSessionRequest) (StartSessionResponse, error) {
+	role, ok := domain.ParseRole(req.Role)
 	if !ok {
 		return StartSessionResponse{}, ErrInvalidRole
 	}
 
-	mode, ok := domain.ParseMode(request.Mode)
+	mode, ok := domain.ParseMode(req.Mode)
 	if !ok {
 		return StartSessionResponse{}, ErrInvalidMode
 	}
@@ -92,7 +92,7 @@ func (handler *StartSessionHandler) handleStartSession(ctx context.Context, requ
 	}
 
 	handler.sessionRepo.Save(sess)
-	handler.logger.Info(
+	handler.logger.Debug(
 		ctx,
 		"session started",
 		logging.WithField("session_id", sessionID),

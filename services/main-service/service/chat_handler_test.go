@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/internal/tests"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
 func TestHandleChat(t *testing.T) {
@@ -123,36 +123,17 @@ func TestHandleChat(t *testing.T) {
 				t.Fatalf("expected error %v, got %v", then.expectedError, err)
 			}
 
-			if response.Message != then.expectedMessage {
-				t.Fatalf("expected message %q, got %q", then.expectedMessage, response.Message)
-			}
-
-			if len(auditSink.Events) != then.expectedAuditCount {
-				t.Fatalf("expected %d audit events, got %d", then.expectedAuditCount, len(auditSink.Events))
-			}
+			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
+			tests.AssertEqual(t, len(auditSink.Events), then.expectedAuditCount, "unexpected number of audit events")
 
 			if then.expectedAuditCount > 0 {
 				event := auditSink.Events[0]
 
-				if event.Type != then.expectedAuditType {
-					t.Fatalf("expected audit type %q, got %q", then.expectedAuditType, event.Type)
-				}
-
-				if event.RequestID != given.requestID {
-					t.Fatalf("expected request id %q, got %q", given.requestID, event.RequestID)
-				}
-
-				if event.SessionID != given.sessionID {
-					t.Fatalf("expected session id %q, got %q", given.sessionID, event.SessionID)
-				}
-
-				if event.UserID != given.userID {
-					t.Fatalf("expected user id %q, got %q", given.userID, event.UserID)
-				}
-
-				if event.Input != given.message {
-					t.Fatalf("expected audit input %q, got %q", given.message, event.Input)
-				}
+				tests.AssertEqual(t, event.Type, then.expectedAuditType, "unexpected audit event type")
+				tests.AssertEqual(t, event.RequestID, given.requestID, "unexpected request id")
+				tests.AssertEqual(t, event.SessionID, given.sessionID, "unexpected session id")
+				tests.AssertEqual(t, event.UserID, given.userID, "unexpected user id")
+				tests.AssertEqual(t, event.Input, given.message, "unexpected audit input")
 			}
 		})
 	}

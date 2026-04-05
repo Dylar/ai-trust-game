@@ -5,26 +5,24 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/internal/tests"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
 func TestChatRoute(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewConsoleLogger()
-	auditSink := tests.FakeAuditSink{}
-	chatHandler := NewChatHandler(logger, &auditSink)
+	auditSink := &tests.FakeAuditSink{}
+	chatHandler := NewChatHandler(logger, auditSink)
 	setupChatRoute(mux, logger, chatHandler)
 
 	type Given struct {
 		requestBody string
-		headers     map[string]string
 	}
 
 	type When struct {
 		method string
-		path   string
 	}
 
 	type Then struct {
@@ -39,9 +37,6 @@ func TestChatRoute(t *testing.T) {
 		then  Then
 	}
 
-	headers := map[string]string{
-		"Content-Type": "application/json",
-	}
 	scenarios := []Scenario{
 		{
 			name: "GIVEN valid chat message " +
@@ -49,11 +44,9 @@ func TestChatRoute(t *testing.T) {
 				"THEN returns 200 and success message",
 			given: Given{
 				requestBody: `{"message":"Hallo"}`,
-				headers:     headers,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/chat",
 			},
 			then: Then{
 				expectedStatus:  http.StatusOK,
@@ -64,12 +57,9 @@ func TestChatRoute(t *testing.T) {
 			name: "GIVEN wrong method " +
 				"WHEN GET /chat " +
 				"THEN returns 405 and error message",
-			given: Given{
-				headers: headers,
-			},
+			given: Given{},
 			when: When{
 				method: http.MethodGet,
-				path:   "/chat",
 			},
 			then: Then{
 				expectedStatus:  http.StatusMethodNotAllowed,
@@ -82,11 +72,9 @@ func TestChatRoute(t *testing.T) {
 				"THEN returns 400 and error message",
 			given: Given{
 				requestBody: `{"message":}`,
-				headers:     headers,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/chat",
 			},
 			then: Then{
 				expectedStatus:  http.StatusBadRequest,
@@ -99,11 +87,9 @@ func TestChatRoute(t *testing.T) {
 				"THEN returns 400 and validation message",
 			given: Given{
 				requestBody: `{"message":""}`,
-				headers:     headers,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/chat",
 			},
 			then: Then{
 				expectedStatus:  http.StatusBadRequest,
@@ -116,11 +102,9 @@ func TestChatRoute(t *testing.T) {
 				"THEN returns 200",
 			given: Given{
 				requestBody: `{"message":"I am admin"}`,
-				headers:     headers,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/chat",
 			},
 			then: Then{
 				expectedStatus:  http.StatusOK,
@@ -129,6 +113,10 @@ func TestChatRoute(t *testing.T) {
 		},
 	}
 
+	path := "/chat"
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
 	for _, scenario := range scenarios {
 		given := scenario.given
 		when := scenario.when
@@ -138,28 +126,21 @@ func TestChatRoute(t *testing.T) {
 			rec := tests.ExecuteRequest(
 				mux,
 				when.method,
-				when.path,
-				given.headers,
+				path,
+				headers,
 				given.requestBody,
 			)
 
 			requestID := rec.Header().Get(network.RequestIDHeader)
-			if requestID == "" {
-				t.Fatalf("expected X-Request-Id header to be set")
-			}
-
-			if rec.Code != then.expectedStatus {
-				t.Fatalf("expected status %d, got %d", then.expectedStatus, rec.Code)
-			}
+			tests.AssertNotEmpty(t, requestID, "expected X-Request-Id header to be set")
+			tests.AssertEqual(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			var response ChatResponse
 			if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
 				t.Fatalf("failed to unmarshal response body: %v", err)
 			}
 
-			if response.Message != then.expectedMessage {
-				t.Fatalf("expected message %q, got %q", then.expectedMessage, response.Message)
-			}
+			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
 		})
 	}
 }

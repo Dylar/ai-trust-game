@@ -124,132 +124,133 @@ Hard mode:
 
 ## Development phases (roughly)
 
-Phase 1 - Service foundation (done)
--	simple HTTP service
--	request / response handling
--	basic routing
--	initial test setup (BDD-style)
--	initial project infrastructure
+Phase 1 — Service Foundation (Done)
+-	basic HTTP service
+-	routing and request handling
+-	project structure
+-	formatting and linting baseline
+-	initial tests
+-	basic developer workflow
 
-Goal: have a working service that can receive requests and send responses, with tests in place to build on
+Goal: establish a clean and maintainable baseline
 
 ⸻
 
-Phase 2 - Observability & runtime (done)
+Phase 2 — Observability & Runtime (Done)
 -	structured logging
--	request lifecycle tracking (duration, status, path)
+-	request lifecycle tracking
 -	request metadata
--	basic audit events
 -	error classification
+-	basic audit events
+-	simple /chat endpoint as baseline playground
 
-Goal: the system should not be a black box anymore
-
-⸻
-
-Phase 3 - Session & interaction foundation
--	introduce first domain concepts (Session, Role, Mode)
--	add session start flow
--	in-memory session repository
--	move from stateless chat to stateful interaction
--	keep chat endpoint as simple playground / baseline
-
-Goal: establish server-side state and the first real game foundation
+Goal: make runtime behavior visible and understandable
 
 ⸻
 
-Phase 4 - Interaction core
--	introduce interaction request / response model
--	load session state from sessionId
--	basic validation and error handling
--	clear separation between transport, processing, and domain logic
--	prepare claim vs. verified state handling
+Phase 3 — Session & State
+-	session model (Session, Role, Mode)
+-	session start flow
+-	in-memory repository
+-	first stateful interaction using session state
 
-Goal: shape the interaction flow before adding AI
-
-⸻
-
-Phase 5 - Client / UI foundation
--	build first Flutter client
--	start session from UI
--	send interaction requests from UI
--	store and reuse session state in the client
--	validate API and flow from a real user perspective
-
-Goal: make the system usable end-to-end and expose weak spots in API and state handling
+Goal: introduce authoritative server-side state and make interaction stateful
 
 ⸻
 
-Phase 6 - LLM integration
--	integrate first LLM provider (e.g. Groq)
--	simple prompt building
--	interaction -> LLM -> response flow
--	no trust or security logic yet
--	keep model usage simple and observable
+Phase 4 — Interaction Flow
+-	refine interaction request / response model
+-	strengthen validation and error handling
+-	separate transport, interaction logic, and later decision logic
+-	prepare interaction flow for LLM and policy integration
 
-Goal: get AI into the system without relying on it for decisions
-
-⸻
-
-Phase 7 - Policy & decision layer
--	introduce explicit difference between user claims and verified system state
--	basic policy checks
--	easy mode behavior
--	first protected / restricted information flows
--	start moving authority away from the model
-
-Goal: start controlling what the system is allowed to do
+Goal: define a clean and extensible interaction flow before adding AI
 
 ⸻
 
-Phase 8 - Security modes
--	implement medium and hard mode
--	stricter validation and policy enforcement
--	system becomes authoritative, not the model
--	validation / guard layer for responses
--	compare insecure vs. secure behavior explicitly
+Phase 5 — LLM Integration
+-	integrate first provider
+-	prompt construction
+-	provider abstraction
+-	basic model-backed interaction flow
 
-Goal: demonstrate the difference between model-driven and system-driven decisions
-
-⸻
-
-Phase 9 - Audit & analysis
--	enrich audit events (inputs, decisions, outcomes, session context)
--	detect suspicious behavior (e.g. prompt injection patterns, role escalation attempts)
--	classify known vs. unknown suspicious inputs
--	optional LLM-assisted analysis for complex cases
-
-Goal: make decisions traceable, explainable, and analyzable
+Goal: introduce AI without giving it authority
 
 ⸻
 
-Phase 10 - Multi-model / agent setup
--	support multiple LLM providers
--	different models for different roles (planner, validator, analyzer, etc.)
--	interchangeable LLM layer
--	compare behavior, cost, and model fit by responsibility
+Phase 6 — Policy & Decision Layer
+-	separate claims from verified state
+-	introduce policy checks
+-	restricted actions and protected information
 
-Goal: decouple system behavior from a single model
-
-⸻
-
-Phase 11 - Service split
--	extract components into separate services
--	introduce gRPC / Proto contracts where useful
--	move repositories / adapters behind clearer boundaries
--	optional async communication (e.g. RabbitMQ)
-
-Goal: move from single service to scalable architecture
+Goal: move control into deterministic system logic
 
 ⸻
 
-Phase 12 - Deployment
--	Docker
--	Kubernetes setup
--	basic deployment and scaling
--	infrastructure as code (e.g. Terraform, if still useful)
+Phase 7 — Security Modes
+-	easy / medium / hard modes
+-	validation and guard layers
+-	compare insecure vs secure behavior
+
+Goal: demonstrate how architecture changes system security
+
+⸻
+
+Phase 8 — Audit & Analysis
+-	enriched audit events
+-	suspicious behavior detection
+-	role escalation and prompt injection detection
+
+Goal: make decisions traceable and analyzable
+
+⸻
+
+Phase 9 — Client / UI (Flutter)
+-	build Flutter client (web first)
+-	session start and interaction flow
+-	client-side session handling
+-	visualize system behavior across modes
+
+Goal: validate system behavior through real user interaction
+
+⸻
+
+Phase 10 — Multi-Model / Agent Setup
+-	multiple providers
+-	role-specific models (planner, validator, etc.)
+-	model comparison and routing
+
+Goal: decouple responsibilities from a single model
+
+⸻
+
+Phase 11 — Service Decomposition
+-	split into services where useful
+-	introduce gRPC / Proto contracts
+-	define clear service boundaries
+
+Goal: move towards scalable architecture
+
+⸻
+
+Phase 12 — Persistence
+-	PostgreSQL integration
+-	persistent sessions
+-	audit/event storage
+
+Goal: move beyond in-memory runtime state
+
+⸻
+
+Phase 13 — Integration, Delivery & Operations
+-	integration and end-to-end tests
+-	CI/CD pipelines
+-	container builds
+-	deployment automation
+-	Docker and Kubernetes setup
+-	monitoring and alerting
 
 Goal: run the system in a production-like environment
-
 
 ---
 

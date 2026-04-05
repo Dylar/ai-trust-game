@@ -3,14 +3,14 @@ package domain
 type Role string
 
 const (
-	RoleCustomer Role = "customer"
+	RoleGuest    Role = "guest"
 	RoleEmployee Role = "employee"
 	RoleAdmin    Role = "admin"
 )
 
 func ParseRole(input string) (Role, bool) {
 	switch Role(input) {
-	case RoleCustomer,
+	case RoleGuest,
 		RoleEmployee,
 		RoleAdmin:
 		return Role(input), true

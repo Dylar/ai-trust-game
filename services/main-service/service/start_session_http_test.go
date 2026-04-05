@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/session"
-	"github.com/Dylar/ai-trust-game/internal/tests"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
 func TestStartSessionRoute(t *testing.T) {
@@ -22,20 +22,16 @@ func TestStartSessionRoute(t *testing.T) {
 
 	type Given struct {
 		requestBody string
-		headers     map[string]string
 	}
 
 	type When struct {
 		method string
-		path   string
 	}
 
 	type Then struct {
 		expectedStatus int
-		expectBody     bool
-
-		expectedRole string
-		expectedMode string
+		expectedRole   string
+		expectedMode   string
 	}
 
 	type Scenario struct {
@@ -45,27 +41,20 @@ func TestStartSessionRoute(t *testing.T) {
 		then  Then
 	}
 
-	headers := map[string]string{
-		"Content-Type": "application/json",
-	}
-
 	scenarios := []Scenario{
 		{
 			name: "GIVEN valid role and mode " +
 				"WHEN POST /session/start " +
 				"THEN returns 200 and session response",
 			given: Given{
-				requestBody: `{"role":"customer","mode":"easy"}`,
-				headers:     headers,
+				requestBody: `{"role":"guest","mode":"easy"}`,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/session/start",
 			},
 			then: Then{
 				expectedStatus: http.StatusOK,
-				expectBody:     true,
-				expectedRole:   "customer",
+				expectedRole:   "guest",
 				expectedMode:   "easy",
 			},
 		},
@@ -75,15 +64,12 @@ func TestStartSessionRoute(t *testing.T) {
 				"THEN returns 400",
 			given: Given{
 				requestBody: `{"role":"superadmin","mode":"easy"}`,
-				headers:     headers,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/session/start",
 			},
 			then: Then{
 				expectedStatus: http.StatusBadRequest,
-				expectBody:     false,
 			},
 		},
 		{
@@ -91,16 +77,13 @@ func TestStartSessionRoute(t *testing.T) {
 				"WHEN POST /session/start " +
 				"THEN returns 400",
 			given: Given{
-				requestBody: `{"role":"customer","mode":"nightmare"}`,
-				headers:     headers,
+				requestBody: `{"role":"guest","mode":"nightmare"}`,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/session/start",
 			},
 			then: Then{
 				expectedStatus: http.StatusBadRequest,
-				expectBody:     false,
 			},
 		},
 		{
@@ -108,36 +91,33 @@ func TestStartSessionRoute(t *testing.T) {
 				"WHEN POST /session/start " +
 				"THEN returns 400",
 			given: Given{
-				requestBody: `{"role":"customer","mode":}`,
-				headers:     headers,
+				requestBody: `{"role":"guest","mode":}`,
 			},
 			when: When{
 				method: http.MethodPost,
-				path:   "/session/start",
 			},
 			then: Then{
 				expectedStatus: http.StatusBadRequest,
-				expectBody:     false,
 			},
 		},
 		{
 			name: "GIVEN wrong method " +
 				"WHEN GET /session/start " +
 				"THEN returns 405",
-			given: Given{
-				headers: headers,
-			},
+			given: Given{},
 			when: When{
 				method: http.MethodGet,
-				path:   "/session/start",
 			},
 			then: Then{
 				expectedStatus: http.StatusMethodNotAllowed,
-				expectBody:     false,
 			},
 		},
 	}
 
+	path := "/session/start"
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
 	for _, scenario := range scenarios {
 		given := scenario.given
 		when := scenario.when
@@ -147,21 +127,17 @@ func TestStartSessionRoute(t *testing.T) {
 			rec := tests.ExecuteRequest(
 				mux,
 				when.method,
-				when.path,
-				given.headers,
+				path,
+				headers,
 				given.requestBody,
 			)
 
 			requestID := rec.Header().Get(network.RequestIDHeader)
-			if requestID == "" {
-				t.Fatalf("expected X-Request-Id header to be set")
-			}
+			tests.AssertNotEmpty(t, requestID, "expected X-Request-Id header to be set")
+			tests.AssertEqual(t, rec.Code, then.expectedStatus, "unexpected status code")
 
-			if rec.Code != then.expectedStatus {
-				t.Fatalf("expected status %d, got %d", then.expectedStatus, rec.Code)
-			}
-
-			if !then.expectBody {
+			hasExpectedBody := then.expectedRole != "" || then.expectedMode != ""
+			if !hasExpectedBody {
 				return
 			}
 
@@ -170,17 +146,9 @@ func TestStartSessionRoute(t *testing.T) {
 				t.Fatalf("failed to unmarshal response body: %v", err)
 			}
 
-			if response.SessionID == "" {
-				t.Fatalf("expected session id to be set")
-			}
-
-			if response.Role != then.expectedRole {
-				t.Fatalf("expected role %q, got %q", then.expectedRole, response.Role)
-			}
-
-			if response.Mode != then.expectedMode {
-				t.Fatalf("expected mode %q, got %q", then.expectedMode, response.Mode)
-			}
+			tests.AssertNotEmpty(t, response.SessionID, "expected session id")
+			tests.AssertEqual(t, response.Role, then.expectedRole, "unexpected role")
+			tests.AssertEqual(t, response.Mode, then.expectedMode, "unexpected mode")
 		})
 	}
 }

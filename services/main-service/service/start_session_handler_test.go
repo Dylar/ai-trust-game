@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"errors"
+	"github.com/Dylar/ai-trust-game/tooling/tests"
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/session"
@@ -35,21 +35,25 @@ func TestHandleStartSession(t *testing.T) {
 
 	scenarios := []Scenario{
 		{
-			name: "GIVEN valid role and mode WHEN handleStartSession is called THEN returns session response and stores session",
+			name: "GIVEN valid role and mode " +
+				"WHEN handleStartSession is called " +
+				"THEN returns session response and stores session",
 			given: Given{
-				role: "customer",
+				role: "guest",
 				mode: "easy",
 			},
 			then: Then{
 				expectedError:       nil,
 				expectResponse:      true,
-				expectedRole:        "customer",
+				expectedRole:        "guest",
 				expectedMode:        "easy",
 				expectStoredSession: true,
 			},
 		},
 		{
-			name: "GIVEN invalid role WHEN handleStartSession is called THEN returns ErrInvalidRole",
+			name: "GIVEN invalid role " +
+				"WHEN handleStartSession is called " +
+				"THEN returns ErrInvalidRole",
 			given: Given{
 				role: "superadmin",
 				mode: "easy",
@@ -61,9 +65,11 @@ func TestHandleStartSession(t *testing.T) {
 			},
 		},
 		{
-			name: "GIVEN invalid mode WHEN handleStartSession is called THEN returns ErrInvalidMode",
+			name: "GIVEN invalid mode " +
+				"WHEN handleStartSession is called " +
+				"THEN returns ErrInvalidMode",
 			given: Given{
-				role: "customer",
+				role: "guest",
 				mode: "nightmare",
 			},
 			then: Then{
@@ -89,28 +95,18 @@ func TestHandleStartSession(t *testing.T) {
 				Mode: given.mode,
 			})
 
-			if !errors.Is(err, then.expectedError) {
-				t.Fatalf("expected error %v, got %v", then.expectedError, err)
-			}
+			tests.AssertErrorIs(t, err, then.expectedError, "unexpected error")
 
 			if !then.expectResponse {
-				if response.SessionID != "" || response.Role != "" || response.Mode != "" {
-					t.Fatalf("expected empty response, got %+v", response)
-				}
+				tests.AssertEmpty(t, response.SessionID, "expected session id empty")
+				tests.AssertEmpty(t, response.Role, "expected role empty")
+				tests.AssertEmpty(t, response.Mode, "expected mode empty")
 				return
 			}
 
-			if response.SessionID == "" {
-				t.Fatalf("expected session id to be set")
-			}
-
-			if response.Role != then.expectedRole {
-				t.Fatalf("expected role %q, got %q", then.expectedRole, response.Role)
-			}
-
-			if response.Mode != then.expectedMode {
-				t.Fatalf("expected mode %q, got %q", then.expectedMode, response.Mode)
-			}
+			tests.AssertNotEmpty(t, response.SessionID, "expected session id")
+			tests.AssertEqual(t, response.Role, then.expectedRole, "unexpected role")
+			tests.AssertEqual(t, response.Mode, then.expectedMode, "unexpected mode")
 
 			sess, ok := sessionRepo.Get(response.SessionID)
 
@@ -119,13 +115,8 @@ func TestHandleStartSession(t *testing.T) {
 			}
 
 			if then.expectStoredSession {
-				if string(sess.Role) != then.expectedRole {
-					t.Fatalf("expected stored role %q, got %q", then.expectedRole, sess.Role)
-				}
-
-				if string(sess.Mode) != then.expectedMode {
-					t.Fatalf("expected stored mode %q, got %q", then.expectedMode, sess.Mode)
-				}
+				tests.AssertEqual(t, string(sess.Role), then.expectedRole, "unexpected stored role")
+				tests.AssertEqual(t, string(sess.Mode), then.expectedMode, "unexpected stored mode")
 			}
 		})
 	}

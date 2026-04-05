@@ -22,6 +22,7 @@ func main() {
 	chatHandler := service.NewChatHandler(logger, auditSink)
 	sessionRepo := session.NewInMemoryRepository()
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
+	interactionHandler := service.NewInteractionHandler(logger, sessionRepo)
 
 	srv := infra.NewServer(
 		logger,
@@ -31,7 +32,7 @@ func main() {
 					Name: "main-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler)
+						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler, interactionHandler)
 					},
 				},
 			},

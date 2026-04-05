@@ -85,7 +85,10 @@ func (handler *ChatHandler) handleChat(ctx context.Context, req ChatRequest) (Ch
 
 	handler.auditMessage(ctx, req)
 
-	handler.logger.Debug(ctx, "chat message accepted", logging.WithField("message_length", len(req.Message)))
+	handler.logger.Debug(ctx, "chat message accepted",
+		logging.WithField("message", req.Message),
+		logging.WithField("message_length", len(req.Message)),
+	)
 	return ChatResponse{
 		Message: "I could hear you, but I am shy to talk back :P",
 	}, nil
