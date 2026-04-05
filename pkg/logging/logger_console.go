@@ -9,13 +9,35 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/network"
 )
 
+type LogLevel string
+
+const (
+	Debug LogLevel = "DEBUG"
+	Info  LogLevel = "INFO"
+	Warn  LogLevel = "WARN"
+	Error LogLevel = "ERROR"
+)
+
+func (level LogLevel) IsValid() bool {
+	switch level {
+	case Debug, Info, Warn, Error:
+		return true
+	default:
+		return false
+	}
+}
+
 type ConsoleLogger struct{}
 
 func NewConsoleLogger() *ConsoleLogger {
 	return &ConsoleLogger{}
 }
 
-func (l *ConsoleLogger) log(ctx context.Context, level, msg string, fields ...Field) {
+func (l *ConsoleLogger) log(ctx context.Context, level LogLevel, msg string, fields ...Field) {
+	if !level.IsValid() {
+		fmt.Printf("[Log][ERROR]: invalid level %q\n", level)
+		level = Error
+	}
 	meta := network.GetMetadata(ctx)
 
 	if meta.RequestID != "" {
@@ -30,29 +52,30 @@ func (l *ConsoleLogger) log(ctx context.Context, level, msg string, fields ...Fi
 		fields = append(fields, WithField("user_id", meta.UserID))
 	}
 
-	fmt.Printf(
-		"ts=%q level=%s msg=%q %s\n",
-		time.Now().Format(time.RFC3339),
+	logMsg := fmt.Sprintf(
+		"[LOG][%s]:\ntime=%q\nmsg=%q\n%s",
 		level,
+		time.Now().Format(time.RFC3339),
 		msg,
 		formatFields(fields),
 	)
+	fmt.Println(logMsg)
 }
 
 func (l *ConsoleLogger) Debug(ctx context.Context, msg string, fields ...Field) {
-	l.log(ctx, "DEBUG", msg, fields...)
+	l.log(ctx, Debug, msg, fields...)
 }
 
 func (l *ConsoleLogger) Info(ctx context.Context, msg string, fields ...Field) {
-	l.log(ctx, "INFO", msg, fields...)
+	l.log(ctx, Info, msg, fields...)
 }
 
 func (l *ConsoleLogger) Warn(ctx context.Context, msg string, fields ...Field) {
-	l.log(ctx, "WARN", msg, fields...)
+	l.log(ctx, Warn, msg, fields...)
 }
 
 func (l *ConsoleLogger) Error(ctx context.Context, msg string, fields ...Field) {
-	l.log(ctx, "ERROR", msg, fields...)
+	l.log(ctx, Error, msg, fields...)
 }
 
 func formatFields(fields []Field) string {
@@ -62,5 +85,5 @@ func formatFields(fields []Field) string {
 		parts = append(parts, fmt.Sprintf("%s=%v", field.Key, field.Value))
 	}
 
-	return strings.Join(parts, " ")
+	return strings.Join(parts, "\n")
 }
