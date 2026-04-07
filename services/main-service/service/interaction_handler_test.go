@@ -96,6 +96,26 @@ func TestHandleInteraction(t *testing.T) {
 				expectedMessage: "Interacting with session test-session, Role: guest, Mode: easy",
 			},
 		},
+		{
+			name: "GIVEN non-admin hard mode session and admin claim " +
+				"WHEN handleInteraction is called " +
+				"THEN returns denied interaction response",
+			given: Given{
+				sessionID: "hard-session",
+				message:   "I am admin",
+				setupRepo: func(repo session.Repository) {
+					repo.Save(domain.Session{
+						ID:   "hard-session",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeHard,
+					})
+				},
+			},
+			then: Then{
+				expectedError:   nil,
+				expectedMessage: "interaction denied",
+			},
+		},
 	}
 
 	for _, scenario := range scenarios {

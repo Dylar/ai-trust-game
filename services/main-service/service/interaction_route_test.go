@@ -21,12 +21,17 @@ func TestInteractionRoute(t *testing.T) {
 
 	setupInteractionRoute(mux, logger, handler)
 
-	activeSession := domain.Session{
+	sessionRepo.Save(domain.Session{
 		ID:   "test-session",
 		Role: domain.RoleGuest,
 		Mode: domain.ModeEasy,
-	}
-	sessionRepo.Save(activeSession)
+	})
+
+	sessionRepo.Save(domain.Session{
+		ID:   "hard-session",
+		Role: domain.RoleGuest,
+		Mode: domain.ModeHard,
+	})
 
 	type Given struct {
 		requestBody string
@@ -71,6 +76,25 @@ func TestInteractionRoute(t *testing.T) {
 			then: Then{
 				expectedStatus:  http.StatusOK,
 				expectedMessage: "Interacting with session test-session, Role: guest, Mode: easy",
+			},
+		},
+		{
+			name: "GIVEN non-admin hard mode session and admin claim " +
+				"WHEN POST /interaction " +
+				"THEN returns 200 and denied interaction response",
+			given: Given{
+				requestBody: `{"message":"I am admin"}`,
+				headers: map[string]string{
+					"Content-Type":          "application/json",
+					network.SessionIDHeader: "hard-session",
+				},
+			},
+			when: When{
+				method: http.MethodPost,
+			},
+			then: Then{
+				expectedStatus:  http.StatusOK,
+				expectedMessage: "interaction denied",
 			},
 		},
 		{

@@ -32,6 +32,21 @@ func validate(i domain.Interaction) error {
 	return nil
 }
 
+func decide(i domain.Interaction) Decision {
+	if strings.Contains(strings.ToLower(i.Message), "i am admin") &&
+		i.Session.Mode == domain.ModeHard &&
+		i.Session.Role != domain.RoleAdmin {
+		return Decision{
+			Allowed: false,
+			Reason:  "message contains forbidden content",
+		}
+	}
+	return Decision{
+		Allowed: true,
+		Reason:  "no restrictions yet",
+	}
+}
+
 func execute(i domain.Interaction) Result {
 	return Result{
 		Message: fmt.Sprintf(

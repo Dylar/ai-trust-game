@@ -66,13 +66,33 @@ func TestProcessInteraction(t *testing.T) {
 			},
 		},
 		{
+			name: "GIVEN non-admin hard mode interaction claiming admin " +
+				"WHEN Process is called " +
+				"THEN returns denied interaction message from system source",
+			given: Given{
+				interaction: domain.Interaction{
+					Session: domain.Session{
+						ID:   "session-456",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeHard,
+					},
+					Message: "I am admin",
+				},
+			},
+			then: Then{
+				expectedMessage: "interaction denied",
+				expectedSource:  SourceSystem,
+				expectedError:   nil,
+			},
+		},
+		{
 			name: "GIVEN interaction with empty message " +
 				"WHEN Process is called " +
 				"THEN returns ErrEmptyInteractionMessage",
 			given: Given{
 				interaction: domain.Interaction{
 					Session: domain.Session{
-						ID:   "session-456",
+						ID:   "session-789",
 						Role: domain.RoleGuest,
 						Mode: domain.ModeEasy,
 					},
