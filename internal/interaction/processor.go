@@ -4,26 +4,22 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Dylar/ai-trust-game/internal/domain"
+	"strings"
 )
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
-type Source string
-
-const (
-	SourceSystem Source = "system"
-	SourceLLM    Source = "llm"
-)
-
-type Result struct {
-	Message string
-
-	Source Source
-}
-
 func Process(i domain.Interaction) (Result, error) {
 	if err := validate(i); err != nil {
 		return Result{}, err
+	}
+
+	decision := decide(i)
+	if !decision.Allowed {
+		return Result{
+			Message: "interaction denied",
+			Source:  SourceSystem,
+		}, nil
 	}
 
 	return execute(i), nil

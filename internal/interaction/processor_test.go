@@ -28,7 +28,7 @@ func TestProcessInteraction(t *testing.T) {
 		{
 			name: "GIVEN interaction with guest session " +
 				"WHEN Process is called " +
-				"THEN returns formatted interaction message",
+				"THEN returns formatted interaction message from system source",
 			given: Given{
 				interaction: domain.Interaction{
 					Session: domain.Session{
@@ -48,7 +48,7 @@ func TestProcessInteraction(t *testing.T) {
 		{
 			name: "GIVEN interaction with admin session " +
 				"WHEN Process is called " +
-				"THEN returns formatted interaction message",
+				"THEN returns formatted interaction message from system source",
 			given: Given{
 				interaction: domain.Interaction{
 					Session: domain.Session{
