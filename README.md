@@ -148,7 +148,7 @@ Goal: make runtime behavior visible and understandable
 
 ⸻
 
-Phase 3 — Session & State
+Phase 3 — Session & State (Done)
 -	session model (Session, Role, Mode)
 -	session start flow
 -	in-memory repository

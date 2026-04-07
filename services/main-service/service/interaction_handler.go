@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/internal/interaction"
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/internal/session"
@@ -14,7 +15,6 @@ import (
 
 var ErrNoSessionFound = errors.New("no session found")
 var ErrNoSessionProvided = errors.New("no session provided")
-var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type InteractionHandler struct {
 	logger      logging.Logger
@@ -61,7 +61,7 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 	if err != nil {
 		if !errors.Is(err, ErrNoSessionProvided) &&
 			!errors.Is(err, ErrNoSessionFound) &&
-			!errors.Is(err, ErrEmptyInteractionMessage) {
+			!errors.Is(err, interaction.ErrEmptyInteractionMessage) {
 			handler.logger.Error(
 				ctx,
 				"interaction failed",
@@ -78,7 +78,7 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 
 func (handler *InteractionHandler) handleInteraction(ctx context.Context, req InteractionRequest) (InteractionResponse, error) {
 	if req.Message == "" {
-		return InteractionResponse{}, ErrEmptyInteractionMessage
+		return InteractionResponse{}, interaction.ErrEmptyInteractionMessage
 	}
 
 	meta := network.GetMetadata(ctx)
@@ -101,26 +101,33 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 		logging.WithField("message_length", len(req.Message)),
 	)
 
-	response := InteractionResponse{
-		Message: fmt.Sprintf(
-			"Interacting with session %s, Role: %s, Mode: %s",
-			sess.ID,
-			sess.Role,
-			sess.Mode,
-		),
+	interactionInput := domain.Interaction{
+		Session: sess,
+		Message: req.Message,
 	}
-	return response, nil
+	result, err := interaction.Process(interactionInput)
+	if err != nil {
+		return InteractionResponse{}, err
+	}
+
+	return handler.mapToResponse(result), nil
 }
 
 func (handler *InteractionHandler) mapInteractionError(err error) (int, InteractionResponse) {
 	if errors.Is(err, ErrNoSessionProvided) {
 		return http.StatusBadRequest, InteractionResponse{}
 	}
-	if errors.Is(err, ErrEmptyInteractionMessage) {
+	if errors.Is(err, interaction.ErrEmptyInteractionMessage) {
 		return http.StatusBadRequest, InteractionResponse{}
 	}
 	if errors.Is(err, ErrNoSessionFound) {
 		return http.StatusNotFound, InteractionResponse{}
 	}
 	return http.StatusInternalServerError, InteractionResponse{}
+}
+
+func (handler *InteractionHandler) mapToResponse(result interaction.Result) InteractionResponse {
+	return InteractionResponse{
+		Message: result.Message,
+	}
 }

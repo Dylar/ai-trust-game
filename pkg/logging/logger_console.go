@@ -52,6 +52,7 @@ func (l *ConsoleLogger) log(ctx context.Context, level LogLevel, msg string, fie
 		fields = append(fields, WithField("user_id", meta.UserID))
 	}
 
+	fmt.Println("///-------\\\\\\")
 	logMsg := fmt.Sprintf(
 		"[LOG][%s]:\ntime=%q\nmsg=%q\n%s",
 		level,
@@ -60,6 +61,7 @@ func (l *ConsoleLogger) log(ctx context.Context, level LogLevel, msg string, fie
 		formatFields(fields),
 	)
 	fmt.Println(logMsg)
+	fmt.Println("\\\\\\-------///")
 }
 
 func (l *ConsoleLogger) Debug(ctx context.Context, msg string, fields ...Field) {

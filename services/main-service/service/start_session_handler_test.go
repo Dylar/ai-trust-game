@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 	"testing"
 
@@ -13,16 +14,16 @@ func TestHandleStartSession(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	type Given struct {
-		role string
-		mode string
+		role domain.Role
+		mode domain.Mode
 	}
 
 	type Then struct {
 		expectedError error
 
 		expectResponse bool
-		expectedRole   string
-		expectedMode   string
+		expectedRole   domain.Role
+		expectedMode   domain.Mode
 
 		expectStoredSession bool
 	}
@@ -39,14 +40,14 @@ func TestHandleStartSession(t *testing.T) {
 				"WHEN handleStartSession is called " +
 				"THEN returns session response and stores session",
 			given: Given{
-				role: "guest",
+				role: domain.RoleGuest,
 				mode: "easy",
 			},
 			then: Then{
 				expectedError:       nil,
 				expectResponse:      true,
-				expectedRole:        "guest",
-				expectedMode:        "easy",
+				expectedRole:        domain.RoleGuest,
+				expectedMode:        domain.ModeEasy,
 				expectStoredSession: true,
 			},
 		},
@@ -91,8 +92,8 @@ func TestHandleStartSession(t *testing.T) {
 			ctx := context.Background()
 
 			response, err := handler.handleStartSession(ctx, StartSessionRequest{
-				Role: given.role,
-				Mode: given.mode,
+				Role: string(given.role),
+				Mode: string(given.mode),
 			})
 
 			tests.AssertErrorIs(t, err, then.expectedError, "unexpected error")
@@ -105,8 +106,8 @@ func TestHandleStartSession(t *testing.T) {
 			}
 
 			tests.AssertNotEmpty(t, response.SessionID, "expected session id")
-			tests.AssertEqual(t, response.Role, then.expectedRole, "unexpected role")
-			tests.AssertEqual(t, response.Mode, then.expectedMode, "unexpected mode")
+			tests.AssertEqual(t, response.Role, string(then.expectedRole), "unexpected role")
+			tests.AssertEqual(t, response.Mode, string(then.expectedMode), "unexpected mode")
 
 			sess, ok := sessionRepo.Get(response.SessionID)
 
@@ -115,8 +116,8 @@ func TestHandleStartSession(t *testing.T) {
 			}
 
 			if then.expectStoredSession {
-				tests.AssertEqual(t, string(sess.Role), then.expectedRole, "unexpected stored role")
-				tests.AssertEqual(t, string(sess.Mode), then.expectedMode, "unexpected stored mode")
+				tests.AssertEqual(t, string(sess.Role), string(then.expectedRole), "unexpected stored role")
+				tests.AssertEqual(t, string(sess.Mode), string(then.expectedMode), "unexpected stored mode")
 			}
 		})
 	}

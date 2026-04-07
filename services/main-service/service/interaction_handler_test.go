@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
-	"github.com/Dylar/ai-trust-game/pkg/network"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/internal/interaction"
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/session"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
+	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
 func TestHandleInteraction(t *testing.T) {
@@ -60,7 +61,7 @@ func TestHandleInteraction(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedError: ErrEmptyInteractionMessage,
+				expectedError: interaction.ErrEmptyInteractionMessage,
 			},
 		},
 		{
