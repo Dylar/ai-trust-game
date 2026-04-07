@@ -158,7 +158,7 @@ Goal: introduce authoritative server-side state and make interaction stateful
 
 ⸻
 
-Phase 4 — Interaction Flow
+Phase 4 — Interaction Flow (Done)
 -	refine interaction request / response model
 -	strengthen validation and error handling
 -	separate transport, interaction logic, and later decision logic
@@ -168,31 +168,33 @@ Goal: define a clean and extensible interaction flow before adding AI
 
 ⸻
 
-Phase 5 — LLM Integration
--	integrate first provider
--	prompt construction
--	provider abstraction
--	basic model-backed interaction flow
-
-Goal: introduce AI without giving it authority
-
-⸻
-
-Phase 6 — Policy & Decision Layer
+Phase 5 — Policy & Decision Layer
 -	separate claims from verified state
 -	introduce policy checks
--	restricted actions and protected information
+-	model restricted actions and protected information
+-	make decisions explicit and testable
 
 Goal: move control into deterministic system logic
 
 ⸻
 
-Phase 7 — Security Modes
--	easy / medium / hard modes
--	validation and guard layers
--	compare insecure vs secure behavior
+Phase 6 — Security Modes
+-	introduce easy / medium / hard modes
+-	vary validation and enforcement by mode
+-	compare permissive vs. strict system behavior
+-	prepare guard and validation points for later model output
 
 Goal: demonstrate how architecture changes system security
+
+⸻
+
+Phase 7 — LLM Integration
+-	place model calls into the existing interaction flow
+-	provider abstraction
+-	prompt construction
+-	integrate first provider
+
+Goal: introduce AI into a controlled and observable system without giving it authority
 
 ⸻
 
