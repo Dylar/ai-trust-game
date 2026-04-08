@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Dylar/ai-trust-game/internal/interaction"
 	"log"
 	"net/http"
 
@@ -20,9 +21,12 @@ func main() {
 
 	auditSink := audit.NewConsoleSink()
 	chatHandler := service.NewChatHandler(logger, auditSink)
+
 	sessionRepo := session.NewInMemoryRepository()
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
-	interactionHandler := service.NewInteractionHandler(logger, sessionRepo)
+
+	processor := interaction.NewProcessor(interaction.DefaultPolicyResolver{})
+	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
 
 	srv := infra.NewServer(
 		logger,

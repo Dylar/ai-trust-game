@@ -184,7 +184,8 @@ func TestHandleInteraction(t *testing.T) {
 
 		t.Run(scenario.name, func(t *testing.T) {
 			repo := session.NewInMemoryRepository()
-			handler := NewInteractionHandler(logger, repo)
+			processor := interaction.NewProcessor(interaction.DefaultPolicyResolver{})
+			handler := NewInteractionHandler(logger, repo, processor)
 
 			if given.setupRepo != nil {
 				given.setupRepo(repo)

@@ -9,7 +9,17 @@ import (
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
-func Process(interaction domain.Interaction) (Result, error) {
+type Processor struct {
+	policyResolver PolicyResolver
+}
+
+func NewProcessor(policyResolver PolicyResolver) Processor {
+	return Processor{
+		policyResolver: policyResolver,
+	}
+}
+
+func (processor Processor) Process(interaction domain.Interaction) (Result, error) {
 	if err := validate(interaction); err != nil {
 		return Result{}, err
 	}
@@ -18,7 +28,7 @@ func Process(interaction domain.Interaction) (Result, error) {
 	claims := detectClaims(interaction.Message)
 
 	sess := interaction.Session
-	policy := PolicyFor(sess.Mode)
+	policy := processor.policyResolver.PolicyFor(sess.Mode)
 	decision := policy.Decide(DecisionInput{
 		Session: sess,
 		Claims:  claims,

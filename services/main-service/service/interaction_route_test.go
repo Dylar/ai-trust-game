@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/Dylar/ai-trust-game/internal/interaction"
 	"net/http"
 	"testing"
 
@@ -17,7 +18,8 @@ func TestInteractionRoute(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	sessionRepo := session.NewInMemoryRepository()
-	handler := NewInteractionHandler(logger, sessionRepo)
+	processor := interaction.NewProcessor(interaction.DefaultPolicyResolver{})
+	handler := NewInteractionHandler(logger, sessionRepo, processor)
 
 	setupInteractionRoute(mux, logger, handler)
 

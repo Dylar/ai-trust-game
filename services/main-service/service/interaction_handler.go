@@ -19,15 +19,18 @@ var ErrNoSessionProvided = errors.New("no session provided")
 type InteractionHandler struct {
 	logger      logging.Logger
 	sessionRepo session.Repository
+	processor   interaction.Processor
 }
 
 func NewInteractionHandler(
 	logger logging.Logger,
 	sessionRepo session.Repository,
+	processor interaction.Processor,
 ) *InteractionHandler {
 	return &InteractionHandler{
 		logger:      logger,
 		sessionRepo: sessionRepo,
+		processor:   processor,
 	}
 }
 
@@ -105,7 +108,7 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 		Session: sess,
 		Message: req.Message,
 	}
-	result, err := interaction.Process(interactionInput)
+	result, err := handler.processor.Process(interactionInput)
 	if err != nil {
 		return InteractionResponse{}, err
 	}

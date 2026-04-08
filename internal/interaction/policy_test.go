@@ -77,7 +77,7 @@ func TestPolicyFor(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			policy := PolicyFor(given.mode)
+			policy := DefaultPolicyResolver{}.PolicyFor(given.mode)
 			then.assertPolicy(t, policy)
 		})
 	}
