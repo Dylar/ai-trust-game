@@ -13,7 +13,7 @@ const route = "/session/start"
 
 func main() {
 	url := flag.String("url", scripts2.BaseURL(), "base URL of the service")
-	role := flag.String("role", "guest", "role (guest | customer | employee | admin)")
+	role := flag.String("role", "guest", "role (guest | employee | admin)")
 	mode := flag.String("mode", "easy", "mode (easy | medium | hard)")
 	flag.Parse()
 

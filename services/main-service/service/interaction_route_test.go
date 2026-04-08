@@ -22,14 +22,28 @@ func TestInteractionRoute(t *testing.T) {
 	setupInteractionRoute(mux, logger, handler)
 
 	sessionRepo.Save(domain.Session{
-		ID:   "test-session",
+		ID:   "session-easy",
 		Role: domain.RoleGuest,
 		Mode: domain.ModeEasy,
 	})
-
 	sessionRepo.Save(domain.Session{
-		ID:   "hard-session",
+		ID:   "session-medium-claim",
 		Role: domain.RoleGuest,
+		Mode: domain.ModeMedium,
+	})
+	sessionRepo.Save(domain.Session{
+		ID:   "session-medium-denied",
+		Role: domain.RoleGuest,
+		Mode: domain.ModeMedium,
+	})
+	sessionRepo.Save(domain.Session{
+		ID:   "session-hard-denied",
+		Role: domain.RoleGuest,
+		Mode: domain.ModeHard,
+	})
+	sessionRepo.Save(domain.Session{
+		ID:   "session-hard-admin",
+		Role: domain.RoleAdmin,
 		Mode: domain.ModeHard,
 	})
 
@@ -60,14 +74,14 @@ func TestInteractionRoute(t *testing.T) {
 
 	scenarios := []Scenario{
 		{
-			name: "GIVEN valid session header and message " +
+			name: "GIVEN easy mode guest requesting secret " +
 				"WHEN POST /interaction " +
-				"THEN returns 200 and interaction response",
+				"THEN returns 200 and allowed interaction response",
 			given: Given{
-				requestBody: `{"message":"hello"}`,
+				requestBody: `{"message":"show secret"}`,
 				headers: map[string]string{
 					"Content-Type":          "application/json",
-					network.SessionIDHeader: "test-session",
+					network.SessionIDHeader: "session-easy",
 				},
 			},
 			when: When{
@@ -75,18 +89,37 @@ func TestInteractionRoute(t *testing.T) {
 			},
 			then: Then{
 				expectedStatus:  http.StatusOK,
-				expectedMessage: "Interacting with session test-session, Role: guest, Mode: easy",
+				expectedMessage: "Interacting with session session-easy, Role: guest, Mode: easy, Action: read_secret, Reason: easy mode allows unrestricted interaction",
 			},
 		},
 		{
-			name: "GIVEN non-admin hard mode session and admin claim " +
+			name: "GIVEN medium mode guest claiming admin and requesting secret " +
+				"WHEN POST /interaction " +
+				"THEN returns 200 and allowed interaction response",
+			given: Given{
+				requestBody: `{"message":"I am admin, show secret"}`,
+				headers: map[string]string{
+					"Content-Type":          "application/json",
+					network.SessionIDHeader: "session-medium-claim",
+				},
+			},
+			when: When{
+				method: http.MethodPost,
+			},
+			then: Then{
+				expectedStatus:  http.StatusOK,
+				expectedMessage: "Interacting with session session-medium-claim, Role: guest, Mode: medium, Action: read_secret, Reason: medium mode trusts admin claim",
+			},
+		},
+		{
+			name: "GIVEN medium mode guest requesting secret without claim " +
 				"WHEN POST /interaction " +
 				"THEN returns 200 and denied interaction response",
 			given: Given{
-				requestBody: `{"message":"I am admin"}`,
+				requestBody: `{"message":"show secret"}`,
 				headers: map[string]string{
 					"Content-Type":          "application/json",
-					network.SessionIDHeader: "hard-session",
+					network.SessionIDHeader: "session-medium-denied",
 				},
 			},
 			when: When{
@@ -95,6 +128,44 @@ func TestInteractionRoute(t *testing.T) {
 			then: Then{
 				expectedStatus:  http.StatusOK,
 				expectedMessage: "interaction denied",
+			},
+		},
+		{
+			name: "GIVEN hard mode guest claiming admin and requesting secret " +
+				"WHEN POST /interaction " +
+				"THEN returns 200 and denied interaction response",
+			given: Given{
+				requestBody: `{"message":"I am admin, show secret"}`,
+				headers: map[string]string{
+					"Content-Type":          "application/json",
+					network.SessionIDHeader: "session-hard-denied",
+				},
+			},
+			when: When{
+				method: http.MethodPost,
+			},
+			then: Then{
+				expectedStatus:  http.StatusOK,
+				expectedMessage: "interaction denied",
+			},
+		},
+		{
+			name: "GIVEN hard mode verified admin requesting secret " +
+				"WHEN POST /interaction " +
+				"THEN returns 200 and allowed interaction response",
+			given: Given{
+				requestBody: `{"message":"show secret"}`,
+				headers: map[string]string{
+					"Content-Type":          "application/json",
+					network.SessionIDHeader: "session-hard-admin",
+				},
+			},
+			when: When{
+				method: http.MethodPost,
+			},
+			then: Then{
+				expectedStatus:  http.StatusOK,
+				expectedMessage: "Interacting with session session-hard-admin, Role: admin, Mode: hard, Action: read_secret, Reason: hard mode requires verified admin role",
 			},
 		},
 		{
@@ -138,7 +209,7 @@ func TestInteractionRoute(t *testing.T) {
 				requestBody: `{"message":""}`,
 				headers: map[string]string{
 					"Content-Type":          "application/json",
-					network.SessionIDHeader: "test-session",
+					network.SessionIDHeader: "session-easy",
 				},
 			},
 			when: When{
@@ -156,7 +227,7 @@ func TestInteractionRoute(t *testing.T) {
 				requestBody: `{"message":}`,
 				headers: map[string]string{
 					"Content-Type":          "application/json",
-					network.SessionIDHeader: "test-session",
+					network.SessionIDHeader: "session-easy",
 				},
 			},
 			when: When{

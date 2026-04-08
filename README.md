@@ -26,7 +26,7 @@ This one focuses on:
 
 ## Roles
 
-- `Customer`
+- `Guest`
 - `Employee`
 - `Admin`
 

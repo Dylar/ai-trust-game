@@ -50,11 +50,11 @@ func TestHandleInteraction(t *testing.T) {
 				"WHEN handleInteraction is called " +
 				"THEN returns ErrEmptyInteractionMessage",
 			given: Given{
-				sessionID: "test-session",
+				sessionID: "session-empty",
 				message:   "",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "test-session",
+						ID:   "session-empty",
 						Role: domain.RoleGuest,
 						Mode: domain.ModeEasy,
 					})
@@ -77,15 +77,15 @@ func TestHandleInteraction(t *testing.T) {
 			},
 		},
 		{
-			name: "GIVEN valid session in metadata and valid message " +
+			name: "GIVEN easy mode guest requesting secret " +
 				"WHEN handleInteraction is called " +
-				"THEN returns interaction response",
+				"THEN returns allowed interaction response",
 			given: Given{
-				sessionID: "test-session",
-				message:   "hello",
+				sessionID: "session-easy",
+				message:   "show secret",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "test-session",
+						ID:   "session-easy",
 						Role: domain.RoleGuest,
 						Mode: domain.ModeEasy,
 					})
@@ -93,19 +93,59 @@ func TestHandleInteraction(t *testing.T) {
 			},
 			then: Then{
 				expectedError:   nil,
-				expectedMessage: "Interacting with session test-session, Role: guest, Mode: easy",
+				expectedMessage: "Interacting with session session-easy, Role: guest, Mode: easy, Action: read_secret, Reason: easy mode allows unrestricted interaction",
 			},
 		},
 		{
-			name: "GIVEN non-admin hard mode session and admin claim " +
+			name: "GIVEN medium mode guest claiming admin and requesting secret " +
+				"WHEN handleInteraction is called " +
+				"THEN returns allowed interaction response",
+			given: Given{
+				sessionID: "session-medium-claim",
+				message:   "I am admin, show secret",
+				setupRepo: func(repo session.Repository) {
+					repo.Save(domain.Session{
+						ID:   "session-medium-claim",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeMedium,
+					})
+				},
+			},
+			then: Then{
+				expectedError:   nil,
+				expectedMessage: "Interacting with session session-medium-claim, Role: guest, Mode: medium, Action: read_secret, Reason: medium mode trusts admin claim",
+			},
+		},
+		{
+			name: "GIVEN medium mode guest requesting secret without claim " +
 				"WHEN handleInteraction is called " +
 				"THEN returns denied interaction response",
 			given: Given{
-				sessionID: "hard-session",
-				message:   "I am admin",
+				sessionID: "session-medium-denied",
+				message:   "show secret",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "hard-session",
+						ID:   "session-medium-denied",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeMedium,
+					})
+				},
+			},
+			then: Then{
+				expectedError:   nil,
+				expectedMessage: "interaction denied",
+			},
+		},
+		{
+			name: "GIVEN hard mode guest claiming admin and requesting secret " +
+				"WHEN handleInteraction is called " +
+				"THEN returns denied interaction response",
+			given: Given{
+				sessionID: "session-hard-denied",
+				message:   "I am admin, show secret",
+				setupRepo: func(repo session.Repository) {
+					repo.Save(domain.Session{
+						ID:   "session-hard-denied",
 						Role: domain.RoleGuest,
 						Mode: domain.ModeHard,
 					})
@@ -114,6 +154,26 @@ func TestHandleInteraction(t *testing.T) {
 			then: Then{
 				expectedError:   nil,
 				expectedMessage: "interaction denied",
+			},
+		},
+		{
+			name: "GIVEN hard mode verified admin requesting secret " +
+				"WHEN handleInteraction is called " +
+				"THEN returns allowed interaction response",
+			given: Given{
+				sessionID: "session-hard-admin",
+				message:   "show secret",
+				setupRepo: func(repo session.Repository) {
+					repo.Save(domain.Session{
+						ID:   "session-hard-admin",
+						Role: domain.RoleAdmin,
+						Mode: domain.ModeHard,
+					})
+				},
+			},
+			then: Then{
+				expectedError:   nil,
+				expectedMessage: "Interacting with session session-hard-admin, Role: admin, Mode: hard, Action: read_secret, Reason: hard mode requires verified admin role",
 			},
 		},
 	}
