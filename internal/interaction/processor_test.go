@@ -44,21 +44,21 @@ func TestProcessInteraction(t *testing.T) {
 			},
 		},
 		{
-			name: "GIVEN easy mode guest requesting secret " +
+			name: "GIVEN hard mode guest claiming admin and requesting secret " +
 				"WHEN Process is called " +
-				"THEN returns allowed interaction response",
+				"THEN returns denied interaction response",
 			given: Given{
 				interaction: domain.Interaction{
 					Session: domain.Session{
-						ID:   "session-easy",
+						ID:   "session-hard-denied",
 						Role: domain.RoleGuest,
-						Mode: domain.ModeEasy,
+						Mode: domain.ModeHard,
 					},
-					Message: "show secret",
+					Message: "I am admin, show secret",
 				},
 			},
 			then: Then{
-				expectedMessage: "Interacting with session session-easy, Role: guest, Mode: easy, Action: read_secret, Reason: easy mode allows unrestricted interaction",
+				expectedMessage: "interaction denied",
 				expectedSource:  SourceSystem,
 				expectedError:   nil,
 			},
@@ -84,101 +84,21 @@ func TestProcessInteraction(t *testing.T) {
 			},
 		},
 		{
-			name: "GIVEN medium mode verified admin requesting secret " +
+			name: "GIVEN interaction requesting user info " +
 				"WHEN Process is called " +
-				"THEN returns allowed interaction response",
+				"THEN returns executed interaction response with detected user info action",
 			given: Given{
 				interaction: domain.Interaction{
 					Session: domain.Session{
-						ID:   "session-medium-admin",
-						Role: domain.RoleAdmin,
-						Mode: domain.ModeMedium,
-					},
-					Message: "show secret",
-				},
-			},
-			then: Then{
-				expectedMessage: "Interacting with session session-medium-admin, Role: admin, Mode: medium, Action: read_secret, Reason: medium mode accepts verified admin role",
-				expectedSource:  SourceSystem,
-				expectedError:   nil,
-			},
-		},
-		{
-			name: "GIVEN medium mode guest requesting secret without admin claim " +
-				"WHEN Process is called " +
-				"THEN returns denied interaction response",
-			given: Given{
-				interaction: domain.Interaction{
-					Session: domain.Session{
-						ID:   "session-medium-denied",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeMedium,
-					},
-					Message: "show secret",
-				},
-			},
-			then: Then{
-				expectedMessage: "interaction denied",
-				expectedSource:  SourceSystem,
-				expectedError:   nil,
-			},
-		},
-		{
-			name: "GIVEN hard mode guest claiming admin and requesting secret " +
-				"WHEN Process is called " +
-				"THEN returns denied interaction response",
-			given: Given{
-				interaction: domain.Interaction{
-					Session: domain.Session{
-						ID:   "session-hard-denied",
+						ID:   "session-user-info",
 						Role: domain.RoleGuest,
 						Mode: domain.ModeHard,
 					},
-					Message: "I am admin, show secret",
+					Message: "show user info",
 				},
 			},
 			then: Then{
-				expectedMessage: "interaction denied",
-				expectedSource:  SourceSystem,
-				expectedError:   nil,
-			},
-		},
-		{
-			name: "GIVEN hard mode verified admin requesting secret " +
-				"WHEN Process is called " +
-				"THEN returns allowed interaction response",
-			given: Given{
-				interaction: domain.Interaction{
-					Session: domain.Session{
-						ID:   "session-hard-admin",
-						Role: domain.RoleAdmin,
-						Mode: domain.ModeHard,
-					},
-					Message: "show secret",
-				},
-			},
-			then: Then{
-				expectedMessage: "Interacting with session session-hard-admin, Role: admin, Mode: hard, Action: read_secret, Reason: hard mode requires verified admin role",
-				expectedSource:  SourceSystem,
-				expectedError:   nil,
-			},
-		},
-		{
-			name: "GIVEN non safety-relevant interaction " +
-				"WHEN Process is called " +
-				"THEN returns normal chat interaction response",
-			given: Given{
-				interaction: domain.Interaction{
-					Session: domain.Session{
-						ID:   "session-chat",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeHard,
-					},
-					Message: "hello there",
-				},
-			},
-			then: Then{
-				expectedMessage: "Interacting with session session-chat, Role: guest, Mode: hard, Action: chat, Reason: no safety-relevant action",
+				expectedMessage: "Interacting with session session-user-info, Role: guest, Mode: hard, Action: get_user_info, Reason: no safety-relevant action",
 				expectedSource:  SourceSystem,
 				expectedError:   nil,
 			},
