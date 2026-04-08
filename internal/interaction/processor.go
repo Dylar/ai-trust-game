@@ -18,7 +18,12 @@ func Process(interaction domain.Interaction) (Result, error) {
 	claims := detectClaims(interaction.Message)
 
 	sess := interaction.Session
-	decision := decide(sess, action, claims)
+	policy := PolicyFor(sess.Mode)
+	decision := policy.Decide(DecisionInput{
+		Session: sess,
+		Claims:  claims,
+		Action:  action,
+	})
 	if !decision.Allowed {
 		return Result{
 			Message: "interaction denied",
@@ -43,6 +48,13 @@ func detectAction(message string) domain.Action {
 		strings.Contains(message, "read admin secret") {
 		return domain.ActionReadSecret
 	}
+
+	if strings.Contains(message, "show user info") ||
+		strings.Contains(message, "give me info about") ||
+		strings.Contains(message, "do you know user") {
+		return domain.ActionGetUserInfo
+	}
+
 	return domain.ActionChat
 }
 
@@ -53,45 +65,6 @@ func detectClaims(message string) domain.Claims {
 		return domain.Claims{Role: domain.RoleAdmin}
 	}
 	return domain.Claims{}
-}
-
-func decide(sess domain.Session, action domain.Action, claims domain.Claims) Decision {
-	if sess.Mode == domain.ModeEasy {
-		return decideEasyMode()
-	}
-	if sess.Mode == domain.ModeMedium {
-		return decideMediumMode(sess, action, claims)
-	}
-	return decideHardMode(sess, action)
-}
-
-func decideEasyMode() Decision {
-	return Decision{Allowed: true, Reason: "easy mode allows unrestricted interaction"}
-}
-
-func decideMediumMode(sess domain.Session, action domain.Action, claims domain.Claims) Decision {
-	if action == domain.ActionReadSecret {
-		if claims.Role == domain.RoleAdmin {
-			return Decision{Allowed: true, Reason: "medium mode trusts admin claim"}
-		}
-		if sess.Role == domain.RoleAdmin {
-			return Decision{Allowed: true, Reason: "medium mode accepts verified admin role"}
-		}
-		return Decision{Allowed: false, Reason: "medium mode denied non-admin secret access"}
-	}
-
-	return Decision{Allowed: true, Reason: "no safety-relevant action"}
-}
-
-func decideHardMode(sess domain.Session, action domain.Action) Decision {
-	if action == domain.ActionReadSecret {
-		if sess.Role == domain.RoleAdmin {
-			return Decision{Allowed: true, Reason: "hard mode requires verified admin role"}
-		}
-		return Decision{Allowed: false, Reason: "hard mode denied non-admin secret access"}
-	}
-
-	return Decision{Allowed: true, Reason: "no safety-relevant action"}
 }
 
 func execute(i domain.Interaction, action domain.Action, reason string) Result {
