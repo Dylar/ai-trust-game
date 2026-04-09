@@ -11,14 +11,16 @@ type Processor struct {
 	policyResolver  PolicyResolver
 	planner         Planner
 	executor        Executor
+	stateUpdater    StateUpdater
 	responseBuilder ResponseBuilder
 }
 
-func NewProcessor(policyResolver PolicyResolver, planner Planner, executor Executor, responseBuilder ResponseBuilder) Processor {
+func NewProcessor(policyResolver PolicyResolver, planner Planner, executor Executor, stateUpdater StateUpdater, responseBuilder ResponseBuilder) Processor {
 	return Processor{
 		policyResolver:  policyResolver,
 		planner:         planner,
 		executor:        executor,
+		stateUpdater:    stateUpdater,
 		responseBuilder: responseBuilder,
 	}
 }
@@ -59,12 +61,24 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 		return Result{}, err
 	}
 
-	return processor.responseBuilder.Build(ResponseInput{
+	updatedSession, updated := processor.stateUpdater.Update(StateUpdateInput{
+		Session:   sess,
+		Plan:      plan,
+		Decision:  decision,
+		Execution: execution,
+	})
+
+	result := processor.responseBuilder.Build(ResponseInput{
 		Interaction: interaction,
 		Plan:        plan,
 		Decision:    decision,
 		Execution:   execution,
-	}), nil
+	})
+	if updated {
+		result.UpdatedSession = &updatedSession
+	}
+
+	return result, nil
 }
 
 func validate(interaction domain.Interaction) error {

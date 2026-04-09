@@ -112,6 +112,9 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 	if err != nil {
 		return InteractionResponse{}, err
 	}
+	if result.UpdatedSession != nil {
+		handler.sessionRepo.Save(*result.UpdatedSession)
+	}
 
 	return handler.mapToResponse(result), nil
 }

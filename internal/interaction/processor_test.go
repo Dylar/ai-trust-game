@@ -50,6 +50,7 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					stubPlanner{},
 					stubExecutor{},
+					stubStateUpdater{},
 					stubResponseBuilder{},
 				),
 			},
@@ -91,6 +92,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					stubExecutor{},
+					stubStateUpdater{},
 					stubResponseBuilder{},
 				),
 			},
@@ -134,6 +136,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					stubExecutor{},
+					stubStateUpdater{},
 					stubResponseBuilder{
 						result: Result{
 							Message: "allowed interaction response from stub response builder",
@@ -181,6 +184,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					stubExecutor{},
+					stubStateUpdater{},
 					stubResponseBuilder{
 						result: Result{
 							Message: "user info response from stub response builder",
@@ -221,6 +225,7 @@ func TestProcessInteraction(t *testing.T) {
 						err: errStubPlanner,
 					},
 					stubExecutor{},
+					stubStateUpdater{},
 					stubResponseBuilder{},
 				),
 			},
@@ -263,6 +268,7 @@ func TestProcessInteraction(t *testing.T) {
 					stubExecutor{
 						err: errStubExecutor,
 					},
+					stubStateUpdater{},
 					stubResponseBuilder{},
 				),
 			},
@@ -393,7 +399,8 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 					Source:  SourceSystem,
 				},
 			}
-			processor := NewProcessor(resolver, planner, executor, responseBuilder)
+			stateUpdater := &spyStateUpdater{}
+			processor := NewProcessor(resolver, planner, executor, stateUpdater, responseBuilder)
 
 			_, err := processor.Process(given.interaction)
 
@@ -405,7 +412,62 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 			tests.AssertEqual(t, policy.lastInput.Session.ID, given.interaction.Session.ID, "unexpected session passed to policy")
 			tests.AssertEqual(t, policy.lastInput.Session.Settings.Mode, given.interaction.Session.Settings.Mode, "unexpected session mode passed to policy")
 			tests.AssertEqual(t, executor.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to executor")
+			tests.AssertEqual(t, stateUpdater.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to state updater")
 			tests.AssertEqual(t, responseBuilder.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to response builder")
 		})
 	}
+}
+
+func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
+	session := domain.Session{
+		ID: "session-updated",
+		Settings: domain.GameSettings{
+			Role: domain.RoleGuest,
+			Mode: domain.ModeMedium,
+		},
+		State: domain.GameState{
+			TrustedRole: domain.RoleGuest,
+		},
+	}
+
+	updatedSession := session
+	updatedSession.State.TrustedRole = domain.RoleEmployee
+
+	processor := NewProcessor(
+		stubPolicyResolver{
+			policy: stubPolicy{
+				decision: Decision{
+					Allowed: true,
+					Reason:  "allowed by stub policy",
+				},
+			},
+		},
+		stubPlanner{
+			plan: Plan{
+				Action: domain.ActionReadUserProfile,
+			},
+		},
+		stubExecutor{},
+		stubStateUpdater{
+			session: updatedSession,
+			updated: true,
+		},
+		stubResponseBuilder{
+			result: Result{
+				Message: "response with updated session",
+				Source:  SourceSystem,
+			},
+		},
+	)
+
+	result, err := processor.Process(domain.Interaction{
+		Session: session,
+		Message: "show user profile",
+	})
+
+	tests.AssertErrorIs(t, err, nil, "unexpected error")
+	if result.UpdatedSession == nil {
+		t.Fatalf("expected updated session")
+	}
+	tests.AssertEqual(t, result.UpdatedSession.State.TrustedRole, domain.RoleEmployee, "unexpected updated trusted role")
 }

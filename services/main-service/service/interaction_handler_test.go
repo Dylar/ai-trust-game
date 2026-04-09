@@ -17,8 +17,9 @@ func TestHandleInteraction(t *testing.T) {
 	policyResolver := interaction.DefaultPolicyResolver{}
 	planner := interaction.StaticPlanner{}
 	executor := interaction.StaticExecutor{}
+	stateUpdater := interaction.StaticStateUpdater{}
 	responseBuilder := interaction.StaticResponseBuilder{}
-	processor := interaction.NewProcessor(policyResolver, planner, executor, responseBuilder)
+	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseBuilder)
 
 	type Given struct {
 		sessionID string
@@ -243,4 +244,45 @@ func TestHandleInteraction(t *testing.T) {
 			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
 		})
 	}
+}
+
+func TestHandleInteraction_PersistsUpdatedSessionState(t *testing.T) {
+	logger := logging.NewConsoleLogger()
+	repo := session.NewInMemoryRepository()
+
+	sess := domain.Session{
+		ID: "session-trust-update",
+		Settings: domain.GameSettings{
+			Role: domain.RoleGuest,
+			Mode: domain.ModeMedium,
+		},
+		State: domain.GameState{
+			TrustedRole: domain.RoleGuest,
+		},
+	}
+	repo.Save(sess)
+
+	policyResolver := interaction.DefaultPolicyResolver{}
+	planner := interaction.StaticPlanner{}
+	executor := interaction.StaticExecutor{}
+	stateUpdater := interaction.StaticStateUpdater{}
+	responseBuilder := interaction.StaticResponseBuilder{}
+	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseBuilder)
+	handler := NewInteractionHandler(logger, repo, processor)
+
+	ctx := network.WithMetadata(context.Background(), network.Metadata{
+		SessionID: sess.ID,
+	})
+
+	_, err := handler.handleInteraction(ctx, InteractionRequest{
+		Message: "I am an employee, show user profile",
+	})
+
+	tests.AssertErrorIs(t, err, nil, "unexpected error")
+
+	updatedSession, found := repo.Get(sess.ID)
+	if !found {
+		t.Fatalf("expected updated session")
+	}
+	tests.AssertEqual(t, updatedSession.State.TrustedRole, domain.RoleEmployee, "unexpected persisted trusted role")
 }

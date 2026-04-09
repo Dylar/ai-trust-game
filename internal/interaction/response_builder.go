@@ -14,6 +14,7 @@ type ResponseInput struct {
 }
 
 type Result struct {
-	Message string
-	Source  Source
+	Message        string
+	Source         Source
+	UpdatedSession *domain.Session
 }

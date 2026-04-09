@@ -28,8 +28,9 @@ func main() {
 	policyResolver := interaction.DefaultPolicyResolver{}
 	planner := interaction.StaticPlanner{}
 	executor := interaction.StaticExecutor{}
+	stateUpdater := interaction.StaticStateUpdater{}
 	responseBuilder := interaction.StaticResponseBuilder{}
-	processor := interaction.NewProcessor(policyResolver, planner, executor, responseBuilder)
+	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseBuilder)
 	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
 
 	srv := infra.NewServer(
