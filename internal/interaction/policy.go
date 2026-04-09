@@ -1,7 +1,6 @@
 package interaction
 
 import (
-	"errors"
 	"fmt"
 	"github.com/Dylar/ai-trust-game/internal/domain"
 )
@@ -31,5 +30,5 @@ func (DefaultPolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	case domain.ModeHard:
 		return PolicyHard{}, nil
 	}
-	return nil, errors.New(fmt.Sprintf("unknown policy mode %v", mode))
+	return nil, fmt.Errorf("unknown policy mode %v", mode)
 }
