@@ -14,6 +14,8 @@ import (
 
 func TestHandleInteraction(t *testing.T) {
 	logger := logging.NewConsoleLogger()
+	policyResolver := interaction.DefaultPolicyResolver{}
+	processor := interaction.NewProcessor(policyResolver)
 
 	type Given struct {
 		sessionID string
@@ -184,7 +186,6 @@ func TestHandleInteraction(t *testing.T) {
 
 		t.Run(scenario.name, func(t *testing.T) {
 			repo := session.NewInMemoryRepository()
-			processor := interaction.NewProcessor(interaction.DefaultPolicyResolver{})
 			handler := NewInteractionHandler(logger, repo, processor)
 
 			if given.setupRepo != nil {

@@ -28,7 +28,11 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 	claims := detectClaims(interaction.Message)
 
 	sess := interaction.Session
-	policy := processor.policyResolver.PolicyFor(sess.Mode)
+	policy, err := processor.policyResolver.PolicyFor(sess.Mode)
+	if err != nil {
+		return Result{}, err
+	}
+
 	decision := policy.Decide(DecisionInput{
 		Session: sess,
 		Claims:  claims,

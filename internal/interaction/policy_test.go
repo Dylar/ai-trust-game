@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
 func TestPolicyFor(t *testing.T) {
@@ -12,6 +13,7 @@ func TestPolicyFor(t *testing.T) {
 	}
 
 	type Then struct {
+		expectError  bool
 		assertPolicy func(t *testing.T, policy Policy)
 	}
 
@@ -30,6 +32,7 @@ func TestPolicyFor(t *testing.T) {
 				mode: domain.ModeEasy,
 			},
 			then: Then{
+				expectError: false,
 				assertPolicy: func(t *testing.T, policy Policy) {
 					t.Helper()
 					if _, ok := policy.(PolicyEasy); !ok {
@@ -46,6 +49,7 @@ func TestPolicyFor(t *testing.T) {
 				mode: domain.ModeMedium,
 			},
 			then: Then{
+				expectError: false,
 				assertPolicy: func(t *testing.T, policy Policy) {
 					t.Helper()
 					if _, ok := policy.(PolicyMedium); !ok {
@@ -62,9 +66,27 @@ func TestPolicyFor(t *testing.T) {
 				mode: domain.ModeHard,
 			},
 			then: Then{
+				expectError: false,
 				assertPolicy: func(t *testing.T, policy Policy) {
 					t.Helper()
 					if _, ok := policy.(PolicyHard); !ok {
+						t.Fatalf("unexpected policy type %T", policy)
+					}
+				},
+			},
+		},
+		{
+			name: "GIVEN unknown mode " +
+				"WHEN PolicyFor is called " +
+				"THEN returns an error",
+			given: Given{
+				mode: domain.Mode("unknown"),
+			},
+			then: Then{
+				expectError: true,
+				assertPolicy: func(t *testing.T, policy Policy) {
+					t.Helper()
+					if policy != nil {
 						t.Fatalf("unexpected policy type %T", policy)
 					}
 				},
@@ -77,7 +99,16 @@ func TestPolicyFor(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			policy := DefaultPolicyResolver{}.PolicyFor(given.mode)
+			policy, err := DefaultPolicyResolver{}.PolicyFor(given.mode)
+
+			if then.expectError {
+				if err == nil {
+					t.Fatalf("expected policy resolver error")
+				}
+			} else {
+				tests.AssertErrorIs(t, err, nil, "unexpected policy resolver error")
+			}
+
 			then.assertPolicy(t, policy)
 		})
 	}

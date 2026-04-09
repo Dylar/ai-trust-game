@@ -1,16 +1,14 @@
 package interaction
 
-import "github.com/Dylar/ai-trust-game/internal/domain"
+import (
+	"errors"
+	"fmt"
+	"github.com/Dylar/ai-trust-game/internal/domain"
+)
 
 type Policy interface {
 	Decide(input DecisionInput) Decision
 }
-
-type PolicyResolver interface {
-	PolicyFor(mode domain.Mode) Policy
-}
-
-type DefaultPolicyResolver struct{}
 
 type DecisionInput struct {
 	Session domain.Session
@@ -18,14 +16,20 @@ type DecisionInput struct {
 	Claims  domain.Claims
 }
 
-func (DefaultPolicyResolver) PolicyFor(mode domain.Mode) Policy {
+type PolicyResolver interface {
+	PolicyFor(mode domain.Mode) (Policy, error)
+}
+
+type DefaultPolicyResolver struct{}
+
+func (DefaultPolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	switch mode {
 	case domain.ModeEasy:
-		return PolicyEasy{}
+		return PolicyEasy{}, nil
 	case domain.ModeMedium:
-		return PolicyMedium{}
+		return PolicyMedium{}, nil
 	case domain.ModeHard:
-		return PolicyHard{}
+		return PolicyHard{}, nil
 	}
-	return nil
+	return nil, errors.New(fmt.Sprintf("unknown policy mode %v", mode))
 }

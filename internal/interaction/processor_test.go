@@ -11,8 +11,8 @@ type stubPolicyResolver struct {
 	policy Policy
 }
 
-func (resolver stubPolicyResolver) PolicyFor(_ domain.Mode) Policy {
-	return resolver.policy
+func (resolver stubPolicyResolver) PolicyFor(_ domain.Mode) (Policy, error) {
+	return resolver.policy, nil
 }
 
 type spyPolicyResolver struct {
@@ -20,9 +20,9 @@ type spyPolicyResolver struct {
 	lastMode domain.Mode
 }
 
-func (resolver *spyPolicyResolver) PolicyFor(mode domain.Mode) Policy {
+func (resolver *spyPolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	resolver.lastMode = mode
-	return resolver.policy
+	return resolver.policy, nil
 }
 
 type stubPolicy struct {
