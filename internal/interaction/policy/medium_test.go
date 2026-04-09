@@ -1,4 +1,4 @@
-package interaction
+package policy
 
 import (
 	"testing"
