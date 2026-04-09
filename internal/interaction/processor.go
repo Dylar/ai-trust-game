@@ -78,28 +78,7 @@ func (processor Processor) Process(interaction domain.Interaction) (interactionr
 		return interactionresponse.Result{}, err
 	}
 
-	responseInput := interactionresponse.Input{
-		Session: interactionresponse.SessionMeta{
-			ID:   interaction.Session.ID,
-			Role: interaction.Session.Settings.Role,
-			Mode: interaction.Session.Settings.Mode,
-		},
-		Request: interactionresponse.RequestMeta{
-			UserMessage:       interaction.Message,
-			Action:            plan.Action,
-			SubmittedPassword: plan.SubmittedPassword,
-			DecisionReason:    decision.Reason,
-		},
-		Payload: interactionresponse.Payload{
-			AvailableActions: execution.AvailableActions,
-			Secret:           execution.Secret,
-			UserProfile:      execution.UserProfile,
-			PasswordCheck: &interactionresponse.PasswordCheck{
-				Submitted: plan.SubmittedPassword != "",
-				Correct:   execution.PasswordCorrect,
-			},
-		},
-	}
+	responseInput := newResponseInput(interaction, plan, decision, execution)
 	response := processor.responseDataGuard.Guard(responseInput)
 	result := processor.responseBuilder.Build(response)
 	result = processor.responseValidator.Validate(interactionresponse.ValidatorInput{
