@@ -1,4 +1,4 @@
-package interaction
+package execution
 
 import "github.com/Dylar/ai-trust-game/internal/domain"
 

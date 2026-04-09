@@ -93,10 +93,10 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 	})
 
 	updatedSession, updated := processor.stateUpdater.Update(StateUpdateInput{
-		Session:   sess,
-		Plan:      plan,
-		Decision:  decision,
-		Execution: execution,
+		Session:         sess,
+		Plan:            plan,
+		DecisionAllowed: decision.Allowed,
+		PasswordCorrect: execution.PasswordCorrect,
 	})
 	if updated {
 		result.UpdatedSession = &updatedSession

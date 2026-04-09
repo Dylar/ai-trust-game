@@ -1,9 +1,10 @@
-package interaction
+package execution
 
 import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
@@ -40,7 +41,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 							Mode: domain.ModeHard,
 						},
 					},
-					Plan: Plan{Action: domain.ActionListAvailableActions},
+					Plan: planning.Plan{Action: domain.ActionListAvailableActions},
 				},
 			},
 			then: Then{
@@ -70,7 +71,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 							TrustedRole: domain.RoleAdmin,
 						},
 					},
-					Plan: Plan{Action: domain.ActionListAvailableActions},
+					Plan: planning.Plan{Action: domain.ActionListAvailableActions},
 				},
 			},
 			then: Then{
@@ -98,7 +99,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 							TrustedRole: domain.RoleEmployee,
 						},
 					},
-					Plan: Plan{Action: domain.ActionListAvailableActions},
+					Plan: planning.Plan{Action: domain.ActionListAvailableActions},
 				},
 			},
 			then: Then{
@@ -118,7 +119,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 			given: Given{
 				input: ExecutionInput{
 					Session: domain.Session{ID: "session-secret"},
-					Plan:    Plan{Action: domain.ActionReadSecret},
+					Plan:    planning.Plan{Action: domain.ActionReadSecret},
 				},
 			},
 			then: Then{
@@ -133,7 +134,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 			given: Given{
 				input: ExecutionInput{
 					Session: domain.Session{ID: "session-user-info"},
-					Plan:    Plan{Action: domain.ActionReadUserProfile},
+					Plan:    planning.Plan{Action: domain.ActionReadUserProfile},
 				},
 			},
 			then: Then{
@@ -155,7 +156,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 			given: Given{
 				input: ExecutionInput{
 					Session: domain.Session{ID: "session-password"},
-					Plan: Plan{
+					Plan: planning.Plan{
 						Action:            domain.ActionSubmitAdminPassword,
 						SubmittedPassword: "Schaeferhund88",
 					},
@@ -173,7 +174,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 			given: Given{
 				input: ExecutionInput{
 					Session: domain.Session{ID: "session-chat"},
-					Plan:    Plan{Action: domain.ActionChat},
+					Plan:    planning.Plan{Action: domain.ActionChat},
 				},
 			},
 			then: Then{

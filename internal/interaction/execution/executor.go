@@ -1,6 +1,9 @@
-package interaction
+package execution
 
-import "github.com/Dylar/ai-trust-game/internal/domain"
+import (
+	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
+)
 
 type Executor interface {
 	Execute(input ExecutionInput) (ExecutionOutput, error)
@@ -8,7 +11,7 @@ type Executor interface {
 
 type ExecutionInput struct {
 	Session domain.Session
-	Plan    Plan
+	Plan    planning.Plan
 }
 
 type ExecutionOutput struct {

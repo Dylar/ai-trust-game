@@ -1,15 +1,15 @@
-package interaction
+package state
 
 import "github.com/Dylar/ai-trust-game/internal/domain"
 
-type StaticStateUpdater struct{}
+type StaticUpdater struct{}
 
-func (StaticStateUpdater) Update(input StateUpdateInput) (domain.Session, bool) {
+func (StaticUpdater) Update(input StateUpdateInput) (domain.Session, bool) {
 	session := input.Session
 	state := session.State
 	updated := false
 
-	if input.Decision.Allowed {
+	if input.DecisionAllowed {
 		switch session.Settings.Mode {
 		case domain.ModeEasy, domain.ModeMedium:
 			if input.Plan.Claims.Role != "" && state.TrustedRole != input.Plan.Claims.Role {
@@ -19,7 +19,7 @@ func (StaticStateUpdater) Update(input StateUpdateInput) (domain.Session, bool) 
 		}
 
 		if input.Plan.Action == domain.ActionSubmitAdminPassword &&
-			input.Execution.PasswordCorrect &&
+			input.PasswordCorrect &&
 			!state.SecretUnlocked {
 			state.SecretUnlocked = true
 			updated = true

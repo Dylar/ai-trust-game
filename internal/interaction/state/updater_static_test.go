@@ -1,13 +1,14 @@
-package interaction
+package state
 
 import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticStateUpdaterUpdate(t *testing.T) {
+func TestStaticUpdaterUpdate(t *testing.T) {
 	type Given struct {
 		input StateUpdateInput
 	}
@@ -27,7 +28,7 @@ func TestStaticStateUpdaterUpdate(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN medium mode allowed employee claim " +
-				"WHEN StaticStateUpdater Update is called " +
+				"WHEN StaticUpdater Update is called " +
 				"THEN stores trusted employee role",
 			given: Given{
 				input: StateUpdateInput{
@@ -41,11 +42,11 @@ func TestStaticStateUpdaterUpdate(t *testing.T) {
 							TrustedRole: domain.RoleGuest,
 						},
 					},
-					Plan: Plan{
+					Plan: planning.Plan{
 						Action: domain.ActionReadUserProfile,
 						Claims: domain.Claims{Role: domain.RoleEmployee},
 					},
-					Decision: Decision{Allowed: true},
+					DecisionAllowed: true,
 				},
 			},
 			then: Then{
@@ -56,7 +57,7 @@ func TestStaticStateUpdaterUpdate(t *testing.T) {
 		},
 		{
 			name: "GIVEN hard mode allowed employee claim " +
-				"WHEN StaticStateUpdater Update is called " +
+				"WHEN StaticUpdater Update is called " +
 				"THEN keeps trusted role unchanged",
 			given: Given{
 				input: StateUpdateInput{
@@ -70,11 +71,11 @@ func TestStaticStateUpdaterUpdate(t *testing.T) {
 							TrustedRole: domain.RoleGuest,
 						},
 					},
-					Plan: Plan{
+					Plan: planning.Plan{
 						Action: domain.ActionReadUserProfile,
 						Claims: domain.Claims{Role: domain.RoleEmployee},
 					},
-					Decision: Decision{Allowed: true},
+					DecisionAllowed: true,
 				},
 			},
 			then: Then{
@@ -85,7 +86,7 @@ func TestStaticStateUpdaterUpdate(t *testing.T) {
 		},
 		{
 			name: "GIVEN accepted admin password submission " +
-				"WHEN StaticStateUpdater Update is called " +
+				"WHEN StaticUpdater Update is called " +
 				"THEN unlocks the secret area",
 			given: Given{
 				input: StateUpdateInput{
@@ -100,13 +101,11 @@ func TestStaticStateUpdaterUpdate(t *testing.T) {
 							SecretUnlocked: false,
 						},
 					},
-					Plan: Plan{
+					Plan: planning.Plan{
 						Action: domain.ActionSubmitAdminPassword,
 					},
-					Decision: Decision{Allowed: true},
-					Execution: ExecutionOutput{
-						PasswordCorrect: true,
-					},
+					DecisionAllowed: true,
+					PasswordCorrect: true,
 				},
 			},
 			then: Then{
@@ -122,7 +121,7 @@ func TestStaticStateUpdaterUpdate(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			session, updated := StaticStateUpdater{}.Update(given.input)
+			session, updated := StaticUpdater{}.Update(given.input)
 
 			tests.AssertEqual(t, updated, then.expectedUpdated, "unexpected update flag")
 			tests.AssertEqual(t, session.State.TrustedRole, then.expectedTrustedRole, "unexpected trusted role")
