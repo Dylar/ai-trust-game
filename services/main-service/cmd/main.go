@@ -29,8 +29,10 @@ func main() {
 	planner := interaction.StaticPlanner{}
 	executor := interaction.StaticExecutor{}
 	stateUpdater := interaction.StaticStateUpdater{}
+	responseDataGuard := interaction.StaticResponseDataGuard{}
 	responseBuilder := interaction.StaticResponseBuilder{}
-	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseBuilder)
+	responseValidator := interaction.StaticResponseValidator{}
+	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator)
 	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
 
 	srv := infra.NewServer(

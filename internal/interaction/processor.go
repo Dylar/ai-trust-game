@@ -8,20 +8,24 @@ import (
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type Processor struct {
-	policyResolver  PolicyResolver
-	planner         Planner
-	executor        Executor
-	stateUpdater    StateUpdater
-	responseBuilder ResponseBuilder
+	policyResolver    PolicyResolver
+	planner           Planner
+	executor          Executor
+	stateUpdater      StateUpdater
+	responseDataGuard ResponseDataGuard
+	responseBuilder   ResponseBuilder
+	responseValidator ResponseValidator
 }
 
-func NewProcessor(policyResolver PolicyResolver, planner Planner, executor Executor, stateUpdater StateUpdater, responseBuilder ResponseBuilder) Processor {
+func NewProcessor(policyResolver PolicyResolver, planner Planner, executor Executor, stateUpdater StateUpdater, responseDataGuard ResponseDataGuard, responseBuilder ResponseBuilder, responseValidator ResponseValidator) Processor {
 	return Processor{
-		policyResolver:  policyResolver,
-		planner:         planner,
-		executor:        executor,
-		stateUpdater:    stateUpdater,
-		responseBuilder: responseBuilder,
+		policyResolver:    policyResolver,
+		planner:           planner,
+		executor:          executor,
+		stateUpdater:      stateUpdater,
+		responseDataGuard: responseDataGuard,
+		responseBuilder:   responseBuilder,
+		responseValidator: responseValidator,
 	}
 }
 
@@ -61,18 +65,23 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 		return Result{}, err
 	}
 
+	response := processor.responseDataGuard.Guard(ResponseInput{
+		Interaction: interaction,
+		Plan:        plan,
+		Decision:    decision,
+		Execution:   execution,
+	})
+	result := processor.responseBuilder.Build(response)
+	result = processor.responseValidator.Validate(ResponseValidatorInput{
+		Response: response,
+		Result:   result,
+	})
+
 	updatedSession, updated := processor.stateUpdater.Update(StateUpdateInput{
 		Session:   sess,
 		Plan:      plan,
 		Decision:  decision,
 		Execution: execution,
-	})
-
-	result := processor.responseBuilder.Build(ResponseInput{
-		Interaction: interaction,
-		Plan:        plan,
-		Decision:    decision,
-		Execution:   execution,
 	})
 	if updated {
 		result.UpdatedSession = &updatedSession

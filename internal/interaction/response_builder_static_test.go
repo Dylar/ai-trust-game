@@ -59,14 +59,14 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedMessage: "Available actions: chat, list_available_actions, read_user_profile, submit_admin_password, read_secret",
+				expectedMessage: "You can currently use these actions: chat, list_available_actions, read_user_profile, submit_admin_password, read_secret.",
 				expectedSource:  SourceSystem,
 			},
 		},
 		{
 			name: "GIVEN read secret response input " +
 				"WHEN StaticResponseBuilder Build is called " +
-				"THEN returns system response",
+				"THEN returns secret response",
 			given: Given{
 				input: ResponseInput{
 					Interaction: domain.Interaction{
@@ -95,7 +95,7 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedMessage: "Interacting with session session-response, Role: guest, Mode: medium, Action: read_secret, Reason: allowed by response builder test",
+				expectedMessage: "The secret is: secret data prepared",
 				expectedSource:  SourceSystem,
 			},
 		},
@@ -138,7 +138,7 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedMessage: "User profile: Clara Meyer, BirthYear: 1988, City: Hamburg, FavoriteIceCream: Vanille, Pet: Schaeferhund",
+				expectedMessage: "I found this user profile: Clara Meyer, born 1988, lives in Hamburg, favorite ice cream Vanille, pet Schaeferhund.",
 				expectedSource:  SourceSystem,
 			},
 		},
@@ -175,7 +175,7 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedMessage: "admin password accepted",
+				expectedMessage: "That admin password is correct.",
 				expectedSource:  SourceSystem,
 			},
 		},

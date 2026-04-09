@@ -51,7 +51,9 @@ func TestProcessInteraction(t *testing.T) {
 					stubPlanner{},
 					stubExecutor{},
 					stubStateUpdater{},
+					stubResponseDataGuard{},
 					stubResponseBuilder{},
+					stubResponseValidator{},
 				),
 			},
 			then: Then{
@@ -93,7 +95,9 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					stubExecutor{},
 					stubStateUpdater{},
+					stubResponseDataGuard{},
 					stubResponseBuilder{},
+					stubResponseValidator{},
 				),
 			},
 			then: Then{
@@ -137,16 +141,23 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					stubExecutor{},
 					stubStateUpdater{},
+					stubResponseDataGuard{},
 					stubResponseBuilder{
 						result: Result{
 							Message: "allowed interaction response from stub response builder",
 							Source:  SourceSystem,
 						},
 					},
+					stubResponseValidator{
+						result: Result{
+							Message: "validated allowed interaction response",
+							Source:  SourceSystem,
+						},
+					},
 				),
 			},
 			then: Then{
-				expectedMessage: "allowed interaction response from stub response builder",
+				expectedMessage: "validated allowed interaction response",
 				expectedSource:  SourceSystem,
 				expectedError:   nil,
 			},
@@ -185,16 +196,23 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					stubExecutor{},
 					stubStateUpdater{},
+					stubResponseDataGuard{},
 					stubResponseBuilder{
 						result: Result{
 							Message: "user info response from stub response builder",
 							Source:  SourceSystem,
 						},
 					},
+					stubResponseValidator{
+						result: Result{
+							Message: "validated user info response",
+							Source:  SourceSystem,
+						},
+					},
 				),
 			},
 			then: Then{
-				expectedMessage: "user info response from stub response builder",
+				expectedMessage: "validated user info response",
 				expectedSource:  SourceSystem,
 				expectedError:   nil,
 			},
@@ -226,7 +244,9 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					stubExecutor{},
 					stubStateUpdater{},
+					stubResponseDataGuard{},
 					stubResponseBuilder{},
+					stubResponseValidator{},
 				),
 			},
 			then: Then{
@@ -269,7 +289,9 @@ func TestProcessInteraction(t *testing.T) {
 						err: errStubExecutor,
 					},
 					stubStateUpdater{},
+					stubResponseDataGuard{},
 					stubResponseBuilder{},
+					stubResponseValidator{},
 				),
 			},
 			then: Then{
@@ -393,6 +415,7 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 					Action: then.expectedAction,
 				},
 			}
+			responseDataGuard := &spyResponseDataGuard{}
 			responseBuilder := &spyResponseBuilder{
 				result: Result{
 					Message: "response from spy response builder",
@@ -400,7 +423,13 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 				},
 			}
 			stateUpdater := &spyStateUpdater{}
-			processor := NewProcessor(resolver, planner, executor, stateUpdater, responseBuilder)
+			responseValidator := &spyResponseValidator{
+				result: Result{
+					Message: "response from spy response validator",
+					Source:  SourceSystem,
+				},
+			}
+			processor := NewProcessor(resolver, planner, executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator)
 
 			_, err := processor.Process(given.interaction)
 
@@ -413,7 +442,9 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 			tests.AssertEqual(t, policy.lastInput.Session.Settings.Mode, given.interaction.Session.Settings.Mode, "unexpected session mode passed to policy")
 			tests.AssertEqual(t, executor.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to executor")
 			tests.AssertEqual(t, stateUpdater.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to state updater")
+			tests.AssertEqual(t, responseDataGuard.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to response data guard")
 			tests.AssertEqual(t, responseBuilder.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to response builder")
+			tests.AssertEqual(t, responseValidator.lastInput.Response.Plan.Action, then.expectedAction, "unexpected action passed to response validator")
 		})
 	}
 }
@@ -452,9 +483,16 @@ func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
 			session: updatedSession,
 			updated: true,
 		},
+		stubResponseDataGuard{},
 		stubResponseBuilder{
 			result: Result{
 				Message: "response with updated session",
+				Source:  SourceSystem,
+			},
+		},
+		stubResponseValidator{
+			result: Result{
+				Message: "validated response with updated session",
 				Source:  SourceSystem,
 			},
 		},
@@ -469,5 +507,6 @@ func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
 	if result.UpdatedSession == nil {
 		t.Fatalf("expected updated session")
 	}
+	tests.AssertEqual(t, result.Message, "validated response with updated session", "unexpected validated message")
 	tests.AssertEqual(t, result.UpdatedSession.State.TrustedRole, domain.RoleEmployee, "unexpected updated trusted role")
 }

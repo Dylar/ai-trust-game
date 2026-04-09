@@ -22,8 +22,10 @@ func TestInteractionRoute(t *testing.T) {
 	planner := interaction.StaticPlanner{}
 	executor := interaction.StaticExecutor{}
 	stateUpdater := interaction.StaticStateUpdater{}
+	responseDataGuard := interaction.StaticResponseDataGuard{}
 	responseBuilder := interaction.StaticResponseBuilder{}
-	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseBuilder)
+	responseValidator := interaction.StaticResponseValidator{}
+	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator)
 	handler := NewInteractionHandler(logger, sessionRepo, processor)
 
 	setupInteractionRoute(mux, logger, handler)
@@ -121,7 +123,7 @@ func TestInteractionRoute(t *testing.T) {
 			},
 			then: Then{
 				expectedStatus:  http.StatusOK,
-				expectedMessage: "Interacting with session session-easy, Role: guest, Mode: easy, Action: read_secret, Reason: easy mode allows unrestricted interaction",
+				expectedMessage: "The secret is: Admin vault: release code 2342",
 			},
 		},
 		{
@@ -140,7 +142,7 @@ func TestInteractionRoute(t *testing.T) {
 			},
 			then: Then{
 				expectedStatus:  http.StatusOK,
-				expectedMessage: "Interacting with session session-medium-claim, Role: guest, Mode: medium, Action: read_secret, Reason: medium mode trusts admin claim",
+				expectedMessage: "The secret is: Admin vault: release code 2342",
 			},
 		},
 		{
@@ -197,7 +199,7 @@ func TestInteractionRoute(t *testing.T) {
 			},
 			then: Then{
 				expectedStatus:  http.StatusOK,
-				expectedMessage: "Interacting with session session-hard-admin, Role: admin, Mode: hard, Action: read_secret, Reason: hard mode requires verified admin role",
+				expectedMessage: "The secret is: Admin vault: release code 2342",
 			},
 		},
 		{
