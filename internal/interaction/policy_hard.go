@@ -23,6 +23,9 @@ func (pol PolicyHard) decideActionReadUserProfile(input DecisionInput) Decision 
 }
 
 func (pol PolicyHard) decideActionReadSecret(input DecisionInput) Decision {
+	if input.Session.State.SecretUnlocked {
+		return Decision{Allowed: true, Reason: "hard mode accepts unlocked secret access"}
+	}
 	if input.Session.Settings.Role == domain.RoleAdmin {
 		return Decision{Allowed: true, Reason: "hard mode requires verified admin role"}
 	}

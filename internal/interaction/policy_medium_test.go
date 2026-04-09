@@ -37,7 +37,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 							Mode: domain.ModeMedium,
 						},
 						State: domain.GameState{
-							TrustedRole: domain.RoleAdmin,
+							TrustedRole: domain.RoleGuest,
 						},
 						},
 					Action: domain.ActionReadSecret,
@@ -97,6 +97,57 @@ func TestPolicyMediumDecide(t *testing.T) {
 			then: Then{
 				expectedAllowed: false,
 				expectedReason:  "medium mode denied non-admin secret access",
+			},
+		},
+		{
+			name: "GIVEN guest with unlocked secret requesting secret " +
+				"WHEN PolicyMedium Decide is called " +
+				"THEN allows the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID: "session-medium-unlocked",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole:    domain.RoleGuest,
+							SecretUnlocked: true,
+						},
+						},
+					Action: domain.ActionReadSecret,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: true,
+				expectedReason:  "medium mode accepts unlocked secret access",
+			},
+		},
+		{
+			name: "GIVEN guest with trusted admin role requesting secret " +
+				"WHEN PolicyMedium Decide is called " +
+				"THEN allows the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID: "session-medium-trusted-admin",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleAdmin,
+						},
+						},
+					Action: domain.ActionReadSecret,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: true,
+				expectedReason:  "medium mode accepts trusted admin access",
 			},
 		},
 		{

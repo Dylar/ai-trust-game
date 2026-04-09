@@ -31,6 +31,12 @@ func (pol PolicyMedium) decideActionReadSecret(input DecisionInput) Decision {
 	if input.Claims.Role == domain.RoleAdmin {
 		return Decision{Allowed: true, Reason: "medium mode trusts admin claim"}
 	}
+	if input.Session.State.SecretUnlocked {
+		return Decision{Allowed: true, Reason: "medium mode accepts unlocked secret access"}
+	}
+	if input.Session.State.TrustedRole == domain.RoleAdmin {
+		return Decision{Allowed: true, Reason: "medium mode accepts trusted admin access"}
+	}
 	if input.Session.Settings.Role == domain.RoleAdmin {
 		return Decision{Allowed: true, Reason: "medium mode accepts verified admin role"}
 	}

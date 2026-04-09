@@ -50,6 +50,32 @@ func TestPolicyHardDecide(t *testing.T) {
 			},
 		},
 		{
+			name: "GIVEN guest with unlocked secret requesting secret " +
+				"WHEN PolicyHard Decide is called " +
+				"THEN allows the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID: "session-hard-unlocked",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole:    domain.RoleGuest,
+							SecretUnlocked: true,
+						},
+						},
+					Action: domain.ActionReadSecret,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: true,
+				expectedReason:  "hard mode accepts unlocked secret access",
+			},
+		},
+		{
 			name: "GIVEN guest claiming admin and requesting secret " +
 				"WHEN PolicyHard Decide is called " +
 				"THEN denies the interaction",
