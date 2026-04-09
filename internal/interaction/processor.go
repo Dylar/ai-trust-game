@@ -3,6 +3,7 @@ package interaction
 import (
 	"errors"
 	"github.com/Dylar/ai-trust-game/internal/domain"
+	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 )
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
@@ -12,12 +13,20 @@ type Processor struct {
 	planner           Planner
 	executor          Executor
 	stateUpdater      StateUpdater
-	responseDataGuard ResponseDataGuard
-	responseBuilder   ResponseBuilder
-	responseValidator ResponseValidator
+	responseDataGuard interactionresponse.DataGuard
+	responseBuilder   interactionresponse.Builder
+	responseValidator interactionresponse.Validator
 }
 
-func NewProcessor(policyResolver PolicyResolver, planner Planner, executor Executor, stateUpdater StateUpdater, responseDataGuard ResponseDataGuard, responseBuilder ResponseBuilder, responseValidator ResponseValidator) Processor {
+func NewProcessor(
+	policyResolver PolicyResolver,
+	planner Planner,
+	executor Executor,
+	stateUpdater StateUpdater,
+	responseDataGuard interactionresponse.DataGuard,
+	responseBuilder interactionresponse.Builder,
+	responseValidator interactionresponse.Validator,
+) Processor {
 	return Processor{
 		policyResolver:    policyResolver,
 		planner:           planner,
@@ -65,14 +74,20 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 		return Result{}, err
 	}
 
-	response := processor.responseDataGuard.Guard(ResponseInput{
-		Interaction: interaction,
-		Plan:        plan,
-		Decision:    decision,
-		Execution:   execution,
-	})
+	responseInput := interactionresponse.Input{
+		Session:           interaction.Session,
+		UserMessage:       interaction.Message,
+		Action:            plan.Action,
+		SubmittedPassword: plan.SubmittedPassword,
+		DecisionReason:    decision.Reason,
+		AvailableActions:  execution.AvailableActions,
+		Secret:            execution.Secret,
+		UserProfile:       execution.UserProfile,
+		PasswordCorrect:   execution.PasswordCorrect,
+	}
+	response := processor.responseDataGuard.Guard(responseInput)
 	result := processor.responseBuilder.Build(response)
-	result = processor.responseValidator.Validate(ResponseValidatorInput{
+	result = processor.responseValidator.Validate(interactionresponse.ValidatorInput{
 		Response: response,
 		Result:   result,
 	})

@@ -442,9 +442,9 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 			tests.AssertEqual(t, policy.lastInput.Session.Settings.Mode, given.interaction.Session.Settings.Mode, "unexpected session mode passed to policy")
 			tests.AssertEqual(t, executor.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to executor")
 			tests.AssertEqual(t, stateUpdater.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to state updater")
-			tests.AssertEqual(t, responseDataGuard.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to response data guard")
-			tests.AssertEqual(t, responseBuilder.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to response builder")
-			tests.AssertEqual(t, responseValidator.lastInput.Response.Plan.Action, then.expectedAction, "unexpected action passed to response validator")
+			tests.AssertEqual(t, responseDataGuard.lastInput.Action, then.expectedAction, "unexpected action passed to response data guard")
+			tests.AssertEqual(t, responseBuilder.lastInput.Action, then.expectedAction, "unexpected action passed to response builder")
+			tests.AssertEqual(t, responseValidator.lastInput.Response.Action, then.expectedAction, "unexpected action passed to response validator")
 		})
 	}
 }

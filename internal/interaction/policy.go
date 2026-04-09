@@ -15,13 +15,6 @@ type DecisionInput struct {
 	Claims  domain.Claims
 }
 
-type Source string
-
-const (
-	SourceSystem Source = "system"
-	SourceLLM    Source = "llm"
-)
-
 type Decision struct {
 	Allowed bool
 	Reason  string

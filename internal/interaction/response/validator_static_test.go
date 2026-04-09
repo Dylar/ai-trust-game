@@ -1,15 +1,14 @@
-package interaction
+package response
 
 import (
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticResponseValidatorValidate(t *testing.T) {
+func TestStaticValidatorValidate(t *testing.T) {
 	type Given struct {
-		input ResponseValidatorInput
+		input ValidatorInput
 	}
 
 	type Then struct {
@@ -28,10 +27,8 @@ func TestStaticResponseValidatorValidate(t *testing.T) {
 				"WHEN StaticResponseValidator Validate is called " +
 				"THEN keeps the response",
 			given: Given{
-				input: ResponseValidatorInput{
-					Response: ResponseInput{
-						Plan: Plan{Action: domain.ActionChat},
-					},
+				input: ValidatorInput{
+					Response: Input{},
 					Result: Result{
 						Message: "hello",
 						Source:  SourceSystem,
@@ -47,10 +44,8 @@ func TestStaticResponseValidatorValidate(t *testing.T) {
 				"WHEN StaticResponseValidator Validate is called " +
 				"THEN blocks the response",
 			given: Given{
-				input: ResponseValidatorInput{
-					Response: ResponseInput{
-						Plan: Plan{Action: domain.ActionChat},
-					},
+				input: ValidatorInput{
+					Response: Input{},
 					Result: Result{
 						Message: "",
 						Source:  SourceSystem,
@@ -65,7 +60,7 @@ func TestStaticResponseValidatorValidate(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
-			result := StaticResponseValidator{}.Validate(scenario.given.input)
+			result := StaticValidator{}.Validate(scenario.given.input)
 			tests.AssertEqual(t, result.Message, scenario.then.expectedMessage, "unexpected validated response message")
 		})
 	}

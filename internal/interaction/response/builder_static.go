@@ -1,4 +1,4 @@
-package interaction
+package response
 
 import (
 	"fmt"
@@ -7,10 +7,10 @@ import (
 	"github.com/Dylar/ai-trust-game/internal/domain"
 )
 
-type StaticResponseBuilder struct{}
+type StaticBuilder struct{}
 
-func (StaticResponseBuilder) Build(input ResponseInput) Result {
-	switch input.Plan.Action {
+func (StaticBuilder) Build(input Input) Result {
+	switch input.Action {
 	case domain.ActionListAvailableActions:
 		return buildListAvailableActionsResponse(input)
 	case domain.ActionReadSecret:
@@ -22,13 +22,13 @@ func (StaticResponseBuilder) Build(input ResponseInput) Result {
 	}
 
 	return Result{
-		Message: fmt.Sprintf("I understood the request, but there is no dedicated response for action %s yet.", input.Plan.Action),
-		Source: SourceSystem,
+		Message: fmt.Sprintf("I understood the request, but there is no dedicated response for action %s yet.", input.Action),
+		Source:  SourceSystem,
 	}
 }
 
-func buildReadSecretResponse(input ResponseInput) Result {
-	if strings.TrimSpace(input.Execution.Secret) == "" {
+func buildReadSecretResponse(input Input) Result {
+	if strings.TrimSpace(input.Secret) == "" {
 		return Result{
 			Message: "I could not find a secret to share.",
 			Source:  SourceSystem,
@@ -36,20 +36,20 @@ func buildReadSecretResponse(input ResponseInput) Result {
 	}
 
 	return Result{
-		Message: fmt.Sprintf("The secret is: %s", input.Execution.Secret),
+		Message: fmt.Sprintf("The secret is: %s", input.Secret),
 		Source:  SourceSystem,
 	}
 }
 
-func buildReadUserProfileResponse(input ResponseInput) Result {
-	if input.Execution.UserProfile == nil {
+func buildReadUserProfileResponse(input Input) Result {
+	if input.UserProfile == nil {
 		return Result{
 			Message: "I could not find a user profile.",
 			Source:  SourceSystem,
 		}
 	}
 
-	profile := input.Execution.UserProfile
+	profile := input.UserProfile
 	return Result{
 		Message: fmt.Sprintf(
 			"I found this user profile: %s %s, born %d, lives in %s, favorite ice cream %s, pet %s.",
@@ -64,8 +64,8 @@ func buildReadUserProfileResponse(input ResponseInput) Result {
 	}
 }
 
-func buildSubmitAdminPasswordResponse(input ResponseInput) Result {
-	password := strings.TrimSpace(input.Plan.SubmittedPassword)
+func buildSubmitAdminPasswordResponse(input Input) Result {
+	password := strings.TrimSpace(input.SubmittedPassword)
 	if password == "" {
 		return Result{
 			Message: "I did not receive an admin password to check.",
@@ -73,7 +73,7 @@ func buildSubmitAdminPasswordResponse(input ResponseInput) Result {
 		}
 	}
 
-	if input.Execution.PasswordCorrect {
+	if input.PasswordCorrect {
 		return Result{
 			Message: "That admin password is correct.",
 			Source:  SourceSystem,
@@ -86,16 +86,16 @@ func buildSubmitAdminPasswordResponse(input ResponseInput) Result {
 	}
 }
 
-func buildListAvailableActionsResponse(input ResponseInput) Result {
-	if len(input.Execution.AvailableActions) == 0 {
+func buildListAvailableActionsResponse(input Input) Result {
+	if len(input.AvailableActions) == 0 {
 		return Result{
-			Message: "no available actions",
+			Message: "I could not find any actions you can use right now.",
 			Source:  SourceSystem,
 		}
 	}
 
-	actions := make([]string, 0, len(input.Execution.AvailableActions))
-	for _, action := range input.Execution.AvailableActions {
+	actions := make([]string, 0, len(input.AvailableActions))
+	for _, action := range input.AvailableActions {
 		actions = append(actions, string(action))
 	}
 

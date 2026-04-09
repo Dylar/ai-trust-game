@@ -1,10 +1,10 @@
-package interaction
+package response
 
 import "strings"
 
-type StaticResponseValidator struct{}
+type StaticValidator struct{}
 
-func (StaticResponseValidator) Validate(input ResponseValidatorInput) Result {
+func (StaticValidator) Validate(input ValidatorInput) Result {
 	result := input.Result
 	if strings.TrimSpace(result.Message) == "" {
 		result.Message = "response blocked"
