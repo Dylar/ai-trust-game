@@ -2,21 +2,24 @@ package interaction
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Dylar/ai-trust-game/internal/domain"
 )
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type Processor struct {
-	policyResolver PolicyResolver
-	planner        Planner
+	policyResolver  PolicyResolver
+	planner         Planner
+	executor        Executor
+	responseBuilder ResponseBuilder
 }
 
-func NewProcessor(policyResolver PolicyResolver, planner Planner) Processor {
+func NewProcessor(policyResolver PolicyResolver, planner Planner, executor Executor, responseBuilder ResponseBuilder) Processor {
 	return Processor{
-		policyResolver: policyResolver,
-		planner:        planner,
+		policyResolver:  policyResolver,
+		planner:         planner,
+		executor:        executor,
+		responseBuilder: responseBuilder,
 	}
 }
 
@@ -48,7 +51,20 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 		}, nil
 	}
 
-	return execute(interaction, plan.Action, decision.Reason), nil
+	execution, err := processor.executor.Execute(ExecutionInput{
+		Session: sess,
+		Plan:    plan,
+	})
+	if err != nil {
+		return Result{}, err
+	}
+
+	return processor.responseBuilder.Build(ResponseInput{
+		Interaction: interaction,
+		Plan:        plan,
+		Decision:    decision,
+		Execution:   execution,
+	}), nil
 }
 
 func validate(interaction domain.Interaction) error {
@@ -56,18 +72,4 @@ func validate(interaction domain.Interaction) error {
 		return ErrEmptyInteractionMessage
 	}
 	return nil
-}
-
-func execute(i domain.Interaction, action domain.Action, reason string) Result {
-	return Result{
-		Message: fmt.Sprintf(
-			"Interacting with session %s, Role: %s, Mode: %s, Action: %s, Reason: %s",
-			i.Session.ID,
-			i.Session.Role,
-			i.Session.Mode,
-			action,
-			reason,
-		),
-		Source: SourceSystem,
-	}
 }

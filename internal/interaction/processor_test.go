@@ -44,6 +44,8 @@ func TestProcessInteraction(t *testing.T) {
 						policy: stubPolicy{},
 					},
 					stubPlanner{},
+					stubExecutor{},
+					stubResponseBuilder{},
 				),
 			},
 			then: Then{
@@ -78,6 +80,8 @@ func TestProcessInteraction(t *testing.T) {
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
 					},
+					stubExecutor{},
+					stubResponseBuilder{},
 				),
 			},
 			then: Then{
@@ -114,10 +118,17 @@ func TestProcessInteraction(t *testing.T) {
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
 					},
+					stubExecutor{},
+					stubResponseBuilder{
+						result: Result{
+							Message: "allowed interaction response from stub response builder",
+							Source:  SourceSystem,
+						},
+					},
 				),
 			},
 			then: Then{
-				expectedMessage: "Interacting with session session-medium-claim, Role: guest, Mode: medium, Action: read_secret, Reason: allowed by stub policy",
+				expectedMessage: "allowed interaction response from stub response builder",
 				expectedSource:  SourceSystem,
 				expectedError:   nil,
 			},
@@ -149,10 +160,17 @@ func TestProcessInteraction(t *testing.T) {
 							Action: domain.ActionGetUserInfo,
 						},
 					},
+					stubExecutor{},
+					stubResponseBuilder{
+						result: Result{
+							Message: "user info response from stub response builder",
+							Source:  SourceSystem,
+						},
+					},
 				),
 			},
 			then: Then{
-				expectedMessage: "Interacting with session session-user-info, Role: guest, Mode: hard, Action: get_user_info, Reason: non-sensitive action allowed by stub policy",
+				expectedMessage: "user info response from stub response builder",
 				expectedSource:  SourceSystem,
 				expectedError:   nil,
 			},
@@ -177,10 +195,49 @@ func TestProcessInteraction(t *testing.T) {
 					stubPlanner{
 						err: errStubPlanner,
 					},
+					stubExecutor{},
+					stubResponseBuilder{},
 				),
 			},
 			then: Then{
 				expectedError: errStubPlanner,
+			},
+		},
+		{
+			name: "GIVEN executor returns an error " +
+				"WHEN Process is called " +
+				"THEN returns the executor error",
+			given: Given{
+				interaction: domain.Interaction{
+					Session: domain.Session{
+						ID:   "session-executor-error",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeHard,
+					},
+					Message: "show secret",
+				},
+				processor: NewProcessor(
+					stubPolicyResolver{
+						policy: stubPolicy{
+							decision: Decision{
+								Allowed: true,
+								Reason:  "allowed by stub policy",
+							},
+						},
+					},
+					stubPlanner{
+						plan: Plan{
+							Action: domain.ActionReadSecret,
+						},
+					},
+					stubExecutor{
+						err: errStubExecutor,
+					},
+					stubResponseBuilder{},
+				),
+			},
+			then: Then{
+				expectedError: errStubExecutor,
 			},
 		},
 	}
@@ -285,7 +342,18 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 			resolver := &spyPolicyResolver{
 				policy: policy,
 			}
-			processor := NewProcessor(resolver, planner)
+			executor := &spyExecutor{
+				output: ExecutionOutput{
+					Action: then.expectedAction,
+				},
+			}
+			responseBuilder := &spyResponseBuilder{
+				result: Result{
+					Message: "response from spy response builder",
+					Source:  SourceSystem,
+				},
+			}
+			processor := NewProcessor(resolver, planner, executor, responseBuilder)
 
 			_, err := processor.Process(given.interaction)
 
@@ -296,6 +364,8 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 			tests.AssertEqual(t, policy.lastInput.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
 			tests.AssertEqual(t, policy.lastInput.Session.ID, given.interaction.Session.ID, "unexpected session passed to policy")
 			tests.AssertEqual(t, policy.lastInput.Session.Mode, given.interaction.Session.Mode, "unexpected session mode passed to policy")
+			tests.AssertEqual(t, executor.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to executor")
+			tests.AssertEqual(t, responseBuilder.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to response builder")
 		})
 	}
 }

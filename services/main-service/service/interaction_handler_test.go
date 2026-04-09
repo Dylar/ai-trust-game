@@ -16,7 +16,9 @@ func TestHandleInteraction(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 	policyResolver := interaction.DefaultPolicyResolver{}
 	planner := interaction.StaticPlanner{}
-	processor := interaction.NewProcessor(policyResolver, planner)
+	executor := interaction.StaticExecutor{}
+	responseBuilder := interaction.StaticResponseBuilder{}
+	processor := interaction.NewProcessor(policyResolver, planner, executor, responseBuilder)
 
 	type Given struct {
 		sessionID string
