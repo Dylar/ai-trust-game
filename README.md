@@ -200,7 +200,7 @@ Goal: define a clean and extensible interaction flow before adding AI
 
 Goal: move control into deterministic system logic
 
-### Phase 6 — Security Modes
+### Phase 6 — Security Modes (Done)
 
 - introduce easy / medium / hard modes
 - vary validation and enforcement by mode
@@ -209,7 +209,16 @@ Goal: move control into deterministic system logic
 
 Goal: demonstrate how architecture changes system security
 
-### Phase 7 — LLM Integration
+### Phase 7 — Execution & Response Flow
+
+- separate planning, policy, execution, and response building
+- model deterministic execution for allowed actions
+- define structured outputs between execution steps
+- prepare guard and validation points for later model-generated responses
+
+Goal: complete the controlled interaction pipeline before integrating a real model
+
+### Phase 8 — LLM Integration
 
 - place model calls into the existing interaction flow
 - provider abstraction
@@ -218,7 +227,7 @@ Goal: demonstrate how architecture changes system security
 
 Goal: introduce AI into a controlled and observable system without giving it authority
 
-### Phase 8 — Audit & Analysis
+### Phase 9 — Audit & Analysis
 
 - enriched audit events
 - suspicious behavior detection
@@ -226,7 +235,7 @@ Goal: introduce AI into a controlled and observable system without giving it aut
 
 Goal: make decisions traceable and analyzable
 
-### Phase 9 — Client / UI
+### Phase 10 — Client / UI
 
 - build Flutter client (web first)
 - session start and interaction flow
@@ -235,7 +244,7 @@ Goal: make decisions traceable and analyzable
 
 Goal: validate system behavior through real user interaction
 
-### Phase 10 — Multi-Model / Agent Setup
+### Phase 11 — Multi-Model / Agent Setup
 
 - multiple providers
 - role-specific models
@@ -243,7 +252,7 @@ Goal: validate system behavior through real user interaction
 
 Goal: decouple responsibilities from a single model
 
-### Phase 11 — Service Decomposition
+### Phase 12 — Service Decomposition
 
 - split into services where useful
 - introduce gRPC / Proto contracts
@@ -251,7 +260,7 @@ Goal: decouple responsibilities from a single model
 
 Goal: move towards scalable architecture
 
-### Phase 12 — Persistence
+### Phase 13 — Persistence
 
 - PostgreSQL integration
 - persistent sessions
