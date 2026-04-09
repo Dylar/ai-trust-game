@@ -10,7 +10,7 @@ import (
 type StaticBuilder struct{}
 
 func (StaticBuilder) Build(input Input) Result {
-	switch input.Action {
+	switch input.Request.Action {
 	case domain.ActionListAvailableActions:
 		return buildListAvailableActionsResponse(input)
 	case domain.ActionReadSecret:
@@ -22,13 +22,13 @@ func (StaticBuilder) Build(input Input) Result {
 	}
 
 	return Result{
-		Message: fmt.Sprintf("I understood the request, but there is no dedicated response for action %s yet.", input.Action),
+		Message: fmt.Sprintf("I understood the request, but there is no dedicated response for action %s yet.", input.Request.Action),
 		Source:  SourceSystem,
 	}
 }
 
 func buildReadSecretResponse(input Input) Result {
-	if strings.TrimSpace(input.Secret) == "" {
+	if strings.TrimSpace(input.Payload.Secret) == "" {
 		return Result{
 			Message: "I could not find a secret to share.",
 			Source:  SourceSystem,
@@ -36,20 +36,20 @@ func buildReadSecretResponse(input Input) Result {
 	}
 
 	return Result{
-		Message: fmt.Sprintf("The secret is: %s", input.Secret),
+		Message: fmt.Sprintf("The secret is: %s", input.Payload.Secret),
 		Source:  SourceSystem,
 	}
 }
 
 func buildReadUserProfileResponse(input Input) Result {
-	if input.UserProfile == nil {
+	if input.Payload.UserProfile == nil {
 		return Result{
 			Message: "I could not find a user profile.",
 			Source:  SourceSystem,
 		}
 	}
 
-	profile := input.UserProfile
+	profile := input.Payload.UserProfile
 	return Result{
 		Message: fmt.Sprintf(
 			"I found this user profile: %s %s, born %d, lives in %s, favorite ice cream %s, pet %s.",
@@ -65,15 +65,14 @@ func buildReadUserProfileResponse(input Input) Result {
 }
 
 func buildSubmitAdminPasswordResponse(input Input) Result {
-	password := strings.TrimSpace(input.SubmittedPassword)
-	if password == "" {
+	if input.Payload.PasswordCheck == nil || !input.Payload.PasswordCheck.Submitted {
 		return Result{
 			Message: "I did not receive an admin password to check.",
 			Source:  SourceSystem,
 		}
 	}
 
-	if input.PasswordCorrect {
+	if input.Payload.PasswordCheck.Correct {
 		return Result{
 			Message: "That admin password is correct.",
 			Source:  SourceSystem,
@@ -87,15 +86,15 @@ func buildSubmitAdminPasswordResponse(input Input) Result {
 }
 
 func buildListAvailableActionsResponse(input Input) Result {
-	if len(input.AvailableActions) == 0 {
+	if len(input.Payload.AvailableActions) == 0 {
 		return Result{
 			Message: "I could not find any actions you can use right now.",
 			Source:  SourceSystem,
 		}
 	}
 
-	actions := make([]string, 0, len(input.AvailableActions))
-	for _, action := range input.AvailableActions {
+	actions := make([]string, 0, len(input.Payload.AvailableActions))
+	for _, action := range input.Payload.AvailableActions {
 		actions = append(actions, string(action))
 	}
 

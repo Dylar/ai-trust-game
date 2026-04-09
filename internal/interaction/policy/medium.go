@@ -1,22 +1,43 @@
 package policy
 
-import "github.com/Dylar/ai-trust-game/internal/domain"
+import (
+	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
+)
 
-type PolicyMedium struct{}
+type PolicyMedium struct {
+	capabilityResolver capability.Resolver
+}
 
 func (pol PolicyMedium) Decide(input DecisionInput) Decision {
+	caps := pol.resolver().For(input.Session.Settings.Mode, capability.Input{
+		Session: input.Session,
+		Claims:  input.Claims,
+	})
+
 	switch {
 	case input.Action == domain.ActionListAvailableActions:
 		return Decision{Allowed: true, Reason: "available actions can always be listed"}
 	case input.Action == domain.ActionReadUserProfile:
-		return pol.decideActionReadUserProfile(input)
+		return pol.decideActionReadUserProfile(input, caps)
 	case input.Action == domain.ActionReadSecret:
-		return pol.decideActionReadSecret(input)
+		return pol.decideActionReadSecret(input, caps)
 	}
 	return Decision{Allowed: true, Reason: "no safety-relevant action"}
 }
 
-func (pol PolicyMedium) decideActionReadUserProfile(input DecisionInput) Decision {
+func (pol PolicyMedium) resolver() capability.Resolver {
+	if pol.capabilityResolver == nil {
+		return capability.StaticResolver{}
+	}
+	return pol.capabilityResolver
+}
+
+func (pol PolicyMedium) decideActionReadUserProfile(input DecisionInput, caps capability.Set) Decision {
+	if !caps.CanReadUserProfile {
+		return Decision{Allowed: false, Reason: "medium mode denied non-employee user profile access"}
+	}
+
 	if input.Claims.Role == domain.RoleAdmin || input.Claims.Role == domain.RoleEmployee {
 		return Decision{Allowed: true, Reason: "medium mode trusts role claim for user profile"}
 	}
@@ -29,7 +50,11 @@ func (pol PolicyMedium) decideActionReadUserProfile(input DecisionInput) Decisio
 	return Decision{Allowed: false, Reason: "medium mode denied non-employee user profile access"}
 }
 
-func (pol PolicyMedium) decideActionReadSecret(input DecisionInput) Decision {
+func (pol PolicyMedium) decideActionReadSecret(input DecisionInput, caps capability.Set) Decision {
+	if !caps.CanReadSecret {
+		return Decision{Allowed: false, Reason: "medium mode denied non-admin secret access"}
+	}
+
 	if input.Claims.Role == domain.RoleAdmin {
 		return Decision{Allowed: true, Reason: "medium mode trusts admin claim"}
 	}

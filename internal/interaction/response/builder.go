@@ -7,15 +7,34 @@ type Builder interface {
 }
 
 type Input struct {
-	Session           domain.Session
+	Session SessionMeta
+	Request RequestMeta
+	Payload Payload
+}
+
+type SessionMeta struct {
+	ID   string
+	Role domain.Role
+	Mode domain.Mode
+}
+
+type RequestMeta struct {
 	UserMessage       string
 	Action            domain.Action
 	SubmittedPassword string
 	DecisionReason    string
-	AvailableActions  []domain.Action
-	Secret            string
-	UserProfile       *domain.UserProfile
-	PasswordCorrect   bool
+}
+
+type Payload struct {
+	AvailableActions []domain.Action
+	Secret           string
+	UserProfile      *domain.UserProfile
+	PasswordCheck    *PasswordCheck
+}
+
+type PasswordCheck struct {
+	Submitted bool
+	Correct   bool
 }
 
 type Result struct {

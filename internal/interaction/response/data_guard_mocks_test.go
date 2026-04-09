@@ -15,7 +15,7 @@ type spyResponseDataGuard struct {
 
 func (guard *spyResponseDataGuard) Guard(input Input) Input {
 	guard.lastInput = input
-	if guard.input.Action != "" || guard.input.UserMessage != "" {
+	if guard.input.Request.Action != "" || guard.input.Request.UserMessage != "" {
 		return guard.input
 	}
 	return input

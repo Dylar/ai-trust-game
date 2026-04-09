@@ -48,8 +48,8 @@ func TestStaticExecutorExecute(t *testing.T) {
 				expectedAction: domain.ActionListAvailableActions,
 				expectedAvailableActions: []domain.Action{
 					domain.ActionChat,
-					domain.ActionListAvailableActions,
 					domain.ActionSubmitAdminPassword,
+					domain.ActionListAvailableActions,
 					domain.ActionReadUserProfile,
 					domain.ActionReadSecret,
 				},
@@ -78,8 +78,8 @@ func TestStaticExecutorExecute(t *testing.T) {
 				expectedAction: domain.ActionListAvailableActions,
 				expectedAvailableActions: []domain.Action{
 					domain.ActionChat,
-					domain.ActionListAvailableActions,
 					domain.ActionSubmitAdminPassword,
+					domain.ActionListAvailableActions,
 				},
 			},
 		},
@@ -106,8 +106,8 @@ func TestStaticExecutorExecute(t *testing.T) {
 				expectedAction: domain.ActionListAvailableActions,
 				expectedAvailableActions: []domain.Action{
 					domain.ActionChat,
-					domain.ActionListAvailableActions,
 					domain.ActionSubmitAdminPassword,
+					domain.ActionListAvailableActions,
 					domain.ActionReadUserProfile,
 				},
 			},

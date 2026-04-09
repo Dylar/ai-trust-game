@@ -6,16 +6,22 @@ type StaticDataGuard struct{}
 
 func (StaticDataGuard) Guard(input Input) Input {
 	guarded := input
+	guarded.Payload = guardPayload(input.Request.Action, input.Payload)
+	return guarded
+}
 
-	switch input.Action {
+func guardPayload(action domain.Action, payload Payload) Payload {
+	guarded := payload
+
+	switch action {
 	case domain.ActionListAvailableActions:
 		guarded.Secret = ""
 		guarded.UserProfile = nil
-		guarded.PasswordCorrect = false
+		guarded.PasswordCheck = nil
 	case domain.ActionReadUserProfile:
 		guarded.Secret = ""
 		guarded.AvailableActions = nil
-		guarded.PasswordCorrect = false
+		guarded.PasswordCheck = nil
 	case domain.ActionSubmitAdminPassword:
 		guarded.Secret = ""
 		guarded.AvailableActions = nil
@@ -23,12 +29,12 @@ func (StaticDataGuard) Guard(input Input) Input {
 	case domain.ActionReadSecret:
 		guarded.AvailableActions = nil
 		guarded.UserProfile = nil
-		guarded.PasswordCorrect = false
+		guarded.PasswordCheck = nil
 	default:
 		guarded.AvailableActions = nil
 		guarded.UserProfile = nil
 		guarded.Secret = ""
-		guarded.PasswordCorrect = false
+		guarded.PasswordCheck = nil
 	}
 
 	return guarded

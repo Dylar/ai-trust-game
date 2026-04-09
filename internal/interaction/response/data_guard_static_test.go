@@ -32,11 +32,18 @@ func TestStaticDataGuardGuard(t *testing.T) {
 				"THEN keeps only available actions data",
 			given: Given{
 				input: Input{
-					Action:           domain.ActionListAvailableActions,
-					AvailableActions: []domain.Action{domain.ActionChat},
-					Secret:           "secret",
-					UserProfile:      &domain.UserProfile{FirstName: "Clara"},
-					PasswordCorrect:  true,
+					Request: RequestMeta{
+						Action: domain.ActionListAvailableActions,
+					},
+					Payload: Payload{
+						AvailableActions: []domain.Action{domain.ActionChat},
+						Secret:           "secret",
+						UserProfile:      &domain.UserProfile{FirstName: "Clara"},
+						PasswordCheck: &PasswordCheck{
+							Submitted: true,
+							Correct:   true,
+						},
+					},
 				},
 			},
 			then: Then{
@@ -52,11 +59,18 @@ func TestStaticDataGuardGuard(t *testing.T) {
 				"THEN keeps only secret data",
 			given: Given{
 				input: Input{
-					Action:           domain.ActionReadSecret,
-					AvailableActions: []domain.Action{domain.ActionChat},
-					Secret:           "secret",
-					UserProfile:      &domain.UserProfile{FirstName: "Clara"},
-					PasswordCorrect:  true,
+					Request: RequestMeta{
+						Action: domain.ActionReadSecret,
+					},
+					Payload: Payload{
+						AvailableActions: []domain.Action{domain.ActionChat},
+						Secret:           "secret",
+						UserProfile:      &domain.UserProfile{FirstName: "Clara"},
+						PasswordCheck: &PasswordCheck{
+							Submitted: true,
+							Correct:   true,
+						},
+					},
 				},
 			},
 			then: Then{
@@ -75,10 +89,10 @@ func TestStaticDataGuardGuard(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			result := StaticDataGuard{}.Guard(given.input)
 
-			tests.AssertEqual(t, result.Secret == "", then.expectSecretCleared, "unexpected secret clearing")
-			tests.AssertEqual(t, result.UserProfile == nil, then.expectProfileCleared, "unexpected profile clearing")
-			tests.AssertEqual(t, len(result.AvailableActions) == 0, then.expectActionsCleared, "unexpected actions clearing")
-			tests.AssertEqual(t, result.PasswordCorrect, !then.expectPasswordFlagCleared && given.input.PasswordCorrect, "unexpected password flag state")
+			tests.AssertEqual(t, result.Payload.Secret == "", then.expectSecretCleared, "unexpected secret clearing")
+			tests.AssertEqual(t, result.Payload.UserProfile == nil, then.expectProfileCleared, "unexpected profile clearing")
+			tests.AssertEqual(t, len(result.Payload.AvailableActions) == 0, then.expectActionsCleared, "unexpected actions clearing")
+			tests.AssertEqual(t, result.Payload.PasswordCheck == nil, then.expectPasswordFlagCleared, "unexpected password payload state")
 		})
 	}
 }

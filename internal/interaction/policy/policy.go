@@ -3,6 +3,7 @@ package policy
 import (
 	"fmt"
 	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
 )
 
 type Policy interface {
@@ -31,9 +32,9 @@ func (DefaultPolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	case domain.ModeEasy:
 		return PolicyEasy{}, nil
 	case domain.ModeMedium:
-		return PolicyMedium{}, nil
+		return PolicyMedium{capabilityResolver: capability.StaticResolver{}}, nil
 	case domain.ModeHard:
-		return PolicyHard{}, nil
+		return PolicyHard{capabilityResolver: capability.StaticResolver{}}, nil
 	}
 	return nil, fmt.Errorf("unknown policy mode %v", mode)
 }

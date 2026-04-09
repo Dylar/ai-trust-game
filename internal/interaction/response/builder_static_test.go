@@ -30,20 +30,22 @@ func TestStaticBuilderBuild(t *testing.T) {
 				"THEN returns available actions response",
 			given: Given{
 				input: Input{
-					Session: domain.Session{
-						ID: "session-actions",
-						Settings: domain.GameSettings{
-							Role: domain.RoleAdmin,
-							Mode: domain.ModeHard,
-						},
+					Session: SessionMeta{
+						ID:   "session-actions",
+						Role: domain.RoleAdmin,
+						Mode: domain.ModeHard,
 					},
-					Action: domain.ActionListAvailableActions,
-					AvailableActions: []domain.Action{
-						domain.ActionChat,
-						domain.ActionListAvailableActions,
-						domain.ActionReadUserProfile,
-						domain.ActionSubmitAdminPassword,
-						domain.ActionReadSecret,
+					Request: RequestMeta{
+						Action: domain.ActionListAvailableActions,
+					},
+					Payload: Payload{
+						AvailableActions: []domain.Action{
+							domain.ActionChat,
+							domain.ActionListAvailableActions,
+							domain.ActionReadUserProfile,
+							domain.ActionSubmitAdminPassword,
+							domain.ActionReadSecret,
+						},
 					},
 				},
 			},
@@ -58,19 +60,18 @@ func TestStaticBuilderBuild(t *testing.T) {
 				"THEN returns secret response",
 			given: Given{
 				input: Input{
-					Session: domain.Session{
-						ID: "session-response",
-						Settings: domain.GameSettings{
-							Role: domain.RoleGuest,
-							Mode: domain.ModeMedium,
-						},
-						State: domain.GameState{
-							TrustedRole: domain.RoleGuest,
-						},
+					Session: SessionMeta{
+						ID:   "session-response",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeMedium,
 					},
-					Action:         domain.ActionReadSecret,
-					DecisionReason: "allowed by response builder test",
-					Secret:         "secret data prepared",
+					Request: RequestMeta{
+						Action:         domain.ActionReadSecret,
+						DecisionReason: "allowed by response builder test",
+					},
+					Payload: Payload{
+						Secret: "secret data prepared",
+					},
 				},
 			},
 			then: Then{
@@ -84,24 +85,23 @@ func TestStaticBuilderBuild(t *testing.T) {
 				"THEN returns user profile response",
 			given: Given{
 				input: Input{
-					Session: domain.Session{
-						ID: "session-profile",
-						Settings: domain.GameSettings{
-							Role: domain.RoleEmployee,
-							Mode: domain.ModeHard,
-						},
-						State: domain.GameState{
-							TrustedRole: domain.RoleEmployee,
-						},
+					Session: SessionMeta{
+						ID:   "session-profile",
+						Role: domain.RoleEmployee,
+						Mode: domain.ModeHard,
 					},
-					Action: domain.ActionReadUserProfile,
-					UserProfile: &domain.UserProfile{
-						FirstName:        "Clara",
-						LastName:         "Meyer",
-						BirthYear:        1988,
-						City:             "Hamburg",
-						FavoriteIceCream: "Vanille",
-						Pet:              "Schaeferhund",
+					Request: RequestMeta{
+						Action: domain.ActionReadUserProfile,
+					},
+					Payload: Payload{
+						UserProfile: &domain.UserProfile{
+							FirstName:        "Clara",
+							LastName:         "Meyer",
+							BirthYear:        1988,
+							City:             "Hamburg",
+							FavoriteIceCream: "Vanille",
+							Pet:              "Schaeferhund",
+						},
 					},
 				},
 			},
@@ -116,19 +116,21 @@ func TestStaticBuilderBuild(t *testing.T) {
 				"THEN returns accepted password response",
 			given: Given{
 				input: Input{
-					Session: domain.Session{
-						ID: "session-password",
-						Settings: domain.GameSettings{
-							Role: domain.RoleGuest,
-							Mode: domain.ModeEasy,
-						},
-						State: domain.GameState{
-							TrustedRole: domain.RoleGuest,
+					Session: SessionMeta{
+						ID:   "session-password",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeEasy,
+					},
+					Request: RequestMeta{
+						Action:            domain.ActionSubmitAdminPassword,
+						SubmittedPassword: "Schaeferhund88",
+					},
+					Payload: Payload{
+						PasswordCheck: &PasswordCheck{
+							Submitted: true,
+							Correct:   true,
 						},
 					},
-					Action:            domain.ActionSubmitAdminPassword,
-					SubmittedPassword: "Schaeferhund88",
-					PasswordCorrect:   true,
 				},
 			},
 			then: Then{

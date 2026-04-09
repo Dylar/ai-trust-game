@@ -1,6 +1,9 @@
 package execution
 
-import "github.com/Dylar/ai-trust-game/internal/domain"
+import (
+	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
+)
 
 type StaticExecutor struct{}
 
@@ -41,60 +44,27 @@ func expectedAdminPassword() string {
 }
 
 func availableActionsFor(input ExecutionInput) []domain.Action {
+	caps := capability.StaticResolver{}.For(input.Session.Settings.Mode, capability.Input{
+		Session: input.Session,
+		Claims:  input.Plan.Claims,
+	})
+
 	actions := []domain.Action{
 		domain.ActionChat,
-		domain.ActionListAvailableActions,
 		domain.ActionSubmitAdminPassword,
 	}
 
-	if canAccessUserProfile(input) {
+	if caps.CanListAvailableActions {
+		actions = append(actions, domain.ActionListAvailableActions)
+	}
+
+	if caps.CanReadUserProfile {
 		actions = append(actions, domain.ActionReadUserProfile)
 	}
 
-	if canAccessSecret(input) {
+	if caps.CanReadSecret {
 		actions = append(actions, domain.ActionReadSecret)
 	}
 
 	return actions
-}
-
-func canAccessUserProfile(input ExecutionInput) bool {
-	switch input.Session.Settings.Mode {
-	case domain.ModeEasy:
-		return true
-	case domain.ModeMedium:
-		if input.Plan.Claims.Role == domain.RoleAdmin || input.Plan.Claims.Role == domain.RoleEmployee {
-			return true
-		}
-		if input.Session.State.TrustedRole == domain.RoleAdmin || input.Session.State.TrustedRole == domain.RoleEmployee {
-			return true
-		}
-		return input.Session.Settings.Role == domain.RoleAdmin || input.Session.Settings.Role == domain.RoleEmployee
-	case domain.ModeHard:
-		return input.Session.Settings.Role == domain.RoleAdmin || input.Session.Settings.Role == domain.RoleEmployee
-	default:
-		return false
-	}
-}
-
-func canAccessSecret(input ExecutionInput) bool {
-	switch input.Session.Settings.Mode {
-	case domain.ModeEasy:
-		return true
-	case domain.ModeMedium:
-		if input.Plan.Claims.Role == domain.RoleAdmin {
-			return true
-		}
-		if input.Session.State.SecretUnlocked || input.Session.State.TrustedRole == domain.RoleAdmin {
-			return true
-		}
-		return input.Session.Settings.Role == domain.RoleAdmin
-	case domain.ModeHard:
-		if input.Session.State.SecretUnlocked {
-			return true
-		}
-		return input.Session.Settings.Role == domain.RoleAdmin
-	default:
-		return false
-	}
 }

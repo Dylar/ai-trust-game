@@ -8,7 +8,7 @@ import (
 	interactionstate "github.com/Dylar/ai-trust-game/internal/interaction/state"
 )
 
-func NewDefaultProcessor() Processor {
+func NewStaticProcessor() Processor {
 	return NewProcessor(
 		interactionpolicy.DefaultPolicyResolver{},
 		interactionplanning.StaticPlanner{},
