@@ -174,6 +174,31 @@ func TestPolicyHardDecide(t *testing.T) {
 				expectedReason:  "hard mode denied non-employee user profile access",
 			},
 		},
+		{
+			name: "GIVEN guest with trusted employee role requesting user profile " +
+				"WHEN PolicyHard Decide is called " +
+				"THEN still denies the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID: "session-hard-trusted-employee",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleEmployee,
+						},
+						},
+					Action: domain.ActionReadUserProfile,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: false,
+				expectedReason:  "hard mode denied non-employee user profile access",
+			},
+		},
 	}
 
 	for _, scenario := range scenarios {

@@ -137,7 +137,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 							Mode: domain.ModeMedium,
 						},
 						State: domain.GameState{
-							TrustedRole: domain.RoleEmployee,
+							TrustedRole: domain.RoleGuest,
 						},
 						},
 					Action: domain.ActionReadUserProfile,
@@ -147,6 +147,31 @@ func TestPolicyMediumDecide(t *testing.T) {
 			then: Then{
 				expectedAllowed: true,
 				expectedReason:  "medium mode accepts verified employee access to user profile",
+			},
+		},
+		{
+			name: "GIVEN guest with trusted employee role requesting user profile " +
+				"WHEN PolicyMedium Decide is called " +
+				"THEN allows the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID: "session-medium-trusted-employee",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleEmployee,
+						},
+						},
+					Action: domain.ActionReadUserProfile,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: true,
+				expectedReason:  "medium mode accepts trusted role access to user profile",
 			},
 		},
 		{
