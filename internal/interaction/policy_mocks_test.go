@@ -1,39 +1,42 @@
 package interaction
 
-import "github.com/Dylar/ai-trust-game/internal/domain"
+import (
+	"github.com/Dylar/ai-trust-game/internal/domain"
+	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
+)
 
 type stubPolicy struct {
-	decision Decision
+	decision interactionpolicy.Decision
 }
 
-func (policy stubPolicy) Decide(_ DecisionInput) Decision {
+func (policy stubPolicy) Decide(_ interactionpolicy.DecisionInput) interactionpolicy.Decision {
 	return policy.decision
 }
 
 type spyPolicy struct {
-	decision  Decision
-	lastInput DecisionInput
+	decision  interactionpolicy.Decision
+	lastInput interactionpolicy.DecisionInput
 }
 
-func (policy *spyPolicy) Decide(input DecisionInput) Decision {
+func (policy *spyPolicy) Decide(input interactionpolicy.DecisionInput) interactionpolicy.Decision {
 	policy.lastInput = input
 	return policy.decision
 }
 
 type stubPolicyResolver struct {
-	policy Policy
+	policy interactionpolicy.Policy
 }
 
-func (resolver stubPolicyResolver) PolicyFor(_ domain.Mode) (Policy, error) {
+func (resolver stubPolicyResolver) PolicyFor(_ domain.Mode) (interactionpolicy.Policy, error) {
 	return resolver.policy, nil
 }
 
 type spyPolicyResolver struct {
-	policy   Policy
+	policy   interactionpolicy.Policy
 	lastMode domain.Mode
 }
 
-func (resolver *spyPolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
+func (resolver *spyPolicyResolver) PolicyFor(mode domain.Mode) (interactionpolicy.Policy, error) {
 	resolver.lastMode = mode
 	return resolver.policy, nil
 }

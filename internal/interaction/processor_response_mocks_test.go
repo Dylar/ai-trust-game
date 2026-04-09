@@ -24,7 +24,7 @@ func (guard *spyResponseDataGuard) Guard(input interactionresponse.Input) intera
 }
 
 type stubResponseBuilder struct {
-	result Result
+	result interactionresponse.Result
 }
 
 func (builder stubResponseBuilder) Build(_ interactionresponse.Input) interactionresponse.Result {
@@ -32,7 +32,7 @@ func (builder stubResponseBuilder) Build(_ interactionresponse.Input) interactio
 }
 
 type spyResponseBuilder struct {
-	result    Result
+	result    interactionresponse.Result
 	lastInput interactionresponse.Input
 }
 
@@ -42,7 +42,7 @@ func (builder *spyResponseBuilder) Build(input interactionresponse.Input) intera
 }
 
 type stubResponseValidator struct {
-	result Result
+	result interactionresponse.Result
 }
 
 func (validator stubResponseValidator) Validate(_ interactionresponse.ValidatorInput) interactionresponse.Result {
@@ -50,7 +50,7 @@ func (validator stubResponseValidator) Validate(_ interactionresponse.ValidatorI
 }
 
 type spyResponseValidator struct {
-	result    Result
+	result    interactionresponse.Result
 	lastInput interactionresponse.ValidatorInput
 }
 

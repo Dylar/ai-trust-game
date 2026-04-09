@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/interaction"
+	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/internal/session"
@@ -132,7 +133,7 @@ func (handler *InteractionHandler) mapInteractionError(err error) (int, Interact
 	return http.StatusInternalServerError, InteractionResponse{}
 }
 
-func (handler *InteractionHandler) mapToResponse(result interaction.Result) InteractionResponse {
+func (handler *InteractionHandler) mapToResponse(result interactionresponse.Result) InteractionResponse {
 	return InteractionResponse{
 		Message: result.Message,
 	}

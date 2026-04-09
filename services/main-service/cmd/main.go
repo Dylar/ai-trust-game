@@ -25,14 +25,7 @@ func main() {
 	sessionRepo := session.NewInMemoryRepository()
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
 
-	policyResolver := interaction.DefaultPolicyResolver{}
-	planner := interaction.StaticPlanner{}
-	executor := interaction.StaticExecutor{}
-	stateUpdater := interaction.StaticStateUpdater{}
-	responseDataGuard := interaction.StaticResponseDataGuard{}
-	responseBuilder := interaction.StaticResponseBuilder{}
-	responseValidator := interaction.StaticResponseValidator{}
-	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator)
+	processor := interaction.NewDefaultProcessor()
 	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
 
 	srv := infra.NewServer(

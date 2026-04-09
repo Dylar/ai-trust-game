@@ -14,14 +14,7 @@ import (
 
 func TestHandleInteraction(t *testing.T) {
 	logger := logging.NewConsoleLogger()
-	policyResolver := interaction.DefaultPolicyResolver{}
-	planner := interaction.StaticPlanner{}
-	executor := interaction.StaticExecutor{}
-	stateUpdater := interaction.StaticStateUpdater{}
-	responseDataGuard := interaction.StaticResponseDataGuard{}
-	responseBuilder := interaction.StaticResponseBuilder{}
-	responseValidator := interaction.StaticResponseValidator{}
-	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator)
+	processor := interaction.NewDefaultProcessor()
 
 	type Given struct {
 		sessionID string
@@ -264,14 +257,7 @@ func TestHandleInteraction_PersistsUpdatedSessionState(t *testing.T) {
 	}
 	repo.Save(sess)
 
-	policyResolver := interaction.DefaultPolicyResolver{}
-	planner := interaction.StaticPlanner{}
-	executor := interaction.StaticExecutor{}
-	stateUpdater := interaction.StaticStateUpdater{}
-	responseDataGuard := interaction.StaticResponseDataGuard{}
-	responseBuilder := interaction.StaticResponseBuilder{}
-	responseValidator := interaction.StaticResponseValidator{}
-	processor := interaction.NewProcessor(policyResolver, planner, executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator)
+	processor := interaction.NewDefaultProcessor()
 	handler := NewInteractionHandler(logger, repo, processor)
 
 	ctx := network.WithMetadata(context.Background(), network.Metadata{
