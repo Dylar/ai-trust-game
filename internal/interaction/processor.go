@@ -29,7 +29,7 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 	}
 
 	sess := interaction.Session
-	policy, err := processor.policyResolver.PolicyFor(sess.Mode)
+	policy, err := processor.policyResolver.PolicyFor(sess.Settings.Mode)
 	if err != nil {
 		return Result{}, err
 	}

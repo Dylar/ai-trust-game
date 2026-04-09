@@ -98,8 +98,8 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 		ctx,
 		"interaction started",
 		logging.WithField("session_id", sess.ID),
-		logging.WithField("role", sess.Role),
-		logging.WithField("mode", sess.Mode),
+		logging.WithField("role", sess.Settings.Role),
+		logging.WithField("mode", sess.Settings.Mode),
 		logging.WithField("message", req.Message),
 		logging.WithField("message_length", len(req.Message)),
 	)

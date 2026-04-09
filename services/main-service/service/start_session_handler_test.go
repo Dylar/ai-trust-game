@@ -116,8 +116,9 @@ func TestHandleStartSession(t *testing.T) {
 			}
 
 			if then.expectStoredSession {
-				tests.AssertEqual(t, string(sess.Role), string(then.expectedRole), "unexpected stored role")
-				tests.AssertEqual(t, string(sess.Mode), string(then.expectedMode), "unexpected stored mode")
+				tests.AssertEqual(t, string(sess.Settings.Role), string(then.expectedRole), "unexpected stored role")
+				tests.AssertEqual(t, string(sess.Settings.Mode), string(then.expectedMode), "unexpected stored mode")
+				tests.AssertEqual(t, string(sess.State.TrustedRole), string(then.expectedRole), "unexpected initial trusted role")
 			}
 		})
 	}

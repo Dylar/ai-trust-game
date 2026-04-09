@@ -31,10 +31,15 @@ func TestPolicyMediumDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-medium-admin",
-						Role: domain.RoleAdmin,
-						Mode: domain.ModeMedium,
-					},
+						ID: "session-medium-admin",
+						Settings: domain.GameSettings{
+							Role: domain.RoleAdmin,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleAdmin,
+						},
+						},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -51,10 +56,15 @@ func TestPolicyMediumDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-medium-claim",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeMedium,
-					},
+						ID: "session-medium-claim",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
@@ -71,10 +81,15 @@ func TestPolicyMediumDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-medium-denied",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeMedium,
-					},
+						ID: "session-medium-denied",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -91,10 +106,15 @@ func TestPolicyMediumDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-medium-chat",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeMedium,
-					},
+						ID: "session-medium-chat",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionChat,
 					Claims: domain.Claims{},
 				},
@@ -111,10 +131,15 @@ func TestPolicyMediumDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-medium-employee",
-						Role: domain.RoleEmployee,
-						Mode: domain.ModeMedium,
-					},
+						ID: "session-medium-employee",
+						Settings: domain.GameSettings{
+							Role: domain.RoleEmployee,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleEmployee,
+						},
+						},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -131,10 +156,15 @@ func TestPolicyMediumDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-medium-guest-profile",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeMedium,
-					},
+						ID: "session-medium-guest-profile",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},

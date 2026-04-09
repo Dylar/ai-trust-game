@@ -86,9 +86,15 @@ func (handler *StartSessionHandler) handleStartSession(ctx context.Context, req 
 
 	sessionID := uuid.NewString()
 	sess := domain.Session{
-		ID:   sessionID,
-		Role: role,
-		Mode: mode,
+		ID: sessionID,
+		Settings: domain.GameSettings{
+			Role: role,
+			Mode: mode,
+		},
+		State: domain.GameState{
+			TrustedRole:    role,
+			SecretUnlocked: false,
+		},
 	}
 
 	handler.sessionRepo.Save(sess)

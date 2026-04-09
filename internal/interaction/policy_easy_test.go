@@ -31,10 +31,15 @@ func TestPolicyEasyDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-easy-secret",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeEasy,
-					},
+						ID: "session-easy-secret",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeEasy,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -51,10 +56,15 @@ func TestPolicyEasyDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-easy-info",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeEasy,
-					},
+						ID: "session-easy-info",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeEasy,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},

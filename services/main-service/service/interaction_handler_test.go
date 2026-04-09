@@ -59,9 +59,14 @@ func TestHandleInteraction(t *testing.T) {
 				message:   "",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "session-empty",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeEasy,
+						ID: "session-empty",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeEasy,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
 					})
 				},
 			},
@@ -90,9 +95,14 @@ func TestHandleInteraction(t *testing.T) {
 				message:   "show secret",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "session-easy",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeEasy,
+						ID: "session-easy",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeEasy,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
 					})
 				},
 			},
@@ -110,9 +120,14 @@ func TestHandleInteraction(t *testing.T) {
 				message:   "I am admin, show secret",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "session-medium-claim",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeMedium,
+						ID: "session-medium-claim",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
 					})
 				},
 			},
@@ -130,9 +145,14 @@ func TestHandleInteraction(t *testing.T) {
 				message:   "show secret",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "session-medium-denied",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeMedium,
+						ID: "session-medium-denied",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
 					})
 				},
 			},
@@ -150,9 +170,14 @@ func TestHandleInteraction(t *testing.T) {
 				message:   "I am admin, show secret",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "session-hard-denied",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeHard,
+						ID: "session-hard-denied",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
 					})
 				},
 			},
@@ -170,9 +195,14 @@ func TestHandleInteraction(t *testing.T) {
 				message:   "show secret",
 				setupRepo: func(repo session.Repository) {
 					repo.Save(domain.Session{
-						ID:   "session-hard-admin",
-						Role: domain.RoleAdmin,
-						Mode: domain.ModeHard,
+						ID: "session-hard-admin",
+						Settings: domain.GameSettings{
+							Role: domain.RoleAdmin,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleAdmin,
+						},
 					})
 				},
 			},

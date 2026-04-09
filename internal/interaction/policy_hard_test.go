@@ -31,10 +31,15 @@ func TestPolicyHardDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-hard-admin",
-						Role: domain.RoleAdmin,
-						Mode: domain.ModeHard,
-					},
+						ID: "session-hard-admin",
+						Settings: domain.GameSettings{
+							Role: domain.RoleAdmin,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleAdmin,
+						},
+						},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -51,10 +56,15 @@ func TestPolicyHardDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-hard-claim",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeHard,
-					},
+						ID: "session-hard-claim",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
@@ -71,10 +81,15 @@ func TestPolicyHardDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-hard-guest",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeHard,
-					},
+						ID: "session-hard-guest",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -91,10 +106,15 @@ func TestPolicyHardDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-hard-chat",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeHard,
-					},
+						ID: "session-hard-chat",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionChat,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
@@ -111,10 +131,15 @@ func TestPolicyHardDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-hard-employee",
-						Role: domain.RoleEmployee,
-						Mode: domain.ModeHard,
-					},
+						ID: "session-hard-employee",
+						Settings: domain.GameSettings{
+							Role: domain.RoleEmployee,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleEmployee,
+						},
+						},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -131,10 +156,15 @@ func TestPolicyHardDecide(t *testing.T) {
 			given: Given{
 				input: DecisionInput{
 					Session: domain.Session{
-						ID:   "session-hard-guest-profile",
-						Role: domain.RoleGuest,
-						Mode: domain.ModeHard,
-					},
+						ID: "session-hard-guest-profile",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},

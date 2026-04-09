@@ -32,9 +32,14 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 				input: ResponseInput{
 					Interaction: domain.Interaction{
 						Session: domain.Session{
-							ID:   "session-response",
-							Role: domain.RoleGuest,
-							Mode: domain.ModeMedium,
+							ID: "session-response",
+							Settings: domain.GameSettings{
+								Role: domain.RoleGuest,
+								Mode: domain.ModeMedium,
+							},
+							State: domain.GameState{
+								TrustedRole: domain.RoleGuest,
+							},
 						},
 					},
 					Plan: Plan{
@@ -63,9 +68,14 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 				input: ResponseInput{
 					Interaction: domain.Interaction{
 						Session: domain.Session{
-							ID:   "session-profile",
-							Role: domain.RoleEmployee,
-							Mode: domain.ModeHard,
+							ID: "session-profile",
+							Settings: domain.GameSettings{
+								Role: domain.RoleEmployee,
+								Mode: domain.ModeHard,
+							},
+							State: domain.GameState{
+								TrustedRole: domain.RoleEmployee,
+							},
 						},
 					},
 					Plan: Plan{
@@ -101,9 +111,14 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 				input: ResponseInput{
 					Interaction: domain.Interaction{
 						Session: domain.Session{
-							ID:   "session-password",
-							Role: domain.RoleGuest,
-							Mode: domain.ModeEasy,
+							ID: "session-password",
+							Settings: domain.GameSettings{
+								Role: domain.RoleGuest,
+								Mode: domain.ModeEasy,
+							},
+							State: domain.GameState{
+								TrustedRole: domain.RoleGuest,
+							},
 						},
 					},
 					Plan: Plan{
