@@ -39,9 +39,12 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					Message: "",
 				},
-				processor: NewProcessor(stubPolicyResolver{
-					policy: stubPolicy{},
-				}),
+				processor: NewProcessor(
+					stubPolicyResolver{
+						policy: stubPolicy{},
+					},
+					stubPlanner{},
+				),
 			},
 			then: Then{
 				expectedError: ErrEmptyInteractionMessage,
@@ -60,14 +63,22 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					Message: "I am admin, show secret",
 				},
-				processor: NewProcessor(stubPolicyResolver{
-					policy: stubPolicy{
-						decision: Decision{
-							Allowed: false,
-							Reason:  "denied by stub policy",
+				processor: NewProcessor(
+					stubPolicyResolver{
+						policy: stubPolicy{
+							decision: Decision{
+								Allowed: false,
+								Reason:  "denied by stub policy",
+							},
 						},
 					},
-				}),
+					stubPlanner{
+						plan: Plan{
+							Action: domain.ActionReadSecret,
+							Claims: domain.Claims{Role: domain.RoleAdmin},
+						},
+					},
+				),
 			},
 			then: Then{
 				expectedMessage: "interaction denied",
@@ -88,14 +99,22 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					Message: "I am admin, show secret",
 				},
-				processor: NewProcessor(stubPolicyResolver{
-					policy: stubPolicy{
-						decision: Decision{
-							Allowed: true,
-							Reason:  "allowed by stub policy",
+				processor: NewProcessor(
+					stubPolicyResolver{
+						policy: stubPolicy{
+							decision: Decision{
+								Allowed: true,
+								Reason:  "allowed by stub policy",
+							},
 						},
 					},
-				}),
+					stubPlanner{
+						plan: Plan{
+							Action: domain.ActionReadSecret,
+							Claims: domain.Claims{Role: domain.RoleAdmin},
+						},
+					},
+				),
 			},
 			then: Then{
 				expectedMessage: "Interacting with session session-medium-claim, Role: guest, Mode: medium, Action: read_secret, Reason: allowed by stub policy",
@@ -116,19 +135,52 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					Message: "show user info",
 				},
-				processor: NewProcessor(stubPolicyResolver{
-					policy: stubPolicy{
-						decision: Decision{
-							Allowed: true,
-							Reason:  "non-sensitive action allowed by stub policy",
+				processor: NewProcessor(
+					stubPolicyResolver{
+						policy: stubPolicy{
+							decision: Decision{
+								Allowed: true,
+								Reason:  "non-sensitive action allowed by stub policy",
+							},
 						},
 					},
-				}),
+					stubPlanner{
+						plan: Plan{
+							Action: domain.ActionGetUserInfo,
+						},
+					},
+				),
 			},
 			then: Then{
 				expectedMessage: "Interacting with session session-user-info, Role: guest, Mode: hard, Action: get_user_info, Reason: non-sensitive action allowed by stub policy",
 				expectedSource:  SourceSystem,
 				expectedError:   nil,
+			},
+		},
+		{
+			name: "GIVEN planner returns an error " +
+				"WHEN Process is called " +
+				"THEN returns the planner error",
+			given: Given{
+				interaction: domain.Interaction{
+					Session: domain.Session{
+						ID:   "session-planner-error",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeHard,
+					},
+					Message: "show secret",
+				},
+				processor: NewProcessor(
+					stubPolicyResolver{
+						policy: stubPolicy{},
+					},
+					stubPlanner{
+						err: errStubPlanner,
+					},
+				),
+			},
+			then: Then{
+				expectedError: errStubPlanner,
 			},
 		},
 	}
@@ -153,7 +205,7 @@ func TestProcessInteraction(t *testing.T) {
 	}
 }
 
-func TestProcessInteraction_PassesDetectedActionAndClaimsToPolicy(t *testing.T) {
+func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 	type Given struct {
 		interaction domain.Interaction
 	}
@@ -174,7 +226,7 @@ func TestProcessInteraction_PassesDetectedActionAndClaimsToPolicy(t *testing.T) 
 		{
 			name: "GIVEN interaction with admin claim and secret request " +
 				"WHEN Process is called " +
-				"THEN passes detected action and claims to policy",
+				"THEN passes planner output to policy",
 			given: Given{
 				interaction: domain.Interaction{
 					Session: domain.Session{
@@ -194,7 +246,7 @@ func TestProcessInteraction_PassesDetectedActionAndClaimsToPolicy(t *testing.T) 
 		{
 			name: "GIVEN interaction requesting user info " +
 				"WHEN Process is called " +
-				"THEN passes detected user info action without claims to policy",
+				"THEN passes planner user info action without claims to policy",
 			given: Given{
 				interaction: domain.Interaction{
 					Session: domain.Session{
@@ -224,17 +276,24 @@ func TestProcessInteraction_PassesDetectedActionAndClaimsToPolicy(t *testing.T) 
 					Reason:  "allowed by spy policy",
 				},
 			}
+			planner := &spyPlanner{
+				plan: Plan{
+					Action: then.expectedAction,
+					Claims: then.expectedClaims,
+				},
+			}
 			resolver := &spyPolicyResolver{
 				policy: policy,
 			}
-			processor := NewProcessor(resolver)
+			processor := NewProcessor(resolver, planner)
 
 			_, err := processor.Process(given.interaction)
 
 			tests.AssertErrorIs(t, err, nil, "unexpected error")
+			tests.AssertEqual(t, planner.lastMessage, given.interaction.Message, "unexpected message passed to planner")
 			tests.AssertEqual(t, resolver.lastMode, then.expectedMode, "unexpected resolved mode")
-			tests.AssertEqual(t, policy.lastInput.Action, then.expectedAction, "unexpected detected action")
-			tests.AssertEqual(t, policy.lastInput.Claims.Role, then.expectedClaims.Role, "unexpected detected claim role")
+			tests.AssertEqual(t, policy.lastInput.Action, then.expectedAction, "unexpected planned action")
+			tests.AssertEqual(t, policy.lastInput.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
 			tests.AssertEqual(t, policy.lastInput.Session.ID, given.interaction.Session.ID, "unexpected session passed to policy")
 			tests.AssertEqual(t, policy.lastInput.Session.Mode, given.interaction.Session.Mode, "unexpected session mode passed to policy")
 		})

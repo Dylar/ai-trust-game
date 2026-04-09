@@ -19,7 +19,8 @@ func TestInteractionRoute(t *testing.T) {
 
 	sessionRepo := session.NewInMemoryRepository()
 	policyResolver := interaction.DefaultPolicyResolver{}
-	processor := interaction.NewProcessor(policyResolver)
+	planner := interaction.StaticPlanner{}
+	processor := interaction.NewProcessor(policyResolver, planner)
 	handler := NewInteractionHandler(logger, sessionRepo, processor)
 
 	setupInteractionRoute(mux, logger, handler)

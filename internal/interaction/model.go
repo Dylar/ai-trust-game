@@ -14,6 +14,5 @@ type Decision struct {
 
 type Result struct {
 	Message string
-
-	Source Source
+	Source  Source
 }

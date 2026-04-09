@@ -4,18 +4,19 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"strings"
 )
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type Processor struct {
 	policyResolver PolicyResolver
+	planner        Planner
 }
 
-func NewProcessor(policyResolver PolicyResolver) Processor {
+func NewProcessor(policyResolver PolicyResolver, planner Planner) Processor {
 	return Processor{
 		policyResolver: policyResolver,
+		planner:        planner,
 	}
 }
 
@@ -24,19 +25,21 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 		return Result{}, err
 	}
 
-	action := detectAction(interaction.Message)
-	claims := detectClaims(interaction.Message)
-
 	sess := interaction.Session
 	policy, err := processor.policyResolver.PolicyFor(sess.Mode)
 	if err != nil {
 		return Result{}, err
 	}
 
+	plan, err := processor.planner.Plan(interaction.Message)
+	if err != nil {
+		return Result{}, err
+	}
+
 	decision := policy.Decide(DecisionInput{
 		Session: sess,
-		Claims:  claims,
-		Action:  action,
+		Claims:  plan.Claims,
+		Action:  plan.Action,
 	})
 	if !decision.Allowed {
 		return Result{
@@ -45,7 +48,7 @@ func (processor Processor) Process(interaction domain.Interaction) (Result, erro
 		}, nil
 	}
 
-	return execute(interaction, action, decision.Reason), nil
+	return execute(interaction, plan.Action, decision.Reason), nil
 }
 
 func validate(interaction domain.Interaction) error {
@@ -53,32 +56,6 @@ func validate(interaction domain.Interaction) error {
 		return ErrEmptyInteractionMessage
 	}
 	return nil
-}
-
-func detectAction(message string) domain.Action {
-	message = strings.ToLower(message)
-	if strings.Contains(message, "show secret") ||
-		strings.Contains(message, "give me the secret") ||
-		strings.Contains(message, "read admin secret") {
-		return domain.ActionReadSecret
-	}
-
-	if strings.Contains(message, "show user info") ||
-		strings.Contains(message, "give me info about") ||
-		strings.Contains(message, "do you know user") {
-		return domain.ActionGetUserInfo
-	}
-
-	return domain.ActionChat
-}
-
-func detectClaims(message string) domain.Claims {
-	message = strings.ToLower(message)
-	if strings.Contains(message, "trust me") ||
-		strings.Contains(message, "i am admin") {
-		return domain.Claims{Role: domain.RoleAdmin}
-	}
-	return domain.Claims{}
 }
 
 func execute(i domain.Interaction, action domain.Action, reason string) Result {

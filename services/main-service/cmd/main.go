@@ -26,7 +26,8 @@ func main() {
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
 
 	policyResolver := interaction.DefaultPolicyResolver{}
-	processor := interaction.NewProcessor(policyResolver)
+	planner := interaction.StaticPlanner{}
+	processor := interaction.NewProcessor(policyResolver, planner)
 	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
 
 	srv := infra.NewServer(
