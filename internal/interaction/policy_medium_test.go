@@ -25,6 +25,56 @@ func TestPolicyMediumDecide(t *testing.T) {
 
 	scenarios := []Scenario{
 		{
+			name: "GIVEN verified admin requesting available actions " +
+				"WHEN PolicyMedium Decide is called " +
+				"THEN allows the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID: "session-medium-admin-actions",
+						Settings: domain.GameSettings{
+							Role: domain.RoleAdmin,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
+					Action: domain.ActionListAvailableActions,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: true,
+				expectedReason:  "available actions can always be listed",
+			},
+		},
+		{
+			name: "GIVEN guest requesting available actions " +
+				"WHEN PolicyMedium Decide is called " +
+				"THEN allows the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID: "session-medium-guest-actions",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleGuest,
+						},
+						},
+					Action: domain.ActionListAvailableActions,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: true,
+				expectedReason:  "available actions can always be listed",
+			},
+		},
+		{
 			name: "GIVEN verified admin requesting secret " +
 				"WHEN PolicyMedium Decide is called " +
 				"THEN allows the interaction",

@@ -17,6 +17,13 @@ func (StaticPlanner) Plan(message string) (Plan, error) {
 
 func detectAction(message string) domain.Action {
 	message = strings.ToLower(message)
+	if strings.Contains(message, "all possibilities") ||
+		strings.Contains(message, "all possible actions") ||
+		strings.Contains(message, "what can i do") ||
+		strings.Contains(message, "list available actions") {
+		return domain.ActionListAvailableActions
+	}
+
 	if strings.Contains(message, "show secret") ||
 		strings.Contains(message, "give me the secret") ||
 		strings.Contains(message, "read admin secret") {

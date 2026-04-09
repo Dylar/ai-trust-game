@@ -13,6 +13,7 @@ type ExecutionInput struct {
 
 type ExecutionOutput struct {
 	Action          domain.Action
+	AvailableActions []domain.Action
 	Secret          string
 	UserProfile     *domain.UserProfile
 	PasswordCorrect bool

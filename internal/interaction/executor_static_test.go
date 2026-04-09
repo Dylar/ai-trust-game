@@ -14,6 +14,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 
 	type Then struct {
 		expectedAction          domain.Action
+		expectedAvailableActions []domain.Action
 		expectedSecret          string
 		expectedPasswordCorrect bool
 		expectedUserProfile     *domain.UserProfile
@@ -26,6 +27,90 @@ func TestStaticExecutorExecute(t *testing.T) {
 	}
 
 	scenarios := []Scenario{
+		{
+			name: "GIVEN admin listing available actions in hard mode " +
+				"WHEN StaticExecutor Execute is called " +
+				"THEN returns full available actions output",
+			given: Given{
+				input: ExecutionInput{
+					Session: domain.Session{
+						ID: "session-actions-admin",
+						Settings: domain.GameSettings{
+							Role: domain.RoleAdmin,
+							Mode: domain.ModeHard,
+						},
+					},
+					Plan: Plan{Action: domain.ActionListAvailableActions},
+				},
+			},
+			then: Then{
+				expectedAction: domain.ActionListAvailableActions,
+				expectedAvailableActions: []domain.Action{
+					domain.ActionChat,
+					domain.ActionListAvailableActions,
+					domain.ActionSubmitAdminPassword,
+					domain.ActionReadUserProfile,
+					domain.ActionReadSecret,
+				},
+			},
+		},
+		{
+			name: "GIVEN guest listing available actions in hard mode " +
+				"WHEN StaticExecutor Execute is called " +
+				"THEN returns restricted available actions output",
+			given: Given{
+				input: ExecutionInput{
+					Session: domain.Session{
+						ID: "session-actions-guest",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeHard,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleAdmin,
+						},
+					},
+					Plan: Plan{Action: domain.ActionListAvailableActions},
+				},
+			},
+			then: Then{
+				expectedAction: domain.ActionListAvailableActions,
+				expectedAvailableActions: []domain.Action{
+					domain.ActionChat,
+					domain.ActionListAvailableActions,
+					domain.ActionSubmitAdminPassword,
+				},
+			},
+		},
+		{
+			name: "GIVEN guest with trusted employee role listing available actions in medium mode " +
+				"WHEN StaticExecutor Execute is called " +
+				"THEN returns employee-level available actions output",
+			given: Given{
+				input: ExecutionInput{
+					Session: domain.Session{
+						ID: "session-actions-medium-trusted",
+						Settings: domain.GameSettings{
+							Role: domain.RoleGuest,
+							Mode: domain.ModeMedium,
+						},
+						State: domain.GameState{
+							TrustedRole: domain.RoleEmployee,
+						},
+					},
+					Plan: Plan{Action: domain.ActionListAvailableActions},
+				},
+			},
+			then: Then{
+				expectedAction: domain.ActionListAvailableActions,
+				expectedAvailableActions: []domain.Action{
+					domain.ActionChat,
+					domain.ActionListAvailableActions,
+					domain.ActionSubmitAdminPassword,
+					domain.ActionReadUserProfile,
+				},
+			},
+		},
 		{
 			name: "GIVEN read secret action " +
 				"WHEN StaticExecutor Execute is called " +
@@ -106,6 +191,10 @@ func TestStaticExecutorExecute(t *testing.T) {
 
 			tests.AssertErrorIs(t, err, nil, "unexpected executor error")
 			tests.AssertEqual(t, output.Action, then.expectedAction, "unexpected execution action")
+			tests.AssertEqual(t, len(output.AvailableActions), len(then.expectedAvailableActions), "unexpected available actions length")
+			for index, action := range then.expectedAvailableActions {
+				tests.AssertEqual(t, output.AvailableActions[index], action, "unexpected available action")
+			}
 			tests.AssertEqual(t, output.Secret, then.expectedSecret, "unexpected execution secret")
 			tests.AssertEqual(t, output.PasswordCorrect, then.expectedPasswordCorrect, "unexpected execution password result")
 

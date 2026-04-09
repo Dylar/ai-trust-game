@@ -26,6 +26,19 @@ func TestStaticPlannerPlan(t *testing.T) {
 
 	scenarios := []Scenario{
 		{
+			name: "GIVEN available actions request " +
+				"WHEN StaticPlanner Plan is called " +
+				"THEN returns list available actions",
+			given: Given{
+				message: "give me all possibilities",
+			},
+			then: Then{
+				expectedAction:            domain.ActionListAvailableActions,
+				expectedClaims:            domain.Claims{},
+				expectedSubmittedPassword: "",
+			},
+		},
+		{
 			name: "GIVEN admin claim and secret request " +
 				"WHEN StaticPlanner Plan is called " +
 				"THEN returns read secret action and admin claim",

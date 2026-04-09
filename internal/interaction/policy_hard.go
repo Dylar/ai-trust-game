@@ -6,6 +6,8 @@ type PolicyHard struct{}
 
 func (pol PolicyHard) Decide(input DecisionInput) Decision {
 	switch {
+	case input.Action == domain.ActionListAvailableActions:
+		return Decision{Allowed: true, Reason: "available actions can always be listed"}
 	case input.Action == domain.ActionReadSecret:
 		return pol.decideActionReadSecret(input)
 	case input.Action == domain.ActionReadUserProfile:

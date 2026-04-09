@@ -25,6 +25,45 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 
 	scenarios := []Scenario{
 		{
+			name: "GIVEN available actions response input " +
+				"WHEN StaticResponseBuilder Build is called " +
+				"THEN returns available actions response",
+			given: Given{
+				input: ResponseInput{
+					Interaction: domain.Interaction{
+						Session: domain.Session{
+							ID: "session-actions",
+							Settings: domain.GameSettings{
+								Role: domain.RoleAdmin,
+								Mode: domain.ModeHard,
+							},
+						},
+					},
+					Plan: Plan{
+						Action: domain.ActionListAvailableActions,
+					},
+					Decision: Decision{
+						Allowed: true,
+						Reason:  "actions access granted",
+					},
+					Execution: ExecutionOutput{
+						Action: domain.ActionListAvailableActions,
+						AvailableActions: []domain.Action{
+							domain.ActionChat,
+							domain.ActionListAvailableActions,
+							domain.ActionReadUserProfile,
+							domain.ActionSubmitAdminPassword,
+							domain.ActionReadSecret,
+						},
+					},
+				},
+			},
+			then: Then{
+				expectedMessage: "Available actions: chat, list_available_actions, read_user_profile, submit_admin_password, read_secret",
+				expectedSource:  SourceSystem,
+			},
+		},
+		{
 			name: "GIVEN read secret response input " +
 				"WHEN StaticResponseBuilder Build is called " +
 				"THEN returns system response",

@@ -6,6 +6,8 @@ type PolicyMedium struct{}
 
 func (pol PolicyMedium) Decide(input DecisionInput) Decision {
 	switch {
+	case input.Action == domain.ActionListAvailableActions:
+		return Decision{Allowed: true, Reason: "available actions can always be listed"}
 	case input.Action == domain.ActionReadUserProfile:
 		return pol.decideActionReadUserProfile(input)
 	case input.Action == domain.ActionReadSecret:

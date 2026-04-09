@@ -2,14 +2,17 @@ package interaction
 
 import (
 	"fmt"
-	"github.com/Dylar/ai-trust-game/internal/domain"
 	"strings"
+
+	"github.com/Dylar/ai-trust-game/internal/domain"
 )
 
 type StaticResponseBuilder struct{}
 
 func (StaticResponseBuilder) Build(input ResponseInput) Result {
 	switch input.Plan.Action {
+	case domain.ActionListAvailableActions:
+		return buildListAvailableActionsResponse(input)
 	case domain.ActionReadUserProfile:
 		return buildReadUserProfileResponse(input)
 	case domain.ActionSubmitAdminPassword:
@@ -70,6 +73,25 @@ func buildSubmitAdminPasswordResponse(input ResponseInput) Result {
 
 	return Result{
 		Message: "admin password rejected",
+		Source:  SourceSystem,
+	}
+}
+
+func buildListAvailableActionsResponse(input ResponseInput) Result {
+	if len(input.Execution.AvailableActions) == 0 {
+		return Result{
+			Message: "no available actions",
+			Source:  SourceSystem,
+		}
+	}
+
+	actions := make([]string, 0, len(input.Execution.AvailableActions))
+	for _, action := range input.Execution.AvailableActions {
+		actions = append(actions, string(action))
+	}
+
+	return Result{
+		Message: fmt.Sprintf("Available actions: %s", strings.Join(actions, ", ")),
 		Source:  SourceSystem,
 	}
 }
