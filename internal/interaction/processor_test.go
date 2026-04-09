@@ -157,7 +157,7 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					stubPlanner{
 						plan: Plan{
-							Action: domain.ActionGetUserInfo,
+							Action: domain.ActionReadUserProfile,
 						},
 					},
 					stubExecutor{},
@@ -316,7 +316,7 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 			},
 			then: Then{
 				expectedMode:   domain.ModeHard,
-				expectedAction: domain.ActionGetUserInfo,
+				expectedAction: domain.ActionReadUserProfile,
 				expectedClaims: domain.Claims{},
 			},
 		},

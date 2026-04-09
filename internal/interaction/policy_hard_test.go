@@ -95,13 +95,53 @@ func TestPolicyHardDecide(t *testing.T) {
 						Role: domain.RoleGuest,
 						Mode: domain.ModeHard,
 					},
-					Action: domain.ActionGetUserInfo,
+					Action: domain.ActionChat,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
 			},
 			then: Then{
 				expectedAllowed: true,
 				expectedReason:  "no safety-relevant action",
+			},
+		},
+		{
+			name: "GIVEN employee requesting user profile " +
+				"WHEN PolicyHard Decide is called " +
+				"THEN allows the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID:   "session-hard-employee",
+						Role: domain.RoleEmployee,
+						Mode: domain.ModeHard,
+					},
+					Action: domain.ActionReadUserProfile,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: true,
+				expectedReason:  "hard mode requires verified employee access to user profile",
+			},
+		},
+		{
+			name: "GIVEN guest requesting user profile " +
+				"WHEN PolicyHard Decide is called " +
+				"THEN denies the interaction",
+			given: Given{
+				input: DecisionInput{
+					Session: domain.Session{
+						ID:   "session-hard-guest-profile",
+						Role: domain.RoleGuest,
+						Mode: domain.ModeHard,
+					},
+					Action: domain.ActionReadUserProfile,
+					Claims: domain.Claims{},
+				},
+			},
+			then: Then{
+				expectedAllowed: false,
+				expectedReason:  "hard mode denied non-employee user profile access",
 			},
 		},
 	}

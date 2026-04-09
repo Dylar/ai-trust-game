@@ -13,9 +13,10 @@ func TestStaticExecutorExecute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedAction   domain.Action
-		expectedSecret   string
-		expectedUserInfo string
+		expectedAction          domain.Action
+		expectedSecret          string
+		expectedPasswordCorrect bool
+		expectedUserProfile     *domain.UserProfile
 	}
 
 	type Scenario struct {
@@ -37,22 +38,47 @@ func TestStaticExecutorExecute(t *testing.T) {
 			},
 			then: Then{
 				expectedAction: domain.ActionReadSecret,
-				expectedSecret: "secret data prepared",
+				expectedSecret: adminSecret,
 			},
 		},
 		{
-			name: "GIVEN get user info action " +
+			name: "GIVEN read user profile action " +
 				"WHEN StaticExecutor Execute is called " +
-				"THEN returns prepared user info output",
+				"THEN returns prepared user profile output",
 			given: Given{
 				input: ExecutionInput{
 					Session: domain.Session{ID: "session-user-info"},
-					Plan:    Plan{Action: domain.ActionGetUserInfo},
+					Plan:    Plan{Action: domain.ActionReadUserProfile},
 				},
 			},
 			then: Then{
-				expectedAction:   domain.ActionGetUserInfo,
-				expectedUserInfo: "user info prepared",
+				expectedAction: domain.ActionReadUserProfile,
+				expectedUserProfile: &domain.UserProfile{
+					FirstName:        "Clara",
+					LastName:         "Meyer",
+					BirthYear:        1988,
+					City:             "Hamburg",
+					FavoriteIceCream: "Vanille",
+					Pet:              "Schaeferhund",
+				},
+			},
+		},
+		{
+			name: "GIVEN correct admin password submission " +
+				"WHEN StaticExecutor Execute is called " +
+				"THEN returns accepted password result",
+			given: Given{
+				input: ExecutionInput{
+					Session: domain.Session{ID: "session-password"},
+					Plan: Plan{
+						Action:            domain.ActionSubmitAdminPassword,
+						SubmittedPassword: "Schaeferhund88",
+					},
+				},
+			},
+			then: Then{
+				expectedAction:          domain.ActionSubmitAdminPassword,
+				expectedPasswordCorrect: true,
 			},
 		},
 		{
@@ -81,7 +107,25 @@ func TestStaticExecutorExecute(t *testing.T) {
 			tests.AssertErrorIs(t, err, nil, "unexpected executor error")
 			tests.AssertEqual(t, output.Action, then.expectedAction, "unexpected execution action")
 			tests.AssertEqual(t, output.Secret, then.expectedSecret, "unexpected execution secret")
-			tests.AssertEqual(t, output.UserInfo, then.expectedUserInfo, "unexpected execution user info")
+			tests.AssertEqual(t, output.PasswordCorrect, then.expectedPasswordCorrect, "unexpected execution password result")
+
+			if then.expectedUserProfile == nil {
+				if output.UserProfile != nil {
+					t.Fatalf("unexpected execution user profile %+v", *output.UserProfile)
+				}
+				return
+			}
+
+			if output.UserProfile == nil {
+				t.Fatalf("expected execution user profile")
+			}
+
+			tests.AssertEqual(t, output.UserProfile.FirstName, then.expectedUserProfile.FirstName, "unexpected user profile first name")
+			tests.AssertEqual(t, output.UserProfile.LastName, then.expectedUserProfile.LastName, "unexpected user profile last name")
+			tests.AssertEqual(t, output.UserProfile.BirthYear, then.expectedUserProfile.BirthYear, "unexpected user profile birth year")
+			tests.AssertEqual(t, output.UserProfile.City, then.expectedUserProfile.City, "unexpected user profile city")
+			tests.AssertEqual(t, output.UserProfile.FavoriteIceCream, then.expectedUserProfile.FavoriteIceCream, "unexpected user profile favorite ice cream")
+			tests.AssertEqual(t, output.UserProfile.Pet, then.expectedUserProfile.Pet, "unexpected user profile pet")
 		})
 	}
 }

@@ -12,5 +12,12 @@ func (pol PolicyHard) Decide(input DecisionInput) Decision {
 		return Decision{Allowed: false, Reason: "hard mode denied non-admin secret access"}
 	}
 
+	if input.Action == domain.ActionReadUserProfile {
+		if input.Session.Role == domain.RoleAdmin || input.Session.Role == domain.RoleEmployee {
+			return Decision{Allowed: true, Reason: "hard mode requires verified employee access to user profile"}
+		}
+		return Decision{Allowed: false, Reason: "hard mode denied non-employee user profile access"}
+	}
+
 	return Decision{Allowed: true, Reason: "no safety-relevant action"}
 }

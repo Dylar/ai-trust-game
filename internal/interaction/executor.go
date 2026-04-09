@@ -12,7 +12,8 @@ type ExecutionInput struct {
 }
 
 type ExecutionOutput struct {
-	Action   domain.Action
-	Secret   string
-	UserInfo string
+	Action          domain.Action
+	Secret          string
+	UserProfile     *domain.UserProfile
+	PasswordCorrect bool
 }

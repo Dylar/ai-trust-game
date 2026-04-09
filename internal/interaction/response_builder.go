@@ -12,3 +12,8 @@ type ResponseInput struct {
 	Decision    Decision
 	Execution   ExecutionOutput
 }
+
+type Result struct {
+	Message string
+	Source  Source
+}

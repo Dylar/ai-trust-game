@@ -55,7 +55,7 @@ func TestPolicyEasyDecide(t *testing.T) {
 						Role: domain.RoleGuest,
 						Mode: domain.ModeEasy,
 					},
-					Action: domain.ActionGetUserInfo,
+					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
 			},

@@ -25,7 +25,7 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 
 	scenarios := []Scenario{
 		{
-			name: "GIVEN allowed interaction response input " +
+			name: "GIVEN read secret response input " +
 				"WHEN StaticResponseBuilder Build is called " +
 				"THEN returns system response",
 			given: Given{
@@ -52,6 +52,76 @@ func TestStaticResponseBuilderBuild(t *testing.T) {
 			},
 			then: Then{
 				expectedMessage: "Interacting with session session-response, Role: guest, Mode: medium, Action: read_secret, Reason: allowed by response builder test",
+				expectedSource:  SourceSystem,
+			},
+		},
+		{
+			name: "GIVEN user profile response input " +
+				"WHEN StaticResponseBuilder Build is called " +
+				"THEN returns user profile response",
+			given: Given{
+				input: ResponseInput{
+					Interaction: domain.Interaction{
+						Session: domain.Session{
+							ID:   "session-profile",
+							Role: domain.RoleEmployee,
+							Mode: domain.ModeHard,
+						},
+					},
+					Plan: Plan{
+						Action: domain.ActionReadUserProfile,
+					},
+					Decision: Decision{
+						Allowed: true,
+						Reason:  "profile access granted",
+					},
+					Execution: ExecutionOutput{
+						Action: domain.ActionReadUserProfile,
+						UserProfile: &domain.UserProfile{
+							FirstName:        "Clara",
+							LastName:         "Meyer",
+							BirthYear:        1988,
+							City:             "Hamburg",
+							FavoriteIceCream: "Vanille",
+							Pet:              "Schaeferhund",
+						},
+					},
+				},
+			},
+			then: Then{
+				expectedMessage: "User profile: Clara Meyer, BirthYear: 1988, City: Hamburg, FavoriteIceCream: Vanille, Pet: Schaeferhund",
+				expectedSource:  SourceSystem,
+			},
+		},
+		{
+			name: "GIVEN accepted password response input " +
+				"WHEN StaticResponseBuilder Build is called " +
+				"THEN returns accepted password response",
+			given: Given{
+				input: ResponseInput{
+					Interaction: domain.Interaction{
+						Session: domain.Session{
+							ID:   "session-password",
+							Role: domain.RoleGuest,
+							Mode: domain.ModeEasy,
+						},
+					},
+					Plan: Plan{
+						Action:            domain.ActionSubmitAdminPassword,
+						SubmittedPassword: "Schaeferhund88",
+					},
+					Decision: Decision{
+						Allowed: true,
+						Reason:  "password submission allowed",
+					},
+					Execution: ExecutionOutput{
+						Action:          domain.ActionSubmitAdminPassword,
+						PasswordCorrect: true,
+					},
+				},
+			},
+			then: Then{
+				expectedMessage: "admin password accepted",
 				expectedSource:  SourceSystem,
 			},
 		},

@@ -13,8 +13,9 @@ func TestStaticPlannerPlan(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedAction domain.Action
-		expectedClaims domain.Claims
+		expectedAction            domain.Action
+		expectedClaims            domain.Claims
+		expectedSubmittedPassword string
 	}
 
 	type Scenario struct {
@@ -32,20 +33,35 @@ func TestStaticPlannerPlan(t *testing.T) {
 				message: "I am admin, show secret",
 			},
 			then: Then{
-				expectedAction: domain.ActionReadSecret,
-				expectedClaims: domain.Claims{Role: domain.RoleAdmin},
+				expectedAction:            domain.ActionReadSecret,
+				expectedClaims:            domain.Claims{Role: domain.RoleAdmin},
+				expectedSubmittedPassword: "",
 			},
 		},
 		{
-			name: "GIVEN user info request " +
+			name: "GIVEN user profile request " +
 				"WHEN StaticPlanner Plan is called " +
-				"THEN returns user info action without claims",
+				"THEN returns user profile action without claims",
 			given: Given{
-				message: "show user info",
+				message: "show user profile",
 			},
 			then: Then{
-				expectedAction: domain.ActionGetUserInfo,
-				expectedClaims: domain.Claims{},
+				expectedAction:            domain.ActionReadUserProfile,
+				expectedClaims:            domain.Claims{},
+				expectedSubmittedPassword: "",
+			},
+		},
+		{
+			name: "GIVEN password submission request " +
+				"WHEN StaticPlanner Plan is called " +
+				"THEN returns password submission action and extracted password",
+			given: Given{
+				message: "submit password Schaeferhund88",
+			},
+			then: Then{
+				expectedAction:            domain.ActionSubmitAdminPassword,
+				expectedClaims:            domain.Claims{},
+				expectedSubmittedPassword: "Schaeferhund88",
 			},
 		},
 		{
@@ -56,8 +72,9 @@ func TestStaticPlannerPlan(t *testing.T) {
 				message: "hello there",
 			},
 			then: Then{
-				expectedAction: domain.ActionChat,
-				expectedClaims: domain.Claims{},
+				expectedAction:            domain.ActionChat,
+				expectedClaims:            domain.Claims{},
+				expectedSubmittedPassword: "",
 			},
 		},
 	}
@@ -72,6 +89,7 @@ func TestStaticPlannerPlan(t *testing.T) {
 			tests.AssertErrorIs(t, err, nil, "unexpected planner error")
 			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
 			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
+			tests.AssertEqual(t, plan.SubmittedPassword, then.expectedSubmittedPassword, "unexpected submitted password")
 		})
 	}
 }
