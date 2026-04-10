@@ -10,8 +10,7 @@ import (
 )
 
 type Builder struct {
-	client    llm.Client
-	buildFunc func(ctx context.Context, input Input) Result
+	client llm.Client
 }
 
 type Input struct {
@@ -62,15 +61,7 @@ func NewBuilder(client llm.Client) Builder {
 	return Builder{client: client}
 }
 
-func NewBuilderFunc(buildFunc func(ctx context.Context, input Input) Result) Builder {
-	return Builder{buildFunc: buildFunc}
-}
-
 func (builder Builder) Build(ctx context.Context, input Input) Result {
-	if builder.buildFunc != nil {
-		return builder.buildFunc(ctx, input)
-	}
-
 	if builder.client != nil {
 		request := llm.Request{
 			SystemPrompt: responseSystemPrompt(),

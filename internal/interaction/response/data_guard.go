@@ -2,27 +2,16 @@ package response
 
 import "github.com/Dylar/ai-trust-game/internal/domain"
 
-type DataGuard struct {
-	guardFunc func(input Input) Input
-}
-
-func NewDataGuardFunc(guardFunc func(input Input) Input) DataGuard {
-	return DataGuard{guardFunc: guardFunc}
-}
+type DataGuard struct{}
 
 func NewStaticDataGuard() DataGuard {
-	return NewDataGuardFunc(func(input Input) Input {
-		guarded := input
-		guarded.Payload = guardPayload(input.Request.Action, input.Payload)
-		return guarded
-	})
+	return DataGuard{}
 }
 
-func (guard DataGuard) Guard(input Input) Input {
-	if guard.guardFunc != nil {
-		return guard.guardFunc(input)
-	}
-	return input
+func (DataGuard) Guard(input Input) Input {
+	guarded := input
+	guarded.Payload = guardPayload(input.Request.Action, input.Payload)
+	return guarded
 }
 
 func guardPayload(action domain.Action, payload Payload) Payload {

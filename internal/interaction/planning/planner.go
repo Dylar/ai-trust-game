@@ -9,8 +9,7 @@ import (
 )
 
 type Planner struct {
-	client   llm.Client
-	planFunc func(message string) (Plan, error)
+	client llm.Client
 }
 
 type Plan struct {
@@ -31,15 +30,7 @@ func NewPlanner(client llm.Client) Planner {
 	return Planner{client: client}
 }
 
-func NewPlannerFunc(planFunc func(message string) (Plan, error)) Planner {
-	return Planner{planFunc: planFunc}
-}
-
 func (planner Planner) Plan(message string) (Plan, error) {
-	if planner.planFunc != nil {
-		return planner.planFunc(message)
-	}
-
 	response, err := planner.client.Generate(context.Background(), llm.Request{
 		UserPrompt: message,
 	})

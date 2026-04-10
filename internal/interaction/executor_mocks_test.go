@@ -13,10 +13,8 @@ type stubExecutor struct {
 	err    error
 }
 
-func (executor stubExecutor) build() interactionexecution.Executor {
-	return interactionexecution.NewExecutorFunc(func(_ interactionexecution.ExecutionInput) (interactionexecution.ExecutionOutput, error) {
-		return executor.output, executor.err
-	})
+func (executor stubExecutor) Execute(_ interactionexecution.ExecutionInput) (interactionexecution.ExecutionOutput, error) {
+	return executor.output, executor.err
 }
 
 type spyExecutor struct {
@@ -25,9 +23,7 @@ type spyExecutor struct {
 	lastInput interactionexecution.ExecutionInput
 }
 
-func (executor *spyExecutor) build() interactionexecution.Executor {
-	return interactionexecution.NewExecutorFunc(func(input interactionexecution.ExecutionInput) (interactionexecution.ExecutionOutput, error) {
-		executor.lastInput = input
-		return executor.output, executor.err
-	})
+func (executor *spyExecutor) Execute(input interactionexecution.ExecutionInput) (interactionexecution.ExecutionOutput, error) {
+	executor.lastInput = input
+	return executor.output, executor.err
 }

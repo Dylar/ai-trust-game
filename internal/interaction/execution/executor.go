@@ -6,9 +6,7 @@ import (
 	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
 )
 
-type Executor struct {
-	executeFunc func(input ExecutionInput) (ExecutionOutput, error)
-}
+type Executor struct{}
 
 type ExecutionInput struct {
 	Session domain.Session
@@ -21,17 +19,6 @@ type ExecutionOutput struct {
 	Secret           string
 	UserProfile      *domain.UserProfile
 	PasswordCorrect  bool
-}
-
-func NewExecutorFunc(executeFunc func(input ExecutionInput) (ExecutionOutput, error)) Executor {
-	return Executor{executeFunc: executeFunc}
-}
-
-func (executor Executor) Execute(input ExecutionInput) (ExecutionOutput, error) {
-	if executor.executeFunc != nil {
-		return executor.executeFunc(input)
-	}
-	return ExecutionOutput{}, nil
 }
 
 var adminProfile = domain.UserProfile{
@@ -47,25 +34,27 @@ const adminPasswordYearSuffix = "88"
 const adminSecret = "Admin vault: release code 2342"
 
 func NewStaticExecutor() Executor {
-	return NewExecutorFunc(func(input ExecutionInput) (ExecutionOutput, error) {
-		output := ExecutionOutput{
-			Action: input.Plan.Action,
-		}
+	return Executor{}
+}
 
-		switch input.Plan.Action {
-		case domain.ActionListAvailableActions:
-			output.AvailableActions = availableActionsFor(input)
-		case domain.ActionReadSecret:
-			output.Secret = adminSecret
-		case domain.ActionReadUserProfile:
-			profile := adminProfile
-			output.UserProfile = &profile
-		case domain.ActionSubmitAdminPassword:
-			output.PasswordCorrect = input.Plan.SubmittedPassword == expectedAdminPassword()
-		}
+func (Executor) Execute(input ExecutionInput) (ExecutionOutput, error) {
+	output := ExecutionOutput{
+		Action: input.Plan.Action,
+	}
 
-		return output, nil
-	})
+	switch input.Plan.Action {
+	case domain.ActionListAvailableActions:
+		output.AvailableActions = availableActionsFor(input)
+	case domain.ActionReadSecret:
+		output.Secret = adminSecret
+	case domain.ActionReadUserProfile:
+		profile := adminProfile
+		output.UserProfile = &profile
+	case domain.ActionSubmitAdminPassword:
+		output.PasswordCorrect = input.Plan.SubmittedPassword == expectedAdminPassword()
+	}
+
+	return output, nil
 }
 
 func expectedAdminPassword() string {

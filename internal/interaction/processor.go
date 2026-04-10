@@ -3,6 +3,7 @@ package interaction
 import (
 	"context"
 	"errors"
+
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/internal/interaction/execution"
 	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
@@ -14,25 +15,53 @@ import (
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
+type plannerPort interface {
+	Plan(message string) (interactionplanning.Plan, error)
+}
+
+type policyResolverPort interface {
+	PolicyFor(mode domain.Mode) (interactionpolicy.Policy, error)
+}
+
+type executorPort interface {
+	Execute(input interactionexecution.ExecutionInput) (interactionexecution.ExecutionOutput, error)
+}
+
+type stateUpdaterPort interface {
+	Update(input interactionstate.StateUpdateInput) (domain.Session, bool)
+}
+
+type responseDataGuardPort interface {
+	Guard(input interactionresponse.Input) interactionresponse.Input
+}
+
+type responseBuilderPort interface {
+	Build(ctx context.Context, input interactionresponse.Input) interactionresponse.Result
+}
+
+type responseValidatorPort interface {
+	Validate(input interactionresponse.ValidatorInput) interactionresponse.Result
+}
+
 type Processor struct {
-	policyResolver    interactionpolicy.PolicyResolver
-	planner           interactionplanning.Planner
-	executor          interactionexecution.Executor
-	stateUpdater      interactionstate.Updater
-	responseDataGuard interactionresponse.DataGuard
-	responseBuilder   interactionresponse.Builder
-	responseValidator interactionresponse.Validator
+	policyResolver    policyResolverPort
+	planner           plannerPort
+	executor          executorPort
+	stateUpdater      stateUpdaterPort
+	responseDataGuard responseDataGuardPort
+	responseBuilder   responseBuilderPort
+	responseValidator responseValidatorPort
 	auditSink         audit.Sink
 }
 
 func NewProcessor(
-	policyResolver interactionpolicy.PolicyResolver,
-	planner interactionplanning.Planner,
-	executor interactionexecution.Executor,
-	stateUpdater interactionstate.Updater,
-	responseDataGuard interactionresponse.DataGuard,
-	responseBuilder interactionresponse.Builder,
-	responseValidator interactionresponse.Validator,
+	policyResolver policyResolverPort,
+	planner plannerPort,
+	executor executorPort,
+	stateUpdater stateUpdaterPort,
+	responseDataGuard responseDataGuardPort,
+	responseBuilder responseBuilderPort,
+	responseValidator responseValidatorPort,
 	auditSink audit.Sink,
 ) Processor {
 	if auditSink == nil {
