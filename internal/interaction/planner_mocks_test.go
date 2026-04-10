@@ -2,6 +2,7 @@ package interaction
 
 import (
 	"errors"
+
 	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 )
 
@@ -12,8 +13,10 @@ type stubPlanner struct {
 	err  error
 }
 
-func (planner stubPlanner) Plan(_ string) (interactionplanning.Plan, error) {
-	return planner.plan, planner.err
+func (planner stubPlanner) build() interactionplanning.Planner {
+	return interactionplanning.NewPlannerFunc(func(_ string) (interactionplanning.Plan, error) {
+		return planner.plan, planner.err
+	})
 }
 
 type spyPlanner struct {
@@ -22,7 +25,9 @@ type spyPlanner struct {
 	lastMessage string
 }
 
-func (planner *spyPlanner) Plan(message string) (interactionplanning.Plan, error) {
-	planner.lastMessage = message
-	return planner.plan, planner.err
+func (planner *spyPlanner) build() interactionplanning.Planner {
+	return interactionplanning.NewPlannerFunc(func(message string) (interactionplanning.Plan, error) {
+		planner.lastMessage = message
+		return planner.plan, planner.err
+	})
 }

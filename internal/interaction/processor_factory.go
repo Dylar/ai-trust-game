@@ -13,7 +13,7 @@ import (
 func NewStaticProcessor(auditSink audit.Sink) Processor {
 	return NewProcessor(
 		interactionpolicy.DefaultPolicyResolver{},
-		interactionplanning.StaticPlanner{},
+		interactionplanning.NewStaticPlanner(),
 		interactionexecution.StaticExecutor{},
 		interactionstate.StaticUpdater{},
 		interactionresponse.StaticDataGuard{},
@@ -26,7 +26,7 @@ func NewStaticProcessor(auditSink audit.Sink) Processor {
 func NewLLMProcessor(auditSink audit.Sink, client llm.Client) Processor {
 	return NewProcessor(
 		interactionpolicy.DefaultPolicyResolver{},
-		interactionplanning.StaticPlanner{},
+		interactionplanning.NewPlanner(client),
 		interactionexecution.StaticExecutor{},
 		interactionstate.StaticUpdater{},
 		interactionresponse.StaticDataGuard{},

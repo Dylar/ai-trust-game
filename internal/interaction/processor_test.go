@@ -55,7 +55,7 @@ func TestProcessInteraction(t *testing.T) {
 					stubPolicyResolver{
 						policy: stubPolicy{},
 					},
-					stubPlanner{},
+					stubPlanner{}.build(),
 					stubExecutor{},
 					stubStateUpdater{},
 					stubResponseDataGuard{},
@@ -100,7 +100,7 @@ func TestProcessInteraction(t *testing.T) {
 							Action: domain.ActionReadSecret,
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
-					},
+					}.build(),
 					stubExecutor{},
 					stubStateUpdater{},
 					stubResponseDataGuard{},
@@ -147,7 +147,7 @@ func TestProcessInteraction(t *testing.T) {
 							Action: domain.ActionReadSecret,
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
-					},
+					}.build(),
 					stubExecutor{},
 					stubStateUpdater{},
 					stubResponseDataGuard{},
@@ -203,7 +203,7 @@ func TestProcessInteraction(t *testing.T) {
 						plan: interactionplanning.Plan{
 							Action: domain.ActionReadUserProfile,
 						},
-					},
+					}.build(),
 					stubExecutor{},
 					stubStateUpdater{},
 					stubResponseDataGuard{},
@@ -252,7 +252,7 @@ func TestProcessInteraction(t *testing.T) {
 					},
 					stubPlanner{
 						err: errStubPlanner,
-					},
+					}.build(),
 					stubExecutor{},
 					stubStateUpdater{},
 					stubResponseDataGuard{},
@@ -296,7 +296,7 @@ func TestProcessInteraction(t *testing.T) {
 						plan: interactionplanning.Plan{
 							Action: domain.ActionReadSecret,
 						},
-					},
+					}.build(),
 					stubExecutor{
 						err: errStubExecutor,
 					},
@@ -442,7 +442,7 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 					Source:  interactionresponse.SourceSystem,
 				},
 			}
-			processor := NewProcessor(resolver, planner, executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator, nil)
+			processor := NewProcessor(resolver, planner.build(), executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator, nil)
 
 			_, err := processor.Process(context.Background(), given.interaction)
 
@@ -490,7 +490,7 @@ func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
 			plan: interactionplanning.Plan{
 				Action: domain.ActionReadUserProfile,
 			},
-		},
+		}.build(),
 		stubExecutor{},
 		stubStateUpdater{
 			session: updatedSession,
@@ -547,7 +547,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 				Action: domain.ActionReadSecret,
 				Claims: domain.Claims{Role: domain.RoleAdmin},
 			},
-		},
+		}.build(),
 		stubExecutor{
 			output: interactionexecution.ExecutionOutput{
 				Action: domain.ActionReadSecret,
