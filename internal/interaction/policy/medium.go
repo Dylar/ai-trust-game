@@ -5,9 +5,9 @@ import (
 	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
 )
 
-type PolicyMedium struct{}
+type Medium struct{}
 
-func (pol PolicyMedium) Decide(input DecisionInput) Decision {
+func (pol Medium) Decide(input DecisionInput) Decision {
 	caps := capability.For(input.Session.Settings.Mode, capability.Input{
 		Session: input.Session,
 		Claims:  input.Claims,
@@ -24,7 +24,7 @@ func (pol PolicyMedium) Decide(input DecisionInput) Decision {
 	return Decision{Allowed: true, Reason: "no safety-relevant action"}
 }
 
-func (pol PolicyMedium) decideActionReadUserProfile(input DecisionInput, caps capability.Set) Decision {
+func (pol Medium) decideActionReadUserProfile(input DecisionInput, caps capability.Set) Decision {
 	if !caps.CanReadUserProfile {
 		return Decision{Allowed: false, Reason: "medium mode denied non-employee user profile access"}
 	}
@@ -41,7 +41,7 @@ func (pol PolicyMedium) decideActionReadUserProfile(input DecisionInput, caps ca
 	return Decision{Allowed: false, Reason: "medium mode denied non-employee user profile access"}
 }
 
-func (pol PolicyMedium) decideActionReadSecret(input DecisionInput, caps capability.Set) Decision {
+func (pol Medium) decideActionReadSecret(input DecisionInput, caps capability.Set) Decision {
 	if !caps.CanReadSecret {
 		return Decision{Allowed: false, Reason: "medium mode denied non-admin secret access"}
 	}

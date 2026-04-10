@@ -51,16 +51,16 @@ type stubResponseValidator struct {
 	result interactionresponse.Result
 }
 
-func (validator stubResponseValidator) Validate(_ interactionresponse.ValidatorInput) interactionresponse.Result {
+func (validator stubResponseValidator) Validate(_ interactionresponse.ValidationInput) interactionresponse.Result {
 	return validator.result
 }
 
 type spyResponseValidator struct {
 	result    interactionresponse.Result
-	lastInput interactionresponse.ValidatorInput
+	lastInput interactionresponse.ValidationInput
 }
 
-func (validator *spyResponseValidator) Validate(input interactionresponse.ValidatorInput) interactionresponse.Result {
+func (validator *spyResponseValidator) Validate(input interactionresponse.ValidationInput) interactionresponse.Result {
 	validator.lastInput = input
 	return validator.result
 }

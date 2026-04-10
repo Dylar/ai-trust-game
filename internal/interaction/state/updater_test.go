@@ -8,9 +8,9 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestNewStaticUpdaterUpdate(t *testing.T) {
+func TestNewUpdaterUpdate(t *testing.T) {
 	type Given struct {
-		input StateUpdateInput
+		input Input
 	}
 
 	type Then struct {
@@ -28,10 +28,10 @@ func TestNewStaticUpdaterUpdate(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN medium mode allowed employee claim " +
-				"WHEN NewStaticUpdater Update is called " +
+				"WHEN NewUpdater Update is called " +
 				"THEN stores trusted employee role",
 			given: Given{
-				input: StateUpdateInput{
+				input: Input{
 					Session: domain.Session{
 						ID: "session-medium",
 						Settings: domain.GameSettings{
@@ -57,10 +57,10 @@ func TestNewStaticUpdaterUpdate(t *testing.T) {
 		},
 		{
 			name: "GIVEN hard mode allowed employee claim " +
-				"WHEN NewStaticUpdater Update is called " +
+				"WHEN NewUpdater Update is called " +
 				"THEN keeps trusted role unchanged",
 			given: Given{
-				input: StateUpdateInput{
+				input: Input{
 					Session: domain.Session{
 						ID: "session-hard",
 						Settings: domain.GameSettings{
@@ -86,10 +86,10 @@ func TestNewStaticUpdaterUpdate(t *testing.T) {
 		},
 		{
 			name: "GIVEN accepted admin password submission " +
-				"WHEN NewStaticUpdater Update is called " +
+				"WHEN NewUpdater Update is called " +
 				"THEN unlocks the secret area",
 			given: Given{
-				input: StateUpdateInput{
+				input: Input{
 					Session: domain.Session{
 						ID: "session-password",
 						Settings: domain.GameSettings{
@@ -121,7 +121,7 @@ func TestNewStaticUpdaterUpdate(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			session, updated := NewStaticUpdater().Update(given.input)
+			session, updated := NewUpdater().Update(given.input)
 
 			tests.AssertEqual(t, updated, then.expectedUpdated, "unexpected update flag")
 			tests.AssertEqual(t, session.State.TrustedRole, then.expectedTrustedRole, "unexpected trusted role")

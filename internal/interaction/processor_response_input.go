@@ -12,7 +12,7 @@ func newResponseInput(
 	interaction domain.Interaction,
 	plan interactionplanning.Plan,
 	decision interactionpolicy.Decision,
-	execution interactionexecution.ExecutionOutput,
+	execution interactionexecution.Output,
 ) interactionresponse.Input {
 	return interactionresponse.Input{
 		Session: interactionresponse.SessionMeta{

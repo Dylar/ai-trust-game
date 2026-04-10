@@ -8,9 +8,9 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestNewStaticExecutorExecute(t *testing.T) {
+func TestNewExecutorExecute(t *testing.T) {
 	type Given struct {
-		input ExecutionInput
+		input Input
 	}
 
 	type Then struct {
@@ -30,10 +30,10 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN admin listing available actions in hard mode " +
-				"WHEN NewStaticExecutor Execute is called " +
+				"WHEN NewExecutor Execute is called " +
 				"THEN returns full available actions output",
 			given: Given{
-				input: ExecutionInput{
+				input: Input{
 					Session: domain.Session{
 						ID: "session-actions-admin",
 						Settings: domain.GameSettings{
@@ -57,10 +57,10 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest listing available actions in hard mode " +
-				"WHEN NewStaticExecutor Execute is called " +
+				"WHEN NewExecutor Execute is called " +
 				"THEN returns restricted available actions output",
 			given: Given{
-				input: ExecutionInput{
+				input: Input{
 					Session: domain.Session{
 						ID: "session-actions-guest",
 						Settings: domain.GameSettings{
@@ -85,10 +85,10 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest with trusted employee role listing available actions in medium mode " +
-				"WHEN NewStaticExecutor Execute is called " +
+				"WHEN NewExecutor Execute is called " +
 				"THEN returns employee-level available actions output",
 			given: Given{
-				input: ExecutionInput{
+				input: Input{
 					Session: domain.Session{
 						ID: "session-actions-medium-trusted",
 						Settings: domain.GameSettings{
@@ -114,10 +114,10 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN read secret action " +
-				"WHEN NewStaticExecutor Execute is called " +
+				"WHEN NewExecutor Execute is called " +
 				"THEN returns prepared secret output",
 			given: Given{
-				input: ExecutionInput{
+				input: Input{
 					Session: domain.Session{ID: "session-secret"},
 					Plan:    planning.Plan{Action: domain.ActionReadSecret},
 				},
@@ -129,10 +129,10 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN read user profile action " +
-				"WHEN NewStaticExecutor Execute is called " +
+				"WHEN NewExecutor Execute is called " +
 				"THEN returns prepared user profile output",
 			given: Given{
-				input: ExecutionInput{
+				input: Input{
 					Session: domain.Session{ID: "session-user-info"},
 					Plan:    planning.Plan{Action: domain.ActionReadUserProfile},
 				},
@@ -151,10 +151,10 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN correct admin password submission " +
-				"WHEN NewStaticExecutor Execute is called " +
+				"WHEN NewExecutor Execute is called " +
 				"THEN returns accepted password result",
 			given: Given{
-				input: ExecutionInput{
+				input: Input{
 					Session: domain.Session{ID: "session-password"},
 					Plan: planning.Plan{
 						Action:            domain.ActionSubmitAdminPassword,
@@ -169,10 +169,10 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN chat action " +
-				"WHEN NewStaticExecutor Execute is called " +
+				"WHEN NewExecutor Execute is called " +
 				"THEN returns action without protected data",
 			given: Given{
-				input: ExecutionInput{
+				input: Input{
 					Session: domain.Session{ID: "session-chat"},
 					Plan:    planning.Plan{Action: domain.ActionChat},
 				},
@@ -188,7 +188,7 @@ func TestNewStaticExecutorExecute(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			output, err := NewStaticExecutor().Execute(given.input)
+			output, err := NewExecutor().Execute(given.input)
 
 			tests.AssertErrorIs(t, err, nil, "unexpected executor error")
 			tests.AssertEqual(t, output.Action, then.expectedAction, "unexpected execution action")

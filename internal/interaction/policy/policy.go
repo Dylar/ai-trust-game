@@ -30,11 +30,11 @@ func NewResolver() Resolver {
 func (Resolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	switch mode {
 	case domain.ModeEasy:
-		return PolicyEasy{}, nil
+		return Easy{}, nil
 	case domain.ModeMedium:
-		return PolicyMedium{}, nil
+		return Medium{}, nil
 	case domain.ModeHard:
-		return PolicyHard{}, nil
+		return Hard{}, nil
 	}
 	return nil, fmt.Errorf("unknown policy mode %v", mode)
 }

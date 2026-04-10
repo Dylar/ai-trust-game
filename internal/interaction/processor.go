@@ -25,11 +25,11 @@ type policyResolverPort interface {
 }
 
 type executorPort interface {
-	Execute(input interactionexecution.ExecutionInput) (interactionexecution.ExecutionOutput, error)
+	Execute(input interactionexecution.Input) (interactionexecution.Output, error)
 }
 
 type stateUpdaterPort interface {
-	Update(input interactionstate.StateUpdateInput) (domain.Session, bool)
+	Update(input interactionstate.Input) (domain.Session, bool)
 }
 
 type responseDataGuardPort interface {
@@ -41,7 +41,7 @@ type responseBuilderPort interface {
 }
 
 type responseValidatorPort interface {
-	Validate(input interactionresponse.ValidatorInput) interactionresponse.Result
+	Validate(input interactionresponse.ValidationInput) interactionresponse.Result
 }
 
 type Processor struct {
@@ -117,7 +117,7 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 		}, nil
 	}
 
-	execution, err := processor.executor.Execute(interactionexecution.ExecutionInput{
+	execution, err := processor.executor.Execute(interactionexecution.Input{
 		Session: sess,
 		Plan:    plan,
 	})
@@ -132,13 +132,13 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 	if err != nil {
 		return interactionresponse.Result{}, err
 	}
-	result = processor.responseValidator.Validate(interactionresponse.ValidatorInput{
+	result = processor.responseValidator.Validate(interactionresponse.ValidationInput{
 		Response: response,
 		Result:   result,
 	})
 	processor.writeAuditEvent(ctx, respondedAuditEvent(ctx, interaction, plan, result))
 
-	updatedSession, updated := processor.stateUpdater.Update(interactionstate.StateUpdateInput{
+	updatedSession, updated := processor.stateUpdater.Update(interactionstate.Input{
 		Session:         sess,
 		Plan:            plan,
 		DecisionAllowed: decision.Allowed,

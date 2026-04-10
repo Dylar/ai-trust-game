@@ -4,16 +4,16 @@ import "strings"
 
 type Validator struct{}
 
-type ValidatorInput struct {
+type ValidationInput struct {
 	Response Input
 	Result   Result
 }
 
-func NewStaticValidator() Validator {
+func NewValidator() Validator {
 	return Validator{}
 }
 
-func (Validator) Validate(input ValidatorInput) Result {
+func (Validator) Validate(input ValidationInput) Result {
 	result := input.Result
 	if strings.TrimSpace(result.Message) == "" {
 		result.Message = "response blocked"

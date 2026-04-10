@@ -15,11 +15,11 @@ func NewStaticProcessor(auditSink audit.Sink, logger logging.Logger) Processor {
 	return NewProcessor(
 		interactionpolicy.NewResolver(),
 		interactionplanning.NewStaticPlanner(),
-		interactionexecution.NewStaticExecutor(),
-		interactionstate.NewStaticUpdater(),
-		interactionresponse.NewStaticDataGuard(),
+		interactionexecution.NewExecutor(),
+		interactionstate.NewUpdater(),
+		interactionresponse.NewDataGuard(),
 		interactionresponse.NewStaticBuilder(),
-		interactionresponse.NewStaticValidator(),
+		interactionresponse.NewValidator(),
 		auditSink,
 		logger,
 	)
@@ -29,11 +29,11 @@ func NewLLMProcessor(auditSink audit.Sink, client llm.Client, logger logging.Log
 	return NewProcessor(
 		interactionpolicy.NewResolver(),
 		interactionplanning.NewPlanner(client),
-		interactionexecution.NewStaticExecutor(),
-		interactionstate.NewStaticUpdater(),
-		interactionresponse.NewStaticDataGuard(),
+		interactionexecution.NewExecutor(),
+		interactionstate.NewUpdater(),
+		interactionresponse.NewDataGuard(),
 		interactionresponse.NewLLMBuilder(client),
-		interactionresponse.NewStaticValidator(),
+		interactionresponse.NewValidator(),
 		auditSink,
 		logger,
 	)

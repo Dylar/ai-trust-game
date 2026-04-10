@@ -69,7 +69,7 @@ func executedAuditEvent(
 	ctx context.Context,
 	interaction domain.Interaction,
 	plan interactionplanning.Plan,
-	execution interactionexecution.ExecutionOutput,
+	execution interactionexecution.Output,
 ) audit.Event {
 	event := newInteractionAuditEvent(ctx, audit.StepExecuted, interaction)
 	event.Action = plan.Action

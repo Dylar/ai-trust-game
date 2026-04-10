@@ -1,7 +1,7 @@
 package policy
 
-type PolicyEasy struct{}
+type Easy struct{}
 
-func (pol PolicyEasy) Decide(_ DecisionInput) Decision {
+func (pol Easy) Decide(_ DecisionInput) Decision {
 	return Decision{Allowed: true, Reason: "easy mode allows unrestricted interaction"}
 }

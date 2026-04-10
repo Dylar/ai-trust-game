@@ -4,16 +4,16 @@ type stubResponseValidator struct {
 	result Result
 }
 
-func (validator stubResponseValidator) Validate(_ ValidatorInput) Result {
+func (validator stubResponseValidator) Validate(_ ValidationInput) Result {
 	return validator.result
 }
 
 type spyResponseValidator struct {
 	result    Result
-	lastInput ValidatorInput
+	lastInput ValidationInput
 }
 
-func (validator *spyResponseValidator) Validate(input ValidatorInput) Result {
+func (validator *spyResponseValidator) Validate(input ValidationInput) Result {
 	validator.lastInput = input
 	return validator.result
 }

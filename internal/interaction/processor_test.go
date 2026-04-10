@@ -430,7 +430,7 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 				policy: policy,
 			}
 			executor := &spyExecutor{
-				output: interactionexecution.ExecutionOutput{
+				output: interactionexecution.Output{
 					Action: then.expectedAction,
 				},
 			}
@@ -566,7 +566,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 			},
 		},
 		stubExecutor{
-			output: interactionexecution.ExecutionOutput{
+			output: interactionexecution.Output{
 				Action: domain.ActionReadSecret,
 				Secret: "secret",
 			},

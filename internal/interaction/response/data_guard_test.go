@@ -7,7 +7,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestNewStaticDataGuardGuard(t *testing.T) {
+func TestNewDataGuardGuard(t *testing.T) {
 	type Given struct {
 		input Input
 	}
@@ -28,7 +28,7 @@ func TestNewStaticDataGuardGuard(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN available actions response input " +
-				"WHEN NewStaticDataGuard Guard is called " +
+				"WHEN NewDataGuard Guard is called " +
 				"THEN keeps only available actions data",
 			given: Given{
 				input: Input{
@@ -55,7 +55,7 @@ func TestNewStaticDataGuardGuard(t *testing.T) {
 		},
 		{
 			name: "GIVEN read secret response input " +
-				"WHEN NewStaticDataGuard Guard is called " +
+				"WHEN NewDataGuard Guard is called " +
 				"THEN keeps only secret data",
 			given: Given{
 				input: Input{
@@ -87,7 +87,7 @@ func TestNewStaticDataGuardGuard(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := NewStaticDataGuard().Guard(given.input)
+			result := NewDataGuard().Guard(given.input)
 
 			tests.AssertEqual(t, result.Payload.Secret == "", then.expectSecretCleared, "unexpected secret clearing")
 			tests.AssertEqual(t, result.Payload.UserProfile == nil, then.expectProfileCleared, "unexpected profile clearing")

@@ -8,12 +8,12 @@ import (
 
 type Executor struct{}
 
-type ExecutionInput struct {
+type Input struct {
 	Session domain.Session
 	Plan    planning.Plan
 }
 
-type ExecutionOutput struct {
+type Output struct {
 	Action           domain.Action
 	AvailableActions []domain.Action
 	Secret           string
@@ -33,12 +33,12 @@ var adminProfile = domain.UserProfile{
 const adminPasswordYearSuffix = "88"
 const adminSecret = "Admin vault: release code 2342"
 
-func NewStaticExecutor() Executor {
+func NewExecutor() Executor {
 	return Executor{}
 }
 
-func (Executor) Execute(input ExecutionInput) (ExecutionOutput, error) {
-	output := ExecutionOutput{
+func (Executor) Execute(input Input) (Output, error) {
+	output := Output{
 		Action: input.Plan.Action,
 	}
 
@@ -61,7 +61,7 @@ func expectedAdminPassword() string {
 	return adminProfile.Pet + adminPasswordYearSuffix
 }
 
-func availableActionsFor(input ExecutionInput) []domain.Action {
+func availableActionsFor(input Input) []domain.Action {
 	caps := capability.For(input.Session.Settings.Mode, capability.Input{
 		Session: input.Session,
 		Claims:  input.Plan.Claims,

@@ -7,7 +7,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestPolicyEasyDecide(t *testing.T) {
+func TestEasyDecide(t *testing.T) {
 	type Given struct {
 		input DecisionInput
 	}
@@ -26,7 +26,7 @@ func TestPolicyEasyDecide(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN guest requesting secret " +
-				"WHEN PolicyEasy Decide is called " +
+				"WHEN Easy Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -39,7 +39,7 @@ func TestPolicyEasyDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -51,7 +51,7 @@ func TestPolicyEasyDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest requesting user info while claiming admin " +
-				"WHEN PolicyEasy Decide is called " +
+				"WHEN Easy Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -64,7 +64,7 @@ func TestPolicyEasyDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
@@ -81,7 +81,7 @@ func TestPolicyEasyDecide(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := PolicyEasy{}.Decide(given.input)
+			result := Easy{}.Decide(given.input)
 
 			tests.AssertEqual(t, result.Allowed, then.expectedAllowed, "unexpected decision allowed flag")
 			tests.AssertEqual(t, result.Reason, then.expectedReason, "unexpected decision reason")

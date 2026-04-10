@@ -4,7 +4,7 @@ import "github.com/Dylar/ai-trust-game/internal/domain"
 
 type DataGuard struct{}
 
-func NewStaticDataGuard() DataGuard {
+func NewDataGuard() DataGuard {
 	return DataGuard{}
 }
 

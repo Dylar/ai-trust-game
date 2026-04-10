@@ -7,18 +7,18 @@ import (
 
 type Updater struct{}
 
-type StateUpdateInput struct {
+type Input struct {
 	Session         domain.Session
 	Plan            planning.Plan
 	DecisionAllowed bool
 	PasswordCorrect bool
 }
 
-func NewStaticUpdater() Updater {
+func NewUpdater() Updater {
 	return Updater{}
 }
 
-func (Updater) Update(input StateUpdateInput) (domain.Session, bool) {
+func (Updater) Update(input Input) (domain.Session, bool) {
 	session := input.Session
 	state := session.State
 	updated := false

@@ -7,7 +7,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestPolicyHardDecide(t *testing.T) {
+func TestHardDecide(t *testing.T) {
 	type Given struct {
 		input DecisionInput
 	}
@@ -26,7 +26,7 @@ func TestPolicyHardDecide(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN verified admin requesting available actions " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -39,7 +39,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionListAvailableActions,
 					Claims: domain.Claims{},
 				},
@@ -51,7 +51,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest requesting available actions " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -64,7 +64,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleAdmin,
 						},
-						},
+					},
 					Action: domain.ActionListAvailableActions,
 					Claims: domain.Claims{},
 				},
@@ -76,7 +76,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN verified admin requesting secret " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -89,7 +89,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleAdmin,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -101,7 +101,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest with unlocked secret requesting secret " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -115,7 +115,7 @@ func TestPolicyHardDecide(t *testing.T) {
 							TrustedRole:    domain.RoleGuest,
 							SecretUnlocked: true,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -127,7 +127,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest claiming admin and requesting secret " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN denies the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -140,7 +140,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
@@ -152,7 +152,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest requesting secret without claim " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN denies the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -165,7 +165,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -177,7 +177,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN non safety-relevant action " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -190,7 +190,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionChat,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
@@ -202,7 +202,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN employee requesting user profile " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -215,7 +215,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleEmployee,
 						},
-						},
+					},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -227,7 +227,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest requesting user profile " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN denies the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -240,7 +240,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -252,7 +252,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest with trusted employee role requesting user profile " +
-				"WHEN PolicyHard Decide is called " +
+				"WHEN Hard Decide is called " +
 				"THEN still denies the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -265,7 +265,7 @@ func TestPolicyHardDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleEmployee,
 						},
-						},
+					},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -282,7 +282,7 @@ func TestPolicyHardDecide(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := PolicyHard{}.Decide(given.input)
+			result := Hard{}.Decide(given.input)
 
 			tests.AssertEqual(t, result.Allowed, then.expectedAllowed, "unexpected decision allowed flag")
 			tests.AssertEqual(t, result.Reason, then.expectedReason, "unexpected decision reason")

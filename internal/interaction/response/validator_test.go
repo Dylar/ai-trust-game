@@ -6,9 +6,9 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestNewStaticValidatorValidate(t *testing.T) {
+func TestNewValidatorValidate(t *testing.T) {
 	type Given struct {
-		input ValidatorInput
+		input ValidationInput
 	}
 
 	type Then struct {
@@ -24,10 +24,10 @@ func TestNewStaticValidatorValidate(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN non-empty response message " +
-				"WHEN NewStaticValidator Validate is called " +
+				"WHEN NewValidator Validate is called " +
 				"THEN keeps the response",
 			given: Given{
-				input: ValidatorInput{
+				input: ValidationInput{
 					Response: Input{},
 					Result: Result{
 						Message: "hello",
@@ -41,10 +41,10 @@ func TestNewStaticValidatorValidate(t *testing.T) {
 		},
 		{
 			name: "GIVEN empty response message " +
-				"WHEN NewStaticValidator Validate is called " +
+				"WHEN NewValidator Validate is called " +
 				"THEN blocks the response",
 			given: Given{
-				input: ValidatorInput{
+				input: ValidationInput{
 					Response: Input{},
 					Result: Result{
 						Message: "",
@@ -60,7 +60,7 @@ func TestNewStaticValidatorValidate(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
-			result := NewStaticValidator().Validate(scenario.given.input)
+			result := NewValidator().Validate(scenario.given.input)
 			tests.AssertEqual(t, result.Message, scenario.then.expectedMessage, "unexpected validated response message")
 		})
 	}
