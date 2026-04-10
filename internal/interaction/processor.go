@@ -56,17 +56,17 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 		return interactionresponse.Result{}, err
 	}
 
-	sess := interaction.Session
-	policy, err := processor.policyResolver.PolicyFor(sess.Settings.Mode)
-	if err != nil {
-		return interactionresponse.Result{}, err
-	}
-
 	plan, err := processor.planner.Plan(interaction.Message)
 	if err != nil {
 		return interactionresponse.Result{}, err
 	}
 	processor.writeAuditEvent(ctx, plannedAuditEvent(ctx, interaction, plan))
+
+	sess := interaction.Session
+	policy, err := processor.policyResolver.PolicyFor(sess.Settings.Mode)
+	if err != nil {
+		return interactionresponse.Result{}, err
+	}
 
 	decision := policy.Decide(interactionpolicy.DecisionInput{
 		Session: sess,
@@ -92,7 +92,7 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 
 	responseInput := newResponseInput(interaction, plan, decision, execution)
 	response := processor.responseDataGuard.Guard(responseInput)
-	result := processor.responseBuilder.Build(response)
+	result := processor.responseBuilder.Build(ctx, response)
 	result = processor.responseValidator.Validate(interactionresponse.ValidatorInput{
 		Response: response,
 		Result:   result,

@@ -1,6 +1,7 @@
 package response
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -9,7 +10,7 @@ import (
 
 type StaticBuilder struct{}
 
-func (StaticBuilder) Build(input Input) Result {
+func (StaticBuilder) Build(_ context.Context, input Input) Result {
 	switch input.Request.Action {
 	case domain.ActionListAvailableActions:
 		return buildListAvailableActionsResponse(input)

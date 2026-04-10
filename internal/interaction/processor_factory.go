@@ -6,6 +6,7 @@ import (
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	interactionstate "github.com/Dylar/ai-trust-game/internal/interaction/state"
+	"github.com/Dylar/ai-trust-game/internal/llm"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 )
 
@@ -17,6 +18,19 @@ func NewStaticProcessor(auditSink audit.Sink) Processor {
 		interactionstate.StaticUpdater{},
 		interactionresponse.StaticDataGuard{},
 		interactionresponse.StaticBuilder{},
+		interactionresponse.StaticValidator{},
+		auditSink,
+	)
+}
+
+func NewLLMResponseProcessor(auditSink audit.Sink, client llm.Client) Processor {
+	return NewProcessor(
+		interactionpolicy.DefaultPolicyResolver{},
+		interactionplanning.StaticPlanner{},
+		interactionexecution.StaticExecutor{},
+		interactionstate.StaticUpdater{},
+		interactionresponse.StaticDataGuard{},
+		interactionresponse.NewLLMBuilder(client),
 		interactionresponse.StaticValidator{},
 		auditSink,
 	)

@@ -1,10 +1,12 @@
 package response
 
+import "context"
+
 type stubResponseBuilder struct {
 	result Result
 }
 
-func (builder stubResponseBuilder) Build(_ Input) Result {
+func (builder stubResponseBuilder) Build(_ context.Context, _ Input) Result {
 	return builder.result
 }
 
@@ -13,7 +15,7 @@ type spyResponseBuilder struct {
 	lastInput Input
 }
 
-func (builder *spyResponseBuilder) Build(input Input) Result {
+func (builder *spyResponseBuilder) Build(_ context.Context, input Input) Result {
 	builder.lastInput = input
 	return builder.result
 }

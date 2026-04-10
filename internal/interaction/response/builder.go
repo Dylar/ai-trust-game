@@ -1,9 +1,13 @@
 package response
 
-import "github.com/Dylar/ai-trust-game/internal/domain"
+import (
+	"context"
+
+	"github.com/Dylar/ai-trust-game/internal/domain"
+)
 
 type Builder interface {
-	Build(input Input) Result
+	Build(ctx context.Context, input Input) Result
 }
 
 type Input struct {

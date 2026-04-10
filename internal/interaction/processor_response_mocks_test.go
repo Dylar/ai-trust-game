@@ -1,6 +1,10 @@
 package interaction
 
-import interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
+import (
+	"context"
+
+	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
+)
 
 type stubResponseDataGuard struct {
 	input interactionresponse.Input
@@ -27,7 +31,7 @@ type stubResponseBuilder struct {
 	result interactionresponse.Result
 }
 
-func (builder stubResponseBuilder) Build(_ interactionresponse.Input) interactionresponse.Result {
+func (builder stubResponseBuilder) Build(_ context.Context, _ interactionresponse.Input) interactionresponse.Result {
 	return builder.result
 }
 
@@ -36,7 +40,7 @@ type spyResponseBuilder struct {
 	lastInput interactionresponse.Input
 }
 
-func (builder *spyResponseBuilder) Build(input interactionresponse.Input) interactionresponse.Result {
+func (builder *spyResponseBuilder) Build(_ context.Context, input interactionresponse.Input) interactionresponse.Result {
 	builder.lastInput = input
 	return builder.result
 }
