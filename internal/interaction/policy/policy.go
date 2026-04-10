@@ -20,16 +20,16 @@ type Decision struct {
 	Reason  string
 }
 
-type Resolver struct {
+type PolicyResolver struct {
 	resolveFunc func(mode domain.Mode) (Policy, error)
 }
 
-func NewResolverFunc(resolveFunc func(mode domain.Mode) (Policy, error)) Resolver {
-	return Resolver{resolveFunc: resolveFunc}
+func NewPolicyResolverFunc(resolveFunc func(mode domain.Mode) (Policy, error)) PolicyResolver {
+	return PolicyResolver{resolveFunc: resolveFunc}
 }
 
-func NewDefaultResolver() Resolver {
-	return NewResolverFunc(func(mode domain.Mode) (Policy, error) {
+func NewDefaultPolicyResolver() PolicyResolver {
+	return NewPolicyResolverFunc(func(mode domain.Mode) (Policy, error) {
 		switch mode {
 		case domain.ModeEasy:
 			return PolicyEasy{}, nil
@@ -42,7 +42,7 @@ func NewDefaultResolver() Resolver {
 	})
 }
 
-func (resolver Resolver) PolicyFor(mode domain.Mode) (Policy, error) {
+func (resolver PolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	if resolver.resolveFunc != nil {
 		return resolver.resolveFunc(mode)
 	}

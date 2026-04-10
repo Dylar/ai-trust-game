@@ -48,10 +48,9 @@ func decidedAuditEvent(
 	event := newInteractionAuditEvent(ctx, audit.StepDecided, interaction)
 	event.Action = plan.Action
 	event.ClaimsRole = plan.Claims.Role
+	event.Outcome = audit.OutcomeDenied
 	if decision.Allowed {
 		event.Outcome = audit.OutcomeAllowed
-	} else {
-		event.Outcome = audit.OutcomeDenied
 	}
 	event.Reason = decision.Reason
 	return event
@@ -91,10 +90,9 @@ func stateUpdatedAuditEvent(
 ) audit.Event {
 	event := newInteractionAuditEvent(ctx, audit.StepStateUpdated, interaction)
 	event.Action = plan.Action
+	event.Outcome = audit.OutcomeUnchanged
 	if updated {
 		event.Outcome = audit.OutcomeUpdated
-	} else {
-		event.Outcome = audit.OutcomeUnchanged
 	}
 	return event
 }

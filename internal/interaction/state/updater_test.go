@@ -8,7 +8,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticUpdaterUpdate(t *testing.T) {
+func TestNewStaticUpdaterUpdate(t *testing.T) {
 	type Given struct {
 		input StateUpdateInput
 	}
@@ -28,7 +28,7 @@ func TestStaticUpdaterUpdate(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN medium mode allowed employee claim " +
-				"WHEN StaticUpdater Update is called " +
+				"WHEN NewStaticUpdater Update is called " +
 				"THEN stores trusted employee role",
 			given: Given{
 				input: StateUpdateInput{
@@ -57,7 +57,7 @@ func TestStaticUpdaterUpdate(t *testing.T) {
 		},
 		{
 			name: "GIVEN hard mode allowed employee claim " +
-				"WHEN StaticUpdater Update is called " +
+				"WHEN NewStaticUpdater Update is called " +
 				"THEN keeps trusted role unchanged",
 			given: Given{
 				input: StateUpdateInput{
@@ -86,7 +86,7 @@ func TestStaticUpdaterUpdate(t *testing.T) {
 		},
 		{
 			name: "GIVEN accepted admin password submission " +
-				"WHEN StaticUpdater Update is called " +
+				"WHEN NewStaticUpdater Update is called " +
 				"THEN unlocks the secret area",
 			given: Given{
 				input: StateUpdateInput{

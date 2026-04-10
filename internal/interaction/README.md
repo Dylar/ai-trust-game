@@ -43,6 +43,17 @@ The module is intentionally split into small parts so that trust and authority s
 This separation exists so that later model-based components can be swapped in without turning the whole interaction flow
 into one opaque AI step.
 
+Two variation points are especially important right now:
+
+- `policy.Policy`
+  because the different game modes intentionally express different trust and decision rules
+
+- `llm.Client`
+  because provider access is an infrastructure boundary and should stay replaceable
+
+The rest of the interaction flow is currently kept concrete on purpose.
+That keeps the code easier to follow while preserving the important control points.
+
 ## Pipeline
 
 The current pipeline in [`processor.go`](./processor.go) is:
@@ -78,12 +89,12 @@ That means the system first limits the payload and only then allows free-text ge
 This is the current deterministic wiring of the whole interaction flow:
 
 - static planner
-- static policy resolver
-- static capability resolver usage inside policy / execution
+- default policy resolver
+- shared capability calculation used by policy and execution
 - static executor
 - static state updater
 - static response guard
-- static response builder
+- response builder without an llm client
 - static response validator
 
 The goal is not to keep everything static forever.

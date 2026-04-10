@@ -8,7 +8,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticExecutorExecute(t *testing.T) {
+func TestNewStaticExecutorExecute(t *testing.T) {
 	type Given struct {
 		input ExecutionInput
 	}
@@ -30,7 +30,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN admin listing available actions in hard mode " +
-				"WHEN StaticExecutor Execute is called " +
+				"WHEN NewStaticExecutor Execute is called " +
 				"THEN returns full available actions output",
 			given: Given{
 				input: ExecutionInput{
@@ -57,7 +57,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest listing available actions in hard mode " +
-				"WHEN StaticExecutor Execute is called " +
+				"WHEN NewStaticExecutor Execute is called " +
 				"THEN returns restricted available actions output",
 			given: Given{
 				input: ExecutionInput{
@@ -85,7 +85,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest with trusted employee role listing available actions in medium mode " +
-				"WHEN StaticExecutor Execute is called " +
+				"WHEN NewStaticExecutor Execute is called " +
 				"THEN returns employee-level available actions output",
 			given: Given{
 				input: ExecutionInput{
@@ -114,7 +114,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN read secret action " +
-				"WHEN StaticExecutor Execute is called " +
+				"WHEN NewStaticExecutor Execute is called " +
 				"THEN returns prepared secret output",
 			given: Given{
 				input: ExecutionInput{
@@ -129,7 +129,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN read user profile action " +
-				"WHEN StaticExecutor Execute is called " +
+				"WHEN NewStaticExecutor Execute is called " +
 				"THEN returns prepared user profile output",
 			given: Given{
 				input: ExecutionInput{
@@ -151,7 +151,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN correct admin password submission " +
-				"WHEN StaticExecutor Execute is called " +
+				"WHEN NewStaticExecutor Execute is called " +
 				"THEN returns accepted password result",
 			given: Given{
 				input: ExecutionInput{
@@ -169,7 +169,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 		},
 		{
 			name: "GIVEN chat action " +
-				"WHEN StaticExecutor Execute is called " +
+				"WHEN NewStaticExecutor Execute is called " +
 				"THEN returns action without protected data",
 			given: Given{
 				input: ExecutionInput{

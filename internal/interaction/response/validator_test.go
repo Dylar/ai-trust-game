@@ -6,7 +6,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticValidatorValidate(t *testing.T) {
+func TestNewStaticValidatorValidate(t *testing.T) {
 	type Given struct {
 		input ValidatorInput
 	}
@@ -24,7 +24,7 @@ func TestStaticValidatorValidate(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN non-empty response message " +
-				"WHEN StaticResponseValidator Validate is called " +
+				"WHEN NewStaticValidator Validate is called " +
 				"THEN keeps the response",
 			given: Given{
 				input: ValidatorInput{
@@ -41,7 +41,7 @@ func TestStaticValidatorValidate(t *testing.T) {
 		},
 		{
 			name: "GIVEN empty response message " +
-				"WHEN StaticResponseValidator Validate is called " +
+				"WHEN NewStaticValidator Validate is called " +
 				"THEN blocks the response",
 			given: Given{
 				input: ValidatorInput{

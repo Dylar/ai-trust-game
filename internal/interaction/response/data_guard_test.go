@@ -7,7 +7,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticDataGuardGuard(t *testing.T) {
+func TestNewStaticDataGuardGuard(t *testing.T) {
 	type Given struct {
 		input Input
 	}
@@ -28,7 +28,7 @@ func TestStaticDataGuardGuard(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN available actions response input " +
-				"WHEN StaticResponseDataGuard Guard is called " +
+				"WHEN NewStaticDataGuard Guard is called " +
 				"THEN keeps only available actions data",
 			given: Given{
 				input: Input{
@@ -55,7 +55,7 @@ func TestStaticDataGuardGuard(t *testing.T) {
 		},
 		{
 			name: "GIVEN read secret response input " +
-				"WHEN StaticResponseDataGuard Guard is called " +
+				"WHEN NewStaticDataGuard Guard is called " +
 				"THEN keeps only secret data",
 			given: Given{
 				input: Input{

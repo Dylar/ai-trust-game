@@ -8,7 +8,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticBuilderBuild(t *testing.T) {
+func TestNewBuilderBuild_WithoutLLMClient(t *testing.T) {
 	type Given struct {
 		input Input
 	}
@@ -27,7 +27,7 @@ func TestStaticBuilderBuild(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN available actions response input " +
-				"WHEN StaticResponseBuilder Build is called " +
+				"WHEN NewBuilder Build is called without llm client " +
 				"THEN returns available actions response",
 			given: Given{
 				input: Input{
@@ -57,7 +57,7 @@ func TestStaticBuilderBuild(t *testing.T) {
 		},
 		{
 			name: "GIVEN read secret response input " +
-				"WHEN StaticResponseBuilder Build is called " +
+				"WHEN NewBuilder Build is called without llm client " +
 				"THEN returns secret response",
 			given: Given{
 				input: Input{
@@ -82,7 +82,7 @@ func TestStaticBuilderBuild(t *testing.T) {
 		},
 		{
 			name: "GIVEN user profile response input " +
-				"WHEN StaticResponseBuilder Build is called " +
+				"WHEN NewBuilder Build is called without llm client " +
 				"THEN returns user profile response",
 			given: Given{
 				input: Input{
@@ -113,7 +113,7 @@ func TestStaticBuilderBuild(t *testing.T) {
 		},
 		{
 			name: "GIVEN accepted password response input " +
-				"WHEN StaticResponseBuilder Build is called " +
+				"WHEN NewBuilder Build is called without llm client " +
 				"THEN returns accepted password response",
 			given: Given{
 				input: Input{

@@ -15,7 +15,7 @@ import (
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type Processor struct {
-	policyResolver    interactionpolicy.Resolver
+	policyResolver    interactionpolicy.PolicyResolver
 	planner           interactionplanning.Planner
 	executor          interactionexecution.Executor
 	stateUpdater      interactionstate.Updater
@@ -26,7 +26,7 @@ type Processor struct {
 }
 
 func NewProcessor(
-	policyResolver interactionpolicy.Resolver,
+	policyResolver interactionpolicy.PolicyResolver,
 	planner interactionplanning.Planner,
 	executor interactionexecution.Executor,
 	stateUpdater interactionstate.Updater,

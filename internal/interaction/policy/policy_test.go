@@ -99,7 +99,7 @@ func TestPolicyFor(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			policy, err := NewDefaultResolver().PolicyFor(given.mode)
+			policy, err := NewDefaultPolicyResolver().PolicyFor(given.mode)
 
 			if then.expectError {
 				if err == nil {

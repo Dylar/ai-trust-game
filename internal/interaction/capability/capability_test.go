@@ -7,7 +7,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestFor(t *testing.T) {
+func TestCapabilityFor(t *testing.T) {
 	type Given struct {
 		mode  domain.Mode
 		input Input
