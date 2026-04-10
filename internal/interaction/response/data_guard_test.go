@@ -87,7 +87,7 @@ func TestStaticDataGuardGuard(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := StaticDataGuard{}.Guard(given.input)
+			result := NewStaticDataGuard().Guard(given.input)
 
 			tests.AssertEqual(t, result.Payload.Secret == "", then.expectSecretCleared, "unexpected secret clearing")
 			tests.AssertEqual(t, result.Payload.UserProfile == nil, then.expectProfileCleared, "unexpected profile clearing")

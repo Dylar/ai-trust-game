@@ -5,12 +5,10 @@ import (
 	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
 )
 
-type PolicyMedium struct {
-	capabilityResolver capability.Resolver
-}
+type PolicyMedium struct{}
 
 func (pol PolicyMedium) Decide(input DecisionInput) Decision {
-	caps := pol.resolver().For(input.Session.Settings.Mode, capability.Input{
+	caps := capability.For(input.Session.Settings.Mode, capability.Input{
 		Session: input.Session,
 		Claims:  input.Claims,
 	})
@@ -24,13 +22,6 @@ func (pol PolicyMedium) Decide(input DecisionInput) Decision {
 		return pol.decideActionReadSecret(input, caps)
 	}
 	return Decision{Allowed: true, Reason: "no safety-relevant action"}
-}
-
-func (pol PolicyMedium) resolver() capability.Resolver {
-	if pol.capabilityResolver == nil {
-		return capability.StaticResolver{}
-	}
-	return pol.capabilityResolver
 }
 
 func (pol PolicyMedium) decideActionReadUserProfile(input DecisionInput, caps capability.Set) Decision {

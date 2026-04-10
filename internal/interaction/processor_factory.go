@@ -12,26 +12,26 @@ import (
 
 func NewStaticProcessor(auditSink audit.Sink) Processor {
 	return NewProcessor(
-		interactionpolicy.DefaultPolicyResolver{},
+		interactionpolicy.NewDefaultResolver(),
 		interactionplanning.NewStaticPlanner(),
-		interactionexecution.StaticExecutor{},
-		interactionstate.StaticUpdater{},
-		interactionresponse.StaticDataGuard{},
-		interactionresponse.StaticBuilder{},
-		interactionresponse.StaticValidator{},
+		interactionexecution.NewStaticExecutor(),
+		interactionstate.NewStaticUpdater(),
+		interactionresponse.NewStaticDataGuard(),
+		interactionresponse.NewBuilder(nil),
+		interactionresponse.NewStaticValidator(),
 		auditSink,
 	)
 }
 
 func NewLLMProcessor(auditSink audit.Sink, client llm.Client) Processor {
 	return NewProcessor(
-		interactionpolicy.DefaultPolicyResolver{},
+		interactionpolicy.NewDefaultResolver(),
 		interactionplanning.NewPlanner(client),
-		interactionexecution.StaticExecutor{},
-		interactionstate.StaticUpdater{},
-		interactionresponse.StaticDataGuard{},
-		interactionresponse.NewLLMBuilder(client),
-		interactionresponse.StaticValidator{},
+		interactionexecution.NewStaticExecutor(),
+		interactionstate.NewStaticUpdater(),
+		interactionresponse.NewStaticDataGuard(),
+		interactionresponse.NewBuilder(client),
+		interactionresponse.NewStaticValidator(),
 		auditSink,
 	)
 }

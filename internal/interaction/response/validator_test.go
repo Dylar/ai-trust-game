@@ -60,7 +60,7 @@ func TestStaticValidatorValidate(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
-			result := StaticValidator{}.Validate(scenario.given.input)
+			result := NewStaticValidator().Validate(scenario.given.input)
 			tests.AssertEqual(t, result.Message, scenario.then.expectedMessage, "unexpected validated response message")
 		})
 	}

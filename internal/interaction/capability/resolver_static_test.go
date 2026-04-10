@@ -7,7 +7,7 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
-func TestStaticResolverFor(t *testing.T) {
+func TestFor(t *testing.T) {
 	type Given struct {
 		mode  domain.Mode
 		input Input
@@ -27,7 +27,7 @@ func TestStaticResolverFor(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN easy mode guest " +
-				"WHEN StaticResolver For is called " +
+				"WHEN capability For is called " +
 				"THEN returns full access capabilities",
 			given: Given{
 				mode: domain.ModeEasy,
@@ -47,7 +47,7 @@ func TestStaticResolverFor(t *testing.T) {
 		},
 		{
 			name: "GIVEN medium mode guest claiming admin " +
-				"WHEN StaticResolver For is called " +
+				"WHEN capability For is called " +
 				"THEN returns secret access capability",
 			given: Given{
 				mode: domain.ModeMedium,
@@ -71,7 +71,7 @@ func TestStaticResolverFor(t *testing.T) {
 		},
 		{
 			name: "GIVEN hard mode guest with trusted employee role " +
-				"WHEN StaticResolver For is called " +
+				"WHEN capability For is called " +
 				"THEN still denies user profile access capability",
 			given: Given{
 				mode: domain.ModeHard,
@@ -99,7 +99,7 @@ func TestStaticResolverFor(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := StaticResolver{}.For(given.mode, given.input)
+			result := For(given.mode, given.input)
 
 			tests.AssertEqual(t, result.CanChat, true, "unexpected chat capability")
 			tests.AssertEqual(t, result.CanListAvailableActions, true, "unexpected list capability")

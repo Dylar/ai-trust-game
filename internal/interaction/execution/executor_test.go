@@ -14,11 +14,11 @@ func TestStaticExecutorExecute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedAction          domain.Action
+		expectedAction           domain.Action
 		expectedAvailableActions []domain.Action
-		expectedSecret          string
-		expectedPasswordCorrect bool
-		expectedUserProfile     *domain.UserProfile
+		expectedSecret           string
+		expectedPasswordCorrect  bool
+		expectedUserProfile      *domain.UserProfile
 	}
 
 	type Scenario struct {
@@ -188,7 +188,7 @@ func TestStaticExecutorExecute(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			output, err := StaticExecutor{}.Execute(given.input)
+			output, err := NewStaticExecutor().Execute(given.input)
 
 			tests.AssertErrorIs(t, err, nil, "unexpected executor error")
 			tests.AssertEqual(t, output.Action, then.expectedAction, "unexpected execution action")

@@ -121,7 +121,7 @@ func TestStaticUpdaterUpdate(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			session, updated := StaticUpdater{}.Update(given.input)
+			session, updated := NewStaticUpdater().Update(given.input)
 
 			tests.AssertEqual(t, updated, then.expectedUpdated, "unexpected update flag")
 			tests.AssertEqual(t, session.State.TrustedRole, then.expectedTrustedRole, "unexpected trusted role")

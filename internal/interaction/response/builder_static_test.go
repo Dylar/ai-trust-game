@@ -146,7 +146,7 @@ func TestStaticBuilderBuild(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := StaticBuilder{}.Build(context.Background(), given.input)
+			result := NewBuilder(nil).Build(context.Background(), given.input)
 
 			tests.AssertEqual(t, result.Message, then.expectedMessage, "unexpected response message")
 			tests.AssertEqual(t, result.Source, then.expectedSource, "unexpected response source")

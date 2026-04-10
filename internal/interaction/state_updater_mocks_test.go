@@ -10,8 +10,10 @@ type stubStateUpdater struct {
 	updated bool
 }
 
-func (updater stubStateUpdater) Update(_ interactionstate.StateUpdateInput) (domain.Session, bool) {
-	return updater.session, updater.updated
+func (updater stubStateUpdater) build() interactionstate.Updater {
+	return interactionstate.NewUpdaterFunc(func(_ interactionstate.StateUpdateInput) (domain.Session, bool) {
+		return updater.session, updater.updated
+	})
 }
 
 type spyStateUpdater struct {
@@ -20,7 +22,9 @@ type spyStateUpdater struct {
 	lastInput interactionstate.StateUpdateInput
 }
 
-func (updater *spyStateUpdater) Update(input interactionstate.StateUpdateInput) (domain.Session, bool) {
-	updater.lastInput = input
-	return updater.session, updater.updated
+func (updater *spyStateUpdater) build() interactionstate.Updater {
+	return interactionstate.NewUpdaterFunc(func(input interactionstate.StateUpdateInput) (domain.Session, bool) {
+		updater.lastInput = input
+		return updater.session, updater.updated
+	})
 }

@@ -15,10 +15,10 @@ import (
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type Processor struct {
-	policyResolver    interactionpolicy.PolicyResolver
+	policyResolver    interactionpolicy.Resolver
 	planner           interactionplanning.Planner
 	executor          interactionexecution.Executor
-	stateUpdater      interactionstate.StateUpdater
+	stateUpdater      interactionstate.Updater
 	responseDataGuard interactionresponse.DataGuard
 	responseBuilder   interactionresponse.Builder
 	responseValidator interactionresponse.Validator
@@ -26,10 +26,10 @@ type Processor struct {
 }
 
 func NewProcessor(
-	policyResolver interactionpolicy.PolicyResolver,
+	policyResolver interactionpolicy.Resolver,
 	planner interactionplanning.Planner,
 	executor interactionexecution.Executor,
-	stateUpdater interactionstate.StateUpdater,
+	stateUpdater interactionstate.Updater,
 	responseDataGuard interactionresponse.DataGuard,
 	responseBuilder interactionresponse.Builder,
 	responseValidator interactionresponse.Validator,

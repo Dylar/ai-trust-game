@@ -3,7 +3,6 @@ package policy
 import (
 	"fmt"
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
 )
 
 type Policy interface {
@@ -21,20 +20,31 @@ type Decision struct {
 	Reason  string
 }
 
-type PolicyResolver interface {
-	PolicyFor(mode domain.Mode) (Policy, error)
+type Resolver struct {
+	resolveFunc func(mode domain.Mode) (Policy, error)
 }
 
-type DefaultPolicyResolver struct{}
+func NewResolverFunc(resolveFunc func(mode domain.Mode) (Policy, error)) Resolver {
+	return Resolver{resolveFunc: resolveFunc}
+}
 
-func (DefaultPolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
-	switch mode {
-	case domain.ModeEasy:
-		return PolicyEasy{}, nil
-	case domain.ModeMedium:
-		return PolicyMedium{capabilityResolver: capability.StaticResolver{}}, nil
-	case domain.ModeHard:
-		return PolicyHard{capabilityResolver: capability.StaticResolver{}}, nil
+func NewDefaultResolver() Resolver {
+	return NewResolverFunc(func(mode domain.Mode) (Policy, error) {
+		switch mode {
+		case domain.ModeEasy:
+			return PolicyEasy{}, nil
+		case domain.ModeMedium:
+			return PolicyMedium{}, nil
+		case domain.ModeHard:
+			return PolicyHard{}, nil
+		}
+		return nil, fmt.Errorf("unknown policy mode %v", mode)
+	})
+}
+
+func (resolver Resolver) PolicyFor(mode domain.Mode) (Policy, error) {
+	if resolver.resolveFunc != nil {
+		return resolver.resolveFunc(mode)
 	}
 	return nil, fmt.Errorf("unknown policy mode %v", mode)
 }

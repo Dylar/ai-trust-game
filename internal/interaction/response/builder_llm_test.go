@@ -22,7 +22,7 @@ func (client *spyLLMClient) Generate(_ context.Context, request llm.Request) (ll
 	return client.response, client.err
 }
 
-func TestLLMBuilderBuild(t *testing.T) {
+func TestBuilderBuild_WithLLMClient(t *testing.T) {
 	type Given struct {
 		input  Input
 		client *spyLLMClient
@@ -42,7 +42,7 @@ func TestLLMBuilderBuild(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN llm client returns response text " +
-				"WHEN LLMBuilder Build is called " +
+				"WHEN Builder Build is called with llm client " +
 				"THEN returns llm response result",
 			given: Given{
 				input: Input{
@@ -71,7 +71,7 @@ func TestLLMBuilderBuild(t *testing.T) {
 		},
 		{
 			name: "GIVEN llm client returns an error " +
-				"WHEN LLMBuilder Build is called " +
+				"WHEN Builder Build is called with llm client " +
 				"THEN returns system fallback result",
 			given: Given{
 				input: Input{
@@ -95,7 +95,7 @@ func TestLLMBuilderBuild(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := NewLLMBuilder(given.client).Build(context.Background(), given.input)
+			result := NewBuilder(given.client).Build(context.Background(), given.input)
 
 			tests.AssertEqual(t, result.Message, then.expectedMessage, "unexpected llm builder message")
 			tests.AssertEqual(t, result.Source, then.expectedSource, "unexpected llm builder source")
@@ -103,7 +103,7 @@ func TestLLMBuilderBuild(t *testing.T) {
 	}
 }
 
-func TestLLMBuilderBuild_UsesSafePromptData(t *testing.T) {
+func TestBuilderBuild_WithLLMClient_UsesSafePromptData(t *testing.T) {
 	client := &spyLLMClient{
 		response: llm.Response{Text: "ok"},
 	}
@@ -132,7 +132,7 @@ func TestLLMBuilderBuild_UsesSafePromptData(t *testing.T) {
 		},
 	}
 
-	_ = NewLLMBuilder(client).Build(context.Background(), input)
+	_ = NewBuilder(client).Build(context.Background(), input)
 
 	tests.AssertEqual(t, strings.TrimSpace(client.lastRequest.SystemPrompt) != "", true, "expected system prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, "action=read_user_profile"), true, "expected action in user prompt")

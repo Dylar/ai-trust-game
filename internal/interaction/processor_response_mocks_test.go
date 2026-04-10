@@ -10,8 +10,10 @@ type stubResponseDataGuard struct {
 	input interactionresponse.Input
 }
 
-func (guard stubResponseDataGuard) Guard(_ interactionresponse.Input) interactionresponse.Input {
-	return guard.input
+func (guard stubResponseDataGuard) build() interactionresponse.DataGuard {
+	return interactionresponse.NewDataGuardFunc(func(_ interactionresponse.Input) interactionresponse.Input {
+		return guard.input
+	})
 }
 
 type spyResponseDataGuard struct {
@@ -19,20 +21,24 @@ type spyResponseDataGuard struct {
 	lastInput interactionresponse.Input
 }
 
-func (guard *spyResponseDataGuard) Guard(input interactionresponse.Input) interactionresponse.Input {
-	guard.lastInput = input
-	if guard.input.Request.Action != "" || guard.input.Request.UserMessage != "" {
-		return guard.input
-	}
-	return input
+func (guard *spyResponseDataGuard) build() interactionresponse.DataGuard {
+	return interactionresponse.NewDataGuardFunc(func(input interactionresponse.Input) interactionresponse.Input {
+		guard.lastInput = input
+		if guard.input.Request.Action != "" || guard.input.Request.UserMessage != "" {
+			return guard.input
+		}
+		return input
+	})
 }
 
 type stubResponseBuilder struct {
 	result interactionresponse.Result
 }
 
-func (builder stubResponseBuilder) Build(_ context.Context, _ interactionresponse.Input) interactionresponse.Result {
-	return builder.result
+func (builder stubResponseBuilder) build() interactionresponse.Builder {
+	return interactionresponse.NewBuilderFunc(func(_ context.Context, _ interactionresponse.Input) interactionresponse.Result {
+		return builder.result
+	})
 }
 
 type spyResponseBuilder struct {
@@ -40,17 +46,21 @@ type spyResponseBuilder struct {
 	lastInput interactionresponse.Input
 }
 
-func (builder *spyResponseBuilder) Build(_ context.Context, input interactionresponse.Input) interactionresponse.Result {
-	builder.lastInput = input
-	return builder.result
+func (builder *spyResponseBuilder) build() interactionresponse.Builder {
+	return interactionresponse.NewBuilderFunc(func(_ context.Context, input interactionresponse.Input) interactionresponse.Result {
+		builder.lastInput = input
+		return builder.result
+	})
 }
 
 type stubResponseValidator struct {
 	result interactionresponse.Result
 }
 
-func (validator stubResponseValidator) Validate(_ interactionresponse.ValidatorInput) interactionresponse.Result {
-	return validator.result
+func (validator stubResponseValidator) build() interactionresponse.Validator {
+	return interactionresponse.NewValidatorFunc(func(_ interactionresponse.ValidatorInput) interactionresponse.Result {
+		return validator.result
+	})
 }
 
 type spyResponseValidator struct {
@@ -58,7 +68,9 @@ type spyResponseValidator struct {
 	lastInput interactionresponse.ValidatorInput
 }
 
-func (validator *spyResponseValidator) Validate(input interactionresponse.ValidatorInput) interactionresponse.Result {
-	validator.lastInput = input
-	return validator.result
+func (validator *spyResponseValidator) build() interactionresponse.Validator {
+	return interactionresponse.NewValidatorFunc(func(input interactionresponse.ValidatorInput) interactionresponse.Result {
+		validator.lastInput = input
+		return validator.result
+	})
 }

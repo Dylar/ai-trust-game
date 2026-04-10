@@ -54,13 +54,13 @@ func TestProcessInteraction(t *testing.T) {
 				processor: NewProcessor(
 					stubPolicyResolver{
 						policy: stubPolicy{},
-					},
+					}.build(),
 					stubPlanner{}.build(),
-					stubExecutor{},
-					stubStateUpdater{},
-					stubResponseDataGuard{},
-					stubResponseBuilder{},
-					stubResponseValidator{},
+					stubExecutor{}.build(),
+					stubStateUpdater{}.build(),
+					stubResponseDataGuard{}.build(),
+					stubResponseBuilder{}.build(),
+					stubResponseValidator{}.build(),
 					nil,
 				),
 			},
@@ -94,18 +94,18 @@ func TestProcessInteraction(t *testing.T) {
 								Reason:  "denied by stub policy",
 							},
 						},
-					},
+					}.build(),
 					stubPlanner{
 						plan: interactionplanning.Plan{
 							Action: domain.ActionReadSecret,
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
 					}.build(),
-					stubExecutor{},
-					stubStateUpdater{},
-					stubResponseDataGuard{},
-					stubResponseBuilder{},
-					stubResponseValidator{},
+					stubExecutor{}.build(),
+					stubStateUpdater{}.build(),
+					stubResponseDataGuard{}.build(),
+					stubResponseBuilder{}.build(),
+					stubResponseValidator{}.build(),
 					nil,
 				),
 			},
@@ -141,28 +141,28 @@ func TestProcessInteraction(t *testing.T) {
 								Reason:  "allowed by stub policy",
 							},
 						},
-					},
+					}.build(),
 					stubPlanner{
 						plan: interactionplanning.Plan{
 							Action: domain.ActionReadSecret,
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
 					}.build(),
-					stubExecutor{},
-					stubStateUpdater{},
-					stubResponseDataGuard{},
+					stubExecutor{}.build(),
+					stubStateUpdater{}.build(),
+					stubResponseDataGuard{}.build(),
 					stubResponseBuilder{
 						result: interactionresponse.Result{
 							Message: "allowed interaction response from stub response builder",
 							Source:  interactionresponse.SourceSystem,
 						},
-					},
+					}.build(),
 					stubResponseValidator{
 						result: interactionresponse.Result{
 							Message: "validated allowed interaction response",
 							Source:  interactionresponse.SourceSystem,
 						},
-					},
+					}.build(),
 					nil,
 				),
 			},
@@ -198,27 +198,27 @@ func TestProcessInteraction(t *testing.T) {
 								Reason:  "non-sensitive action allowed by stub policy",
 							},
 						},
-					},
+					}.build(),
 					stubPlanner{
 						plan: interactionplanning.Plan{
 							Action: domain.ActionReadUserProfile,
 						},
 					}.build(),
-					stubExecutor{},
-					stubStateUpdater{},
-					stubResponseDataGuard{},
+					stubExecutor{}.build(),
+					stubStateUpdater{}.build(),
+					stubResponseDataGuard{}.build(),
 					stubResponseBuilder{
 						result: interactionresponse.Result{
 							Message: "user info response from stub response builder",
 							Source:  interactionresponse.SourceSystem,
 						},
-					},
+					}.build(),
 					stubResponseValidator{
 						result: interactionresponse.Result{
 							Message: "validated user info response",
 							Source:  interactionresponse.SourceSystem,
 						},
-					},
+					}.build(),
 					nil,
 				),
 			},
@@ -249,15 +249,15 @@ func TestProcessInteraction(t *testing.T) {
 				processor: NewProcessor(
 					stubPolicyResolver{
 						policy: stubPolicy{},
-					},
+					}.build(),
 					stubPlanner{
 						err: errStubPlanner,
 					}.build(),
-					stubExecutor{},
-					stubStateUpdater{},
-					stubResponseDataGuard{},
-					stubResponseBuilder{},
-					stubResponseValidator{},
+					stubExecutor{}.build(),
+					stubStateUpdater{}.build(),
+					stubResponseDataGuard{}.build(),
+					stubResponseBuilder{}.build(),
+					stubResponseValidator{}.build(),
 					nil,
 				),
 			},
@@ -291,7 +291,7 @@ func TestProcessInteraction(t *testing.T) {
 								Reason:  "allowed by stub policy",
 							},
 						},
-					},
+					}.build(),
 					stubPlanner{
 						plan: interactionplanning.Plan{
 							Action: domain.ActionReadSecret,
@@ -299,11 +299,11 @@ func TestProcessInteraction(t *testing.T) {
 					}.build(),
 					stubExecutor{
 						err: errStubExecutor,
-					},
-					stubStateUpdater{},
-					stubResponseDataGuard{},
-					stubResponseBuilder{},
-					stubResponseValidator{},
+					}.build(),
+					stubStateUpdater{}.build(),
+					stubResponseDataGuard{}.build(),
+					stubResponseBuilder{}.build(),
+					stubResponseValidator{}.build(),
 					nil,
 				),
 			},
@@ -442,7 +442,16 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 					Source:  interactionresponse.SourceSystem,
 				},
 			}
-			processor := NewProcessor(resolver, planner.build(), executor, stateUpdater, responseDataGuard, responseBuilder, responseValidator, nil)
+			processor := NewProcessor(
+				resolver.build(),
+				planner.build(),
+				executor.build(),
+				stateUpdater.build(),
+				responseDataGuard.build(),
+				responseBuilder.build(),
+				responseValidator.build(),
+				nil,
+			)
 
 			_, err := processor.Process(context.Background(), given.interaction)
 
@@ -485,30 +494,30 @@ func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
 					Reason:  "allowed by stub policy",
 				},
 			},
-		},
+		}.build(),
 		stubPlanner{
 			plan: interactionplanning.Plan{
 				Action: domain.ActionReadUserProfile,
 			},
 		}.build(),
-		stubExecutor{},
+		stubExecutor{}.build(),
 		stubStateUpdater{
 			session: updatedSession,
 			updated: true,
-		},
-		stubResponseDataGuard{},
+		}.build(),
+		stubResponseDataGuard{}.build(),
 		stubResponseBuilder{
 			result: interactionresponse.Result{
 				Message: "response with updated session",
 				Source:  interactionresponse.SourceSystem,
 			},
-		},
+		}.build(),
 		stubResponseValidator{
 			result: interactionresponse.Result{
 				Message: "validated response with updated session",
 				Source:  interactionresponse.SourceSystem,
 			},
-		},
+		}.build(),
 		nil,
 	)
 
@@ -541,7 +550,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 					Reason:  "allowed by stub policy",
 				},
 			},
-		},
+		}.build(),
 		stubPlanner{
 			plan: interactionplanning.Plan{
 				Action: domain.ActionReadSecret,
@@ -553,21 +562,21 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 				Action: domain.ActionReadSecret,
 				Secret: "secret",
 			},
-		},
-		stubStateUpdater{},
-		stubResponseDataGuard{},
+		}.build(),
+		stubStateUpdater{}.build(),
+		stubResponseDataGuard{}.build(),
 		stubResponseBuilder{
 			result: interactionresponse.Result{
 				Message: "secret response",
 				Source:  interactionresponse.SourceSystem,
 			},
-		},
+		}.build(),
 		stubResponseValidator{
 			result: interactionresponse.Result{
 				Message: "validated secret response",
 				Source:  interactionresponse.SourceSystem,
 			},
-		},
+		}.build(),
 		auditSink,
 	)
 
