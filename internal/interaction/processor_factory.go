@@ -23,7 +23,7 @@ func NewStaticProcessor(auditSink audit.Sink) Processor {
 	)
 }
 
-func NewLLMResponseProcessor(auditSink audit.Sink, client llm.Client) Processor {
+func NewLLMProcessor(auditSink audit.Sink, client llm.Client) Processor {
 	return NewProcessor(
 		interactionpolicy.DefaultPolicyResolver{},
 		interactionplanning.StaticPlanner{},

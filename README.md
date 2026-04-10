@@ -37,6 +37,7 @@ Code-near documentation lives close to the code it explains. More general cross-
 `docs/` later.
 
 - [Interaction pipeline and processor architecture](./internal/interaction/README.md)
+- [LLM provider abstraction and runtime configuration](./internal/llm/README.md)
 
 ## Roles
 
