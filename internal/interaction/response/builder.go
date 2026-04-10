@@ -57,7 +57,11 @@ const (
 	SourceLLM    Source = "llm"
 )
 
-func NewBuilder(client llm.Client) Builder {
+func NewStaticBuilder() Builder {
+	return Builder{}
+}
+
+func NewLLMBuilder(client llm.Client) Builder {
 	return Builder{client: client}
 }
 

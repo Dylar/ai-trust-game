@@ -22,7 +22,7 @@ func (client *spyLLMClient) Generate(_ context.Context, request llm.Request) (ll
 	return client.response, client.err
 }
 
-func TestBuilderBuild_WithLLMClient(t *testing.T) {
+func TestNewLLMBuilderBuild(t *testing.T) {
 	type Given struct {
 		input  Input
 		client *spyLLMClient
@@ -42,7 +42,7 @@ func TestBuilderBuild_WithLLMClient(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN llm client returns response text " +
-				"WHEN Builder Build is called with llm client " +
+				"WHEN NewLLMBuilder Build is called " +
 				"THEN returns llm response result",
 			given: Given{
 				input: Input{
@@ -71,7 +71,7 @@ func TestBuilderBuild_WithLLMClient(t *testing.T) {
 		},
 		{
 			name: "GIVEN llm client returns an error " +
-				"WHEN Builder Build is called with llm client " +
+				"WHEN NewLLMBuilder Build is called " +
 				"THEN returns system fallback result",
 			given: Given{
 				input: Input{
@@ -95,7 +95,7 @@ func TestBuilderBuild_WithLLMClient(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := NewBuilder(given.client).Build(context.Background(), given.input)
+			result := NewLLMBuilder(given.client).Build(context.Background(), given.input)
 
 			tests.AssertEqual(t, result.Message, then.expectedMessage, "unexpected llm builder message")
 			tests.AssertEqual(t, result.Source, then.expectedSource, "unexpected llm builder source")
@@ -103,7 +103,7 @@ func TestBuilderBuild_WithLLMClient(t *testing.T) {
 	}
 }
 
-func TestBuilderBuild_WithLLMClient_UsesSafePromptData(t *testing.T) {
+func TestNewLLMBuilderBuildUsesSafePromptData(t *testing.T) {
 	client := &spyLLMClient{
 		response: llm.Response{Text: "ok"},
 	}
@@ -132,7 +132,7 @@ func TestBuilderBuild_WithLLMClient_UsesSafePromptData(t *testing.T) {
 		},
 	}
 
-	_ = NewBuilder(client).Build(context.Background(), input)
+	_ = NewLLMBuilder(client).Build(context.Background(), input)
 
 	tests.AssertEqual(t, strings.TrimSpace(client.lastRequest.SystemPrompt) != "", true, "expected system prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, "action=read_user_profile"), true, "expected action in user prompt")

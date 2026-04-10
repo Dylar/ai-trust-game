@@ -94,7 +94,7 @@ This is the current deterministic wiring of the whole interaction flow:
 - static executor
 - static state updater
 - static response guard
-- response builder without an llm client
+- static response builder
 - static response validator
 
 The goal is not to keep everything static forever.

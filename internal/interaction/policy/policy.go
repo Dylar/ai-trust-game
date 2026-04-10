@@ -21,13 +21,13 @@ type Decision struct {
 	Reason  string
 }
 
-type PolicyResolver struct{}
+type Resolver struct{}
 
-func NewDefaultPolicyResolver() PolicyResolver {
-	return PolicyResolver{}
+func NewResolver() Resolver {
+	return Resolver{}
 }
 
-func (PolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
+func (Resolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	switch mode {
 	case domain.ModeEasy:
 		return PolicyEasy{}, nil
