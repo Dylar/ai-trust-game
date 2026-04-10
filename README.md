@@ -2,13 +2,16 @@
 
 ## TL;DR
 
-A small project to explore how AI-based systems behave under different levels of trust, and what happens when the surrounding system relies too much on model behavior instead of explicit rules and verified state.
+A small project to explore how AI-based systems behave under different levels of trust, and what happens when the
+surrounding system relies too much on model behavior instead of explicit rules and verified state.
 
 ## What is this?
 
-This project simulates a small game-like interaction where a user tries to gain access to restricted capabilities or information.
+This project simulates a small game-like interaction where a user tries to gain access to restricted capabilities or
+information.
 
-The goal is not to build a chatbot for its own sake, but to show how system behavior changes depending on where trust and authority live.
+The goal is not to build a chatbot for its own sake, but to show how system behavior changes depending on where trust
+and authority live.
 
 In one mode, the system is intentionally too permissive.  
 In another, it becomes stricter and keeps control in server-side logic.
@@ -26,6 +29,15 @@ This project is more interested in what goes wrong when the system around the mo
 
 The idea is to make those differences visible in a small and understandable setup.
 
+## Documentation Map
+
+This README is the main entry point for the project and should also work as a simple table of contents.
+
+Code-near documentation lives close to the code it explains. More general cross-cutting documentation can live in
+`docs/` later.
+
+- [Interaction pipeline and processor architecture](./internal/interaction/README.md)
+
 ## Roles
 
 The system works with a few simple roles:
@@ -36,7 +48,8 @@ The system works with a few simple roles:
 
 At session start, the user chooses a role as part of the game setup.
 
-This is intentional. The goal of the project is not to build authentication, but to explore how a system behaves once a role exists and the user starts trying to push beyond its intended boundaries.
+This is intentional. The goal of the project is not to build authentication, but to explore how a system behaves once a
+role exists and the user starts trying to push beyond its intended boundaries.
 
 ## Modes
 
@@ -92,7 +105,8 @@ The main point is simple:
 
 The project introduces session state, interaction flow, and decision logic before integrating a real model.
 
-Calling an LLM API is relatively easy. The more important part is deciding what the system is allowed to trust, what the model is allowed to influence, and where final authority should stay.
+Calling an LLM API is relatively easy. The more important part is deciding what the system is allowed to trust, what the
+model is allowed to influence, and where final authority should stay.
 
 Because of that, the deterministic parts come first.
 
@@ -100,7 +114,8 @@ Because of that, the deterministic parts come first.
 
 Sessions are currently stored in memory on purpose.
 
-At this stage, the focus is on interaction flow, mode-dependent behavior, and decision boundaries. Persistence would add complexity, but would not yet help much with the main goal of the project.
+At this stage, the focus is on interaction flow, mode-dependent behavior, and decision boundaries. Persistence would add
+complexity, but would not yet help much with the main goal of the project.
 
 Persistent storage is planned later.
 
@@ -108,7 +123,8 @@ Persistent storage is planned later.
 
 The current setup starts as a simple HTTP service.
 
-This keeps the feedback loop small and makes it easier to shape the core behavior before adding more infrastructure concerns such as gRPC contracts, multiple services, or async communication.
+This keeps the feedback loop small and makes it easier to shape the core behavior before adding more infrastructure
+concerns such as gRPC contracts, multiple services, or async communication.
 
 Those topics are still relevant, but they come later on purpose.
 
@@ -116,7 +132,8 @@ Those topics are still relevant, but they come later on purpose.
 
 Easy, medium, and hard are not just different behaviors.
 
-They represent different architectural approaches to trust and enforcement. The point is to show that safer AI systems do not mainly come from better prompts, but from better system design.
+They represent different architectural approaches to trust and enforcement. The point is to show that safer AI systems
+do not mainly come from better prompts, but from better system design.
 
 ## Tech Stack
 
@@ -138,7 +155,8 @@ The project starts small, but is planned with a broader service-oriented setup i
   Planned for the client, mainly as a web/mobile UI to make the system behavior easier to explore interactively.
 
 - `PostgreSQL`  
-  Planned for persistent session and audit storage. A practical choice for structured backend state and easy self-hosting later.
+  Planned for persistent session and audit storage. A practical choice for structured backend state and easy
+  self-hosting later.
 
 - `RabbitMQ`  
   Optional later step for async communication between components if the architecture grows in that direction.
@@ -268,7 +286,7 @@ Goal: move towards scalable architecture
 
 Goal: move beyond in-memory runtime state
 
-### Phase 13 — Integration, Delivery & Operations
+### Phase 14 — Integration, Delivery & Operations
 
 - integration and end-to-end tests
 - CI/CD pipelines
