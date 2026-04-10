@@ -62,6 +62,7 @@ func TestProcessInteraction(t *testing.T) {
 					stubResponseBuilder{},
 					stubResponseValidator{},
 					nil,
+					nil,
 				),
 			},
 			then: Then{
@@ -106,6 +107,7 @@ func TestProcessInteraction(t *testing.T) {
 					stubResponseDataGuard{},
 					stubResponseBuilder{},
 					stubResponseValidator{},
+					nil,
 					nil,
 				),
 			},
@@ -164,6 +166,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					nil,
+					nil,
 				),
 			},
 			then: Then{
@@ -220,6 +223,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					nil,
+					nil,
 				),
 			},
 			then: Then{
@@ -258,6 +262,7 @@ func TestProcessInteraction(t *testing.T) {
 					stubResponseDataGuard{},
 					stubResponseBuilder{},
 					stubResponseValidator{},
+					nil,
 					nil,
 				),
 			},
@@ -304,6 +309,7 @@ func TestProcessInteraction(t *testing.T) {
 					stubResponseDataGuard{},
 					stubResponseBuilder{},
 					stubResponseValidator{},
+					nil,
 					nil,
 				),
 			},
@@ -451,6 +457,7 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 				responseBuilder,
 				responseValidator,
 				nil,
+				nil,
 			)
 
 			_, err := processor.Process(context.Background(), given.interaction)
@@ -519,6 +526,7 @@ func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
 			},
 		},
 		nil,
+		nil,
 	)
 
 	result, err := processor.Process(context.Background(), domain.Interaction{
@@ -578,6 +586,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 			},
 		},
 		auditSink,
+		nil,
 	)
 
 	_, err := processor.Process(ctx, domain.Interaction{

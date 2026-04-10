@@ -37,7 +37,7 @@ func newStaticProcessor(logger logging.Logger, auditSink audit.Sink) interaction
 		"using static interaction processor",
 		logging.WithField("llm_provider", llm.ProviderStatic),
 	)
-	return interaction.NewStaticProcessor(auditSink)
+	return interaction.NewStaticProcessor(auditSink, logger)
 }
 
 func newGroqProcessor(logger logging.Logger, auditSink audit.Sink) interaction.Processor {
@@ -58,6 +58,7 @@ func newGroqProcessor(logger logging.Logger, auditSink audit.Sink) interaction.P
 	return interaction.NewLLMProcessor(
 		auditSink,
 		llm.NewGroqClient(apiKey, model),
+		logger,
 	)
 }
 

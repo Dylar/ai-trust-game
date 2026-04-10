@@ -11,12 +11,13 @@ import (
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	interactionstate "github.com/Dylar/ai-trust-game/internal/interaction/state"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
+	"github.com/Dylar/ai-trust-game/pkg/logging"
 )
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type plannerPort interface {
-	Plan(message string) (interactionplanning.Plan, error)
+	Plan(ctx context.Context, message string) (interactionplanning.Plan, error)
 }
 
 type policyResolverPort interface {
@@ -36,7 +37,7 @@ type responseDataGuardPort interface {
 }
 
 type responseBuilderPort interface {
-	Build(ctx context.Context, input interactionresponse.Input) interactionresponse.Result
+	Build(ctx context.Context, input interactionresponse.Input) (interactionresponse.Result, error)
 }
 
 type responseValidatorPort interface {
@@ -52,6 +53,7 @@ type Processor struct {
 	responseBuilder   responseBuilderPort
 	responseValidator responseValidatorPort
 	auditSink         audit.Sink
+	logger            logging.Logger
 }
 
 func NewProcessor(
@@ -63,9 +65,13 @@ func NewProcessor(
 	responseBuilder responseBuilderPort,
 	responseValidator responseValidatorPort,
 	auditSink audit.Sink,
+	logger logging.Logger,
 ) Processor {
 	if auditSink == nil {
 		auditSink = audit.NewNoopSink()
+	}
+	if logger == nil {
+		logger = logging.NewNoopLogger()
 	}
 
 	return Processor{
@@ -77,6 +83,7 @@ func NewProcessor(
 		responseBuilder:   responseBuilder,
 		responseValidator: responseValidator,
 		auditSink:         auditSink,
+		logger:            logger,
 	}
 }
 
@@ -85,7 +92,7 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 		return interactionresponse.Result{}, err
 	}
 
-	plan, err := processor.planner.Plan(interaction.Message)
+	plan, err := processor.planner.Plan(ctx, interaction.Message)
 	if err != nil {
 		return interactionresponse.Result{}, err
 	}
@@ -121,7 +128,10 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 
 	responseInput := newResponseInput(interaction, plan, decision, execution)
 	response := processor.responseDataGuard.Guard(responseInput)
-	result := processor.responseBuilder.Build(ctx, response)
+	result, err := processor.responseBuilder.Build(ctx, response)
+	if err != nil {
+		return interactionresponse.Result{}, err
+	}
 	result = processor.responseValidator.Validate(interactionresponse.ValidatorInput{
 		Response: response,
 		Result:   result,

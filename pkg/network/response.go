@@ -2,6 +2,7 @@ package network
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -13,5 +14,7 @@ func WriteJSON(w http.ResponseWriter, status int, data any) {
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("ERROR: failed to encode json response: %v", err)
+	}
 }

@@ -65,7 +65,7 @@ func NewLLMBuilder(client llm.Client) Builder {
 	return Builder{client: client}
 }
 
-func (builder Builder) Build(ctx context.Context, input Input) Result {
+func (builder Builder) Build(ctx context.Context, input Input) (Result, error) {
 	if builder.client != nil {
 		request := llm.Request{
 			SystemPrompt: responseSystemPrompt(),
@@ -74,41 +74,31 @@ func (builder Builder) Build(ctx context.Context, input Input) Result {
 
 		response, err := builder.client.Generate(ctx, request)
 		if err != nil {
-			return Result{
-				Message: "I could not generate a response right now.",
-				Source:  SourceSystem,
-			}
+			return Result{}, fmt.Errorf("generate response via llm client: %w", err)
 		}
 
 		message := strings.TrimSpace(response.Text)
-		if message == "" {
-			return Result{
-				Message: "",
-				Source:  SourceLLM,
-			}
-		}
-
 		return Result{
 			Message: message,
 			Source:  SourceLLM,
-		}
+		}, nil
 	}
 
 	switch input.Request.Action {
 	case domain.ActionListAvailableActions:
-		return buildListAvailableActionsResponse(input)
+		return buildListAvailableActionsResponse(input), nil
 	case domain.ActionReadSecret:
-		return buildReadSecretResponse(input)
+		return buildReadSecretResponse(input), nil
 	case domain.ActionReadUserProfile:
-		return buildReadUserProfileResponse(input)
+		return buildReadUserProfileResponse(input), nil
 	case domain.ActionSubmitAdminPassword:
-		return buildSubmitAdminPasswordResponse(input)
+		return buildSubmitAdminPasswordResponse(input), nil
 	}
 
 	return Result{
 		Message: fmt.Sprintf("I understood the request, but there is no dedicated response for action %s yet.", input.Request.Action),
 		Source:  SourceSystem,
-	}
+	}, nil
 }
 
 func responseSystemPrompt() string {

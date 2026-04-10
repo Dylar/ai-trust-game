@@ -15,7 +15,7 @@ import (
 
 func TestHandleInteraction(t *testing.T) {
 	logger := logging.NewConsoleLogger()
-	processor := interaction.NewStaticProcessor(audit.NewNoopSink())
+	processor := interaction.NewStaticProcessor(audit.NewNoopSink(), logger)
 
 	type Given struct {
 		sessionID string
@@ -258,7 +258,7 @@ func TestHandleInteraction_PersistsUpdatedSessionState(t *testing.T) {
 	}
 	repo.Save(sess)
 
-	processor := interaction.NewStaticProcessor(audit.NewNoopSink())
+	processor := interaction.NewStaticProcessor(audit.NewNoopSink(), logger)
 	handler := NewInteractionHandler(logger, repo, processor)
 
 	ctx := network.WithMetadata(context.Background(), network.Metadata{

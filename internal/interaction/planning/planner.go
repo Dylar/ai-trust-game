@@ -30,8 +30,8 @@ func NewPlanner(client llm.Client) Planner {
 	return Planner{client: client}
 }
 
-func (planner Planner) Plan(message string) (Plan, error) {
-	response, err := planner.client.Generate(context.Background(), llm.Request{
+func (planner Planner) Plan(ctx context.Context, message string) (Plan, error) {
+	response, err := planner.client.Generate(ctx, llm.Request{
 		UserPrompt: message,
 	})
 	if err != nil {

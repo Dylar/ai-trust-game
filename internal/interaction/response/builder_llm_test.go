@@ -31,6 +31,7 @@ func TestNewLLMBuilderBuild(t *testing.T) {
 	type Then struct {
 		expectedMessage string
 		expectedSource  Source
+		expectedError   error
 	}
 
 	type Scenario struct {
@@ -67,12 +68,13 @@ func TestNewLLMBuilderBuild(t *testing.T) {
 			then: Then{
 				expectedMessage: "Here is the safe response.",
 				expectedSource:  SourceLLM,
+				expectedError:   nil,
 			},
 		},
 		{
 			name: "GIVEN llm client returns an error " +
 				"WHEN NewLLMBuilder Build is called " +
-				"THEN returns system fallback result",
+				"THEN returns the llm client error",
 			given: Given{
 				input: Input{
 					Request: RequestMeta{
@@ -84,8 +86,9 @@ func TestNewLLMBuilderBuild(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedMessage: "I could not generate a response right now.",
-				expectedSource:  SourceSystem,
+				expectedMessage: "",
+				expectedSource:  "",
+				expectedError:   errors.New("generate response via llm client: llm unavailable"),
 			},
 		},
 	}
@@ -95,8 +98,18 @@ func TestNewLLMBuilderBuild(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := NewLLMBuilder(given.client).Build(context.Background(), given.input)
+			result, err := NewLLMBuilder(given.client).Build(context.Background(), given.input)
 
+			gotError := ""
+			if err != nil {
+				gotError = err.Error()
+			}
+			wantError := ""
+			if then.expectedError != nil {
+				wantError = then.expectedError.Error()
+			}
+
+			tests.AssertEqual(t, gotError, wantError, "unexpected llm builder error")
 			tests.AssertEqual(t, result.Message, then.expectedMessage, "unexpected llm builder message")
 			tests.AssertEqual(t, result.Source, then.expectedSource, "unexpected llm builder source")
 		})
@@ -132,8 +145,9 @@ func TestNewLLMBuilderBuildUsesSafePromptData(t *testing.T) {
 		},
 	}
 
-	_ = NewLLMBuilder(client).Build(context.Background(), input)
+	_, err := NewLLMBuilder(client).Build(context.Background(), input)
 
+	tests.AssertEqual(t, err, error(nil), "unexpected llm builder error")
 	tests.AssertEqual(t, strings.TrimSpace(client.lastRequest.SystemPrompt) != "", true, "expected system prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, "action=read_user_profile"), true, "expected action in user prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, "user_profile=Clara Meyer"), true, "expected user profile in user prompt")

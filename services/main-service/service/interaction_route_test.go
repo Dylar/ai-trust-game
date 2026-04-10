@@ -19,7 +19,7 @@ func TestInteractionRoute(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	sessionRepo := session.NewInMemoryRepository()
-	processor := interaction.NewStaticProcessor(audit.NewNoopSink())
+	processor := interaction.NewStaticProcessor(audit.NewNoopSink(), logger)
 	handler := NewInteractionHandler(logger, sessionRepo, processor)
 
 	setupInteractionRoute(mux, logger, handler)

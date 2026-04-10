@@ -9,10 +9,19 @@ import (
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
+	"github.com/Dylar/ai-trust-game/pkg/logging"
 )
 
 func (processor Processor) writeAuditEvent(ctx context.Context, event audit.Event) {
-	_ = processor.auditSink.WriteEvent(ctx, event)
+	if err := processor.auditSink.WriteEvent(ctx, event); err != nil {
+		processor.logger.Warn(
+			ctx,
+			"failed to write audit event",
+			logging.WithError(err),
+			logging.WithField("audit_step", event.Step),
+			logging.WithField("audit_action", event.Action),
+		)
+	}
 }
 
 func newInteractionAuditEvent(

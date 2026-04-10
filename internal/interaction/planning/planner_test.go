@@ -109,7 +109,7 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			plan, err := NewStaticPlanner().Plan(given.message)
+			plan, err := NewStaticPlanner().Plan(context.Background(), given.message)
 
 			tests.AssertErrorIs(t, err, nil, "unexpected planner error")
 			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
@@ -179,7 +179,7 @@ func TestPlannerPlan(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			plan, err := NewPlanner(given.client).Plan(given.message)
+			plan, err := NewPlanner(given.client).Plan(context.Background(), given.message)
 
 			tests.AssertErrorIs(t, err, then.expectedError, "unexpected planner error")
 			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")

@@ -29,20 +29,22 @@ func (guard *spyResponseDataGuard) Guard(input interactionresponse.Input) intera
 
 type stubResponseBuilder struct {
 	result interactionresponse.Result
+	err    error
 }
 
-func (builder stubResponseBuilder) Build(_ context.Context, _ interactionresponse.Input) interactionresponse.Result {
-	return builder.result
+func (builder stubResponseBuilder) Build(_ context.Context, _ interactionresponse.Input) (interactionresponse.Result, error) {
+	return builder.result, builder.err
 }
 
 type spyResponseBuilder struct {
 	result    interactionresponse.Result
+	err       error
 	lastInput interactionresponse.Input
 }
 
-func (builder *spyResponseBuilder) Build(_ context.Context, input interactionresponse.Input) interactionresponse.Result {
+func (builder *spyResponseBuilder) Build(_ context.Context, input interactionresponse.Input) (interactionresponse.Result, error) {
 	builder.lastInput = input
-	return builder.result
+	return builder.result, builder.err
 }
 
 type stubResponseValidator struct {
