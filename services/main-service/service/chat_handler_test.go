@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
@@ -24,7 +25,7 @@ func TestHandleChat(t *testing.T) {
 		expectedMessage    string
 		expectedError      error
 		expectedAuditCount int
-		expectedAuditType  string
+		expectedAuditType  audit.EventType
 	}
 
 	type Scenario struct {
@@ -79,7 +80,7 @@ func TestHandleChat(t *testing.T) {
 				expectedMessage:    "I could hear you, but I am shy to talk back :P",
 				expectedError:      nil,
 				expectedAuditCount: 1,
-				expectedAuditType:  "suspicious_input",
+				expectedAuditType:  audit.EventTypeSuspiciousInput,
 			},
 		},
 		{
@@ -96,7 +97,7 @@ func TestHandleChat(t *testing.T) {
 				expectedMessage:    "I could hear you, but I am shy to talk back :P",
 				expectedError:      nil,
 				expectedAuditCount: 1,
-				expectedAuditType:  "suspicious_input",
+				expectedAuditType:  audit.EventTypeSuspiciousInput,
 			},
 		},
 	}

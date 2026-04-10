@@ -1,6 +1,7 @@
 package interaction
 
 import (
+	"context"
 	"errors"
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/internal/interaction/execution"
@@ -8,6 +9,7 @@ import (
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	interactionstate "github.com/Dylar/ai-trust-game/internal/interaction/state"
+	"github.com/Dylar/ai-trust-game/pkg/audit"
 )
 
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
@@ -20,6 +22,7 @@ type Processor struct {
 	responseDataGuard interactionresponse.DataGuard
 	responseBuilder   interactionresponse.Builder
 	responseValidator interactionresponse.Validator
+	auditSink         audit.Sink
 }
 
 func NewProcessor(
@@ -30,7 +33,12 @@ func NewProcessor(
 	responseDataGuard interactionresponse.DataGuard,
 	responseBuilder interactionresponse.Builder,
 	responseValidator interactionresponse.Validator,
+	auditSink audit.Sink,
 ) Processor {
+	if auditSink == nil {
+		auditSink = audit.NewNoopSink()
+	}
+
 	return Processor{
 		policyResolver:    policyResolver,
 		planner:           planner,
@@ -39,10 +47,11 @@ func NewProcessor(
 		responseDataGuard: responseDataGuard,
 		responseBuilder:   responseBuilder,
 		responseValidator: responseValidator,
+		auditSink:         auditSink,
 	}
 }
 
-func (processor Processor) Process(interaction domain.Interaction) (interactionresponse.Result, error) {
+func (processor Processor) Process(ctx context.Context, interaction domain.Interaction) (interactionresponse.Result, error) {
 	if err := validate(interaction); err != nil {
 		return interactionresponse.Result{}, err
 	}
@@ -57,12 +66,14 @@ func (processor Processor) Process(interaction domain.Interaction) (interactionr
 	if err != nil {
 		return interactionresponse.Result{}, err
 	}
+	processor.writeAuditEvent(ctx, plannedAuditEvent(ctx, interaction, plan))
 
 	decision := policy.Decide(interactionpolicy.DecisionInput{
 		Session: sess,
 		Claims:  plan.Claims,
 		Action:  plan.Action,
 	})
+	processor.writeAuditEvent(ctx, decidedAuditEvent(ctx, interaction, plan, decision))
 	if !decision.Allowed {
 		return interactionresponse.Result{
 			Message: "interaction denied",
@@ -77,6 +88,7 @@ func (processor Processor) Process(interaction domain.Interaction) (interactionr
 	if err != nil {
 		return interactionresponse.Result{}, err
 	}
+	processor.writeAuditEvent(ctx, executedAuditEvent(ctx, interaction, plan, execution))
 
 	responseInput := newResponseInput(interaction, plan, decision, execution)
 	response := processor.responseDataGuard.Guard(responseInput)
@@ -85,6 +97,7 @@ func (processor Processor) Process(interaction domain.Interaction) (interactionr
 		Response: response,
 		Result:   result,
 	})
+	processor.writeAuditEvent(ctx, respondedAuditEvent(ctx, interaction, plan, result))
 
 	updatedSession, updated := processor.stateUpdater.Update(interactionstate.StateUpdateInput{
 		Session:         sess,
@@ -95,6 +108,7 @@ func (processor Processor) Process(interaction domain.Interaction) (interactionr
 	if updated {
 		result.UpdatedSession = &updatedSession
 	}
+	processor.writeAuditEvent(ctx, stateUpdatedAuditEvent(ctx, interaction, plan, updated))
 
 	return result, nil
 }

@@ -109,7 +109,7 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 		Session: sess,
 		Message: req.Message,
 	}
-	result, err := handler.processor.Process(interactionInput)
+	result, err := handler.processor.Process(ctx, interactionInput)
 	if err != nil {
 		return InteractionResponse{}, err
 	}

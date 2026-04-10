@@ -8,6 +8,7 @@ import (
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/session"
+	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
@@ -18,7 +19,7 @@ func TestInteractionRoute(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	sessionRepo := session.NewInMemoryRepository()
-	processor := interaction.NewStaticProcessor()
+	processor := interaction.NewStaticProcessor(audit.NewNoopSink())
 	handler := NewInteractionHandler(logger, sessionRepo, processor)
 
 	setupInteractionRoute(mux, logger, handler)

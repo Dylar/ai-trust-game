@@ -7,6 +7,7 @@ import (
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/session"
+	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
@@ -14,7 +15,7 @@ import (
 
 func TestHandleInteraction(t *testing.T) {
 	logger := logging.NewConsoleLogger()
-	processor := interaction.NewStaticProcessor()
+	processor := interaction.NewStaticProcessor(audit.NewNoopSink())
 
 	type Given struct {
 		sessionID string
@@ -257,7 +258,7 @@ func TestHandleInteraction_PersistsUpdatedSessionState(t *testing.T) {
 	}
 	repo.Save(sess)
 
-	processor := interaction.NewStaticProcessor()
+	processor := interaction.NewStaticProcessor(audit.NewNoopSink())
 	handler := NewInteractionHandler(logger, repo, processor)
 
 	ctx := network.WithMetadata(context.Background(), network.Metadata{

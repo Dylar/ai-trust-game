@@ -4,24 +4,62 @@ import (
 	"context"
 	"time"
 
+	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 )
 
+type EventType string
+
+const (
+	EventTypeInteraction     EventType = "interaction"
+	EventTypeSuspiciousInput EventType = "suspicious_input"
+)
+
+type Step string
+
+const (
+	StepPlanned      Step = "planned"
+	StepDecided      Step = "decided"
+	StepExecuted     Step = "executed"
+	StepResponded    Step = "responded"
+	StepStateUpdated Step = "state_updated"
+)
+
+type Outcome string
+
+const (
+	OutcomeObserved      Outcome = "observed"
+	OutcomeAllowed       Outcome = "allowed"
+	OutcomeDenied        Outcome = "denied"
+	OutcomeResponseBuilt Outcome = "response_built"
+	OutcomeUpdated       Outcome = "updated"
+	OutcomeUnchanged     Outcome = "unchanged"
+)
+
+type Source string
+
 type Event struct {
-	Type      string
+	Type      EventType
 	Timestamp time.Time
 
 	UserID    string
 	SessionID string
 	RequestID string
 
+	Step       Step
+	Action     domain.Action
+	Mode       domain.Mode
+	Role       domain.Role
+	ClaimsRole domain.Role
+	Source     Source
+
 	Input     string
-	Outcome   string
+	Outcome   Outcome
 	Suspicion string
 	Reason    string
 }
 
-func NewEvent(ctx context.Context, eventType string) Event {
+func NewEvent(ctx context.Context, eventType EventType) Event {
 	meta := network.GetMetadata(ctx)
 
 	return Event{
@@ -34,10 +72,16 @@ func NewEvent(ctx context.Context, eventType string) Event {
 }
 
 func NewSuspiciousInputEvent(ctx context.Context, input, suspicion, reason string) Event {
-	event := NewEvent(ctx, "suspicious_input")
+	event := NewEvent(ctx, EventTypeSuspiciousInput)
 	event.Input = input
-	event.Outcome = "observed"
+	event.Outcome = OutcomeObserved
 	event.Suspicion = suspicion
 	event.Reason = reason
+	return event
+}
+
+func NewInteractionEvent(ctx context.Context, step Step) Event {
+	event := NewEvent(ctx, EventTypeInteraction)
+	event.Step = step
 	return event
 }

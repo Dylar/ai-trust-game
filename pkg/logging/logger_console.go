@@ -35,7 +35,7 @@ func NewConsoleLogger() *ConsoleLogger {
 
 func (l *ConsoleLogger) log(ctx context.Context, level LogLevel, msg string, fields ...Field) {
 	if !level.IsValid() {
-		fmt.Printf("[Log][ERROR]: invalid level %q\n", level)
+		fmt.Printf("[LOG][ERROR]: invalid level %q\n", level)
 		level = Error
 	}
 	meta := network.GetMetadata(ctx)
@@ -52,7 +52,7 @@ func (l *ConsoleLogger) log(ctx context.Context, level LogLevel, msg string, fie
 		fields = append(fields, WithField("user_id", meta.UserID))
 	}
 
-	fmt.Println("///-------\\\\\\")
+	fmt.Println("///------\\\\\\")
 	logMsg := fmt.Sprintf(
 		"[LOG][%s]:\ntime=%q\nmsg=%q\n%s",
 		level,
@@ -61,7 +61,7 @@ func (l *ConsoleLogger) log(ctx context.Context, level LogLevel, msg string, fie
 		formatFields(fields),
 	)
 	fmt.Println(logMsg)
-	fmt.Println("\\\\\\-------///")
+	fmt.Println("\\\\\\------///")
 }
 
 func (l *ConsoleLogger) Debug(ctx context.Context, msg string, fields ...Field) {
