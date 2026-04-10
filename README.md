@@ -227,7 +227,7 @@ Goal: move control into deterministic system logic
 
 Goal: demonstrate how architecture changes system security
 
-### Phase 7 — Execution & Response Flow
+### Phase 7 — Execution & Response Flow (Done)
 
 - separate planning, policy, execution, and response building
 - model deterministic execution for allowed actions
@@ -236,18 +236,20 @@ Goal: demonstrate how architecture changes system security
 
 Goal: complete the controlled interaction pipeline before integrating a real model
 
-### Phase 8 — LLM Integration
+### Phase 8 — LLM Integration & Traceability
 
-- place model calls into the existing interaction flow
-- provider abstraction
-- prompt construction
-- integrate first provider
+- enrich audit events for planning, execution, response building, and later model calls
+- make the interaction pipeline traceable before the first real provider is integrated
+- introduce provider abstraction and model client boundaries
+- define prompt construction for the existing pipeline stages
+- integrate the first provider into the intended flow points
+- keep policy, capability checks, state updates, and response data guarding authoritative
 
-Goal: introduce AI into a controlled and observable system without giving it authority
+Goal: make the pipeline observable first and then introduce AI into it without giving the model system authority
 
-### Phase 9 — Audit & Analysis
+### Phase 9 — Audit Analysis & Detection
 
-- enriched audit events
+- analyze enriched audit events
 - suspicious behavior detection
 - role escalation and prompt injection detection
 
