@@ -12,6 +12,16 @@ const (
 	ActionSubmitAdminPassword  Action = "submit_admin_password"
 )
 
+func AllActions() []string {
+	return []string{
+		string(ActionChat),
+		string(ActionListAvailableActions),
+		string(ActionReadSecret),
+		string(ActionReadUserProfile),
+		string(ActionSubmitAdminPassword),
+	}
+}
+
 func ParseAction(input Action) (Action, error) {
 	switch input {
 	case ActionChat,

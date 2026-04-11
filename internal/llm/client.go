@@ -7,9 +7,17 @@ type Client interface {
 }
 
 type Request struct {
+	Stage        Stage
 	SystemPrompt string
 	UserPrompt   string
 }
+
+type Stage string
+
+const (
+	StagePlanner         Stage = "planner"
+	StageResponseBuilder Stage = "response_builder"
+)
 
 type Response struct {
 	Text string

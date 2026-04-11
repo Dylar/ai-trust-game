@@ -148,6 +148,7 @@ func TestNewLLMBuilderBuildUsesSafePromptData(t *testing.T) {
 	_, err := NewLLMBuilder(client).Build(context.Background(), input)
 
 	tests.AssertEqual(t, err, error(nil), "unexpected llm builder error")
+	tests.AssertEqual(t, client.lastRequest.Stage, llm.StageResponseBuilder, "expected response builder stage")
 	tests.AssertEqual(t, strings.TrimSpace(client.lastRequest.SystemPrompt) != "", true, "expected system prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, `"action":"read_user_profile"`), true, "expected action in user prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, `"FirstName":"Clara"`), true, "expected user profile in user prompt")

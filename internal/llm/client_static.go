@@ -15,20 +15,29 @@ type StaticClient struct {
 }
 
 func (client StaticClient) Generate(_ context.Context, request Request) (Response, error) {
-	if request.SystemPrompt == "planner" {
+	if request.Stage == StagePlanner {
 		return Response{Text: staticPlanJSON(request.UserPrompt)}, client.Err
 	}
-	if request.SystemPrompt == "response_builder" {
+	if request.Stage == StageResponseBuilder {
 		return Response{Text: staticResponseText(request.UserPrompt)}, client.Err
 	}
 	return client.Response, client.Err
 }
 
-func staticPlanJSON(message string) string {
+func staticPlanJSON(raw string) string {
+	var input struct {
+		Input struct {
+			Message string `json:"message"`
+		} `json:"input"`
+	}
+	if err := json.Unmarshal([]byte(raw), &input); err != nil {
+		return `{"action":"chat","claims":{"role":""},"submitted_password":""}`
+	}
+
 	payload, err := json.Marshal(domain.Plan{
-		Action:            detectAction(message),
-		Claims:            detectClaims(message),
-		SubmittedPassword: detectSubmittedPassword(message),
+		Action:            detectAction(input.Input.Message),
+		Claims:            detectClaims(input.Input.Message),
+		SubmittedPassword: detectSubmittedPassword(input.Input.Message),
 	})
 	if err != nil {
 		return `{"action":"chat","claims":{"role":""},"submitted_password":""}`
@@ -113,54 +122,56 @@ func detectSubmittedPassword(message string) string {
 
 func staticResponseText(raw string) string {
 	var input struct {
-		Session struct {
-			ID   string      `json:"id"`
-			Role domain.Role `json:"role"`
-			Mode domain.Mode `json:"mode"`
-		} `json:"session"`
-		Request struct {
-			UserMessage       string        `json:"user_message"`
-			Action            domain.Action `json:"action"`
-			SubmittedPassword string        `json:"submitted_password"`
-			DecisionReason    string        `json:"decision_reason"`
-		} `json:"request"`
-		Payload struct {
-			AvailableActions []domain.Action     `json:"available_actions"`
-			Secret           string              `json:"secret"`
-			UserProfile      *domain.UserProfile `json:"user_profile"`
-			PasswordCheck    *struct {
-				Submitted bool `json:"submitted"`
-				Correct   bool `json:"correct"`
-			} `json:"password_check"`
-		} `json:"payload"`
+		Input struct {
+			Session struct {
+				ID   string      `json:"id"`
+				Role domain.Role `json:"role"`
+				Mode domain.Mode `json:"mode"`
+			} `json:"session"`
+			Request struct {
+				UserMessage       string        `json:"user_message"`
+				Action            domain.Action `json:"action"`
+				SubmittedPassword string        `json:"submitted_password"`
+				DecisionReason    string        `json:"decision_reason"`
+			} `json:"request"`
+			Payload struct {
+				AvailableActions []domain.Action     `json:"available_actions"`
+				Secret           string              `json:"secret"`
+				UserProfile      *domain.UserProfile `json:"user_profile"`
+				PasswordCheck    *struct {
+					Submitted bool `json:"submitted"`
+					Correct   bool `json:"correct"`
+				} `json:"password_check"`
+			} `json:"payload"`
+		} `json:"input"`
 	}
 
 	if err := json.Unmarshal([]byte(raw), &input); err != nil {
 		return ""
 	}
 
-	switch input.Request.Action {
+	switch input.Input.Request.Action {
 	case domain.ActionListAvailableActions:
-		if len(input.Payload.AvailableActions) == 0 {
+		if len(input.Input.Payload.AvailableActions) == 0 {
 			return "I could not find any actions you can use right now."
 		}
 
-		actions := make([]string, 0, len(input.Payload.AvailableActions))
-		for _, action := range input.Payload.AvailableActions {
+		actions := make([]string, 0, len(input.Input.Payload.AvailableActions))
+		for _, action := range input.Input.Payload.AvailableActions {
 			actions = append(actions, string(action))
 		}
 		return fmt.Sprintf("You can currently use these actions: %s.", strings.Join(actions, ", "))
 	case domain.ActionReadSecret:
-		if strings.TrimSpace(input.Payload.Secret) == "" {
+		if strings.TrimSpace(input.Input.Payload.Secret) == "" {
 			return "I could not find a secret to share."
 		}
-		return fmt.Sprintf("The secret is: %s", input.Payload.Secret)
+		return fmt.Sprintf("The secret is: %s", input.Input.Payload.Secret)
 	case domain.ActionReadUserProfile:
-		if input.Payload.UserProfile == nil {
+		if input.Input.Payload.UserProfile == nil {
 			return "I could not find a user profile."
 		}
 
-		profile := input.Payload.UserProfile
+		profile := input.Input.Payload.UserProfile
 		return fmt.Sprintf(
 			"I found this user profile: %s %s, born %d, lives in %s, favorite ice cream %s, pet %s.",
 			profile.FirstName,
@@ -171,17 +182,17 @@ func staticResponseText(raw string) string {
 			profile.Pet,
 		)
 	case domain.ActionSubmitAdminPassword:
-		if input.Payload.PasswordCheck == nil || !input.Payload.PasswordCheck.Submitted {
+		if input.Input.Payload.PasswordCheck == nil || !input.Input.Payload.PasswordCheck.Submitted {
 			return "I did not receive an admin password to check."
 		}
-		if input.Payload.PasswordCheck.Correct {
+		if input.Input.Payload.PasswordCheck.Correct {
 			return "That admin password is correct."
 		}
 		return "That admin password is not correct."
 	default:
 		return fmt.Sprintf(
 			"I understood the request, but there is no dedicated response for action %s yet.",
-			input.Request.Action,
+			input.Input.Request.Action,
 		)
 	}
 }

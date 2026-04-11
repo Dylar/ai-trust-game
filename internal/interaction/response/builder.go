@@ -2,7 +2,6 @@ package response
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -71,12 +70,7 @@ func (builder Builder) Build(ctx context.Context, input Input) (Result, error) {
 		return Result{}, fmt.Errorf("response builder client is nil")
 	}
 
-	request := llm.Request{
-		SystemPrompt: responseSystemPrompt(),
-		UserPrompt:   responseUserPrompt(input),
-	}
-
-	response, err := builder.client.Generate(ctx, request)
+	response, err := builder.client.Generate(ctx, buildPrompt(input))
 	if err != nil {
 		return Result{}, fmt.Errorf("generate response via llm client: %w", err)
 	}
@@ -91,17 +85,4 @@ func (builder Builder) Build(ctx context.Context, input Input) (Result, error) {
 		Message: message,
 		Source:  source,
 	}, nil
-}
-
-func responseSystemPrompt() string {
-	return "response_builder"
-}
-
-func responseUserPrompt(input Input) string {
-	payload, err := json.Marshal(input)
-	if err != nil {
-		return ""
-	}
-
-	return string(payload)
 }

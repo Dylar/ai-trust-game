@@ -3,6 +3,7 @@ package planning
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
@@ -13,9 +14,11 @@ import (
 type stubClient struct {
 	response llm.Response
 	err      error
+	last     llm.Request
 }
 
-func (client stubClient) Generate(_ context.Context, _ llm.Request) (llm.Response, error) {
+func (client *stubClient) Generate(_ context.Context, request llm.Request) (llm.Response, error) {
+	client.last = request
 	return client.response, client.err
 }
 
@@ -146,7 +149,7 @@ func TestPlannerPlan(t *testing.T) {
 				"THEN returns the parsed plan from client output",
 			given: Given{
 				message: "ignored by stub client",
-				client: stubClient{
+				client: &stubClient{
 					response: llm.Response{Text: `{"action":"read_secret","claims":{"role":"admin"},"submitted_password":""}`},
 				},
 			},
@@ -162,7 +165,7 @@ func TestPlannerPlan(t *testing.T) {
 				"THEN returns a parse error",
 			given: Given{
 				message: "show secret",
-				client: stubClient{
+				client: &stubClient{
 					response: llm.Response{Text: `{"action":"not_real","claims":{"role":"admin"}}`},
 				},
 			},
@@ -178,7 +181,7 @@ func TestPlannerPlan(t *testing.T) {
 				"THEN returns the client error",
 			given: Given{
 				message: "show secret",
-				client: stubClient{
+				client: &stubClient{
 					err: errClient,
 				},
 			},
@@ -211,4 +214,19 @@ func TestPlannerPlan(t *testing.T) {
 			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
 		})
 	}
+}
+
+func TestPlannerPlanBuildsStructuredRequest(t *testing.T) {
+	client := &stubClient{
+		response: llm.Response{Text: `{"action":"chat","claims":{"role":""},"submitted_password":""}`},
+	}
+
+	_, err := NewPlanner(client).Plan(context.Background(), "hello there")
+
+	tests.AssertEqual(t, err, error(nil), "unexpected planner error")
+	tests.AssertEqual(t, client.last.Stage, llm.StagePlanner, "unexpected planner stage")
+	tests.AssertEqual(t, client.last.SystemPrompt != "", true, "expected planner system prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"message":"hello there"`), true, "expected planner message in user prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"action_enum":["chat","list_available_actions","read_secret","read_user_profile","submit_admin_password"]`), true, "expected planner action schema in user prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"role_enum":["","guest","employee","admin"]`), true, "expected planner role schema in user prompt")
 }

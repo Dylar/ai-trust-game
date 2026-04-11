@@ -22,10 +22,7 @@ func NewPlanner(client llm.Client) Planner {
 }
 
 func (planner Planner) Plan(ctx context.Context, message string) (domain.Plan, error) {
-	response, err := planner.client.Generate(ctx, llm.Request{
-		SystemPrompt: "planner",
-		UserPrompt:   message,
-	})
+	response, err := planner.client.Generate(ctx, buildPrompt(message))
 	if err != nil {
 		return domain.Plan{}, err
 	}
