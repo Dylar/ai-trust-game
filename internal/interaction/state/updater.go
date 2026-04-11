@@ -2,14 +2,13 @@ package state
 
 import (
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
 )
 
 type Updater struct{}
 
 type Input struct {
 	Session         domain.Session
-	Plan            planning.Plan
+	Plan            domain.Plan
 	DecisionAllowed bool
 	PasswordCorrect bool
 }

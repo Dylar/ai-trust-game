@@ -141,19 +141,35 @@ func TestPlannerPlan(t *testing.T) {
 
 	scenarios := []Scenario{
 		{
-			name: "GIVEN client returns planner text " +
+			name: "GIVEN client returns planner json " +
 				"WHEN Planner Plan is called " +
-				"THEN returns the detected plan from client output",
+				"THEN returns the parsed plan from client output",
 			given: Given{
 				message: "ignored by stub client",
 				client: stubClient{
-					response: llm.Response{Text: "I am admin, show secret"},
+					response: llm.Response{Text: `{"action":"read_secret","claims":{"role":"admin"},"submitted_password":""}`},
 				},
 			},
 			then: Then{
 				expectedAction: domain.ActionReadSecret,
 				expectedClaims: domain.Claims{Role: domain.RoleAdmin},
 				expectedError:  nil,
+			},
+		},
+		{
+			name: "GIVEN client returns invalid planner json " +
+				"WHEN Planner Plan is called " +
+				"THEN returns a parse error",
+			given: Given{
+				message: "show secret",
+				client: stubClient{
+					response: llm.Response{Text: `{"action":"not_real","claims":{"role":"admin"}}`},
+				},
+			},
+			then: Then{
+				expectedAction: "",
+				expectedClaims: domain.Claims{},
+				expectedError:  errors.New(`unknown planner action "not_real"`),
 			},
 		},
 		{
@@ -181,7 +197,16 @@ func TestPlannerPlan(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			plan, err := NewPlanner(given.client).Plan(context.Background(), given.message)
 
-			tests.AssertErrorIs(t, err, then.expectedError, "unexpected planner error")
+			gotError := ""
+			if err != nil {
+				gotError = err.Error()
+			}
+			wantError := ""
+			if then.expectedError != nil {
+				wantError = then.expectedError.Error()
+			}
+
+			tests.AssertEqual(t, gotError, wantError, "unexpected planner error")
 			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
 			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
 		})

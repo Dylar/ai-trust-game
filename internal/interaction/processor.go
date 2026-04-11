@@ -6,7 +6,6 @@ import (
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/internal/interaction/execution"
-	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	interactionstate "github.com/Dylar/ai-trust-game/internal/interaction/state"
@@ -17,7 +16,7 @@ import (
 var ErrEmptyInteractionMessage = errors.New("interaction message is empty")
 
 type plannerPort interface {
-	Plan(ctx context.Context, message string) (interactionplanning.Plan, error)
+	Plan(ctx context.Context, message string) (domain.Plan, error)
 }
 
 type policyResolverPort interface {

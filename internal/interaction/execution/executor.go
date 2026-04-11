@@ -3,14 +3,13 @@ package execution
 import (
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
-	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
 )
 
 type Executor struct{}
 
 type Input struct {
 	Session domain.Session
-	Plan    planning.Plan
+	Plan    domain.Plan
 }
 
 type Output struct {

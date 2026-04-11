@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
@@ -41,7 +40,7 @@ func TestNewExecutorExecute(t *testing.T) {
 							Mode: domain.ModeHard,
 						},
 					},
-					Plan: planning.Plan{Action: domain.ActionListAvailableActions},
+					Plan: domain.Plan{Action: domain.ActionListAvailableActions},
 				},
 			},
 			then: Then{
@@ -71,7 +70,7 @@ func TestNewExecutorExecute(t *testing.T) {
 							TrustedRole: domain.RoleAdmin,
 						},
 					},
-					Plan: planning.Plan{Action: domain.ActionListAvailableActions},
+					Plan: domain.Plan{Action: domain.ActionListAvailableActions},
 				},
 			},
 			then: Then{
@@ -99,7 +98,7 @@ func TestNewExecutorExecute(t *testing.T) {
 							TrustedRole: domain.RoleEmployee,
 						},
 					},
-					Plan: planning.Plan{Action: domain.ActionListAvailableActions},
+					Plan: domain.Plan{Action: domain.ActionListAvailableActions},
 				},
 			},
 			then: Then{
@@ -119,7 +118,7 @@ func TestNewExecutorExecute(t *testing.T) {
 			given: Given{
 				input: Input{
 					Session: domain.Session{ID: "session-secret"},
-					Plan:    planning.Plan{Action: domain.ActionReadSecret},
+					Plan:    domain.Plan{Action: domain.ActionReadSecret},
 				},
 			},
 			then: Then{
@@ -134,7 +133,7 @@ func TestNewExecutorExecute(t *testing.T) {
 			given: Given{
 				input: Input{
 					Session: domain.Session{ID: "session-user-info"},
-					Plan:    planning.Plan{Action: domain.ActionReadUserProfile},
+					Plan:    domain.Plan{Action: domain.ActionReadUserProfile},
 				},
 			},
 			then: Then{
@@ -156,7 +155,7 @@ func TestNewExecutorExecute(t *testing.T) {
 			given: Given{
 				input: Input{
 					Session: domain.Session{ID: "session-password"},
-					Plan: planning.Plan{
+					Plan: domain.Plan{
 						Action:            domain.ActionSubmitAdminPassword,
 						SubmittedPassword: "Schaeferhund88",
 					},
@@ -174,7 +173,7 @@ func TestNewExecutorExecute(t *testing.T) {
 			given: Given{
 				input: Input{
 					Session: domain.Session{ID: "session-chat"},
-					Plan:    planning.Plan{Action: domain.ActionChat},
+					Plan:    domain.Plan{Action: domain.ActionChat},
 				},
 			},
 			then: Then{

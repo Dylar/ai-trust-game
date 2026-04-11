@@ -5,7 +5,6 @@ import (
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/internal/interaction/execution"
-	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
@@ -40,7 +39,7 @@ func newInteractionAuditEvent(
 func plannedAuditEvent(
 	ctx context.Context,
 	interaction domain.Interaction,
-	plan interactionplanning.Plan,
+	plan domain.Plan,
 ) audit.Event {
 	event := newInteractionAuditEvent(ctx, audit.StepPlanned, interaction)
 	event.Action = plan.Action
@@ -51,7 +50,7 @@ func plannedAuditEvent(
 func decidedAuditEvent(
 	ctx context.Context,
 	interaction domain.Interaction,
-	plan interactionplanning.Plan,
+	plan domain.Plan,
 	decision interactionpolicy.Decision,
 ) audit.Event {
 	event := newInteractionAuditEvent(ctx, audit.StepDecided, interaction)
@@ -68,7 +67,7 @@ func decidedAuditEvent(
 func executedAuditEvent(
 	ctx context.Context,
 	interaction domain.Interaction,
-	plan interactionplanning.Plan,
+	plan domain.Plan,
 	execution interactionexecution.Output,
 ) audit.Event {
 	event := newInteractionAuditEvent(ctx, audit.StepExecuted, interaction)
@@ -81,7 +80,7 @@ func executedAuditEvent(
 func respondedAuditEvent(
 	ctx context.Context,
 	interaction domain.Interaction,
-	plan interactionplanning.Plan,
+	plan domain.Plan,
 	result interactionresponse.Result,
 ) audit.Event {
 	event := newInteractionAuditEvent(ctx, audit.StepResponded, interaction)
@@ -94,7 +93,7 @@ func respondedAuditEvent(
 func stateUpdatedAuditEvent(
 	ctx context.Context,
 	interaction domain.Interaction,
-	plan interactionplanning.Plan,
+	plan domain.Plan,
 	updated bool,
 ) audit.Event {
 	event := newInteractionAuditEvent(ctx, audit.StepStateUpdated, interaction)

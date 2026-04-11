@@ -6,7 +6,6 @@ import (
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/internal/interaction/execution"
-	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
@@ -97,7 +96,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					stubPlanner{
-						plan: interactionplanning.Plan{
+						plan: domain.Plan{
 							Action: domain.ActionReadSecret,
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
@@ -145,7 +144,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					stubPlanner{
-						plan: interactionplanning.Plan{
+						plan: domain.Plan{
 							Action: domain.ActionReadSecret,
 							Claims: domain.Claims{Role: domain.RoleAdmin},
 						},
@@ -203,7 +202,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					stubPlanner{
-						plan: interactionplanning.Plan{
+						plan: domain.Plan{
 							Action: domain.ActionReadUserProfile,
 						},
 					},
@@ -298,7 +297,7 @@ func TestProcessInteraction(t *testing.T) {
 						},
 					},
 					stubPlanner{
-						plan: interactionplanning.Plan{
+						plan: domain.Plan{
 							Action: domain.ActionReadSecret,
 						},
 					},
@@ -421,7 +420,7 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 				},
 			}
 			planner := &spyPlanner{
-				plan: interactionplanning.Plan{
+				plan: domain.Plan{
 					Action: then.expectedAction,
 					Claims: then.expectedClaims,
 				},
@@ -503,7 +502,7 @@ func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
 			},
 		},
 		stubPlanner{
-			plan: interactionplanning.Plan{
+			plan: domain.Plan{
 				Action: domain.ActionReadUserProfile,
 			},
 		},
@@ -560,7 +559,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 			},
 		},
 		stubPlanner{
-			plan: interactionplanning.Plan{
+			plan: domain.Plan{
 				Action: domain.ActionReadSecret,
 				Claims: domain.Claims{Role: domain.RoleAdmin},
 			},

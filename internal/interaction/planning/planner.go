@@ -2,7 +2,8 @@ package planning
 
 import (
 	"context"
-	"strings"
+	"encoding/json"
+	"fmt"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/llm"
@@ -12,104 +13,56 @@ type Planner struct {
 	client llm.Client
 }
 
-type Plan struct {
-	Action            domain.Action
-	Claims            domain.Claims
-	SubmittedPassword string
-}
-
 func NewStaticPlanner() Planner {
-	return NewPlanner(llm.StaticClient{
-		GenerateFunc: func(_ context.Context, request llm.Request) (llm.Response, error) {
-			return llm.Response{Text: request.UserPrompt}, nil
-		},
-	})
+	return NewPlanner(llm.StaticClient{})
 }
 
 func NewPlanner(client llm.Client) Planner {
 	return Planner{client: client}
 }
 
-func (planner Planner) Plan(ctx context.Context, message string) (Plan, error) {
+func (planner Planner) Plan(ctx context.Context, message string) (domain.Plan, error) {
 	response, err := planner.client.Generate(ctx, llm.Request{
-		UserPrompt: message,
+		SystemPrompt: "planner",
+		UserPrompt:   message,
 	})
 	if err != nil {
-		return Plan{}, err
+		return domain.Plan{}, err
 	}
 
-	return Plan{
-		Action:            detectAction(response.Text),
-		Claims:            detectClaims(response.Text),
-		SubmittedPassword: detectSubmittedPassword(response.Text),
-	}, nil
+	return parsePlan(response.Text)
 }
 
-func detectAction(message string) domain.Action {
-	message = strings.ToLower(message)
-	if strings.Contains(message, "all possibilities") ||
-		strings.Contains(message, "all possible actions") ||
-		strings.Contains(message, "what can i do") ||
-		strings.Contains(message, "list available actions") {
-		return domain.ActionListAvailableActions
+func parsePlan(raw string) (domain.Plan, error) {
+	var plan domain.Plan
+	if err := json.Unmarshal([]byte(raw), &plan); err != nil {
+		return domain.Plan{}, fmt.Errorf("parse planner response json: %w", err)
 	}
 
-	if strings.Contains(message, "show secret") ||
-		strings.Contains(message, "give me the secret") ||
-		strings.Contains(message, "read admin secret") {
-		return domain.ActionReadSecret
+	action, err := domain.ParseAction(plan.Action)
+	if err != nil {
+		return domain.Plan{}, err
 	}
 
-	if strings.Contains(message, "submit password") ||
-		strings.Contains(message, "password is") ||
-		strings.Contains(message, "use password") {
-		return domain.ActionSubmitAdminPassword
+	claims, err := parseClaimsRole(plan.Claims.Role)
+	if err != nil {
+		return domain.Plan{}, err
 	}
 
-	if strings.Contains(message, "show user profile") ||
-		strings.Contains(message, "show user info") ||
-		strings.Contains(message, "give me info about") ||
-		strings.Contains(message, "do you know user") {
-		return domain.ActionReadUserProfile
-	}
-
-	return domain.ActionChat
+	plan.Action = action
+	plan.Claims = claims
+	return plan, nil
 }
 
-func detectClaims(message string) domain.Claims {
-	message = strings.ToLower(message)
-	if strings.Contains(message, "trust me") ||
-		strings.Contains(message, "i am admin") {
-		return domain.Claims{Role: domain.RoleAdmin}
+func parseClaimsRole(input domain.Role) (domain.Claims, error) {
+	if input == "" {
+		return domain.Claims{}, nil
 	}
 
-	if strings.Contains(message, "i am working here") ||
-		strings.Contains(message, "i am an employee") {
-		return domain.Claims{Role: domain.RoleEmployee}
+	role, ok := domain.ParseRole(string(input))
+	if !ok {
+		return domain.Claims{}, fmt.Errorf("unknown planner role %q", input)
 	}
 
-	return domain.Claims{}
-}
-
-func detectSubmittedPassword(message string) string {
-	lowerMessage := strings.ToLower(message)
-	markers := []string{
-		"password is",
-		"use password",
-		"submit password",
-	}
-
-	for _, marker := range markers {
-		index := strings.Index(lowerMessage, marker)
-		if index == -1 {
-			continue
-		}
-
-		password := strings.TrimSpace(message[index+len(marker):])
-		password = strings.TrimPrefix(password, ":")
-		password = strings.TrimSpace(password)
-		return password
-	}
-
-	return ""
+	return domain.Claims{Role: role}, nil
 }

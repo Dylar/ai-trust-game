@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 )
 
@@ -42,7 +41,7 @@ func TestNewUpdaterUpdate(t *testing.T) {
 							TrustedRole: domain.RoleGuest,
 						},
 					},
-					Plan: planning.Plan{
+					Plan: domain.Plan{
 						Action: domain.ActionReadUserProfile,
 						Claims: domain.Claims{Role: domain.RoleEmployee},
 					},
@@ -71,7 +70,7 @@ func TestNewUpdaterUpdate(t *testing.T) {
 							TrustedRole: domain.RoleGuest,
 						},
 					},
-					Plan: planning.Plan{
+					Plan: domain.Plan{
 						Action: domain.ActionReadUserProfile,
 						Claims: domain.Claims{Role: domain.RoleEmployee},
 					},
@@ -101,7 +100,7 @@ func TestNewUpdaterUpdate(t *testing.T) {
 							SecretUnlocked: false,
 						},
 					},
-					Plan: planning.Plan{
+					Plan: domain.Plan{
 						Action: domain.ActionSubmitAdminPassword,
 					},
 					DecisionAllowed: true,

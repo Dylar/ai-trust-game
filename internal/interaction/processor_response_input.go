@@ -3,14 +3,13 @@ package interaction
 import (
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/internal/interaction/execution"
-	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 )
 
 func newResponseInput(
 	interaction domain.Interaction,
-	plan interactionplanning.Plan,
+	plan domain.Plan,
 	decision interactionpolicy.Decision,
 	execution interactionexecution.Output,
 ) interactionresponse.Input {
