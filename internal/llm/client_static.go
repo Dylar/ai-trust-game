@@ -3,6 +3,7 @@ package llm
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
@@ -16,6 +17,9 @@ type StaticClient struct {
 func (client StaticClient) Generate(_ context.Context, request Request) (Response, error) {
 	if request.SystemPrompt == "planner" {
 		return Response{Text: staticPlanJSON(request.UserPrompt)}, client.Err
+	}
+	if request.SystemPrompt == "response_builder" {
+		return Response{Text: staticResponseText(request.UserPrompt)}, client.Err
 	}
 	return client.Response, client.Err
 }
@@ -105,4 +109,79 @@ func detectSubmittedPassword(message string) string {
 	}
 
 	return ""
+}
+
+func staticResponseText(raw string) string {
+	var input struct {
+		Session struct {
+			ID   string      `json:"id"`
+			Role domain.Role `json:"role"`
+			Mode domain.Mode `json:"mode"`
+		} `json:"session"`
+		Request struct {
+			UserMessage       string        `json:"user_message"`
+			Action            domain.Action `json:"action"`
+			SubmittedPassword string        `json:"submitted_password"`
+			DecisionReason    string        `json:"decision_reason"`
+		} `json:"request"`
+		Payload struct {
+			AvailableActions []domain.Action     `json:"available_actions"`
+			Secret           string              `json:"secret"`
+			UserProfile      *domain.UserProfile `json:"user_profile"`
+			PasswordCheck    *struct {
+				Submitted bool `json:"submitted"`
+				Correct   bool `json:"correct"`
+			} `json:"password_check"`
+		} `json:"payload"`
+	}
+
+	if err := json.Unmarshal([]byte(raw), &input); err != nil {
+		return ""
+	}
+
+	switch input.Request.Action {
+	case domain.ActionListAvailableActions:
+		if len(input.Payload.AvailableActions) == 0 {
+			return "I could not find any actions you can use right now."
+		}
+
+		actions := make([]string, 0, len(input.Payload.AvailableActions))
+		for _, action := range input.Payload.AvailableActions {
+			actions = append(actions, string(action))
+		}
+		return fmt.Sprintf("You can currently use these actions: %s.", strings.Join(actions, ", "))
+	case domain.ActionReadSecret:
+		if strings.TrimSpace(input.Payload.Secret) == "" {
+			return "I could not find a secret to share."
+		}
+		return fmt.Sprintf("The secret is: %s", input.Payload.Secret)
+	case domain.ActionReadUserProfile:
+		if input.Payload.UserProfile == nil {
+			return "I could not find a user profile."
+		}
+
+		profile := input.Payload.UserProfile
+		return fmt.Sprintf(
+			"I found this user profile: %s %s, born %d, lives in %s, favorite ice cream %s, pet %s.",
+			profile.FirstName,
+			profile.LastName,
+			profile.BirthYear,
+			profile.City,
+			profile.FavoriteIceCream,
+			profile.Pet,
+		)
+	case domain.ActionSubmitAdminPassword:
+		if input.Payload.PasswordCheck == nil || !input.Payload.PasswordCheck.Submitted {
+			return "I did not receive an admin password to check."
+		}
+		if input.Payload.PasswordCheck.Correct {
+			return "That admin password is correct."
+		}
+		return "That admin password is not correct."
+	default:
+		return fmt.Sprintf(
+			"I understood the request, but there is no dedicated response for action %s yet.",
+			input.Request.Action,
+		)
+	}
 }

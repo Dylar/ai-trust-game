@@ -2,6 +2,7 @@ package response
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -14,34 +15,34 @@ type Builder struct {
 }
 
 type Input struct {
-	Session SessionMeta
-	Request RequestMeta
-	Payload Payload
+	Session SessionMeta `json:"session"`
+	Request RequestMeta `json:"request"`
+	Payload Payload     `json:"payload"`
 }
 
 type SessionMeta struct {
-	ID   string
-	Role domain.Role
-	Mode domain.Mode
+	ID   string      `json:"id"`
+	Role domain.Role `json:"role"`
+	Mode domain.Mode `json:"mode"`
 }
 
 type RequestMeta struct {
-	UserMessage       string
-	Action            domain.Action
-	SubmittedPassword string
-	DecisionReason    string
+	UserMessage       string        `json:"user_message"`
+	Action            domain.Action `json:"action"`
+	SubmittedPassword string        `json:"submitted_password"`
+	DecisionReason    string        `json:"decision_reason"`
 }
 
 type Payload struct {
-	AvailableActions []domain.Action
-	Secret           string
-	UserProfile      *domain.UserProfile
-	PasswordCheck    *PasswordCheck
+	AvailableActions []domain.Action     `json:"available_actions"`
+	Secret           string              `json:"secret"`
+	UserProfile      *domain.UserProfile `json:"user_profile"`
+	PasswordCheck    *PasswordCheck      `json:"password_check"`
 }
 
 type PasswordCheck struct {
-	Submitted bool
-	Correct   bool
+	Submitted bool `json:"submitted"`
+	Correct   bool `json:"correct"`
 }
 
 type Result struct {
@@ -58,7 +59,7 @@ const (
 )
 
 func NewStaticBuilder() Builder {
-	return Builder{}
+	return NewLLMBuilder(llm.StaticClient{})
 }
 
 func NewLLMBuilder(client llm.Client) Builder {
@@ -66,164 +67,41 @@ func NewLLMBuilder(client llm.Client) Builder {
 }
 
 func (builder Builder) Build(ctx context.Context, input Input) (Result, error) {
-	if builder.client != nil {
-		request := llm.Request{
-			SystemPrompt: responseSystemPrompt(),
-			UserPrompt:   responseUserPrompt(input),
-		}
-
-		response, err := builder.client.Generate(ctx, request)
-		if err != nil {
-			return Result{}, fmt.Errorf("generate response via llm client: %w", err)
-		}
-
-		message := strings.TrimSpace(response.Text)
-		return Result{
-			Message: message,
-			Source:  SourceLLM,
-		}, nil
+	if builder.client == nil {
+		return Result{}, fmt.Errorf("response builder client is nil")
 	}
 
-	switch input.Request.Action {
-	case domain.ActionListAvailableActions:
-		return buildListAvailableActionsResponse(input), nil
-	case domain.ActionReadSecret:
-		return buildReadSecretResponse(input), nil
-	case domain.ActionReadUserProfile:
-		return buildReadUserProfileResponse(input), nil
-	case domain.ActionSubmitAdminPassword:
-		return buildSubmitAdminPasswordResponse(input), nil
+	request := llm.Request{
+		SystemPrompt: responseSystemPrompt(),
+		UserPrompt:   responseUserPrompt(input),
+	}
+
+	response, err := builder.client.Generate(ctx, request)
+	if err != nil {
+		return Result{}, fmt.Errorf("generate response via llm client: %w", err)
+	}
+
+	message := strings.TrimSpace(response.Text)
+	source := SourceLLM
+	if _, ok := builder.client.(llm.StaticClient); ok {
+		source = SourceSystem
 	}
 
 	return Result{
-		Message: fmt.Sprintf("I understood the request, but there is no dedicated response for action %s yet.", input.Request.Action),
-		Source:  SourceSystem,
+		Message: message,
+		Source:  source,
 	}, nil
 }
 
 func responseSystemPrompt() string {
-	return "Generate a concise user-facing response based only on the provided safe interaction data."
+	return "response_builder"
 }
 
 func responseUserPrompt(input Input) string {
-	var prompt strings.Builder
-
-	prompt.WriteString(fmt.Sprintf("session_id=%s\n", input.Session.ID))
-	prompt.WriteString(fmt.Sprintf("role=%s\n", input.Session.Role))
-	prompt.WriteString(fmt.Sprintf("mode=%s\n", input.Session.Mode))
-	prompt.WriteString(fmt.Sprintf("action=%s\n", input.Request.Action))
-	prompt.WriteString(fmt.Sprintf("decision_reason=%s\n", input.Request.DecisionReason))
-	prompt.WriteString(fmt.Sprintf("user_message=%s\n", input.Request.UserMessage))
-
-	if len(input.Payload.AvailableActions) > 0 {
-		actions := make([]string, 0, len(input.Payload.AvailableActions))
-		for _, action := range input.Payload.AvailableActions {
-			actions = append(actions, string(action))
-		}
-		prompt.WriteString(fmt.Sprintf("available_actions=%s\n", strings.Join(actions, ", ")))
+	payload, err := json.Marshal(input)
+	if err != nil {
+		return ""
 	}
 
-	if strings.TrimSpace(input.Payload.Secret) != "" {
-		prompt.WriteString(fmt.Sprintf("secret=%s\n", input.Payload.Secret))
-	}
-
-	if input.Payload.UserProfile != nil {
-		profile := input.Payload.UserProfile
-		prompt.WriteString(fmt.Sprintf(
-			"user_profile=%s %s, born %d, lives in %s, favorite ice cream %s, pet %s\n",
-			profile.FirstName,
-			profile.LastName,
-			profile.BirthYear,
-			profile.City,
-			profile.FavoriteIceCream,
-			profile.Pet,
-		))
-	}
-
-	if input.Payload.PasswordCheck != nil {
-		prompt.WriteString(fmt.Sprintf(
-			"password_submitted=%t\npassword_correct=%t\n",
-			input.Payload.PasswordCheck.Submitted,
-			input.Payload.PasswordCheck.Correct,
-		))
-	}
-
-	return prompt.String()
-}
-
-func buildReadSecretResponse(input Input) Result {
-	if strings.TrimSpace(input.Payload.Secret) == "" {
-		return Result{
-			Message: "I could not find a secret to share.",
-			Source:  SourceSystem,
-		}
-	}
-
-	return Result{
-		Message: fmt.Sprintf("The secret is: %s", input.Payload.Secret),
-		Source:  SourceSystem,
-	}
-}
-
-func buildReadUserProfileResponse(input Input) Result {
-	if input.Payload.UserProfile == nil {
-		return Result{
-			Message: "I could not find a user profile.",
-			Source:  SourceSystem,
-		}
-	}
-
-	profile := input.Payload.UserProfile
-	return Result{
-		Message: fmt.Sprintf(
-			"I found this user profile: %s %s, born %d, lives in %s, favorite ice cream %s, pet %s.",
-			profile.FirstName,
-			profile.LastName,
-			profile.BirthYear,
-			profile.City,
-			profile.FavoriteIceCream,
-			profile.Pet,
-		),
-		Source: SourceSystem,
-	}
-}
-
-func buildSubmitAdminPasswordResponse(input Input) Result {
-	if input.Payload.PasswordCheck == nil || !input.Payload.PasswordCheck.Submitted {
-		return Result{
-			Message: "I did not receive an admin password to check.",
-			Source:  SourceSystem,
-		}
-	}
-
-	if input.Payload.PasswordCheck.Correct {
-		return Result{
-			Message: "That admin password is correct.",
-			Source:  SourceSystem,
-		}
-	}
-
-	return Result{
-		Message: "That admin password is not correct.",
-		Source:  SourceSystem,
-	}
-}
-
-func buildListAvailableActionsResponse(input Input) Result {
-	if len(input.Payload.AvailableActions) == 0 {
-		return Result{
-			Message: "I could not find any actions you can use right now.",
-			Source:  SourceSystem,
-		}
-	}
-
-	actions := make([]string, 0, len(input.Payload.AvailableActions))
-	for _, action := range input.Payload.AvailableActions {
-		actions = append(actions, string(action))
-	}
-
-	return Result{
-		Message: fmt.Sprintf("You can currently use these actions: %s.", strings.Join(actions, ", ")),
-		Source:  SourceSystem,
-	}
+	return string(payload)
 }
