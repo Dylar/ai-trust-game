@@ -157,3 +157,33 @@ func validate(interaction domain.Interaction) error {
 	}
 	return nil
 }
+
+func newResponseInput(
+	interaction domain.Interaction,
+	plan domain.Plan,
+	decision interactionpolicy.Decision,
+	execution interactionexecution.Output,
+) interactionresponse.Input {
+	return interactionresponse.Input{
+		Session: interactionresponse.SessionMeta{
+			ID:   interaction.Session.ID,
+			Role: interaction.Session.Settings.Role,
+			Mode: interaction.Session.Settings.Mode,
+		},
+		Request: interactionresponse.RequestMeta{
+			UserMessage:       interaction.Message,
+			Action:            plan.Action,
+			SubmittedPassword: plan.SubmittedPassword,
+			DecisionReason:    decision.Reason,
+		},
+		Payload: interactionresponse.Payload{
+			AvailableActions: execution.AvailableActions,
+			Secret:           execution.Secret,
+			UserProfile:      execution.UserProfile,
+			PasswordCheck: &interactionresponse.PasswordCheck{
+				Submitted: plan.SubmittedPassword != "",
+				Correct:   execution.PasswordCorrect,
+			},
+		},
+	}
+}
