@@ -168,6 +168,14 @@ The project starts small, but is planned with a broader service-oriented setup i
 - `Kubernetes`  
   Planned as the deployment environment once the project moves beyond a single local service.
 
+## Development Commands
+
+- `make test`
+  runs the full Go test suite
+
+- `make lint`
+  runs the configured `golangci-lint` checks across the repository
+
 ## Development Phases
 
 ### Phase 1 — Service Foundation (Done)

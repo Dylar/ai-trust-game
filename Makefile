@@ -1,6 +1,7 @@
 SERVICE ?=
+GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
 
-.PHONY: help run build test docker-build
+.PHONY: help run build test lint docker-build
 
 help:
 	@echo "Commands:"
@@ -8,6 +9,7 @@ help:
 	@echo "  make build SERVICE=<name>"
 	@echo "  make docker-build SERVICE=<name>"
 	@echo "  make test"
+	@echo "  make lint"
 
 run:
 	@if [ -z "$(SERVICE)" ]; then \
@@ -36,3 +38,6 @@ docker-build:
 
 test:
 	go test ./...
+
+lint:
+	$(GOLANGCI_LINT) run ./...

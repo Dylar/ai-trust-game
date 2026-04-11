@@ -13,7 +13,7 @@ type StaticClient struct {
 	Err      error
 }
 
-func (client StaticClient) Generate(ctx context.Context, request Request) (Response, error) {
+func (client StaticClient) Generate(_ context.Context, request Request) (Response, error) {
 	if request.SystemPrompt == "planner" {
 		return Response{Text: staticPlanJSON(request.UserPrompt)}, client.Err
 	}
