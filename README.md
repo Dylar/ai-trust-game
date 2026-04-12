@@ -245,24 +245,26 @@ Goal: demonstrate how architecture changes system security
 
 Goal: complete the controlled interaction pipeline before integrating a real model
 
-### Phase 8 — LLM Integration & Traceability
+### Phase 8 — LLM Integration & Traceability (Done)
 
-- enrich audit events for planning, execution, response building, and later model calls
-- make the interaction pipeline traceable before the first real provider is integrated
 - introduce provider abstraction and model client boundaries
 - define prompt construction for the existing pipeline stages
 - integrate the first provider into the intended flow points
+- move planning to structured model output with schema-guided JSON
+- move response building to model-backed free-text generation
+- improve model-output error handling and logging context
 - keep policy, capability checks, state updates, and response data guarding authoritative
 
-Goal: make the pipeline observable first and then introduce AI into it without giving the model system authority
+Goal: introduce model-backed planning and response generation without giving the model system authority
 
 ### Phase 9 — Audit Analysis & Detection
 
-- analyze enriched audit events
-- suspicious behavior detection
-- role escalation and prompt injection detection
+- enrich audit and model-step observability
+- make planning / response generation failures easier to detect and inspect
+- prepare detection signals for suspicious interaction patterns and prompt-injection-like behavior
+- analyze how mode, policy, and prompt quality change observable outcomes
 
-Goal: make decisions traceable and analyzable
+Goal: turn runtime traces into useful detection and analysis signals
 
 ### Phase 10 — Client / UI
 
