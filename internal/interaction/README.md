@@ -22,7 +22,8 @@ are wired together, then dive into the individual components from there.
 The module is intentionally split into small parts so that trust and authority stay explicit.
 
 - `planning`
-  Detects the intended action, claims, and structured request details from the user message.
+  Builds the planning prompt, asks the configured client for structured output, and turns that output into a validated
+  `domain.Plan`.
 
 - `policy`
   Decides whether a planned action is allowed.
@@ -39,6 +40,7 @@ The module is intentionally split into small parts so that trust and authority s
 
 - `response`
   Shapes what response data may flow forward, builds the final user-visible message, and validates the final output.
+  The builder can use either a static client or a provider-backed client, but the guard stays authoritative.
 
 This separation exists so that later model-based components can be swapped in without turning the whole interaction flow
 into one opaque AI step.
@@ -60,14 +62,15 @@ The current pipeline in [`processor.go`](./processor.go) is:
 
 1. validate incoming interaction
 2. plan the interaction
-3. resolve the policy for the current mode
-4. make an explicit allow / deny decision
-5. execute the allowed action deterministically
-6. build structured response input
-7. guard the response payload
-8. build the final response message
-9. validate the final response
-10. update authoritative session state
+3. write a planning audit event
+4. resolve the policy for the current mode
+5. make an explicit allow / deny decision
+6. execute the allowed action deterministically
+7. build structured response input
+8. guard the response payload
+9. build the final response message
+10. validate the final response
+11. update authoritative session state
 
 ## Why The Guard Comes Before The Builder
 
@@ -101,3 +104,16 @@ The goal is not to keep everything static forever.
 
 The goal is to establish the control flow and boundaries first, so that later LLM integration can replace selected parts
 without making the model the authority.
+
+Today that replacement already exists for selected steps:
+
+- the planner speaks to `llm.Client` and expects structured JSON output
+- the response builder speaks to `llm.Client` and expects user-visible free text
+
+The authoritative parts still remain deterministic:
+
+- policy
+- capability calculation
+- execution
+- state updates
+- response guarding
