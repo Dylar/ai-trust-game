@@ -34,17 +34,26 @@ func (planner Planner) Plan(ctx context.Context, message string) (domain.Plan, e
 func parsePlan(raw string) (domain.Plan, error) {
 	var plan domain.Plan
 	if err := json.Unmarshal([]byte(raw), &plan); err != nil {
-		return domain.Plan{}, fmt.Errorf("parse planner response json: %w", err)
+		return domain.Plan{}, OutputError{
+			Cause:     fmt.Errorf("parse planner response json: %w", err),
+			RawOutput: raw,
+		}
 	}
 
 	action, err := domain.ParseAction(plan.Action)
 	if err != nil {
-		return domain.Plan{}, err
+		return domain.Plan{}, OutputError{
+			Cause:     err,
+			RawOutput: raw,
+		}
 	}
 
 	claims, err := parseClaimsRole(plan.Claims.Role)
 	if err != nil {
-		return domain.Plan{}, err
+		return domain.Plan{}, OutputError{
+			Cause:     err,
+			RawOutput: raw,
+		}
 	}
 
 	plan.Action = action

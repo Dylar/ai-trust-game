@@ -142,6 +142,7 @@ func TestPlannerPlan(t *testing.T) {
 		expectedClaims           domain.Claims
 		expectedResponseLanguage string
 		expectedError            error
+		expectedRawOutput        string
 	}
 
 	type Scenario struct {
@@ -166,12 +167,13 @@ func TestPlannerPlan(t *testing.T) {
 				expectedClaims:           domain.Claims{Role: domain.RoleAdmin},
 				expectedResponseLanguage: "de",
 				expectedError:            nil,
+				expectedRawOutput:        "",
 			},
 		},
 		{
 			name: "GIVEN client returns invalid planner json " +
 				"WHEN Planner Plan is called " +
-				"THEN returns a parse error",
+				"THEN returns planner output error with raw output",
 			given: Given{
 				message: "show secret",
 				client: &stubClient{
@@ -182,7 +184,8 @@ func TestPlannerPlan(t *testing.T) {
 				expectedAction:           "",
 				expectedClaims:           domain.Claims{},
 				expectedResponseLanguage: "",
-				expectedError:            errors.New(`unknown planner action "not_real"`),
+				expectedError:            errors.New(`planner output error: unknown planner action "not_real"`),
+				expectedRawOutput:        `{"action":"not_real","claims":{"role":"admin"}}`,
 			},
 		},
 		{
@@ -200,6 +203,7 @@ func TestPlannerPlan(t *testing.T) {
 				expectedClaims:           domain.Claims{},
 				expectedResponseLanguage: "",
 				expectedError:            errClient,
+				expectedRawOutput:        "",
 			},
 		},
 	}
@@ -224,6 +228,13 @@ func TestPlannerPlan(t *testing.T) {
 			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
 			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
 			tests.AssertEqual(t, plan.ResponseLanguage, then.expectedResponseLanguage, "unexpected planned response language")
+
+			var outputErr OutputError
+			gotRawOutput := ""
+			if errors.As(err, &outputErr) {
+				gotRawOutput = outputErr.RawOutput
+			}
+			tests.AssertEqual(t, gotRawOutput, then.expectedRawOutput, "unexpected raw planner output")
 		})
 	}
 }

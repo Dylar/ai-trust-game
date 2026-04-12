@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/interaction"
+	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	"net/http"
 
@@ -66,11 +67,16 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 		if !errors.Is(err, ErrNoSessionProvided) &&
 			!errors.Is(err, ErrNoSessionFound) &&
 			!errors.Is(err, interaction.ErrEmptyInteractionMessage) {
-			handler.logger.Error(
-				ctx,
-				"interaction failed",
+			fields := []logging.Field{
 				logging.WithError(err),
-			)
+			}
+
+			var plannerOutputErr interactionplanning.OutputError
+			if errors.As(err, &plannerOutputErr) {
+				fields = append(fields, logging.WithField("planner_raw_output", plannerOutputErr.RawOutput))
+			}
+
+			handler.logger.Error(ctx, "interaction failed", fields...)
 		}
 		status, errorResponse := handler.mapInteractionError(err)
 		network.WriteJSON(w, status, errorResponse)
