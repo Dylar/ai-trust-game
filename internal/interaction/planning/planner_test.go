@@ -31,6 +31,7 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 		expectedAction            domain.Action
 		expectedClaims            domain.Claims
 		expectedSubmittedPassword string
+		expectedResponseLanguage  string
 	}
 
 	type Scenario struct {
@@ -51,6 +52,7 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 				expectedAction:            domain.ActionListAvailableActions,
 				expectedClaims:            domain.Claims{},
 				expectedSubmittedPassword: "",
+				expectedResponseLanguage:  domain.DefaultResponseLanguage,
 			},
 		},
 		{
@@ -64,6 +66,7 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 				expectedAction:            domain.ActionReadSecret,
 				expectedClaims:            domain.Claims{Role: domain.RoleAdmin},
 				expectedSubmittedPassword: "",
+				expectedResponseLanguage:  domain.DefaultResponseLanguage,
 			},
 		},
 		{
@@ -77,6 +80,7 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 				expectedAction:            domain.ActionReadUserProfile,
 				expectedClaims:            domain.Claims{},
 				expectedSubmittedPassword: "",
+				expectedResponseLanguage:  domain.DefaultResponseLanguage,
 			},
 		},
 		{
@@ -90,19 +94,21 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 				expectedAction:            domain.ActionSubmitAdminPassword,
 				expectedClaims:            domain.Claims{},
 				expectedSubmittedPassword: "Schaeferhund88",
+				expectedResponseLanguage:  domain.DefaultResponseLanguage,
 			},
 		},
 		{
-			name: "GIVEN ordinary chat message " +
+			name: "GIVEN ordinary german chat message " +
 				"WHEN NewStaticPlanner Plan is called " +
-				"THEN returns chat action without claims",
+				"THEN returns chat action without claims and german language",
 			given: Given{
-				message: "hello there",
+				message: "hallo da",
 			},
 			then: Then{
 				expectedAction:            domain.ActionChat,
 				expectedClaims:            domain.Claims{},
 				expectedSubmittedPassword: "",
+				expectedResponseLanguage:  "de",
 			},
 		},
 	}
@@ -118,6 +124,7 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
 			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
 			tests.AssertEqual(t, plan.SubmittedPassword, then.expectedSubmittedPassword, "unexpected submitted password")
+			tests.AssertEqual(t, plan.ResponseLanguage, then.expectedResponseLanguage, "unexpected response language")
 		})
 	}
 }
@@ -131,9 +138,10 @@ func TestPlannerPlan(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedAction domain.Action
-		expectedClaims domain.Claims
-		expectedError  error
+		expectedAction           domain.Action
+		expectedClaims           domain.Claims
+		expectedResponseLanguage string
+		expectedError            error
 	}
 
 	type Scenario struct {
@@ -150,13 +158,14 @@ func TestPlannerPlan(t *testing.T) {
 			given: Given{
 				message: "ignored by stub client",
 				client: &stubClient{
-					response: llm.Response{Text: `{"action":"read_secret","claims":{"role":"admin"},"submitted_password":""}`},
+					response: llm.Response{Text: `{"action":"read_secret","claims":{"role":"admin"},"submitted_password":"","response_language":"de"}`},
 				},
 			},
 			then: Then{
-				expectedAction: domain.ActionReadSecret,
-				expectedClaims: domain.Claims{Role: domain.RoleAdmin},
-				expectedError:  nil,
+				expectedAction:           domain.ActionReadSecret,
+				expectedClaims:           domain.Claims{Role: domain.RoleAdmin},
+				expectedResponseLanguage: "de",
+				expectedError:            nil,
 			},
 		},
 		{
@@ -170,9 +179,10 @@ func TestPlannerPlan(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedAction: "",
-				expectedClaims: domain.Claims{},
-				expectedError:  errors.New(`unknown planner action "not_real"`),
+				expectedAction:           "",
+				expectedClaims:           domain.Claims{},
+				expectedResponseLanguage: "",
+				expectedError:            errors.New(`unknown planner action "not_real"`),
 			},
 		},
 		{
@@ -186,9 +196,10 @@ func TestPlannerPlan(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedAction: "",
-				expectedClaims: domain.Claims{},
-				expectedError:  errClient,
+				expectedAction:           "",
+				expectedClaims:           domain.Claims{},
+				expectedResponseLanguage: "",
+				expectedError:            errClient,
 			},
 		},
 	}
@@ -212,13 +223,14 @@ func TestPlannerPlan(t *testing.T) {
 			tests.AssertEqual(t, gotError, wantError, "unexpected planner error")
 			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
 			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
+			tests.AssertEqual(t, plan.ResponseLanguage, then.expectedResponseLanguage, "unexpected planned response language")
 		})
 	}
 }
 
 func TestPlannerPlanBuildsStructuredRequest(t *testing.T) {
 	client := &stubClient{
-		response: llm.Response{Text: `{"action":"chat","claims":{"role":""},"submitted_password":""}`},
+		response: llm.Response{Text: `{"action":"chat","claims":{"role":""},"submitted_password":"","response_language":"en"}`},
 	}
 
 	_, err := NewPlanner(client).Plan(context.Background(), "hello there")
@@ -226,7 +238,13 @@ func TestPlannerPlanBuildsStructuredRequest(t *testing.T) {
 	tests.AssertEqual(t, err, error(nil), "unexpected planner error")
 	tests.AssertEqual(t, client.last.Stage, llm.StagePlanner, "unexpected planner stage")
 	tests.AssertEqual(t, client.last.SystemPrompt != "", true, "expected planner system prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, "chat, list_available_actions, read_secret, read_user_profile, submit_admin_password"), true, "expected planner actions in system prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, "guest, employee, admin"), true, "expected planner roles in system prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"required"`), true, "expected planner required fields in system prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"response_language"`), true, "expected planner response language in schema")
+	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"properties"`), true, "expected planner schema properties in system prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"action"`), true, "expected planner action property in schema")
 	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"message":"hello there"`), true, "expected planner message in user prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"action_enum":["chat","list_available_actions","read_secret","read_user_profile","submit_admin_password"]`), true, "expected planner action schema in user prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"role_enum":["","guest","employee","admin"]`), true, "expected planner role schema in user prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"input":{"message":"hello there"}`), true, "expected planner input wrapper in user prompt")
+	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, "response_language"), true, "expected response language in planner system prompt")
 }

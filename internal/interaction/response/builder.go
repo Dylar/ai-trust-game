@@ -29,6 +29,7 @@ type RequestMeta struct {
 	UserMessage       string        `json:"user_message"`
 	Action            domain.Action `json:"action"`
 	SubmittedPassword string        `json:"submitted_password"`
+	ResponseLanguage  string        `json:"response_language"`
 	DecisionReason    string        `json:"decision_reason"`
 }
 

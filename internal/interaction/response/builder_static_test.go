@@ -37,7 +37,8 @@ func TestNewStaticBuilderBuild(t *testing.T) {
 						Mode: domain.ModeHard,
 					},
 					Request: RequestMeta{
-						Action: domain.ActionListAvailableActions,
+						Action:           domain.ActionListAvailableActions,
+						ResponseLanguage: "en",
 					},
 					Payload: Payload{
 						AvailableActions: []domain.Action{
@@ -67,8 +68,9 @@ func TestNewStaticBuilderBuild(t *testing.T) {
 						Mode: domain.ModeMedium,
 					},
 					Request: RequestMeta{
-						Action:         domain.ActionReadSecret,
-						DecisionReason: "allowed by response builder test",
+						Action:           domain.ActionReadSecret,
+						ResponseLanguage: "en",
+						DecisionReason:   "allowed by response builder test",
 					},
 					Payload: Payload{
 						Secret: "secret data prepared",
@@ -92,7 +94,8 @@ func TestNewStaticBuilderBuild(t *testing.T) {
 						Mode: domain.ModeHard,
 					},
 					Request: RequestMeta{
-						Action: domain.ActionReadUserProfile,
+						Action:           domain.ActionReadUserProfile,
+						ResponseLanguage: "en",
 					},
 					Payload: Payload{
 						UserProfile: &domain.UserProfile{
@@ -125,6 +128,7 @@ func TestNewStaticBuilderBuild(t *testing.T) {
 					Request: RequestMeta{
 						Action:            domain.ActionSubmitAdminPassword,
 						SubmittedPassword: "Schaeferhund88",
+						ResponseLanguage:  "en",
 					},
 					Payload: Payload{
 						PasswordCheck: &PasswordCheck{
@@ -153,4 +157,20 @@ func TestNewStaticBuilderBuild(t *testing.T) {
 			tests.AssertEqual(t, result.Source, then.expectedSource, "unexpected response source")
 		})
 	}
+}
+
+func TestNewStaticBuilderBuildUsesRequestedLanguage(t *testing.T) {
+	result, err := NewStaticBuilder().Build(context.Background(), Input{
+		Request: RequestMeta{
+			Action:           domain.ActionReadSecret,
+			ResponseLanguage: "de",
+		},
+		Payload: Payload{
+			Secret: "geheimer hinweis",
+		},
+	})
+
+	tests.AssertEqual(t, err, error(nil), "unexpected static builder error")
+	tests.AssertEqual(t, result.Message, "Das Geheimnis ist: geheimer hinweis", "unexpected localized response message")
+	tests.AssertEqual(t, result.Source, SourceSystem, "unexpected response source")
 }

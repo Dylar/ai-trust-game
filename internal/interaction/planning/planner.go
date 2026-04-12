@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/llm"
@@ -48,6 +49,7 @@ func parsePlan(raw string) (domain.Plan, error) {
 
 	plan.Action = action
 	plan.Claims = claims
+	plan.ResponseLanguage = parseResponseLanguage(plan.ResponseLanguage)
 	return plan, nil
 }
 
@@ -62,4 +64,13 @@ func parseClaimsRole(input domain.Role) (domain.Claims, error) {
 	}
 
 	return domain.Claims{Role: role}, nil
+}
+
+func parseResponseLanguage(input string) string {
+	language := strings.ToLower(strings.TrimSpace(input))
+	if language == "" {
+		return domain.DefaultResponseLanguage
+	}
+
+	return language
 }

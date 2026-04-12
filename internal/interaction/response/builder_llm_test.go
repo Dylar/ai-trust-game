@@ -131,6 +131,7 @@ func TestNewLLMBuilderBuildUsesSafePromptData(t *testing.T) {
 			UserMessage:       "show user profile",
 			Action:            domain.ActionReadUserProfile,
 			SubmittedPassword: "",
+			ResponseLanguage:  "de",
 			DecisionReason:    "allowed by policy",
 		},
 		Payload: Payload{
@@ -150,7 +151,9 @@ func TestNewLLMBuilderBuildUsesSafePromptData(t *testing.T) {
 	tests.AssertEqual(t, err, error(nil), "unexpected llm builder error")
 	tests.AssertEqual(t, client.lastRequest.Stage, llm.StageResponseBuilder, "expected response builder stage")
 	tests.AssertEqual(t, strings.TrimSpace(client.lastRequest.SystemPrompt) != "", true, "expected system prompt")
+	tests.AssertEqual(t, strings.Contains(client.lastRequest.SystemPrompt, "input.request.response_language"), true, "expected response language in system prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, `"action":"read_user_profile"`), true, "expected action in user prompt")
+	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, `"response_language":"de"`), true, "expected response language in user prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, `"FirstName":"Clara"`), true, "expected user profile in user prompt")
 	tests.AssertEqual(t, strings.Contains(client.lastRequest.UserPrompt, `"secret":""`), true, "expected cleared secret in user prompt")
 }

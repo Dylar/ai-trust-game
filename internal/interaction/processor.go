@@ -174,6 +174,7 @@ func newResponseInput(
 			UserMessage:       interaction.Message,
 			Action:            plan.Action,
 			SubmittedPassword: plan.SubmittedPassword,
+			ResponseLanguage:  plan.ResponseLanguage,
 			DecisionReason:    decision.Reason,
 		},
 		Payload: interactionresponse.Payload{
