@@ -15,6 +15,7 @@ func TestAnalyzeSession(t *testing.T) {
 		expectedSessionID      string
 		expectedClassification Classification
 		expectedSignals        []string
+		expectedAttackPatterns []string
 		expectedRequestCount   int
 		expectedSuspicionCount int
 		expectedModelFailCount int
@@ -41,6 +42,7 @@ func TestAnalyzeSession(t *testing.T) {
 				expectedSessionID:      "session-123",
 				expectedClassification: ClassificationClean,
 				expectedSignals:        []string{},
+				expectedAttackPatterns: []string{},
 				expectedRequestCount:   2,
 				expectedSuspicionCount: 0,
 				expectedModelFailCount: 0,
@@ -52,14 +54,15 @@ func TestAnalyzeSession(t *testing.T) {
 				"THEN returns suspicious session classification",
 			given: Given{
 				analyses: []RequestAnalysis{
-					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationClean, SuspicionCount: 0, Signals: []string{}},
-					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1, Signals: []string{SuspicionClaimedRoleExceedsTrusted}},
+					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationClean, SuspicionCount: 0, Signals: []string{}, AttackPatterns: []string{}},
+					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1, Signals: []string{SuspicionClaimedRoleExceedsTrusted}, AttackPatterns: []string{AttackPatternRoleEscalation}},
 				},
 			},
 			then: Then{
 				expectedSessionID:      "session-123",
 				expectedClassification: ClassificationSuspicious,
 				expectedSignals:        []string{SuspicionClaimedRoleExceedsTrusted},
+				expectedAttackPatterns: []string{AttackPatternRoleEscalation},
 				expectedRequestCount:   2,
 				expectedSuspicionCount: 1,
 				expectedModelFailCount: 0,
@@ -71,8 +74,8 @@ func TestAnalyzeSession(t *testing.T) {
 				"THEN failed model step wins",
 			given: Given{
 				analyses: []RequestAnalysis{
-					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1, Signals: []string{SuspicionClaimedRoleExceedsTrusted}},
-					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationFailedModelStep, SuspicionCount: 1, ModelFailCount: 1, Signals: []string{SuspicionInvalidPlannerOutput, string(FailureKindPlannerOutput)}},
+					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1, Signals: []string{SuspicionClaimedRoleExceedsTrusted}, AttackPatterns: []string{AttackPatternRoleEscalation}},
+					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationFailedModelStep, SuspicionCount: 1, ModelFailCount: 1, Signals: []string{SuspicionInvalidPlannerOutput, string(FailureKindPlannerOutput)}, AttackPatterns: []string{AttackPatternPromptInjection, AttackPatternSecretExfiltration}},
 				},
 			},
 			then: Then{
@@ -82,6 +85,11 @@ func TestAnalyzeSession(t *testing.T) {
 					SuspicionClaimedRoleExceedsTrusted,
 					SuspicionInvalidPlannerOutput,
 					string(FailureKindPlannerOutput),
+				},
+				expectedAttackPatterns: []string{
+					AttackPatternPromptInjection,
+					AttackPatternRoleEscalation,
+					AttackPatternSecretExfiltration,
 				},
 				expectedRequestCount:   2,
 				expectedSuspicionCount: 2,
@@ -102,6 +110,10 @@ func TestAnalyzeSession(t *testing.T) {
 			assert.Equal(t, len(session.Signals), len(then.expectedSignals), "unexpected signal count")
 			for index, signal := range then.expectedSignals {
 				assert.Equal(t, session.Signals[index], signal, "unexpected signal")
+			}
+			assert.Equal(t, len(session.AttackPatterns), len(then.expectedAttackPatterns), "unexpected attack pattern count")
+			for index, attackPattern := range then.expectedAttackPatterns {
+				assert.Equal(t, session.AttackPatterns[index], attackPattern, "unexpected attack pattern")
 			}
 			assert.Equal(t, session.RequestCount, then.expectedRequestCount, "unexpected request count")
 			assert.Equal(t, session.SuspicionCount, then.expectedSuspicionCount, "unexpected suspicion count")

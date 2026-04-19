@@ -23,6 +23,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 		CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 		Classification: audit.ClassificationSuspicious,
 		Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
+		AttackPatterns: []string{audit.AttackPatternRoleEscalation},
 		EventCount:     4,
 		SuspicionCount: 1,
 		ModelFailCount: 0,
@@ -41,9 +42,10 @@ func TestRequestAnalysisRoute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedStatus         int
-		expectedClassification string
-		expectedSignalCount    int
+		expectedStatus             int
+		expectedClassification     string
+		expectedSignalCount        int
+		expectedAttackPatternCount int
 	}
 
 	type Scenario struct {
@@ -61,9 +63,10 @@ func TestRequestAnalysisRoute(t *testing.T) {
 			given: Given{path: "/analysis/request/request-123"},
 			when:  When{method: http.MethodGet},
 			then: Then{
-				expectedStatus:         http.StatusOK,
-				expectedClassification: string(audit.ClassificationSuspicious),
-				expectedSignalCount:    1,
+				expectedStatus:             http.StatusOK,
+				expectedClassification:     string(audit.ClassificationSuspicious),
+				expectedSignalCount:        1,
+				expectedAttackPatternCount: 1,
 			},
 		},
 		{
@@ -118,6 +121,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 			assert.Equal(t, response.CompletedAt.IsZero(), false, "expected completed at")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected classification")
 			assert.Equal(t, len(response.Signals), then.expectedSignalCount, "unexpected signal count")
+			assert.Equal(t, len(response.AttackPatterns), then.expectedAttackPatternCount, "unexpected attack pattern count")
 		})
 	}
 }
@@ -132,6 +136,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 		CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 		Classification: audit.ClassificationSuspicious,
 		Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
+		AttackPatterns: []string{audit.AttackPatternRoleEscalation},
 		EventCount:     4,
 		SuspicionCount: 1,
 		ModelFailCount: 0,
@@ -142,6 +147,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 		CompletedAt:    time.Date(2026, 4, 20, 10, 5, 0, 0, time.UTC),
 		Classification: audit.ClassificationFailedModelStep,
 		Signals:        []string{audit.SuspicionInvalidPlannerOutput},
+		AttackPatterns: []string{audit.AttackPatternSecretExfiltration},
 		EventCount:     1,
 		SuspicionCount: 1,
 		ModelFailCount: 1,
@@ -162,6 +168,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 		expectedStatus         int
 		expectedClassification string
 		expectedSignals        []string
+		expectedAttackPatterns []string
 		expectedRequestCount   int
 		expectedSuspicionSum   int
 		expectedModelFailSum   int
@@ -187,6 +194,10 @@ func TestSessionAnalysisRoute(t *testing.T) {
 				expectedSignals: []string{
 					audit.SuspicionClaimedRoleExceedsTrusted,
 					audit.SuspicionInvalidPlannerOutput,
+				},
+				expectedAttackPatterns: []string{
+					audit.AttackPatternRoleEscalation,
+					audit.AttackPatternSecretExfiltration,
 				},
 				expectedRequestCount: 2,
 				expectedSuspicionSum: 2,
@@ -237,6 +248,10 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			assert.Equal(t, len(response.Signals), len(then.expectedSignals), "unexpected session signal count")
 			for index, signal := range then.expectedSignals {
 				assert.Equal(t, response.Signals[index], signal, "unexpected session signal")
+			}
+			assert.Equal(t, len(response.AttackPatterns), len(then.expectedAttackPatterns), "unexpected session attack pattern count")
+			for index, attackPattern := range then.expectedAttackPatterns {
+				assert.Equal(t, response.AttackPatterns[index], attackPattern, "unexpected session attack pattern")
 			}
 			assert.Equal(t, response.RequestCount, then.expectedRequestCount, "unexpected request count")
 			assert.Equal(t, response.SuspicionCount, then.expectedSuspicionSum, "unexpected suspicion sum")

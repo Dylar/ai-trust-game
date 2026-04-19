@@ -43,6 +43,7 @@ func main() {
 	fmt.Println("Request ID:", response.RequestID)
 	fmt.Println("Classification:", response.Classification)
 	fmt.Println("Signals:", response.Signals)
+	fmt.Println("Attack Patterns:", response.AttackPatterns)
 	fmt.Println("Event Count:", response.EventCount)
 	fmt.Println("Suspicion Count:", response.SuspicionCount)
 	fmt.Println("Model Fail Count:", response.ModelFailCount)

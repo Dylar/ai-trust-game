@@ -17,11 +17,12 @@ func TestHandleGetRequestAnalysis(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedError          error
-		expectedClassification string
-		expectedSessionID      string
-		expectedSignalCount    int
-		expectedEventCount     int
+		expectedError              error
+		expectedClassification     string
+		expectedSessionID          string
+		expectedSignalCount        int
+		expectedAttackPatternCount int
+		expectedEventCount         int
 	}
 
 	type Scenario struct {
@@ -45,6 +46,7 @@ func TestHandleGetRequestAnalysis(t *testing.T) {
 							CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 							Classification: audit.ClassificationSuspicious,
 							Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
+							AttackPatterns: []string{audit.AttackPatternRoleEscalation},
 							EventCount:     4,
 							SuspicionCount: 1,
 							ModelFailCount: 0,
@@ -53,11 +55,12 @@ func TestHandleGetRequestAnalysis(t *testing.T) {
 				},
 			},
 			then: Then{
-				expectedError:          nil,
-				expectedClassification: string(audit.ClassificationSuspicious),
-				expectedSessionID:      "session-123",
-				expectedSignalCount:    1,
-				expectedEventCount:     4,
+				expectedError:              nil,
+				expectedClassification:     string(audit.ClassificationSuspicious),
+				expectedSessionID:          "session-123",
+				expectedSignalCount:        1,
+				expectedAttackPatternCount: 1,
+				expectedEventCount:         4,
 			},
 		},
 		{
@@ -105,6 +108,7 @@ func TestHandleGetRequestAnalysis(t *testing.T) {
 			assert.Equal(t, response.CompletedAt.IsZero(), false, "expected completed at")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected classification")
 			assert.Equal(t, len(response.Signals), then.expectedSignalCount, "unexpected signal count")
+			assert.Equal(t, len(response.AttackPatterns), then.expectedAttackPatternCount, "unexpected attack pattern count")
 			assert.Equal(t, response.EventCount, then.expectedEventCount, "unexpected event count")
 		})
 	}
@@ -120,6 +124,7 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 		expectedError          error
 		expectedClassification string
 		expectedSignals        []string
+		expectedAttackPatterns []string
 		expectedRequestCount   int
 		expectedSuspicionSum   int
 		expectedModelFailSum   int
@@ -146,6 +151,7 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 							CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 							Classification: audit.ClassificationSuspicious,
 							Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
+							AttackPatterns: []string{audit.AttackPatternRoleEscalation},
 							EventCount:     4,
 							SuspicionCount: 1,
 							ModelFailCount: 0,
@@ -156,6 +162,7 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 							CompletedAt:    time.Date(2026, 4, 20, 10, 5, 0, 0, time.UTC),
 							Classification: audit.ClassificationFailedModelStep,
 							Signals:        []string{audit.SuspicionInvalidPlannerOutput},
+							AttackPatterns: []string{audit.AttackPatternSecretExfiltration},
 							EventCount:     1,
 							SuspicionCount: 1,
 							ModelFailCount: 1,
@@ -169,6 +176,10 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 				expectedSignals: []string{
 					audit.SuspicionClaimedRoleExceedsTrusted,
 					audit.SuspicionInvalidPlannerOutput,
+				},
+				expectedAttackPatterns: []string{
+					audit.AttackPatternRoleEscalation,
+					audit.AttackPatternSecretExfiltration,
 				},
 				expectedRequestCount: 2,
 				expectedSuspicionSum: 2,
@@ -220,6 +231,10 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 			assert.Equal(t, len(response.Signals), len(then.expectedSignals), "unexpected session signal count")
 			for index, signal := range then.expectedSignals {
 				assert.Equal(t, response.Signals[index], signal, "unexpected session signal")
+			}
+			assert.Equal(t, len(response.AttackPatterns), len(then.expectedAttackPatterns), "unexpected session attack pattern count")
+			for index, attackPattern := range then.expectedAttackPatterns {
+				assert.Equal(t, response.AttackPatterns[index], attackPattern, "unexpected session attack pattern")
 			}
 			assert.Equal(t, response.RequestCount, then.expectedRequestCount, "unexpected request count")
 			assert.Equal(t, response.SuspicionCount, then.expectedSuspicionSum, "unexpected suspicion sum")

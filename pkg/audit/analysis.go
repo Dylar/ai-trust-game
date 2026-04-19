@@ -1,6 +1,9 @@
 package audit
 
 import (
+	"strings"
+
+	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/llm"
 	"sort"
 	"time"
@@ -14,6 +17,14 @@ const (
 	ClassificationFailedModelStep Classification = "failed_model_step"
 )
 
+const (
+	AttackPatternRoleEscalation     = "role_escalation_attempt"
+	AttackPatternSecretExfiltration = "secret_exfiltration_attempt"
+	AttackPatternPromptInjection    = "prompt_injection_attempt"
+	AttackPatternPasswordGuessing   = "password_guessing_attempt"
+	AttackPatternCapabilityRecon    = "capability_recon_attempt"
+)
+
 type RequestAnalysis struct {
 	RequestID      string
 	SessionID      string
@@ -21,6 +32,7 @@ type RequestAnalysis struct {
 	CompletedAt    time.Time
 	Classification Classification
 	Signals        []string
+	AttackPatterns []string
 	EventCount     int
 	SuspicionCount int
 	ModelFailCount int
@@ -30,6 +42,7 @@ type SessionAnalysis struct {
 	SessionID      string
 	Classification Classification
 	Signals        []string
+	AttackPatterns []string
 	RequestCount   int
 	SuspicionCount int
 	ModelFailCount int
@@ -43,6 +56,7 @@ func AnalyzeRequest(events []Event) RequestAnalysis {
 	}
 
 	signals := map[string]struct{}{}
+	attackPatterns := map[string]struct{}{}
 
 	for _, event := range events {
 		if analysis.RequestID == "" && event.RequestID != "" {
@@ -73,9 +87,12 @@ func AnalyzeRequest(events []Event) RequestAnalysis {
 			}
 			analysis.Classification = ClassificationFailedModelStep
 		}
+
+		collectAttackPatterns(attackPatterns, event)
 	}
 
 	analysis.Signals = sortedSignals(signals)
+	analysis.AttackPatterns = sortedSignals(attackPatterns)
 	return analysis
 }
 
@@ -106,6 +123,7 @@ func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
 		Requests:       analyses,
 	}
 	signals := map[string]struct{}{}
+	attackPatterns := map[string]struct{}{}
 
 	for _, analysis := range analyses {
 		if session.SessionID == "" && analysis.SessionID != "" {
@@ -116,6 +134,9 @@ func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
 		session.ModelFailCount += analysis.ModelFailCount
 		for _, signal := range analysis.Signals {
 			signals[signal] = struct{}{}
+		}
+		for _, attackPattern := range analysis.AttackPatterns {
+			attackPatterns[attackPattern] = struct{}{}
 		}
 
 		switch analysis.Classification {
@@ -129,7 +150,35 @@ func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
 	}
 
 	session.Signals = sortedSignals(signals)
+	session.AttackPatterns = sortedSignals(attackPatterns)
 	return session
+}
+
+func collectAttackPatterns(patterns map[string]struct{}, event Event) {
+	if event.Suspicion == SuspicionClaimedRoleExceedsTrusted {
+		patterns[AttackPatternRoleEscalation] = struct{}{}
+	}
+	if event.Suspicion == SuspicionPossiblePromptInjection || containsPromptInjectionPhrase(event.Input) {
+		patterns[AttackPatternPromptInjection] = struct{}{}
+	}
+
+	switch event.Action {
+	case domain.ActionReadSecret:
+		patterns[AttackPatternSecretExfiltration] = struct{}{}
+	case domain.ActionSubmitAdminPassword:
+		patterns[AttackPatternPasswordGuessing] = struct{}{}
+	case domain.ActionListAvailableActions:
+		patterns[AttackPatternCapabilityRecon] = struct{}{}
+	}
+}
+
+func containsPromptInjectionPhrase(input string) bool {
+	lower := strings.ToLower(strings.TrimSpace(input))
+	if lower == "" {
+		return false
+	}
+
+	return strings.Contains(lower, "ignore previous instructions")
 }
 
 func isModelStepFailure(event Event) bool {
