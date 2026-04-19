@@ -18,7 +18,8 @@ func main() {
 		logging.WithField("env", "dev"),
 	)
 
-	auditSink := audit.NewConsoleSink()
+	requestAnalysisRepo := audit.NewInMemoryRequestAnalysisRepository()
+	auditSink := audit.NewAnalyzingSink(audit.NewConsoleSink(), requestAnalysisRepo)
 	chatHandler := service.NewChatHandler(logger, auditSink)
 
 	sessionRepo := session.NewInMemoryRepository()

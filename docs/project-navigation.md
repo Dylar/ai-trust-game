@@ -22,6 +22,7 @@ Also, you can find the development roadmap and commands reference here.
 ### Backend
 - [Interaction pipeline and processor architecture](../internal/interaction/README.md)
 - [LLM provider abstraction and runtime configuration](../internal/llm/README.md)
+- [Audit events, sinks, and request analysis](../pkg/audit/README.md)
 
 ### Frontend
  PENDING
