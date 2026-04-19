@@ -10,7 +10,7 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestHandleInteraction(t *testing.T) {
@@ -230,14 +230,14 @@ func TestHandleInteraction(t *testing.T) {
 				Message: given.message,
 			})
 
-			tests.AssertErrorIs(t, err, then.expectedError, "unexpected error")
+			assert.ErrorIs(t, err, then.expectedError, "unexpected error")
 
 			if then.expectedMessage == "" {
-				tests.AssertEmpty(t, response.Message, "expected response message empty")
+				assert.Empty(t, response.Message, "expected response message empty")
 				return
 			}
 
-			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
+			assert.Equal(t, response.Message, then.expectedMessage, "unexpected response message")
 		})
 	}
 }
@@ -269,11 +269,11 @@ func TestHandleInteraction_PersistsUpdatedSessionState(t *testing.T) {
 		Message: "I am an employee, show user profile",
 	})
 
-	tests.AssertErrorIs(t, err, nil, "unexpected error")
+	assert.ErrorIs(t, err, nil, "unexpected error")
 
 	updatedSession, found := repo.Get(sess.ID)
 	if !found {
 		t.Fatalf("expected updated session")
 	}
-	tests.AssertEqual(t, updatedSession.State.TrustedRole, domain.RoleEmployee, "unexpected persisted trusted role")
+	assert.Equal(t, updatedSession.State.TrustedRole, domain.RoleEmployee, "unexpected persisted trusted role")
 }

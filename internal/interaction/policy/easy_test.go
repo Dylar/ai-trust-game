@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestEasyDecide(t *testing.T) {
@@ -83,8 +83,8 @@ func TestEasyDecide(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			result := Easy{}.Decide(given.input)
 
-			tests.AssertEqual(t, result.Allowed, then.expectedAllowed, "unexpected decision allowed flag")
-			tests.AssertEqual(t, result.Reason, then.expectedReason, "unexpected decision reason")
+			assert.Equal(t, result.Allowed, then.expectedAllowed, "unexpected decision allowed flag")
+			assert.Equal(t, result.Reason, then.expectedReason, "unexpected decision reason")
 		})
 	}
 }

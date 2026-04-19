@@ -8,7 +8,7 @@ import (
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/llm"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 type stubClient struct {
@@ -120,11 +120,11 @@ func TestNewStaticPlannerPlan(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			plan, err := NewStaticPlanner().Plan(context.Background(), given.message)
 
-			tests.AssertErrorIs(t, err, nil, "unexpected planner error")
-			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
-			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
-			tests.AssertEqual(t, plan.SubmittedPassword, then.expectedSubmittedPassword, "unexpected submitted password")
-			tests.AssertEqual(t, plan.ResponseLanguage, then.expectedResponseLanguage, "unexpected response language")
+			assert.ErrorIs(t, err, nil, "unexpected planner error")
+			assert.Equal(t, plan.Action, then.expectedAction, "unexpected planned action")
+			assert.Equal(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
+			assert.Equal(t, plan.SubmittedPassword, then.expectedSubmittedPassword, "unexpected submitted password")
+			assert.Equal(t, plan.ResponseLanguage, then.expectedResponseLanguage, "unexpected response language")
 		})
 	}
 }
@@ -224,17 +224,17 @@ func TestPlannerPlan(t *testing.T) {
 				wantError = then.expectedError.Error()
 			}
 
-			tests.AssertEqual(t, gotError, wantError, "unexpected planner error")
-			tests.AssertEqual(t, plan.Action, then.expectedAction, "unexpected planned action")
-			tests.AssertEqual(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
-			tests.AssertEqual(t, plan.ResponseLanguage, then.expectedResponseLanguage, "unexpected planned response language")
+			assert.Equal(t, gotError, wantError, "unexpected planner error")
+			assert.Equal(t, plan.Action, then.expectedAction, "unexpected planned action")
+			assert.Equal(t, plan.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
+			assert.Equal(t, plan.ResponseLanguage, then.expectedResponseLanguage, "unexpected planned response language")
 
 			var outputErr OutputError
 			gotRawOutput := ""
 			if errors.As(err, &outputErr) {
 				gotRawOutput = outputErr.RawOutput
 			}
-			tests.AssertEqual(t, gotRawOutput, then.expectedRawOutput, "unexpected raw planner output")
+			assert.Equal(t, gotRawOutput, then.expectedRawOutput, "unexpected raw planner output")
 		})
 	}
 }
@@ -246,16 +246,16 @@ func TestPlannerPlanBuildsStructuredRequest(t *testing.T) {
 
 	_, err := NewPlanner(client).Plan(context.Background(), "hello there")
 
-	tests.AssertEqual(t, err, error(nil), "unexpected planner error")
-	tests.AssertEqual(t, client.last.Stage, llm.StagePlanner, "unexpected planner stage")
-	tests.AssertEqual(t, client.last.SystemPrompt != "", true, "expected planner system prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, "chat, list_available_actions, read_secret, read_user_profile, submit_admin_password"), true, "expected planner actions in system prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, "guest, employee, admin"), true, "expected planner roles in system prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"required"`), true, "expected planner required fields in system prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"response_language"`), true, "expected planner response language in schema")
-	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"properties"`), true, "expected planner schema properties in system prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, `"action"`), true, "expected planner action property in schema")
-	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"message":"hello there"`), true, "expected planner message in user prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.UserPrompt, `"input":{"message":"hello there"}`), true, "expected planner input wrapper in user prompt")
-	tests.AssertEqual(t, strings.Contains(client.last.SystemPrompt, "response_language"), true, "expected response language in planner system prompt")
+	assert.Equal(t, err, error(nil), "unexpected planner error")
+	assert.Equal(t, client.last.Stage, llm.StagePlanner, "unexpected planner stage")
+	assert.Equal(t, client.last.SystemPrompt != "", true, "expected planner system prompt")
+	assert.Equal(t, strings.Contains(client.last.SystemPrompt, "chat, list_available_actions, read_secret, read_user_profile, submit_admin_password"), true, "expected planner actions in system prompt")
+	assert.Equal(t, strings.Contains(client.last.SystemPrompt, "guest, employee, admin"), true, "expected planner roles in system prompt")
+	assert.Equal(t, strings.Contains(client.last.SystemPrompt, `"required"`), true, "expected planner required fields in system prompt")
+	assert.Equal(t, strings.Contains(client.last.SystemPrompt, `"response_language"`), true, "expected planner response language in schema")
+	assert.Equal(t, strings.Contains(client.last.SystemPrompt, `"properties"`), true, "expected planner schema properties in system prompt")
+	assert.Equal(t, strings.Contains(client.last.SystemPrompt, `"action"`), true, "expected planner action property in schema")
+	assert.Equal(t, strings.Contains(client.last.UserPrompt, `"message":"hello there"`), true, "expected planner message in user prompt")
+	assert.Equal(t, strings.Contains(client.last.UserPrompt, `"input":{"message":"hello there"}`), true, "expected planner input wrapper in user prompt")
+	assert.Equal(t, strings.Contains(client.last.SystemPrompt, "response_language"), true, "expected response language in planner system prompt")
 }

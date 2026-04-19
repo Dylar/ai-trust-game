@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestNewDataGuardGuard(t *testing.T) {
@@ -89,10 +89,10 @@ func TestNewDataGuardGuard(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			result := NewDataGuard().Guard(given.input)
 
-			tests.AssertEqual(t, result.Payload.Secret == "", then.expectSecretCleared, "unexpected secret clearing")
-			tests.AssertEqual(t, result.Payload.UserProfile == nil, then.expectProfileCleared, "unexpected profile clearing")
-			tests.AssertEqual(t, len(result.Payload.AvailableActions) == 0, then.expectActionsCleared, "unexpected actions clearing")
-			tests.AssertEqual(t, result.Payload.PasswordCheck == nil, then.expectPasswordFlagCleared, "unexpected password payload state")
+			assert.Equal(t, result.Payload.Secret == "", then.expectSecretCleared, "unexpected secret clearing")
+			assert.Equal(t, result.Payload.UserProfile == nil, then.expectProfileCleared, "unexpected profile clearing")
+			assert.Equal(t, len(result.Payload.AvailableActions) == 0, then.expectActionsCleared, "unexpected actions clearing")
+			assert.Equal(t, result.Payload.PasswordCheck == nil, then.expectPasswordFlagCleared, "unexpected password payload state")
 		})
 	}
 }

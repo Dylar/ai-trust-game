@@ -9,6 +9,7 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestStartSessionRoute(t *testing.T) {
@@ -133,8 +134,8 @@ func TestStartSessionRoute(t *testing.T) {
 			)
 
 			requestID := rec.Header().Get(network.RequestIDHeader)
-			tests.AssertNotEmpty(t, requestID, "expected X-Request-Id header to be set")
-			tests.AssertEqual(t, rec.Code, then.expectedStatus, "unexpected status code")
+			assert.NotEmpty(t, requestID, "expected X-Request-Id header to be set")
+			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			hasExpectedBody := then.expectedRole != "" || then.expectedMode != ""
 			if !hasExpectedBody {
@@ -146,9 +147,9 @@ func TestStartSessionRoute(t *testing.T) {
 				t.Fatalf("failed to unmarshal response body: %v", err)
 			}
 
-			tests.AssertNotEmpty(t, response.SessionID, "expected session id")
-			tests.AssertEqual(t, response.Role, then.expectedRole, "unexpected role")
-			tests.AssertEqual(t, response.Mode, then.expectedMode, "unexpected mode")
+			assert.NotEmpty(t, response.SessionID, "expected session id")
+			assert.Equal(t, response.Role, then.expectedRole, "unexpected role")
+			assert.Equal(t, response.Mode, then.expectedMode, "unexpected mode")
 		})
 	}
 }

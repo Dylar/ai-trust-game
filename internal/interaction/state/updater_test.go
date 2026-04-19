@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestNewUpdaterUpdate(t *testing.T) {
@@ -122,9 +122,9 @@ func TestNewUpdaterUpdate(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			session, updated := NewUpdater().Update(given.input)
 
-			tests.AssertEqual(t, updated, then.expectedUpdated, "unexpected update flag")
-			tests.AssertEqual(t, session.State.TrustedRole, then.expectedTrustedRole, "unexpected trusted role")
-			tests.AssertEqual(t, session.State.SecretUnlocked, then.expectedSecretUnlock, "unexpected secret unlocked state")
+			assert.Equal(t, updated, then.expectedUpdated, "unexpected update flag")
+			assert.Equal(t, session.State.TrustedRole, then.expectedTrustedRole, "unexpected trusted role")
+			assert.Equal(t, session.State.SecretUnlocked, then.expectedSecretUnlock, "unexpected secret unlocked state")
 		})
 	}
 }

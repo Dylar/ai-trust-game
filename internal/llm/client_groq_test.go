@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestGroqClientGenerate(t *testing.T) {
@@ -50,10 +50,10 @@ func TestGroqClientGenerate(t *testing.T) {
 				"THEN returns the first completion message",
 			given: Given{
 				client: newTestGroqClient(t, func(w http.ResponseWriter, r *http.Request) {
-					tests.AssertEqual(t, r.Method, http.MethodPost, "unexpected request method")
-					tests.AssertEqual(t, r.URL.Path, "/chat/completions", "unexpected request path")
-					tests.AssertEqual(t, r.Header.Get("Authorization"), "Bearer test-key", "unexpected auth header")
-					tests.AssertEqual(t, r.Header.Get("Content-Type"), "application/json", "unexpected content type")
+					assert.Equal(t, r.Method, http.MethodPost, "unexpected request method")
+					assert.Equal(t, r.URL.Path, "/chat/completions", "unexpected request path")
+					assert.Equal(t, r.Header.Get("Authorization"), "Bearer test-key", "unexpected auth header")
+					assert.Equal(t, r.Header.Get("Content-Type"), "application/json", "unexpected content type")
 
 					w.Header().Set("Content-Type", "application/json")
 					_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"hello from groq"}}]}`))
@@ -76,8 +76,8 @@ func TestGroqClientGenerate(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			response, err := given.client.Generate(context.Background(), given.request)
 
-			tests.AssertErrorIs(t, err, then.expectedError, "unexpected error")
-			tests.AssertEqual(t, response.Text, then.expectedText, "unexpected response text")
+			assert.ErrorIs(t, err, then.expectedError, "unexpected error")
+			assert.Equal(t, response.Text, then.expectedText, "unexpected response text")
 		})
 	}
 }
@@ -94,8 +94,8 @@ func TestGroqClientGenerate_ReturnsErrorResponse(t *testing.T) {
 		UserPrompt:   "user",
 	})
 
-	tests.AssertNotEqual(t, err, nil, "expected groq error")
-	tests.AssertEqual(t, strings.Contains(err.Error(), "invalid api key"), true, "expected groq error message")
+	assert.NotEqual(t, err, nil, "expected groq error")
+	assert.Equal(t, strings.Contains(err.Error(), "invalid api key"), true, "expected groq error message")
 }
 
 func newTestGroqClient(t *testing.T, handler http.HandlerFunc) GroqClient {

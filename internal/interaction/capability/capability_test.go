@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestCapabilityFor(t *testing.T) {
@@ -101,11 +101,11 @@ func TestCapabilityFor(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			result := For(given.mode, given.input)
 
-			tests.AssertEqual(t, result.CanChat, true, "unexpected chat capability")
-			tests.AssertEqual(t, result.CanListAvailableActions, true, "unexpected list capability")
-			tests.AssertEqual(t, result.CanSubmitAdminPassword, true, "unexpected password submission capability")
-			tests.AssertEqual(t, result.CanReadUserProfile, then.expectReadUserProfile, "unexpected user profile capability")
-			tests.AssertEqual(t, result.CanReadSecret, then.expectReadSecret, "unexpected secret capability")
+			assert.Equal(t, result.CanChat, true, "unexpected chat capability")
+			assert.Equal(t, result.CanListAvailableActions, true, "unexpected list capability")
+			assert.Equal(t, result.CanSubmitAdminPassword, true, "unexpected password submission capability")
+			assert.Equal(t, result.CanReadUserProfile, then.expectReadUserProfile, "unexpected user profile capability")
+			assert.Equal(t, result.CanReadSecret, then.expectReadSecret, "unexpected secret capability")
 		})
 	}
 }

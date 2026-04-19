@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestNewStaticBuilderBuild(t *testing.T) {
@@ -152,9 +152,9 @@ func TestNewStaticBuilderBuild(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			result, err := NewStaticBuilder().Build(context.Background(), given.input)
 
-			tests.AssertEqual(t, err, error(nil), "unexpected static builder error")
-			tests.AssertEqual(t, result.Message, then.expectedMessage, "unexpected response message")
-			tests.AssertEqual(t, result.Source, then.expectedSource, "unexpected response source")
+			assert.Equal(t, err, error(nil), "unexpected static builder error")
+			assert.Equal(t, result.Message, then.expectedMessage, "unexpected response message")
+			assert.Equal(t, result.Source, then.expectedSource, "unexpected response source")
 		})
 	}
 }
@@ -170,7 +170,7 @@ func TestNewStaticBuilderBuildUsesRequestedLanguage(t *testing.T) {
 		},
 	})
 
-	tests.AssertEqual(t, err, error(nil), "unexpected static builder error")
-	tests.AssertEqual(t, result.Message, "Das Geheimnis ist: geheimer hinweis", "unexpected localized response message")
-	tests.AssertEqual(t, result.Source, SourceSystem, "unexpected response source")
+	assert.Equal(t, err, error(nil), "unexpected static builder error")
+	assert.Equal(t, result.Message, "Das Geheimnis ist: geheimer hinweis", "unexpected localized response message")
+	assert.Equal(t, result.Source, SourceSystem, "unexpected response source")
 }

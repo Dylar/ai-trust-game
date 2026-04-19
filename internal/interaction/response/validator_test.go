@@ -3,7 +3,7 @@ package response
 import (
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestNewValidatorValidate(t *testing.T) {
@@ -61,7 +61,7 @@ func TestNewValidatorValidate(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
 			result := NewValidator().Validate(scenario.given.input)
-			tests.AssertEqual(t, result.Message, scenario.then.expectedMessage, "unexpected validated response message")
+			assert.Equal(t, result.Message, scenario.then.expectedMessage, "unexpected validated response message")
 		})
 	}
 }

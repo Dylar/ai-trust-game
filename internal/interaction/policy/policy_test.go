@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestPolicyFor(t *testing.T) {
@@ -106,7 +106,7 @@ func TestPolicyFor(t *testing.T) {
 					t.Fatalf("expected policy resolver error")
 				}
 			} else {
-				tests.AssertErrorIs(t, err, nil, "unexpected policy resolver error")
+				assert.ErrorIs(t, err, nil, "unexpected policy resolver error")
 			}
 
 			then.assertPolicy(t, policy)

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/session"
@@ -96,18 +96,18 @@ func TestHandleStartSession(t *testing.T) {
 				Mode: string(given.mode),
 			})
 
-			tests.AssertErrorIs(t, err, then.expectedError, "unexpected error")
+			assert.ErrorIs(t, err, then.expectedError, "unexpected error")
 
 			if !then.expectResponse {
-				tests.AssertEmpty(t, response.SessionID, "expected session id empty")
-				tests.AssertEmpty(t, response.Role, "expected role empty")
-				tests.AssertEmpty(t, response.Mode, "expected mode empty")
+				assert.Empty(t, response.SessionID, "expected session id empty")
+				assert.Empty(t, response.Role, "expected role empty")
+				assert.Empty(t, response.Mode, "expected mode empty")
 				return
 			}
 
-			tests.AssertNotEmpty(t, response.SessionID, "expected session id")
-			tests.AssertEqual(t, response.Role, string(then.expectedRole), "unexpected role")
-			tests.AssertEqual(t, response.Mode, string(then.expectedMode), "unexpected mode")
+			assert.NotEmpty(t, response.SessionID, "expected session id")
+			assert.Equal(t, response.Role, string(then.expectedRole), "unexpected role")
+			assert.Equal(t, response.Mode, string(then.expectedMode), "unexpected mode")
 
 			sess, ok := sessionRepo.Get(response.SessionID)
 
@@ -116,9 +116,9 @@ func TestHandleStartSession(t *testing.T) {
 			}
 
 			if then.expectStoredSession {
-				tests.AssertEqual(t, string(sess.Settings.Role), string(then.expectedRole), "unexpected stored role")
-				tests.AssertEqual(t, string(sess.Settings.Mode), string(then.expectedMode), "unexpected stored mode")
-				tests.AssertEqual(t, string(sess.State.TrustedRole), string(then.expectedRole), "unexpected initial trusted role")
+				assert.Equal(t, string(sess.Settings.Role), string(then.expectedRole), "unexpected stored role")
+				assert.Equal(t, string(sess.Settings.Mode), string(then.expectedMode), "unexpected stored mode")
+				assert.Equal(t, string(sess.State.TrustedRole), string(then.expectedRole), "unexpected initial trusted role")
 			}
 		})
 	}

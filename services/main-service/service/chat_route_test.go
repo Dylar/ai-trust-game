@@ -8,12 +8,14 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/tooling/tests/mocks"
 )
 
 func TestChatRoute(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewConsoleLogger()
-	auditSink := &tests.FakeAuditSink{}
+	auditSink := &mocks.FakeAuditSink{}
 	chatHandler := NewChatHandler(logger, auditSink)
 	setupChatRoute(mux, logger, chatHandler)
 
@@ -132,15 +134,15 @@ func TestChatRoute(t *testing.T) {
 			)
 
 			requestID := rec.Header().Get(network.RequestIDHeader)
-			tests.AssertNotEmpty(t, requestID, "expected X-Request-Id header to be set")
-			tests.AssertEqual(t, rec.Code, then.expectedStatus, "unexpected status code")
+			assert.NotEmpty(t, requestID, "expected X-Request-Id header to be set")
+			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			var response ChatResponse
 			if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
 				t.Fatalf("failed to unmarshal response body: %v", err)
 			}
 
-			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
+			assert.Equal(t, response.Message, then.expectedMessage, "unexpected response message")
 		})
 	}
 }

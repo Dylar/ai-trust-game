@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestNewExecutorExecute(t *testing.T) {
@@ -189,14 +189,14 @@ func TestNewExecutorExecute(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			output, err := NewExecutor().Execute(given.input)
 
-			tests.AssertErrorIs(t, err, nil, "unexpected executor error")
-			tests.AssertEqual(t, output.Action, then.expectedAction, "unexpected execution action")
-			tests.AssertEqual(t, len(output.AvailableActions), len(then.expectedAvailableActions), "unexpected available actions length")
+			assert.ErrorIs(t, err, nil, "unexpected executor error")
+			assert.Equal(t, output.Action, then.expectedAction, "unexpected execution action")
+			assert.Equal(t, len(output.AvailableActions), len(then.expectedAvailableActions), "unexpected available actions length")
 			for index, action := range then.expectedAvailableActions {
-				tests.AssertEqual(t, output.AvailableActions[index], action, "unexpected available action")
+				assert.Equal(t, output.AvailableActions[index], action, "unexpected available action")
 			}
-			tests.AssertEqual(t, output.Secret, then.expectedSecret, "unexpected execution secret")
-			tests.AssertEqual(t, output.PasswordCorrect, then.expectedPasswordCorrect, "unexpected execution password result")
+			assert.Equal(t, output.Secret, then.expectedSecret, "unexpected execution secret")
+			assert.Equal(t, output.PasswordCorrect, then.expectedPasswordCorrect, "unexpected execution password result")
 
 			if then.expectedUserProfile == nil {
 				if output.UserProfile != nil {
@@ -209,12 +209,12 @@ func TestNewExecutorExecute(t *testing.T) {
 				t.Fatalf("expected execution user profile")
 			}
 
-			tests.AssertEqual(t, output.UserProfile.FirstName, then.expectedUserProfile.FirstName, "unexpected user profile first name")
-			tests.AssertEqual(t, output.UserProfile.LastName, then.expectedUserProfile.LastName, "unexpected user profile last name")
-			tests.AssertEqual(t, output.UserProfile.BirthYear, then.expectedUserProfile.BirthYear, "unexpected user profile birth year")
-			tests.AssertEqual(t, output.UserProfile.City, then.expectedUserProfile.City, "unexpected user profile city")
-			tests.AssertEqual(t, output.UserProfile.FavoriteIceCream, then.expectedUserProfile.FavoriteIceCream, "unexpected user profile favorite ice cream")
-			tests.AssertEqual(t, output.UserProfile.Pet, then.expectedUserProfile.Pet, "unexpected user profile pet")
+			assert.Equal(t, output.UserProfile.FirstName, then.expectedUserProfile.FirstName, "unexpected user profile first name")
+			assert.Equal(t, output.UserProfile.LastName, then.expectedUserProfile.LastName, "unexpected user profile last name")
+			assert.Equal(t, output.UserProfile.BirthYear, then.expectedUserProfile.BirthYear, "unexpected user profile birth year")
+			assert.Equal(t, output.UserProfile.City, then.expectedUserProfile.City, "unexpected user profile city")
+			assert.Equal(t, output.UserProfile.FavoriteIceCream, then.expectedUserProfile.FavoriteIceCream, "unexpected user profile favorite ice cream")
+			assert.Equal(t, output.UserProfile.Pet, then.expectedUserProfile.Pet, "unexpected user profile pet")
 		})
 	}
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestInteractionRoute(t *testing.T) {
@@ -298,8 +299,8 @@ func TestInteractionRoute(t *testing.T) {
 			)
 
 			requestID := rec.Header().Get(network.RequestIDHeader)
-			tests.AssertNotEmpty(t, requestID, "expected X-Request-Id header to be set")
-			tests.AssertEqual(t, rec.Code, then.expectedStatus, "unexpected status code")
+			assert.NotEmpty(t, requestID, "expected X-Request-Id header to be set")
+			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			if then.expectedMessage == "" {
 				return
@@ -310,7 +311,7 @@ func TestInteractionRoute(t *testing.T) {
 				t.Fatalf("failed to unmarshal response body: %v", err)
 			}
 
-			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
+			assert.Equal(t, response.Message, then.expectedMessage, "unexpected response message")
 		})
 	}
 }

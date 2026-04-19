@@ -13,7 +13,8 @@ import (
 	"github.com/Dylar/ai-trust-game/internal/llm"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/network"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/tooling/tests/mocks"
 )
 
 func TestProcessInteraction(t *testing.T) {
@@ -328,15 +329,15 @@ func TestProcessInteraction(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			result, err := given.processor.Process(context.Background(), given.interaction)
 
-			tests.AssertErrorIs(t, err, then.expectedError, "unexpected error")
+			assert.ErrorIs(t, err, then.expectedError, "unexpected error")
 
 			if then.expectedError != nil {
-				tests.AssertEmpty(t, result.Message, "expected result message empty")
+				assert.Empty(t, result.Message, "expected result message empty")
 				return
 			}
 
-			tests.AssertEqual(t, result.Message, then.expectedMessage, "unexpected interaction result message")
-			tests.AssertEqual(t, result.Source, then.expectedSource, "unexpected result source")
+			assert.Equal(t, result.Message, then.expectedMessage, "unexpected interaction result message")
+			assert.Equal(t, result.Source, then.expectedSource, "unexpected result source")
 		})
 	}
 }
@@ -464,18 +465,18 @@ func TestProcessInteraction_UsesPlannerOutputForPolicy(t *testing.T) {
 
 			_, err := processor.Process(context.Background(), given.interaction)
 
-			tests.AssertErrorIs(t, err, nil, "unexpected error")
-			tests.AssertEqual(t, planner.lastMessage, given.interaction.Message, "unexpected message passed to planner")
-			tests.AssertEqual(t, resolver.lastMode, then.expectedMode, "unexpected resolved mode")
-			tests.AssertEqual(t, policy.lastInput.Action, then.expectedAction, "unexpected planned action")
-			tests.AssertEqual(t, policy.lastInput.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
-			tests.AssertEqual(t, policy.lastInput.Session.ID, given.interaction.Session.ID, "unexpected session passed to policy")
-			tests.AssertEqual(t, policy.lastInput.Session.Settings.Mode, given.interaction.Session.Settings.Mode, "unexpected session mode passed to policy")
-			tests.AssertEqual(t, executor.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to executor")
-			tests.AssertEqual(t, stateUpdater.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to state updater")
-			tests.AssertEqual(t, responseDataGuard.lastInput.Request.Action, then.expectedAction, "unexpected action passed to response data guard")
-			tests.AssertEqual(t, responseBuilder.lastInput.Request.Action, then.expectedAction, "unexpected action passed to response builder")
-			tests.AssertEqual(t, responseValidator.lastInput.Response.Request.Action, then.expectedAction, "unexpected action passed to response validator")
+			assert.ErrorIs(t, err, nil, "unexpected error")
+			assert.Equal(t, planner.lastMessage, given.interaction.Message, "unexpected message passed to planner")
+			assert.Equal(t, resolver.lastMode, then.expectedMode, "unexpected resolved mode")
+			assert.Equal(t, policy.lastInput.Action, then.expectedAction, "unexpected planned action")
+			assert.Equal(t, policy.lastInput.Claims.Role, then.expectedClaims.Role, "unexpected planned claim role")
+			assert.Equal(t, policy.lastInput.Session.ID, given.interaction.Session.ID, "unexpected session passed to policy")
+			assert.Equal(t, policy.lastInput.Session.Settings.Mode, given.interaction.Session.Settings.Mode, "unexpected session mode passed to policy")
+			assert.Equal(t, executor.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to executor")
+			assert.Equal(t, stateUpdater.lastInput.Plan.Action, then.expectedAction, "unexpected action passed to state updater")
+			assert.Equal(t, responseDataGuard.lastInput.Request.Action, then.expectedAction, "unexpected action passed to response data guard")
+			assert.Equal(t, responseBuilder.lastInput.Request.Action, then.expectedAction, "unexpected action passed to response builder")
+			assert.Equal(t, responseValidator.lastInput.Response.Request.Action, then.expectedAction, "unexpected action passed to response validator")
 		})
 	}
 }
@@ -536,12 +537,12 @@ func TestProcessInteraction_AttachesUpdatedSessionToResult(t *testing.T) {
 		Message: "show user profile",
 	})
 
-	tests.AssertErrorIs(t, err, nil, "unexpected error")
+	assert.ErrorIs(t, err, nil, "unexpected error")
 	if result.UpdatedSession == nil {
 		t.Fatalf("expected updated session")
 	}
-	tests.AssertEqual(t, result.Message, "validated response with updated session", "unexpected validated message")
-	tests.AssertEqual(t, result.UpdatedSession.State.TrustedRole, domain.RoleEmployee, "unexpected updated trusted role")
+	assert.Equal(t, result.Message, "validated response with updated session", "unexpected validated message")
+	assert.Equal(t, result.UpdatedSession.State.TrustedRole, domain.RoleEmployee, "unexpected updated trusted role")
 }
 
 func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
@@ -639,7 +640,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 							Source:  interactionresponse.SourceSystem,
 						},
 					},
-					&tests.FakeAuditSink{},
+					&mocks.FakeAuditSink{},
 					nil,
 				),
 			},
@@ -685,7 +686,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 					stubResponseDataGuard{},
 					stubResponseBuilder{},
 					stubResponseValidator{},
-					&tests.FakeAuditSink{},
+					&mocks.FakeAuditSink{},
 					nil,
 				),
 			},
@@ -749,7 +750,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 					stubResponseDataGuard{},
 					stubResponseBuilder{err: responseErr},
 					stubResponseValidator{},
-					&tests.FakeAuditSink{},
+					&mocks.FakeAuditSink{},
 					nil,
 				),
 			},
@@ -770,38 +771,38 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			auditSink := given.processor.auditSink.(*tests.FakeAuditSink)
+			auditSink := given.processor.auditSink.(*mocks.FakeAuditSink)
 
 			_, err := given.processor.Process(given.ctx, given.interaction)
 
-			tests.AssertErrorIs(t, err, then.expectedError, "unexpected error")
-			tests.AssertEqual(t, auditSink.Count(), then.expectedEventCount, "unexpected audit event count")
+			assert.ErrorIs(t, err, then.expectedError, "unexpected error")
+			assert.Equal(t, auditSink.Count(), then.expectedEventCount, "unexpected audit event count")
 
 			if then.expectedError == nil {
-				tests.AssertEqual(t, auditSink.Events[0].Step, audit.StepPlanned, "unexpected first audit step")
-				tests.AssertEqual(t, auditSink.Events[1].Step, audit.StepDecided, "unexpected second audit step")
-				tests.AssertEqual(t, auditSink.Events[2].Step, audit.StepExecuted, "unexpected third audit step")
-				tests.AssertEqual(t, auditSink.Events[3].Step, audit.StepResponded, "unexpected fourth audit step")
-				tests.AssertEqual(t, auditSink.Events[4].Step, audit.StepStateUpdated, "unexpected fifth audit step")
-				tests.AssertEqual(t, auditSink.Events[0].Action, then.expectedAction, "unexpected audit action")
-				tests.AssertEqual(t, auditSink.Events[0].ClaimsRole, then.expectedClaimsRole, "unexpected audit claims role")
-				tests.AssertEqual(t, auditSink.Events[1].Outcome, then.expectedDecision, "unexpected decision outcome")
-				tests.AssertEqual(t, auditSink.Events[3].Source, then.expectedResponseSource, "unexpected response source")
-				tests.AssertEqual(t, auditSink.Events[0].RequestID, then.expectedRequestID, "unexpected request id")
-				tests.AssertEqual(t, auditSink.Events[0].Suspicion, then.expectedSuspicion, "unexpected planning suspicion")
-				tests.AssertEqual(t, auditSink.Events[0].Stage, string(llm.StagePlanner), "unexpected planner stage")
-				tests.AssertEqual(t, auditSink.Events[3].Stage, string(llm.StageResponseBuilder), "unexpected response builder stage")
+				assert.Equal(t, auditSink.Events[0].Step, audit.StepPlanned, "unexpected first audit step")
+				assert.Equal(t, auditSink.Events[1].Step, audit.StepDecided, "unexpected second audit step")
+				assert.Equal(t, auditSink.Events[2].Step, audit.StepExecuted, "unexpected third audit step")
+				assert.Equal(t, auditSink.Events[3].Step, audit.StepResponded, "unexpected fourth audit step")
+				assert.Equal(t, auditSink.Events[4].Step, audit.StepStateUpdated, "unexpected fifth audit step")
+				assert.Equal(t, auditSink.Events[0].Action, then.expectedAction, "unexpected audit action")
+				assert.Equal(t, auditSink.Events[0].ClaimsRole, then.expectedClaimsRole, "unexpected audit claims role")
+				assert.Equal(t, auditSink.Events[1].Outcome, then.expectedDecision, "unexpected decision outcome")
+				assert.Equal(t, auditSink.Events[3].Source, then.expectedResponseSource, "unexpected response source")
+				assert.Equal(t, auditSink.Events[0].RequestID, then.expectedRequestID, "unexpected request id")
+				assert.Equal(t, auditSink.Events[0].Suspicion, then.expectedSuspicion, "unexpected planning suspicion")
+				assert.Equal(t, auditSink.Events[0].Stage, string(llm.StagePlanner), "unexpected planner stage")
+				assert.Equal(t, auditSink.Events[3].Stage, string(llm.StageResponseBuilder), "unexpected response builder stage")
 				return
 			}
 
 			last := auditSink.Last()
-			tests.AssertEqual(t, last.Step, then.expectedStep, "unexpected audit step")
-			tests.AssertEqual(t, last.Stage, then.expectedStage, "unexpected audit stage")
-			tests.AssertEqual(t, last.Outcome, then.expectedOutcome, "unexpected audit outcome")
-			tests.AssertEqual(t, last.Failure, then.expectedFailure, "unexpected failure kind")
-			tests.AssertEqual(t, last.HasOutput, then.expectedHasOutput, "unexpected raw output marker")
-			tests.AssertEqual(t, last.Reason, then.expectedReason, "unexpected failure reason")
-			tests.AssertEqual(t, last.Suspicion, then.expectedSuspicion, "unexpected suspicion signal")
+			assert.Equal(t, last.Step, then.expectedStep, "unexpected audit step")
+			assert.Equal(t, last.Stage, then.expectedStage, "unexpected audit stage")
+			assert.Equal(t, last.Outcome, then.expectedOutcome, "unexpected audit outcome")
+			assert.Equal(t, last.Failure, then.expectedFailure, "unexpected failure kind")
+			assert.Equal(t, last.HasOutput, then.expectedHasOutput, "unexpected raw output marker")
+			assert.Equal(t, last.Reason, then.expectedReason, "unexpected failure reason")
+			assert.Equal(t, last.Suspicion, then.expectedSuspicion, "unexpected suspicion signal")
 		})
 	}
 }

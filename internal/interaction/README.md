@@ -77,6 +77,9 @@ returning the error. This keeps model-step failures observable without moving au
 The planning audit step also emits early detection signals such as a claimed role exceeding the currently trusted role
 or invalid planner output.
 
+For analysis work, `pkg/audit` also provides a small request-level aggregation layer that can classify a set of
+events as `clean`, `suspicious`, or `failed_model_step` based on the emitted signals and model-step failures.
+
 ## Why The Guard Comes Before The Builder
 
 The `response` package is intentionally split into:
