@@ -13,10 +13,12 @@ func SetupRoutes(
 	chatHandler *ChatHandler,
 	startSessionHandler *StartSessionHandler,
 	interactionHandler *InteractionHandler,
+	requestAnalysisHandler *RequestAnalysisHandler,
 ) {
 	setupChatRoute(mux, logger, chatHandler)
 	setupStartSessionRoute(mux, logger, startSessionHandler)
 	setupInteractionRoute(mux, logger, interactionHandler)
+	setupRequestAnalysisRoute(mux, logger, requestAnalysisHandler)
 
 	mux.HandleFunc("/health", handleHealth)
 }
@@ -40,4 +42,11 @@ func setupInteractionRoute(mux *http.ServeMux, logger logging.Logger, interactio
 	handleSessionStart = logging.HttpLogging(logger)(handleSessionStart)
 	handleSessionStart = network.RequestMiddleware(handleSessionStart)
 	mux.Handle("/interaction", handleSessionStart)
+}
+
+func setupRequestAnalysisRoute(mux *http.ServeMux, logger logging.Logger, requestAnalysisHandler *RequestAnalysisHandler) {
+	handleRequestAnalysis := http.Handler(requestAnalysisHandler)
+	handleRequestAnalysis = logging.HttpLogging(logger)(handleRequestAnalysis)
+	handleRequestAnalysis = network.RequestMiddleware(handleRequestAnalysis)
+	mux.Handle("/analysis/request/", handleRequestAnalysis)
 }

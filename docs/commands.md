@@ -5,6 +5,17 @@
 - `make run <service-name>`
   starts the specified service (e.g., `main-service` for the core HTTP service)
 
+## Development Scripts
+
+- `go run ./services/main-service/scripts/start-session`
+  starts a session against the running service
+
+- `go run ./services/main-service/scripts/interaction --session <session-id> --message "<message>"`
+  sends one interaction request against the running service
+
+- `go run ./services/main-service/scripts/analysis-request --request <request-id>`
+  fetches the stored request analysis for one completed request
+
 ## Testing and Linting
 
 - `make test`

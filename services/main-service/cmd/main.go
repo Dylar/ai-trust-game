@@ -21,6 +21,7 @@ func main() {
 	requestAnalysisRepo := audit.NewInMemoryRequestAnalysisRepository()
 	auditSink := audit.NewAnalyzingSink(audit.NewConsoleSink(), requestAnalysisRepo)
 	chatHandler := service.NewChatHandler(logger, auditSink)
+	requestAnalysisHandler := service.NewRequestAnalysisHandler(requestAnalysisRepo)
 
 	sessionRepo := session.NewInMemoryRepository()
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
@@ -36,7 +37,7 @@ func main() {
 					Name: "main-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler, interactionHandler)
+						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler, interactionHandler, requestAnalysisHandler)
 					},
 				},
 			},
