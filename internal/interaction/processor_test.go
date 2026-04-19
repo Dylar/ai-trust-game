@@ -560,6 +560,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 		expectedFailure        audit.FailureKind
 		expectedHasOutput      bool
 		expectedReason         string
+		expectedSuspicion      string
 		expectedRequestID      string
 		expectedAction         domain.Action
 		expectedClaimsRole     domain.Role
@@ -649,6 +650,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 				expectedAction:         domain.ActionReadSecret,
 				expectedClaimsRole:     domain.RoleAdmin,
 				expectedDecision:       audit.OutcomeAllowed,
+				expectedSuspicion:      audit.SuspicionClaimedRoleExceedsTrusted,
 				expectedResponseSource: audit.Source(interactionresponse.SourceSystem),
 			},
 		},
@@ -696,6 +698,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 				expectedFailure:    audit.FailureKindPlannerOutput,
 				expectedHasOutput:  true,
 				expectedReason:     plannerErr.Error(),
+				expectedSuspicion:  audit.SuspicionInvalidPlannerOutput,
 			},
 		},
 		{
@@ -785,6 +788,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 				tests.AssertEqual(t, auditSink.Events[1].Outcome, then.expectedDecision, "unexpected decision outcome")
 				tests.AssertEqual(t, auditSink.Events[3].Source, then.expectedResponseSource, "unexpected response source")
 				tests.AssertEqual(t, auditSink.Events[0].RequestID, then.expectedRequestID, "unexpected request id")
+				tests.AssertEqual(t, auditSink.Events[0].Suspicion, then.expectedSuspicion, "unexpected planning suspicion")
 				tests.AssertEqual(t, auditSink.Events[0].Stage, string(llm.StagePlanner), "unexpected planner stage")
 				tests.AssertEqual(t, auditSink.Events[3].Stage, string(llm.StageResponseBuilder), "unexpected response builder stage")
 				return
@@ -797,6 +801,7 @@ func TestProcessInteraction_WritesAuditEvents(t *testing.T) {
 			tests.AssertEqual(t, last.Failure, then.expectedFailure, "unexpected failure kind")
 			tests.AssertEqual(t, last.HasOutput, then.expectedHasOutput, "unexpected raw output marker")
 			tests.AssertEqual(t, last.Reason, then.expectedReason, "unexpected failure reason")
+			tests.AssertEqual(t, last.Suspicion, then.expectedSuspicion, "unexpected suspicion signal")
 		})
 	}
 }

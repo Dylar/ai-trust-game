@@ -15,6 +15,12 @@ const (
 	EventTypeSuspiciousInput EventType = "suspicious_input"
 )
 
+const (
+	SuspicionPossiblePromptInjection   = "possible_prompt_injection"
+	SuspicionClaimedRoleExceedsTrusted = "claimed_role_exceeds_trusted_role"
+	SuspicionInvalidPlannerOutput      = "invalid_planner_output"
+)
+
 type Step string
 
 const (

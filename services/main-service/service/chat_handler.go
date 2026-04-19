@@ -99,7 +99,7 @@ func (handler *ChatHandler) auditMessage(ctx context.Context, req ChatRequest) {
 	if strings.Contains(lower, "i am admin") || strings.Contains(lower, "ignore previous instructions") {
 		event := audit.NewSuspiciousInputEvent(ctx,
 			req.Message,
-			"possible_prompt_injection",
+			audit.SuspicionPossiblePromptInjection,
 			"matched basic suspicious input pattern",
 		)
 

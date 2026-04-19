@@ -74,6 +74,8 @@ The current pipeline in [`processor.go`](./processor.go) is:
 
 If planning or response generation fails, the processor also writes a failure audit event for that step before
 returning the error. This keeps model-step failures observable without moving authority out of the deterministic flow.
+The planning audit step also emits early detection signals such as a claimed role exceeding the currently trusted role
+or invalid planner output.
 
 ## Why The Guard Comes Before The Builder
 

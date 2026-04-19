@@ -48,6 +48,9 @@ func plannedAuditEvent(
 	event.Action = plan.Action
 	event.ClaimsRole = plan.Claims.Role
 	event.Stage = string(llm.StagePlanner)
+	if claimedRoleExceedsTrustedRole(interaction.Session.State.TrustedRole, plan.Claims.Role) {
+		event.Suspicion = audit.SuspicionClaimedRoleExceedsTrusted
+	}
 	return event
 }
 
@@ -66,6 +69,7 @@ func planningFailedAuditEvent(
 	if errors.As(err, &outputErr) {
 		event.Failure = audit.FailureKindPlannerOutput
 		event.HasOutput = outputErr.RawOutput != ""
+		event.Suspicion = audit.SuspicionInvalidPlannerOutput
 	}
 
 	return event
@@ -144,4 +148,25 @@ func stateUpdatedAuditEvent(
 		event.Outcome = audit.OutcomeUpdated
 	}
 	return event
+}
+
+func claimedRoleExceedsTrustedRole(trustedRole, claimedRole domain.Role) bool {
+	if claimedRole == "" {
+		return false
+	}
+
+	return roleLevel(claimedRole) > roleLevel(trustedRole)
+}
+
+func roleLevel(role domain.Role) int {
+	switch role {
+	case domain.RoleAdmin:
+		return 3
+	case domain.RoleEmployee:
+		return 2
+	case domain.RoleGuest:
+		return 1
+	default:
+		return 0
+	}
 }
