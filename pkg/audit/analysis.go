@@ -26,6 +26,15 @@ type RequestAnalysis struct {
 	ModelFailCount int
 }
 
+type SessionAnalysis struct {
+	SessionID      string
+	Classification Classification
+	RequestCount   int
+	SuspicionCount int
+	ModelFailCount int
+	Requests       []RequestAnalysis
+}
+
 func AnalyzeRequest(events []Event) RequestAnalysis {
 	analysis := RequestAnalysis{
 		Classification: ClassificationClean,
@@ -87,6 +96,34 @@ func AnalyzeRequests(events []Event) []RequestAnalysis {
 	}
 
 	return analyses
+}
+
+func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
+	session := SessionAnalysis{
+		Classification: ClassificationClean,
+		RequestCount:   len(analyses),
+		Requests:       analyses,
+	}
+
+	for _, analysis := range analyses {
+		if session.SessionID == "" && analysis.SessionID != "" {
+			session.SessionID = analysis.SessionID
+		}
+
+		session.SuspicionCount += analysis.SuspicionCount
+		session.ModelFailCount += analysis.ModelFailCount
+
+		switch analysis.Classification {
+		case ClassificationFailedModelStep:
+			session.Classification = ClassificationFailedModelStep
+		case ClassificationSuspicious:
+			if session.Classification == ClassificationClean {
+				session.Classification = ClassificationSuspicious
+			}
+		}
+	}
+
+	return session
 }
 
 func isModelStepFailure(event Event) bool {

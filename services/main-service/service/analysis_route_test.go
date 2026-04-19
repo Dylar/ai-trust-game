@@ -159,10 +159,11 @@ func TestSessionAnalysisRoute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedStatus       int
-		expectedRequestCount int
-		expectedSuspicionSum int
-		expectedModelFailSum int
+		expectedStatus         int
+		expectedClassification string
+		expectedRequestCount   int
+		expectedSuspicionSum   int
+		expectedModelFailSum   int
 	}
 
 	type Scenario struct {
@@ -180,10 +181,11 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			given: Given{path: "/analysis/session/session-123"},
 			when:  When{method: http.MethodGet},
 			then: Then{
-				expectedStatus:       http.StatusOK,
-				expectedRequestCount: 2,
-				expectedSuspicionSum: 2,
-				expectedModelFailSum: 1,
+				expectedStatus:         http.StatusOK,
+				expectedClassification: string(audit.ClassificationFailedModelStep),
+				expectedRequestCount:   2,
+				expectedSuspicionSum:   2,
+				expectedModelFailSum:   1,
 			},
 		},
 		{
@@ -226,6 +228,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			}
 
 			assert.Equal(t, response.SessionID, "session-123", "unexpected session id")
+			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected session classification")
 			assert.Equal(t, response.RequestCount, then.expectedRequestCount, "unexpected request count")
 			assert.Equal(t, response.SuspicionCount, then.expectedSuspicionSum, "unexpected suspicion sum")
 			assert.Equal(t, response.ModelFailCount, then.expectedModelFailSum, "unexpected model failure sum")

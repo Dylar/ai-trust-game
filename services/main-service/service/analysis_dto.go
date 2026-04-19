@@ -15,6 +15,7 @@ type RequestAnalysisResponse struct {
 
 type SessionAnalysisResponse struct {
 	SessionID      string                    `json:"session_id"`
+	Classification string                    `json:"classification"`
 	RequestCount   int                       `json:"request_count"`
 	Requests       []RequestAnalysisResponse `json:"requests"`
 	SuspicionCount int                       `json:"suspicion_count"`

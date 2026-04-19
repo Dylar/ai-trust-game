@@ -101,10 +101,14 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 		return SessionAnalysisResponse{}, ErrSessionAnalysisNotFound
 	}
 
+	session := audit.AnalyzeSession(analyses)
 	response := SessionAnalysisResponse{
-		SessionID:    sessionID,
-		RequestCount: len(analyses),
-		Requests:     make([]RequestAnalysisResponse, 0, len(analyses)),
+		SessionID:      sessionID,
+		Classification: string(session.Classification),
+		RequestCount:   session.RequestCount,
+		SuspicionCount: session.SuspicionCount,
+		ModelFailCount: session.ModelFailCount,
+		Requests:       make([]RequestAnalysisResponse, 0, len(analyses)),
 	}
 
 	for _, analysis := range analyses {
@@ -118,8 +122,6 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 			SuspicionCount: analysis.SuspicionCount,
 			ModelFailCount: analysis.ModelFailCount,
 		})
-		response.SuspicionCount += analysis.SuspicionCount
-		response.ModelFailCount += analysis.ModelFailCount
 	}
 
 	return response, nil
