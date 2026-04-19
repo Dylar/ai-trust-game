@@ -27,3 +27,17 @@ func (r *InMemoryRequestAnalysisRepository) Get(requestID string) (RequestAnalys
 	analysis, ok := r.analysesBy[requestID]
 	return analysis, ok
 }
+
+func (r *InMemoryRequestAnalysisRepository) ListBySession(sessionID string) []RequestAnalysis {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	analyses := make([]RequestAnalysis, 0)
+	for _, analysis := range r.analysesBy {
+		if analysis.SessionID == sessionID {
+			analyses = append(analyses, analysis)
+		}
+	}
+
+	return analyses
+}

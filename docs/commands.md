@@ -16,6 +16,9 @@
 - `go run ./services/main-service/scripts/analysis-request --request <request-id>`
   fetches the stored request analysis for one completed request
 
+- `go run ./services/main-service/scripts/analysis-session --session <session-id>`
+  fetches the stored analyses for all completed requests in one session
+
 ## Testing and Linting
 
 - `make test`

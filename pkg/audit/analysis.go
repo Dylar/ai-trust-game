@@ -15,6 +15,7 @@ const (
 
 type RequestAnalysis struct {
 	RequestID      string
+	SessionID      string
 	Classification Classification
 	Signals        []string
 	EventCount     int
@@ -33,6 +34,9 @@ func AnalyzeRequest(events []Event) RequestAnalysis {
 	for _, event := range events {
 		if analysis.RequestID == "" && event.RequestID != "" {
 			analysis.RequestID = event.RequestID
+		}
+		if analysis.SessionID == "" && event.SessionID != "" {
+			analysis.SessionID = event.SessionID
 		}
 
 		if event.Suspicion != "" {
