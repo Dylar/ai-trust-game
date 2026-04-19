@@ -2,11 +2,14 @@ package interaction
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/internal/interaction/execution"
+	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
+	"github.com/Dylar/ai-trust-game/internal/llm"
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 )
@@ -44,6 +47,27 @@ func plannedAuditEvent(
 	event := newInteractionAuditEvent(ctx, audit.StepPlanned, interaction)
 	event.Action = plan.Action
 	event.ClaimsRole = plan.Claims.Role
+	event.Stage = string(llm.StagePlanner)
+	return event
+}
+
+func planningFailedAuditEvent(
+	ctx context.Context,
+	interaction domain.Interaction,
+	err error,
+) audit.Event {
+	event := newInteractionAuditEvent(ctx, audit.StepPlanned, interaction)
+	event.Stage = string(llm.StagePlanner)
+	event.Outcome = audit.OutcomeFailed
+	event.Reason = err.Error()
+	event.Failure = audit.FailureKindPlannerClient
+
+	var outputErr interactionplanning.OutputError
+	if errors.As(err, &outputErr) {
+		event.Failure = audit.FailureKindPlannerOutput
+		event.HasOutput = outputErr.RawOutput != ""
+	}
+
 	return event
 }
 
@@ -87,6 +111,23 @@ func respondedAuditEvent(
 	event.Action = plan.Action
 	event.Source = audit.Source(result.Source)
 	event.Outcome = audit.OutcomeResponseBuilt
+	event.Stage = string(llm.StageResponseBuilder)
+	return event
+}
+
+func responseBuildFailedAuditEvent(
+	ctx context.Context,
+	interaction domain.Interaction,
+	plan domain.Plan,
+	err error,
+) audit.Event {
+	event := newInteractionAuditEvent(ctx, audit.StepResponded, interaction)
+	event.Action = plan.Action
+	event.ClaimsRole = plan.Claims.Role
+	event.Stage = string(llm.StageResponseBuilder)
+	event.Outcome = audit.OutcomeFailed
+	event.Reason = err.Error()
+	event.Failure = audit.FailureKindResponseBuilder
 	return event
 }
 

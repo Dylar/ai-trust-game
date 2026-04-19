@@ -93,6 +93,7 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 
 	plan, err := processor.planner.Plan(ctx, interaction.Message)
 	if err != nil {
+		processor.writeAuditEvent(ctx, planningFailedAuditEvent(ctx, interaction, err))
 		return interactionresponse.Result{}, err
 	}
 	processor.writeAuditEvent(ctx, plannedAuditEvent(ctx, interaction, plan))
@@ -129,6 +130,7 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 	response := processor.responseDataGuard.Guard(responseInput)
 	result, err := processor.responseBuilder.Build(ctx, response)
 	if err != nil {
+		processor.writeAuditEvent(ctx, responseBuildFailedAuditEvent(ctx, interaction, plan, err))
 		return interactionresponse.Result{}, err
 	}
 	result = processor.responseValidator.Validate(interactionresponse.ValidationInput{
@@ -150,7 +152,6 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 
 	return result, nil
 }
-
 func validate(interaction domain.Interaction) error {
 	if interaction.Message == "" {
 		return ErrEmptyInteractionMessage

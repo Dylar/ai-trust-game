@@ -72,6 +72,9 @@ The current pipeline in [`processor.go`](./processor.go) is:
 10. validate the final response
 11. update authoritative session state
 
+If planning or response generation fails, the processor also writes a failure audit event for that step before
+returning the error. This keeps model-step failures observable without moving authority out of the deterministic flow.
+
 ## Why The Guard Comes Before The Builder
 
 The `response` package is intentionally split into:

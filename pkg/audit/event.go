@@ -31,12 +31,21 @@ const (
 	OutcomeObserved      Outcome = "observed"
 	OutcomeAllowed       Outcome = "allowed"
 	OutcomeDenied        Outcome = "denied"
+	OutcomeFailed        Outcome = "failed"
 	OutcomeResponseBuilt Outcome = "response_built"
 	OutcomeUpdated       Outcome = "updated"
 	OutcomeUnchanged     Outcome = "unchanged"
 )
 
 type Source string
+
+type FailureKind string
+
+const (
+	FailureKindPlannerClient   FailureKind = "planner_client"
+	FailureKindPlannerOutput   FailureKind = "planner_output"
+	FailureKindResponseBuilder FailureKind = "response_builder"
+)
 
 type Event struct {
 	Type      EventType
@@ -52,11 +61,14 @@ type Event struct {
 	Role       domain.Role
 	ClaimsRole domain.Role
 	Source     Source
+	Stage      string
 
 	Input     string
 	Outcome   Outcome
 	Suspicion string
 	Reason    string
+	Failure   FailureKind
+	HasOutput bool
 }
 
 func NewEvent(ctx context.Context, eventType EventType) Event {
