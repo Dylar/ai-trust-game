@@ -3,6 +3,7 @@ package audit
 import (
 	"github.com/Dylar/ai-trust-game/internal/llm"
 	"sort"
+	"time"
 )
 
 type Classification string
@@ -16,6 +17,8 @@ const (
 type RequestAnalysis struct {
 	RequestID      string
 	SessionID      string
+	StartedAt      time.Time
+	CompletedAt    time.Time
 	Classification Classification
 	Signals        []string
 	EventCount     int
@@ -37,6 +40,12 @@ func AnalyzeRequest(events []Event) RequestAnalysis {
 		}
 		if analysis.SessionID == "" && event.SessionID != "" {
 			analysis.SessionID = event.SessionID
+		}
+		if analysis.StartedAt.IsZero() || event.Timestamp.Before(analysis.StartedAt) {
+			analysis.StartedAt = event.Timestamp
+		}
+		if analysis.CompletedAt.IsZero() || event.Timestamp.After(analysis.CompletedAt) {
+			analysis.CompletedAt = event.Timestamp
 		}
 
 		if event.Suspicion != "" {

@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+	"sort"
 	"testing"
+	"time"
 
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
@@ -40,6 +42,7 @@ func TestHandleGetRequestAnalysis(t *testing.T) {
 						"request-123": {
 							RequestID:      "request-123",
 							SessionID:      "session-123",
+							CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 							Classification: audit.ClassificationSuspicious,
 							Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
 							EventCount:     4,
@@ -99,6 +102,7 @@ func TestHandleGetRequestAnalysis(t *testing.T) {
 
 			assert.Equal(t, response.RequestID, given.requestID, "unexpected request id")
 			assert.Equal(t, response.SessionID, then.expectedSessionID, "unexpected session id")
+			assert.Equal(t, response.CompletedAt.IsZero(), false, "expected completed at")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected classification")
 			assert.Equal(t, len(response.Signals), then.expectedSignalCount, "unexpected signal count")
 			assert.Equal(t, response.EventCount, then.expectedEventCount, "unexpected event count")
@@ -137,6 +141,7 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 						"request-1": {
 							RequestID:      "request-1",
 							SessionID:      "session-123",
+							CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 							Classification: audit.ClassificationSuspicious,
 							Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
 							EventCount:     4,
@@ -146,6 +151,7 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 						"request-2": {
 							RequestID:      "request-2",
 							SessionID:      "session-123",
+							CompletedAt:    time.Date(2026, 4, 20, 10, 5, 0, 0, time.UTC),
 							Classification: audit.ClassificationFailedModelStep,
 							Signals:        []string{audit.SuspicionInvalidPlannerOutput},
 							EventCount:     1,
@@ -207,6 +213,8 @@ func TestHandleGetSessionAnalysis(t *testing.T) {
 			assert.Equal(t, response.SuspicionCount, then.expectedSuspicionSum, "unexpected suspicion sum")
 			assert.Equal(t, response.ModelFailCount, then.expectedModelFailSum, "unexpected model failure sum")
 			assert.Equal(t, len(response.Requests), then.expectedRequestCount, "unexpected request response count")
+			assert.Equal(t, response.Requests[0].RequestID, "request-1", "unexpected first timeline request")
+			assert.Equal(t, response.Requests[1].RequestID, "request-2", "unexpected second timeline request")
 		})
 	}
 }
@@ -307,6 +315,13 @@ func (repo stubRequestAnalysisRepository) ListBySession(sessionID string) []audi
 			analyses = append(analyses, analysis)
 		}
 	}
+
+	sort.Slice(analyses, func(i, j int) bool {
+		if analyses[i].CompletedAt.Equal(analyses[j].CompletedAt) {
+			return analyses[i].RequestID < analyses[j].RequestID
+		}
+		return analyses[i].CompletedAt.Before(analyses[j].CompletedAt)
+	})
 
 	return analyses
 }

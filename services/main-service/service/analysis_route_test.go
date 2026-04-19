@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
@@ -19,6 +20,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 	repo.Save(audit.RequestAnalysis{
 		RequestID:      "request-123",
 		SessionID:      "session-123",
+		CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 		Classification: audit.ClassificationSuspicious,
 		Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
 		EventCount:     4,
@@ -113,6 +115,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 
 			assert.Equal(t, response.RequestID, "request-123", "unexpected request id")
 			assert.Equal(t, response.SessionID, "session-123", "unexpected session id")
+			assert.Equal(t, response.CompletedAt.IsZero(), false, "expected completed at")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected classification")
 			assert.Equal(t, len(response.Signals), then.expectedSignalCount, "unexpected signal count")
 		})
@@ -126,6 +129,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 	repo.Save(audit.RequestAnalysis{
 		RequestID:      "request-123",
 		SessionID:      "session-123",
+		CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 		Classification: audit.ClassificationSuspicious,
 		Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
 		EventCount:     4,
@@ -135,6 +139,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 	repo.Save(audit.RequestAnalysis{
 		RequestID:      "request-456",
 		SessionID:      "session-123",
+		CompletedAt:    time.Date(2026, 4, 20, 10, 5, 0, 0, time.UTC),
 		Classification: audit.ClassificationFailedModelStep,
 		Signals:        []string{audit.SuspicionInvalidPlannerOutput},
 		EventCount:     1,
@@ -225,6 +230,9 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			assert.Equal(t, response.SuspicionCount, then.expectedSuspicionSum, "unexpected suspicion sum")
 			assert.Equal(t, response.ModelFailCount, then.expectedModelFailSum, "unexpected model failure sum")
 			assert.Equal(t, len(response.Requests), then.expectedRequestCount, "unexpected request response count")
+			assert.Equal(t, response.Requests[0].RequestID, "request-123", "unexpected first timeline request")
+			assert.Equal(t, response.Requests[1].RequestID, "request-456", "unexpected second timeline request")
+			assert.Equal(t, response.Requests[0].CompletedAt.Before(response.Requests[1].CompletedAt), true, "expected timeline ordering")
 		})
 	}
 }

@@ -1,6 +1,9 @@
 package audit
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
 type InMemoryRequestAnalysisRepository struct {
 	mu         sync.RWMutex
@@ -38,6 +41,19 @@ func (r *InMemoryRequestAnalysisRepository) ListBySession(sessionID string) []Re
 			analyses = append(analyses, analysis)
 		}
 	}
+
+	sort.Slice(analyses, func(i, j int) bool {
+		if analyses[i].CompletedAt.Equal(analyses[j].CompletedAt) {
+			return analyses[i].RequestID < analyses[j].RequestID
+		}
+		if analyses[i].CompletedAt.IsZero() {
+			return false
+		}
+		if analyses[j].CompletedAt.IsZero() {
+			return true
+		}
+		return analyses[i].CompletedAt.Before(analyses[j].CompletedAt)
+	})
 
 	return analyses
 }

@@ -70,6 +70,7 @@ func (handler *RequestAnalysisHandler) handleGetRequestAnalysis(requestID string
 	return RequestAnalysisResponse{
 		RequestID:      analysis.RequestID,
 		SessionID:      analysis.SessionID,
+		CompletedAt:    analysis.CompletedAt,
 		Classification: string(analysis.Classification),
 		Signals:        analysis.Signals,
 		EventCount:     analysis.EventCount,
@@ -110,6 +111,7 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 		response.Requests = append(response.Requests, RequestAnalysisResponse{
 			RequestID:      analysis.RequestID,
 			SessionID:      analysis.SessionID,
+			CompletedAt:    analysis.CompletedAt,
 			Classification: string(analysis.Classification),
 			Signals:        analysis.Signals,
 			EventCount:     analysis.EventCount,
