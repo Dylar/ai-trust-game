@@ -14,6 +14,7 @@ func TestAnalyzeSession(t *testing.T) {
 	type Then struct {
 		expectedSessionID      string
 		expectedClassification Classification
+		expectedSignals        []string
 		expectedRequestCount   int
 		expectedSuspicionCount int
 		expectedModelFailCount int
@@ -39,6 +40,7 @@ func TestAnalyzeSession(t *testing.T) {
 			then: Then{
 				expectedSessionID:      "session-123",
 				expectedClassification: ClassificationClean,
+				expectedSignals:        []string{},
 				expectedRequestCount:   2,
 				expectedSuspicionCount: 0,
 				expectedModelFailCount: 0,
@@ -50,13 +52,14 @@ func TestAnalyzeSession(t *testing.T) {
 				"THEN returns suspicious session classification",
 			given: Given{
 				analyses: []RequestAnalysis{
-					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationClean, SuspicionCount: 0},
-					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1},
+					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationClean, SuspicionCount: 0, Signals: []string{}},
+					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1, Signals: []string{SuspicionClaimedRoleExceedsTrusted}},
 				},
 			},
 			then: Then{
 				expectedSessionID:      "session-123",
 				expectedClassification: ClassificationSuspicious,
+				expectedSignals:        []string{SuspicionClaimedRoleExceedsTrusted},
 				expectedRequestCount:   2,
 				expectedSuspicionCount: 1,
 				expectedModelFailCount: 0,
@@ -68,13 +71,18 @@ func TestAnalyzeSession(t *testing.T) {
 				"THEN failed model step wins",
 			given: Given{
 				analyses: []RequestAnalysis{
-					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1},
-					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationFailedModelStep, SuspicionCount: 1, ModelFailCount: 1},
+					{RequestID: "request-1", SessionID: "session-123", Classification: ClassificationSuspicious, SuspicionCount: 1, Signals: []string{SuspicionClaimedRoleExceedsTrusted}},
+					{RequestID: "request-2", SessionID: "session-123", Classification: ClassificationFailedModelStep, SuspicionCount: 1, ModelFailCount: 1, Signals: []string{SuspicionInvalidPlannerOutput, string(FailureKindPlannerOutput)}},
 				},
 			},
 			then: Then{
 				expectedSessionID:      "session-123",
 				expectedClassification: ClassificationFailedModelStep,
+				expectedSignals: []string{
+					SuspicionClaimedRoleExceedsTrusted,
+					SuspicionInvalidPlannerOutput,
+					string(FailureKindPlannerOutput),
+				},
 				expectedRequestCount:   2,
 				expectedSuspicionCount: 2,
 				expectedModelFailCount: 1,
@@ -91,6 +99,10 @@ func TestAnalyzeSession(t *testing.T) {
 
 			assert.Equal(t, session.SessionID, then.expectedSessionID, "unexpected session id")
 			assert.Equal(t, session.Classification, then.expectedClassification, "unexpected session classification")
+			assert.Equal(t, len(session.Signals), len(then.expectedSignals), "unexpected signal count")
+			for index, signal := range then.expectedSignals {
+				assert.Equal(t, session.Signals[index], signal, "unexpected signal")
+			}
 			assert.Equal(t, session.RequestCount, then.expectedRequestCount, "unexpected request count")
 			assert.Equal(t, session.SuspicionCount, then.expectedSuspicionCount, "unexpected suspicion count")
 			assert.Equal(t, session.ModelFailCount, then.expectedModelFailCount, "unexpected model failure count")

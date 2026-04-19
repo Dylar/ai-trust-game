@@ -42,6 +42,7 @@ func main() {
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Session ID:", response.SessionID)
 	fmt.Println("Classification:", response.Classification)
+	fmt.Println("Signals:", response.Signals)
 	fmt.Println("Request Count:", response.RequestCount)
 	fmt.Println("Suspicion Count:", response.SuspicionCount)
 	fmt.Println("Model Fail Count:", response.ModelFailCount)

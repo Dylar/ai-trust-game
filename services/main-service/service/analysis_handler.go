@@ -105,6 +105,7 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 	response := SessionAnalysisResponse{
 		SessionID:      sessionID,
 		Classification: string(session.Classification),
+		Signals:        session.Signals,
 		RequestCount:   session.RequestCount,
 		SuspicionCount: session.SuspicionCount,
 		ModelFailCount: session.ModelFailCount,

@@ -29,6 +29,7 @@ type RequestAnalysis struct {
 type SessionAnalysis struct {
 	SessionID      string
 	Classification Classification
+	Signals        []string
 	RequestCount   int
 	SuspicionCount int
 	ModelFailCount int
@@ -104,6 +105,7 @@ func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
 		RequestCount:   len(analyses),
 		Requests:       analyses,
 	}
+	signals := map[string]struct{}{}
 
 	for _, analysis := range analyses {
 		if session.SessionID == "" && analysis.SessionID != "" {
@@ -112,6 +114,9 @@ func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
 
 		session.SuspicionCount += analysis.SuspicionCount
 		session.ModelFailCount += analysis.ModelFailCount
+		for _, signal := range analysis.Signals {
+			signals[signal] = struct{}{}
+		}
 
 		switch analysis.Classification {
 		case ClassificationFailedModelStep:
@@ -123,6 +128,7 @@ func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
 		}
 	}
 
+	session.Signals = sortedSignals(signals)
 	return session
 }
 
