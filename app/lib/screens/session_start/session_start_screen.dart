@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
+import 'session_start_keys.dart';
 import 'session_start_localizations.dart';
 import 'session_start_screen_state.dart';
 import 'session_start_view_model.dart';
@@ -34,6 +35,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
+      key: SessionStartKeys.screen,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -89,6 +91,7 @@ class _SessionStartHeader extends StatelessWidget {
       children: [
         Text(
           l10n.appTitle,
+          key: SessionStartKeys.title,
           style: theme.textTheme.displaySmall?.copyWith(
             fontWeight: FontWeight.w700,
             color: AppColors.brandForeground,
@@ -210,6 +213,11 @@ class _RoleChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChoiceChip(
+      key: switch (role) {
+        SessionRole.guest => SessionStartKeys.roleGuest,
+        SessionRole.employee => SessionStartKeys.roleEmployee,
+        SessionRole.admin => SessionStartKeys.roleAdmin,
+      },
       label: Text(role.localizedLabel(l10n)),
       selected: selected,
       onSelected: (_) => onSelected(),
@@ -271,6 +279,7 @@ class _PrepareSessionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FilledButton(
+      key: SessionStartKeys.prepareButton,
       onPressed: isSubmitting ? null : onPressed,
       child: Text(
         isSubmitting ? l10n.preparingSessionButton : l10n.prepareSessionButton,
@@ -289,6 +298,7 @@ class _SessionStatusCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
+      key: SessionStartKeys.statusCard,
       elevation: 0,
       color: AppColors.successSurface,
       child: Padding(
@@ -317,6 +327,11 @@ class _ModeCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return InkWell(
+      key: switch (mode) {
+        SessionMode.easy => SessionStartKeys.modeEasy,
+        SessionMode.medium => SessionStartKeys.modeMedium,
+        SessionMode.hard => SessionStartKeys.modeHard,
+      },
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Ink(
@@ -349,6 +364,11 @@ class _ModeCard extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.small),
               Icon(
+                key: switch (mode) {
+                  SessionMode.easy => SessionStartKeys.modeEasyIndicator,
+                  SessionMode.medium => SessionStartKeys.modeMediumIndicator,
+                  SessionMode.hard => SessionStartKeys.modeHardIndicator,
+                },
                 selected ? Icons.radio_button_checked : Icons.radio_button_off,
                 color: selected ? theme.colorScheme.primary : null,
               ),
