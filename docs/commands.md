@@ -14,10 +14,12 @@
   sends one interaction request against the running service
 
 - `go run ./services/main-service/scripts/analysis-request --request <request-id>`
-  fetches the stored request analysis for one completed request
+  fetches the stored request analysis for one completed request, including structured signals and an optional
+  request-level intent summary
 
 - `go run ./services/main-service/scripts/analysis-session --session <session-id>`
-  fetches the stored analyses for all completed requests in one session
+  fetches the stored analyses for all completed requests in one session, plus the aggregated session view and an
+  optional session-level intent summary
 
 ## Testing and Linting
 

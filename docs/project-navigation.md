@@ -20,9 +20,13 @@ Also, you can find the development roadmap and commands reference here.
 ## Code-Near Documentation
 
 ### Backend
-- [Interaction pipeline and processor architecture](../internal/interaction/README.md)
+
+#### Core / Foundation
 - [LLM provider abstraction and runtime configuration](../internal/llm/README.md)
-- [Audit events, sinks, and request analysis](../pkg/audit/README.md)
+- [Audit events, sinks, request analysis, session aggregation, and intent summaries](../pkg/audit/README.md)
+
+#### Features
+- [Interaction pipeline and processor architecture](../internal/interaction/README.md)
 
 ### Frontend
  PENDING
