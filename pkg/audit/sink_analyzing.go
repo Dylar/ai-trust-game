@@ -55,6 +55,9 @@ func isRequestComplete(event Event) bool {
 	if event.Step == StepStateUpdated {
 		return true
 	}
+	if event.Step == StepDecided && event.Outcome == OutcomeDenied {
+		return true
+	}
 
 	return isModelStepFailure(event)
 }

@@ -36,6 +36,7 @@ It decorates another `Sink`, collects events per `RequestID`, and stores a `Requ
 logical end:
 
 - `StepStateUpdated` for a completed successful interaction flow
+- `StepDecided` with `OutcomeDenied` for requests that stop at policy denial
 - a failed planner or response-builder step for an early model-step failure
 
 This keeps request-level analysis in the observability layer instead of mixing it into transport responses or core

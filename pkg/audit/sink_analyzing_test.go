@@ -95,6 +95,26 @@ func TestAnalyzingSinkWriteEvent(t *testing.T) {
 			},
 		},
 		{
+			name: "GIVEN denied request events " +
+				"WHEN WriteEvent reaches a denied decision " +
+				"THEN stores the analyzed request without waiting for state update",
+			given: Given{
+				events: []Event{
+					{RequestID: "request-denied", Type: EventTypeInteraction, Step: StepPlanned, Suspicion: SuspicionClaimedRoleExceedsTrusted},
+					{RequestID: "request-denied", Type: EventTypeInteraction, Step: StepDecided, Outcome: OutcomeDenied},
+				},
+				sink: &stubSink{},
+				repo: NewInMemoryRequestAnalysisRepository(),
+			},
+			then: Then{
+				expectedError:          nil,
+				expectedStored:         true,
+				expectedClassification: ClassificationSuspicious,
+				expectedSignals:        []string{SuspicionClaimedRoleExceedsTrusted},
+				expectedEventCount:     2,
+			},
+		},
+		{
 			name: "GIVEN underlying sink fails " +
 				"WHEN WriteEvent is called " +
 				"THEN returns the sink error and stores no analysis",
@@ -176,7 +196,7 @@ func TestAnalyzingSinkWriteEvent_SeparatesRequests(t *testing.T) {
 					{RequestID: "request-a", Type: EventTypeInteraction, Step: StepPlanned},
 					{RequestID: "request-b", Type: EventTypeInteraction, Step: StepPlanned, Suspicion: SuspicionClaimedRoleExceedsTrusted},
 					{RequestID: "request-a", Type: EventTypeInteraction, Step: StepStateUpdated, Outcome: OutcomeUpdated},
-					{RequestID: "request-b", Type: EventTypeInteraction, Step: StepStateUpdated, Outcome: OutcomeUpdated},
+					{RequestID: "request-b", Type: EventTypeInteraction, Step: StepDecided, Outcome: OutcomeDenied},
 				},
 			},
 			then: Then{
