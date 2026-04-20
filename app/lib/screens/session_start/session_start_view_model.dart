@@ -22,7 +22,10 @@ class SessionStartViewModel {
     );
   }
 
-  Future<void> prepareSession() async {
+  Future<void> prepareSessionWithMessage({
+    required String Function(SessionRole role, SessionMode mode)
+    buildStatusMessage,
+  }) async {
     state.value = state.value.copyWith(
       isSubmitting: true,
       clearStatusMessage: true,
@@ -33,9 +36,10 @@ class SessionStartViewModel {
     final currentState = state.value;
     state.value = currentState.copyWith(
       isSubmitting: false,
-      statusMessage:
-          'Prepared ${currentState.selectedRole.label} session in '
-          '${currentState.selectedMode.label} mode. Backend start comes next.',
+      statusMessage: buildStatusMessage(
+        currentState.selectedRole,
+        currentState.selectedMode,
+      ),
     );
   }
 

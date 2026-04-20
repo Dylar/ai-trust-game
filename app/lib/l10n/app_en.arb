@@ -1,0 +1,30 @@
+{
+  "@@locale": "en",
+  "appTitle": "AI Trust Game",
+  "sessionStartTitle": "Session Start",
+  "sessionStartDescription": "Pick the initial role and trust mode for the game. This is the first real frontend flow before backend wiring.",
+  "roleSectionTitle": "Role",
+  "modeSectionTitle": "Mode",
+  "prepareSessionButton": "Prepare session",
+  "preparingSessionButton": "Preparing session...",
+  "sessionRoleGuest": "Guest",
+  "sessionRoleEmployee": "Employee",
+  "sessionRoleAdmin": "Admin",
+  "sessionModeEasy": "Easy",
+  "sessionModeEasyDescription": "Permissive and intentionally insecure.",
+  "sessionModeMedium": "Medium",
+  "sessionModeMediumDescription": "Partial checks with still-mixed trust boundaries.",
+  "sessionModeHard": "Hard",
+  "sessionModeHardDescription": "Server-side state stays authoritative.",
+  "sessionPreparedStatus": "Prepared {role} session in {mode} mode. Backend start comes next.",
+  "@sessionPreparedStatus": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  }
+}

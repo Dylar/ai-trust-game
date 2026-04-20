@@ -1,0 +1,30 @@
+{
+  "@@locale": "de",
+  "appTitle": "AI Trust Game",
+  "sessionStartTitle": "Sitzungsstart",
+  "sessionStartDescription": "Wähle die anfängliche Rolle und den Vertrauensmodus für das Spiel. Das ist der erste echte Frontend-Flow vor der Backend-Anbindung.",
+  "roleSectionTitle": "Rolle",
+  "modeSectionTitle": "Modus",
+  "prepareSessionButton": "Sitzung vorbereiten",
+  "preparingSessionButton": "Sitzung wird vorbereitet...",
+  "sessionRoleGuest": "Gast",
+  "sessionRoleEmployee": "Mitarbeiter",
+  "sessionRoleAdmin": "Admin",
+  "sessionModeEasy": "Einfach",
+  "sessionModeEasyDescription": "Freizügig und absichtlich unsicher.",
+  "sessionModeMedium": "Mittel",
+  "sessionModeMediumDescription": "Teilweise Prüfungen mit weiterhin gemischten Vertrauensgrenzen.",
+  "sessionModeHard": "Hart",
+  "sessionModeHardDescription": "Serverseitiger Zustand bleibt autoritativ.",
+  "sessionPreparedStatus": "{role}-Sitzung im Modus {mode} vorbereitet. Als Nächstes kommt der Backend-Start.",
+  "@sessionPreparedStatus": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  }
+}

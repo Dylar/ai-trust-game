@@ -1,23 +1,6 @@
-enum SessionRole {
-  guest('Guest'),
-  employee('Employee'),
-  admin('Admin');
+enum SessionRole { guest, employee, admin }
 
-  const SessionRole(this.label);
-
-  final String label;
-}
-
-enum SessionMode {
-  easy('Easy', 'Permissive and intentionally insecure.'),
-  medium('Medium', 'Partial checks with still-mixed trust boundaries.'),
-  hard('Hard', 'Server-side state stays authoritative.');
-
-  const SessionMode(this.label, this.description);
-
-  final String label;
-  final String description;
-}
+enum SessionMode { easy, medium, hard }
 
 class SessionStartScreenState {
   const SessionStartScreenState({
