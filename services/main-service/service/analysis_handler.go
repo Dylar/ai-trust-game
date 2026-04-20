@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strings"
@@ -20,11 +21,22 @@ type requestAnalysisRepository interface {
 }
 
 type RequestAnalysisHandler struct {
-	repo requestAnalysisRepository
+	repo       requestAnalysisRepository
+	summarizer audit.IntentSummarizer
 }
 
 func NewRequestAnalysisHandler(repo requestAnalysisRepository) *RequestAnalysisHandler {
-	return &RequestAnalysisHandler{repo: repo}
+	return NewRequestAnalysisHandlerWithSummarizer(repo, audit.NoopIntentSummarizer{})
+}
+
+func NewRequestAnalysisHandlerWithSummarizer(
+	repo requestAnalysisRepository,
+	summarizer audit.IntentSummarizer,
+) *RequestAnalysisHandler {
+	if summarizer == nil {
+		summarizer = audit.NoopIntentSummarizer{}
+	}
+	return &RequestAnalysisHandler{repo: repo, summarizer: summarizer}
 }
 
 func (handler *RequestAnalysisHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -74,6 +86,7 @@ func (handler *RequestAnalysisHandler) handleGetRequestAnalysis(requestID string
 		Classification: string(analysis.Classification),
 		Signals:        analysis.Signals,
 		AttackPatterns: analysis.AttackPatterns,
+		IntentSummary:  analysis.IntentSummary,
 		EventCount:     analysis.EventCount,
 		SuspicionCount: analysis.SuspicionCount,
 		ModelFailCount: analysis.ModelFailCount,
@@ -114,6 +127,13 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 		Requests:       make([]RequestAnalysisResponse, 0, len(analyses)),
 	}
 
+	if handler.shouldSummarizeSessionIntent(session) {
+		summary, err := handler.summarizer.SummarizeSession(context.Background(), session)
+		if err == nil {
+			response.IntentSummary = summary
+		}
+	}
+
 	for _, analysis := range analyses {
 		response.Requests = append(response.Requests, RequestAnalysisResponse{
 			RequestID:      analysis.RequestID,
@@ -122,6 +142,7 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 			Classification: string(analysis.Classification),
 			Signals:        analysis.Signals,
 			AttackPatterns: analysis.AttackPatterns,
+			IntentSummary:  analysis.IntentSummary,
 			EventCount:     analysis.EventCount,
 			SuspicionCount: analysis.SuspicionCount,
 			ModelFailCount: analysis.ModelFailCount,
@@ -129,6 +150,10 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 	}
 
 	return response, nil
+}
+
+func (handler *RequestAnalysisHandler) shouldSummarizeSessionIntent(session audit.SessionAnalysis) bool {
+	return session.RequestCount > 1 || session.Classification != audit.ClassificationClean
 }
 
 func (handler *RequestAnalysisHandler) mapSessionAnalysisError(err error) (int, SessionAnalysisResponse) {

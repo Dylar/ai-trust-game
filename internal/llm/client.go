@@ -17,6 +17,7 @@ type Stage string
 const (
 	StagePlanner         Stage = "planner"
 	StageResponseBuilder Stage = "response_builder"
+	StageAuditAnalysis   Stage = "audit_analysis"
 )
 
 type Response struct {

@@ -44,11 +44,12 @@ func main() {
 	fmt.Println("Classification:", response.Classification)
 	fmt.Println("Signals:", response.Signals)
 	fmt.Println("Attack Patterns:", response.AttackPatterns)
+	fmt.Println("Intent Summary:", response.IntentSummary)
 	fmt.Println("Request Count:", response.RequestCount)
 	fmt.Println("Suspicion Count:", response.SuspicionCount)
 	fmt.Println("Model Fail Count:", response.ModelFailCount)
 	fmt.Println("Requests:")
 	for _, request := range response.Requests {
-		fmt.Printf("- %s | %s | signals=%v\n", request.RequestID, request.Classification, request.Signals)
+		fmt.Printf("- %s | %s | signals=%v | intent=%q\n", request.RequestID, request.Classification, request.Signals, request.IntentSummary)
 	}
 }

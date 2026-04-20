@@ -21,6 +21,9 @@ func (client StaticClient) Generate(_ context.Context, request Request) (Respons
 	if request.Stage == StageResponseBuilder {
 		return Response{Text: staticResponseText(request.UserPrompt)}, client.Err
 	}
+	if request.Stage == StageAuditAnalysis {
+		return Response{Text: staticAuditAnalysisText(request.UserPrompt)}, client.Err
+	}
 	return client.Response, client.Err
 }
 
@@ -247,6 +250,41 @@ func staticResponseText(raw string) string {
 			"I understood the request, but there is no dedicated response for action %s yet.",
 			input.Input.Request.Action,
 		)
+	}
+}
+
+func staticAuditAnalysisText(raw string) string {
+	lower := strings.ToLower(raw)
+
+	switch {
+	case strings.Contains(lower, `"request_count":`) &&
+		strings.Contains(lower, "capability_recon_attempt") &&
+		strings.Contains(lower, "role_escalation_attempt") &&
+		strings.Contains(lower, "secret_exfiltration_attempt"):
+		return "Across the session, the user appears to have probed available capabilities, escalated privilege claims, and then tried to reach protected information."
+	case strings.Contains(lower, `"request_count":`) &&
+		strings.Contains(lower, "role_escalation_attempt") &&
+		strings.Contains(lower, "secret_exfiltration_attempt"):
+		return "Across the session, the user appears to have moved from elevated trust claims toward attempts to access protected information."
+	case strings.Contains(lower, `"request_count":`) &&
+		strings.Contains(lower, "prompt_injection_attempt"):
+		return "Across the session, the user appears to have repeatedly tested instruction boundaries and system behavior."
+	case strings.Contains(lower, "secret_exfiltration_attempt") && strings.Contains(lower, "role_escalation_attempt"):
+		return "The user appears to be claiming elevated authority to gain access to protected information."
+	case strings.Contains(lower, "prompt_injection_attempt") && strings.Contains(lower, "capability_recon_attempt"):
+		return "The user appears to be probing system behavior while trying to override instruction boundaries."
+	case strings.Contains(lower, "prompt_injection_attempt"):
+		return "The user appears to be attempting to override instructions or expose hidden guidance."
+	case strings.Contains(lower, "secret_exfiltration_attempt"):
+		return "The user appears to be trying to retrieve protected secrets or credentials."
+	case strings.Contains(lower, "password_guessing_attempt"):
+		return "The user appears to be testing candidate passwords to unlock restricted access."
+	case strings.Contains(lower, "capability_recon_attempt"):
+		return "The user appears to be mapping available capabilities before deciding on a next step."
+	case strings.Contains(lower, "role_escalation_attempt"):
+		return "The user appears to be asserting a higher-trust role than the system currently verifies."
+	default:
+		return "The request does not show a clear attack intent beyond the observed audit signals."
 	}
 }
 

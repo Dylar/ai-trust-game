@@ -9,6 +9,7 @@ type RequestAnalysisResponse struct {
 	Classification string    `json:"classification"`
 	Signals        []string  `json:"signals"`
 	AttackPatterns []string  `json:"attack_patterns"`
+	IntentSummary  string    `json:"intent_summary"`
 	EventCount     int       `json:"event_count"`
 	SuspicionCount int       `json:"suspicion_count"`
 	ModelFailCount int       `json:"model_fail_count"`
@@ -19,6 +20,7 @@ type SessionAnalysisResponse struct {
 	Classification string                    `json:"classification"`
 	Signals        []string                  `json:"signals"`
 	AttackPatterns []string                  `json:"attack_patterns"`
+	IntentSummary  string                    `json:"intent_summary"`
 	RequestCount   int                       `json:"request_count"`
 	Requests       []RequestAnalysisResponse `json:"requests"`
 	SuspicionCount int                       `json:"suspicion_count"`

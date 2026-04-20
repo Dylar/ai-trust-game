@@ -11,6 +11,7 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/tooling/tests/mocks"
 )
 
 func TestRequestAnalysisRoute(t *testing.T) {
@@ -24,6 +25,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 		Classification: audit.ClassificationSuspicious,
 		Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
 		AttackPatterns: []string{audit.AttackPatternRoleEscalation},
+		IntentSummary:  "The user appears to be claiming elevated trust.",
 		EventCount:     4,
 		SuspicionCount: 1,
 		ModelFailCount: 0,
@@ -44,6 +46,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 	type Then struct {
 		expectedStatus             int
 		expectedClassification     string
+		expectedIntentSummary      string
 		expectedSignalCount        int
 		expectedAttackPatternCount int
 	}
@@ -65,6 +68,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 			then: Then{
 				expectedStatus:             http.StatusOK,
 				expectedClassification:     string(audit.ClassificationSuspicious),
+				expectedIntentSummary:      "The user appears to be claiming elevated trust.",
 				expectedSignalCount:        1,
 				expectedAttackPatternCount: 1,
 			},
@@ -120,6 +124,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 			assert.Equal(t, response.SessionID, "session-123", "unexpected session id")
 			assert.Equal(t, response.CompletedAt.IsZero(), false, "expected completed at")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected classification")
+			assert.Equal(t, response.IntentSummary, then.expectedIntentSummary, "unexpected intent summary")
 			assert.Equal(t, len(response.Signals), then.expectedSignalCount, "unexpected signal count")
 			assert.Equal(t, len(response.AttackPatterns), then.expectedAttackPatternCount, "unexpected attack pattern count")
 		})
@@ -137,6 +142,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 		Classification: audit.ClassificationSuspicious,
 		Signals:        []string{audit.SuspicionClaimedRoleExceedsTrusted},
 		AttackPatterns: []string{audit.AttackPatternRoleEscalation},
+		IntentSummary:  "The user appears to be escalating privileges.",
 		EventCount:     4,
 		SuspicionCount: 1,
 		ModelFailCount: 0,
@@ -148,11 +154,14 @@ func TestSessionAnalysisRoute(t *testing.T) {
 		Classification: audit.ClassificationFailedModelStep,
 		Signals:        []string{audit.SuspicionInvalidPlannerOutput},
 		AttackPatterns: []string{audit.AttackPatternSecretExfiltration},
+		IntentSummary:  "The user appears to be trying to obtain protected data.",
 		EventCount:     1,
 		SuspicionCount: 1,
 		ModelFailCount: 1,
 	})
-	handler := NewRequestAnalysisHandler(repo)
+	handler := NewRequestAnalysisHandlerWithSummarizer(repo, &mocks.FakeIntentSummarizer{
+		SessionSummary: "Across the session, the user appears to have moved from elevated trust claims toward attempts to access protected information.",
+	})
 
 	setupSessionAnalysisRoute(mux, logger, handler)
 
@@ -167,6 +176,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 	type Then struct {
 		expectedStatus         int
 		expectedClassification string
+		expectedIntentSummary  string
 		expectedSignals        []string
 		expectedAttackPatterns []string
 		expectedRequestCount   int
@@ -191,6 +201,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			then: Then{
 				expectedStatus:         http.StatusOK,
 				expectedClassification: string(audit.ClassificationFailedModelStep),
+				expectedIntentSummary:  "Across the session, the user appears to have moved from elevated trust claims toward attempts to access protected information.",
 				expectedSignals: []string{
 					audit.SuspicionClaimedRoleExceedsTrusted,
 					audit.SuspicionInvalidPlannerOutput,
@@ -245,6 +256,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 
 			assert.Equal(t, response.SessionID, "session-123", "unexpected session id")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected session classification")
+			assert.Equal(t, response.IntentSummary, then.expectedIntentSummary, "unexpected session intent summary")
 			assert.Equal(t, len(response.Signals), len(then.expectedSignals), "unexpected session signal count")
 			for index, signal := range then.expectedSignals {
 				assert.Equal(t, response.Signals[index], signal, "unexpected session signal")
@@ -259,6 +271,8 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			assert.Equal(t, len(response.Requests), then.expectedRequestCount, "unexpected request response count")
 			assert.Equal(t, response.Requests[0].RequestID, "request-123", "unexpected first timeline request")
 			assert.Equal(t, response.Requests[1].RequestID, "request-456", "unexpected second timeline request")
+			assert.Equal(t, response.Requests[0].IntentSummary, "The user appears to be escalating privileges.", "unexpected first request intent summary")
+			assert.Equal(t, response.Requests[1].IntentSummary, "The user appears to be trying to obtain protected data.", "unexpected second request intent summary")
 			assert.Equal(t, response.Requests[0].CompletedAt.Before(response.Requests[1].CompletedAt), true, "expected timeline ordering")
 		})
 	}

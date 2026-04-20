@@ -1,12 +1,11 @@
 package audit
 
 import (
-	"strings"
+	"sort"
+	"time"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/llm"
-	"sort"
-	"time"
 )
 
 type Classification string
@@ -33,6 +32,7 @@ type RequestAnalysis struct {
 	Classification Classification
 	Signals        []string
 	AttackPatterns []string
+	IntentSummary  string
 	EventCount     int
 	SuspicionCount int
 	ModelFailCount int
@@ -158,7 +158,7 @@ func collectAttackPatterns(patterns map[string]struct{}, event Event) {
 	if event.Suspicion == SuspicionClaimedRoleExceedsTrusted {
 		patterns[AttackPatternRoleEscalation] = struct{}{}
 	}
-	if event.Suspicion == SuspicionPossiblePromptInjection || containsPromptInjectionPhrase(event.Input) {
+	if event.Suspicion == SuspicionPossiblePromptInjection {
 		patterns[AttackPatternPromptInjection] = struct{}{}
 	}
 
@@ -170,15 +170,6 @@ func collectAttackPatterns(patterns map[string]struct{}, event Event) {
 	case domain.ActionListAvailableActions:
 		patterns[AttackPatternCapabilityRecon] = struct{}{}
 	}
-}
-
-func containsPromptInjectionPhrase(input string) bool {
-	lower := strings.ToLower(strings.TrimSpace(input))
-	if lower == "" {
-		return false
-	}
-
-	return strings.Contains(lower, "ignore previous instructions")
 }
 
 func isModelStepFailure(event Event) bool {

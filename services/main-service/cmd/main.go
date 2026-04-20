@@ -19,9 +19,10 @@ func main() {
 	)
 
 	requestAnalysisRepo := audit.NewInMemoryRequestAnalysisRepository()
-	auditSink := audit.NewAnalyzingSink(audit.NewConsoleSink(), requestAnalysisRepo)
+	intentSummarizer := newConfiguredIntentSummarizer(logger)
+	auditSink := audit.NewAnalyzingSinkWithSummarizer(audit.NewConsoleSink(), requestAnalysisRepo, intentSummarizer)
 	chatHandler := service.NewChatHandler(logger, auditSink)
-	requestAnalysisHandler := service.NewRequestAnalysisHandler(requestAnalysisRepo)
+	requestAnalysisHandler := service.NewRequestAnalysisHandlerWithSummarizer(requestAnalysisRepo, intentSummarizer)
 
 	sessionRepo := session.NewInMemoryRepository()
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)

@@ -8,20 +8,6 @@ import (
 	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
-type stubSink struct {
-	events []Event
-	err    error
-}
-
-func (s *stubSink) WriteEvent(_ context.Context, event Event) error {
-	if s.err != nil {
-		return s.err
-	}
-
-	s.events = append(s.events, event)
-	return nil
-}
-
 func TestAnalyzingSinkWriteEvent(t *testing.T) {
 	errSinkFailed := errors.New("sink failed")
 
@@ -56,7 +42,7 @@ func TestAnalyzingSinkWriteEvent(t *testing.T) {
 					{RequestID: "request-success", Type: EventTypeInteraction, Step: StepDecided, Outcome: OutcomeAllowed, Suspicion: SuspicionClaimedRoleExceedsTrusted},
 					{RequestID: "request-success", Type: EventTypeInteraction, Step: StepStateUpdated, Outcome: OutcomeUpdated},
 				},
-				sink: &stubSink{},
+				sink: &fakeSink{},
 				repo: NewInMemoryRequestAnalysisRepository(),
 			},
 			then: Then{
@@ -83,7 +69,7 @@ func TestAnalyzingSinkWriteEvent(t *testing.T) {
 						Suspicion: SuspicionInvalidPlannerOutput,
 					},
 				},
-				sink: &stubSink{},
+				sink: &fakeSink{},
 				repo: NewInMemoryRequestAnalysisRepository(),
 			},
 			then: Then{
@@ -103,7 +89,7 @@ func TestAnalyzingSinkWriteEvent(t *testing.T) {
 					{RequestID: "request-denied", Type: EventTypeInteraction, Step: StepPlanned, Suspicion: SuspicionClaimedRoleExceedsTrusted},
 					{RequestID: "request-denied", Type: EventTypeInteraction, Step: StepDecided, Outcome: OutcomeDenied},
 				},
-				sink: &stubSink{},
+				sink: &fakeSink{},
 				repo: NewInMemoryRequestAnalysisRepository(),
 			},
 			then: Then{
@@ -122,7 +108,7 @@ func TestAnalyzingSinkWriteEvent(t *testing.T) {
 				events: []Event{
 					{RequestID: "request-error", Type: EventTypeInteraction, Step: StepStateUpdated},
 				},
-				sink: &stubSink{err: errSinkFailed},
+				sink: &fakeSink{err: errSinkFailed},
 				repo: NewInMemoryRequestAnalysisRepository(),
 			},
 			then: Then{
@@ -214,7 +200,7 @@ func TestAnalyzingSinkWriteEvent_SeparatesRequests(t *testing.T) {
 
 		t.Run(scenario.name, func(t *testing.T) {
 			repo := NewInMemoryRequestAnalysisRepository()
-			sink := NewAnalyzingSink(&stubSink{}, repo)
+			sink := NewAnalyzingSink(&fakeSink{}, repo)
 
 			for _, event := range given.events {
 				err := sink.WriteEvent(context.Background(), event)
@@ -230,6 +216,79 @@ func TestAnalyzingSinkWriteEvent_SeparatesRequests(t *testing.T) {
 			assert.Equal(t, ok, true, "expected second analysis")
 			assert.Equal(t, second.RequestID, then.expectedSecondRequestID, "unexpected second request id")
 			assert.Equal(t, second.Classification, then.expectedSecondClassification, "unexpected second classification")
+		})
+	}
+}
+
+func TestAnalyzingSinkWriteEvent_WithIntentSummary(t *testing.T) {
+	type Given struct {
+		events     []Event
+		summarizer *fakeIntentSummarizer
+	}
+
+	type Then struct {
+		expectedIntentSummary string
+		expectedRequestCalls  int
+	}
+
+	type Scenario struct {
+		name  string
+		given Given
+		then  Then
+	}
+
+	scenarios := []Scenario{
+		{
+			name: "GIVEN suspicious request and intent summarizer " +
+				"WHEN WriteEvent completes the request " +
+				"THEN stores the request intent summary",
+			given: Given{
+				events: []Event{
+					{RequestID: "request-summary", Type: EventTypeInteraction, Step: StepPlanned, Suspicion: SuspicionClaimedRoleExceedsTrusted},
+					{RequestID: "request-summary", Type: EventTypeInteraction, Step: StepDecided, Outcome: OutcomeDenied},
+				},
+				summarizer: &fakeIntentSummarizer{requestSummary: "The user appears to be escalating privileges."},
+			},
+			then: Then{
+				expectedIntentSummary: "The user appears to be escalating privileges.",
+				expectedRequestCalls:  1,
+			},
+		},
+		{
+			name: "GIVEN clean request and intent summarizer " +
+				"WHEN WriteEvent completes the request " +
+				"THEN skips request intent summarization",
+			given: Given{
+				events: []Event{
+					{RequestID: "request-clean", Type: EventTypeInteraction, Step: StepPlanned},
+					{RequestID: "request-clean", Type: EventTypeInteraction, Step: StepStateUpdated, Outcome: OutcomeUnchanged},
+				},
+				summarizer: &fakeIntentSummarizer{requestSummary: "should not be used"},
+			},
+			then: Then{
+				expectedIntentSummary: "",
+				expectedRequestCalls:  0,
+			},
+		},
+	}
+
+	for _, scenario := range scenarios {
+		given := scenario.given
+		then := scenario.then
+
+		t.Run(scenario.name, func(t *testing.T) {
+			repo := NewInMemoryRequestAnalysisRepository()
+			sink := NewAnalyzingSinkWithSummarizer(&fakeSink{}, repo, given.summarizer)
+
+			for _, event := range given.events {
+				err := sink.WriteEvent(context.Background(), event)
+				assert.ErrorIs(t, err, nil, "unexpected write error")
+			}
+
+			analysis, ok := repo.Get(given.events[0].RequestID)
+			assert.Equal(t, ok, true, "expected stored analysis")
+			assert.Equal(t, analysis.IntentSummary, then.expectedIntentSummary, "unexpected intent summary")
+			assert.Equal(t, given.summarizer.requestCalls, then.expectedRequestCalls, "unexpected request summarizer call count")
 		})
 	}
 }
