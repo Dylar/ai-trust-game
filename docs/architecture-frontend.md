@@ -273,6 +273,20 @@ Good candidates:
 - small pure transformations
 - validation rules
 
+Keep frontend interaction tests readable by structuring them around clear scenario steps.
+
+Prefer:
+
+- `Given / When / Then` comments or an equivalent clear test-phase structure
+- stable selectors such as `Key`s for interaction and structural assertions
+- using visible text assertions only where the text itself is meaningful user-facing behavior
+
+Avoid:
+
+- relying on large numbers of fragile text finders for routine interaction
+- hiding the scenario structure inside low-level test helpers
+- mixing setup, actions, and assertions into one unstructured block
+
 ### Robot Pattern
 
 Use the Robot Pattern as the preferred style for frontend interaction tests.
@@ -292,6 +306,37 @@ Robots should not:
 Shared robots and other frontend test helpers should live in one shared testing area when they are reused across
 multiple screens or flows.
 
+The preferred test structure in this repository is:
+
+- `AppBot`
+- `BaseScreenBot`
+- feature-specific `ScreenBot`
+- feature-specific `Process` when a flow needs orchestration across multiple actions
+- feature-specific test `Context` as a small composition root
+
+Responsibilities:
+
+- `AppBot`
+  starts the app and owns app-wide test setup concerns
+
+- `BaseScreenBot`
+  contains reusable low-level UI test mechanics such as finder resolution, taps, scrolling, and pumping
+
+- `ScreenBot`
+  exposes screen-specific actions and assertions
+  it should stay focused on what the user can do and see on one screen
+
+- `Process`
+  combines multiple screen actions into a meaningful flow step
+  it may wait for transient states to complete, but it should not become a second implementation of the feature
+
+- `Context`
+  wires together the bots and processes needed for one feature's tests
+  it acts as a small test-side composition root and should not hide substantial logic
+
+Prefer introducing a `Process` as soon as it helps keep the `ScreenBot` limited to "do" and "expect" behavior.
+Do not wait until a flow spans many screens if a process already improves clarity.
+
 ## Project-Specific Notes
 
 In this repository, frontend architecture currently also follows these additional defaults:
@@ -300,4 +345,8 @@ In this repository, frontend architecture currently also follows these additiona
 - `InheritedWidget` is the default dependency injection mechanism
 - `ValueNotifier<ScreenState>` is the default screen-state mechanism
 - screen-level tests with the Robot Pattern are preferred
+- feature tests should prefer `AppBot` + `BaseScreenBot` + `ScreenBot` + optional `Process` + feature `Context`
+- screen bots should stay on the level of screen actions and screen assertions
+- processes should hold test-flow orchestration such as waiting through loading transitions
+- `Key`-based selectors are the default for test interaction points
 - backend state remains authoritative for trust-sensitive behavior

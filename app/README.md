@@ -29,6 +29,11 @@ Current `lib/` structure:
 - `lib/screens/home/`
 - `lib/screens/session_start/`
 
+Current test structure:
+
+- `test/testing/` for shared test bots such as `AppBot` and `BaseScreenBot`
+- `test/screens/<feature>/` for feature-local screen bots, processes, contexts, and screen tests
+
 Later phases of the frontend work should follow the structure described in
 [`docs/architecture-frontend.md`](../docs/architecture-frontend.md).
 
