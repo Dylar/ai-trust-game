@@ -31,6 +31,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preparingSessionButton => 'Preparing session...';
 
   @override
+  String get sessionStartLoadingTitle => 'Preparing session';
+
+  @override
+  String get sessionStartLoadingDescription =>
+      'The app is preparing a local placeholder session while the backend flow is not connected yet.';
+
+  @override
+  String get sessionStartErrorTitle => 'Session start failed';
+
+  @override
+  String get sessionStartErrorDescription =>
+      'The session could not be prepared. Please try again.';
+
+  @override
   String get sessionRoleGuest => 'Guest';
 
   @override

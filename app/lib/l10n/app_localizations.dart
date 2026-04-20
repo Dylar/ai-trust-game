@@ -140,6 +140,30 @@ abstract class AppLocalizations {
   /// **'Preparing session...'**
   String get preparingSessionButton;
 
+  /// No description provided for @sessionStartLoadingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing session'**
+  String get sessionStartLoadingTitle;
+
+  /// No description provided for @sessionStartLoadingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The app is preparing a local placeholder session while the backend flow is not connected yet.'**
+  String get sessionStartLoadingDescription;
+
+  /// No description provided for @sessionStartErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session start failed'**
+  String get sessionStartErrorTitle;
+
+  /// No description provided for @sessionStartErrorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The session could not be prepared. Please try again.'**
+  String get sessionStartErrorDescription;
+
   /// No description provided for @sessionRoleGuest.
   ///
   /// In en, this message translates to:

@@ -49,7 +49,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const _SessionStartHeader(),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.large),
                       _SessionStartFormCard(
                         state: state,
                         l10n: l10n,
@@ -57,13 +57,12 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
                         onModeSelected: _viewModel.selectMode,
                         onPrepareSession: _viewModel.prepareSession,
                       ),
-                      if (state.status == SessionStartStatus.prepared) ...[
+                      if (state.status != SessionStartStatus.idle) ...[
                         const SizedBox(height: AppSpacing.medium),
-                        _SessionStatusCard(
-                          message: l10n.sessionPreparedStatus(
-                            state.selectedRole.localizedLabel(l10n),
-                            state.selectedMode.localizedLabel(l10n),
-                          ),
+                        _SessionFeedbackCard(
+                          status: state.status,
+                          title: _feedbackTitle(l10n: l10n, state: state),
+                          message: _feedbackMessage(l10n: l10n, state: state),
                         ),
                       ],
                     ],
@@ -76,6 +75,37 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
       ),
     );
   }
+}
+
+String _feedbackTitle({
+  required AppLocalizations l10n,
+  required SessionStartScreenState state,
+}) {
+  return switch (state.status) {
+    SessionStartStatus.loading => l10n.sessionStartLoadingTitle,
+    SessionStartStatus.prepared => l10n.sessionPreparedStatus(
+      state.selectedRole.localizedLabel(l10n),
+      state.selectedMode.localizedLabel(l10n),
+    ),
+    SessionStartStatus.error => l10n.sessionStartErrorTitle,
+    SessionStartStatus.idle => '',
+  };
+}
+
+String _feedbackMessage({
+  required AppLocalizations l10n,
+  required SessionStartScreenState state,
+}) {
+  return switch (state.status) {
+    SessionStartStatus.loading => l10n.sessionStartLoadingDescription,
+    SessionStartStatus.prepared => state.selectedMode.localizedDescription(
+      l10n,
+    ),
+    SessionStartStatus.error => switch (state.error) {
+      SessionStartError.unexpected || null => l10n.sessionStartErrorDescription,
+    },
+    SessionStartStatus.idle => '',
+  };
 }
 
 class _SessionStartHeader extends StatelessWidget {
@@ -288,9 +318,15 @@ class _PrepareSessionButton extends StatelessWidget {
   }
 }
 
-class _SessionStatusCard extends StatelessWidget {
-  const _SessionStatusCard({required this.message});
+class _SessionFeedbackCard extends StatelessWidget {
+  const _SessionFeedbackCard({
+    required this.status,
+    required this.title,
+    required this.message,
+  });
 
+  final SessionStartStatus status;
+  final String title;
   final String message;
 
   @override
@@ -298,14 +334,66 @@ class _SessionStatusCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      key: SessionStartKeys.statusCard,
+      key: SessionStartKeys.feedbackCard,
       elevation: 0,
-      color: AppColors.successSurface,
+      color: switch (status) {
+        SessionStartStatus.loading => AppColors.infoSurface,
+        SessionStartStatus.prepared => AppColors.successSurface,
+        SessionStartStatus.error => AppColors.errorSurface,
+        SessionStartStatus.idle => AppColors.surface,
+      },
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.medium),
-        child: Text(message, style: theme.textTheme.bodyLarge),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _FeedbackIndicator(status: status),
+            const SizedBox(width: AppSpacing.medium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: AppSpacing.compact),
+                  Text(message, style: theme.textTheme.bodyLarge),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+}
+
+class _FeedbackIndicator extends StatelessWidget {
+  const _FeedbackIndicator({required this.status});
+
+  final SessionStartStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return switch (status) {
+      SessionStartStatus.loading => SizedBox(
+        key: SessionStartKeys.feedbackIndicator,
+        width: AppSpacing.large,
+        height: AppSpacing.large,
+        child: const CircularProgressIndicator(strokeWidth: 2),
+      ),
+      SessionStartStatus.prepared => Icon(
+        Icons.check_circle,
+        key: SessionStartKeys.feedbackIndicator,
+        color: colorScheme.primary,
+      ),
+      SessionStartStatus.error => Icon(
+        Icons.error_outline,
+        key: SessionStartKeys.feedbackIndicator,
+        color: colorScheme.error,
+      ),
+      SessionStartStatus.idle => const SizedBox.shrink(),
+    };
   }
 }
 

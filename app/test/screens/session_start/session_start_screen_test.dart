@@ -30,7 +30,7 @@ void main() {
     await context.screenBot.tapPrepareSession();
 
     // Then
-    context.screenBot.expectPrepareButtonDisabled();
+    context.screenBot.expectLoadingFeedbackVisible();
     await context.process.waitUntilPreparationFinished();
   });
 

@@ -4,7 +4,8 @@ abstract final class SessionStartKeys {
   static const screen = Key('session_start.screen');
   static const title = Key('session_start.title');
   static const prepareButton = Key('session_start.prepare_button');
-  static const statusCard = Key('session_start.status_card');
+  static const feedbackCard = Key('session_start.feedback_card');
+  static const feedbackIndicator = Key('session_start.feedback_indicator');
 
   static const roleGuest = Key('session_start.role.guest');
   static const roleEmployee = Key('session_start.role.employee');

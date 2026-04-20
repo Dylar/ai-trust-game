@@ -46,12 +46,14 @@ class SessionStartScreenBot extends BaseScreenBot {
     expect(_filledButton().onPressed, isNotNull);
   }
 
-  void expectPrepareButtonDisabled() {
-    expect(_filledButton().onPressed, isNull);
+  void expectLoadingFeedbackVisible() {
+    expect(isVisible(SessionStartKeys.feedbackCard), isTrue);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.text('Preparing session...'), findsOneWidget);
   }
 
   void expectPreparedStatusVisible() {
-    expect(isVisible(SessionStartKeys.statusCard), isTrue);
+    expect(isVisible(SessionStartKeys.feedbackCard), isTrue);
   }
 
   void expectPreparedStatusTextShown() {

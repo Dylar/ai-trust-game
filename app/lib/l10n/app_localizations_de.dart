@@ -31,6 +31,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get preparingSessionButton => 'Sitzung wird vorbereitet...';
 
   @override
+  String get sessionStartLoadingTitle => 'Sitzung wird vorbereitet';
+
+  @override
+  String get sessionStartLoadingDescription =>
+      'Die App bereitet eine lokale Platzhalter-Sitzung vor, solange der Backend-Flow noch nicht angebunden ist.';
+
+  @override
+  String get sessionStartErrorTitle => 'Sitzungsstart fehlgeschlagen';
+
+  @override
+  String get sessionStartErrorDescription =>
+      'Die Sitzung konnte nicht vorbereitet werden. Bitte versuche es erneut.';
+
+  @override
   String get sessionRoleGuest => 'Gast';
 
   @override
