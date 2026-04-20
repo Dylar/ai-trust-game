@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'app_colors.dart';
+
 ThemeData buildAppTheme() {
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF0B6E4F),
+    seedColor: AppColors.brand,
     brightness: Brightness.light,
   );
 
   return ThemeData(
     colorScheme: colorScheme,
-    scaffoldBackgroundColor: const Color(0xFFF6F1E8),
+    scaffoldBackgroundColor: AppColors.background,
     useMaterial3: true,
   );
 }

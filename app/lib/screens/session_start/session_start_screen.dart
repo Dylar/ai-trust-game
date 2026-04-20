@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
 import 'session_start_localizations.dart';
 import 'session_start_screen_state.dart';
@@ -51,18 +53,16 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
                         l10n: l10n,
                         onRoleSelected: _viewModel.selectRole,
                         onModeSelected: _viewModel.selectMode,
-                        onPrepareSession: () =>
-                            _viewModel.prepareSessionWithMessage(
-                              buildStatusMessage: (role, mode) =>
-                                  l10n.sessionPreparedStatus(
-                                    role.localizedLabel(l10n),
-                                    mode.localizedLabel(l10n),
-                                  ),
-                            ),
+                        onPrepareSession: _viewModel.prepareSession,
                       ),
-                      if (state.statusMessage != null) ...[
-                        const SizedBox(height: 16),
-                        _SessionStatusCard(message: state.statusMessage!),
+                      if (state.status == SessionStartStatus.prepared) ...[
+                        const SizedBox(height: AppSpacing.medium),
+                        _SessionStatusCard(
+                          message: l10n.sessionPreparedStatus(
+                            state.selectedRole.localizedLabel(l10n),
+                            state.selectedMode.localizedLabel(l10n),
+                          ),
+                        ),
                       ],
                     ],
                   ),
@@ -91,12 +91,12 @@ class _SessionStartHeader extends StatelessWidget {
           l10n.appTitle,
           style: theme.textTheme.displaySmall?.copyWith(
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF123524),
+            color: AppColors.brandForeground,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.small),
         Text(l10n.sessionStartTitle, style: theme.textTheme.headlineMedium),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.small),
         Text(
           l10n.sessionStartDescription,
           style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
@@ -125,9 +125,9 @@ class _SessionStartFormCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      color: Colors.white,
+      color: AppColors.surface,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.large),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -136,13 +136,13 @@ class _SessionStartFormCard extends StatelessWidget {
               selectedRole: state.selectedRole,
               onRoleSelected: onRoleSelected,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.large),
             _ModeSection(
               l10n: l10n,
               selectedMode: state.selectedMode,
               onModeSelected: onModeSelected,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.small),
             _PrepareSessionButton(
               l10n: l10n,
               isSubmitting: state.isSubmitting,
@@ -174,10 +174,10 @@ class _RoleSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.roleSectionTitle, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.small),
         Wrap(
-          spacing: 12,
-          runSpacing: 12,
+          spacing: AppSpacing.small,
+          runSpacing: AppSpacing.small,
           children: SessionRole.values
               .map(
                 (role) => _RoleChip(
@@ -236,12 +236,12 @@ class _ModeSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.modeSectionTitle, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.small),
         Column(
           children: SessionMode.values
               .map(
                 (mode) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.small),
                   child: _ModeCard(
                     l10n: l10n,
                     mode: mode,
@@ -290,9 +290,9 @@ class _SessionStatusCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      color: const Color(0xFFE4F2EA),
+      color: AppColors.successSurface,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.medium),
         child: Text(message, style: theme.textTheme.bodyLarge),
       ),
     );
@@ -323,14 +323,12 @@ class _ModeCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected
-                ? theme.colorScheme.primary
-                : const Color(0xFFD8D1C3),
+            color: selected ? theme.colorScheme.primary : AppColors.borderMuted,
             width: selected ? 2 : 1,
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.medium),
           child: Row(
             children: [
               Expanded(
@@ -341,7 +339,7 @@ class _ModeCard extends StatelessWidget {
                       mode.localizedLabel(l10n),
                       style: theme.textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: AppSpacing.compact),
                     Text(
                       mode.localizedDescription(l10n),
                       style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
@@ -349,7 +347,7 @@ class _ModeCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.small),
               Icon(
                 selected ? Icons.radio_button_checked : Icons.radio_button_off,
                 color: selected ? theme.colorScheme.primary : null,

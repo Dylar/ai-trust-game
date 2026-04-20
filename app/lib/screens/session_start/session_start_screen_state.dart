@@ -2,12 +2,14 @@ enum SessionRole { guest, employee, admin }
 
 enum SessionMode { easy, medium, hard }
 
+enum SessionStartStatus { idle, prepared }
+
 class SessionStartScreenState {
   const SessionStartScreenState({
     required this.selectedRole,
     required this.selectedMode,
     required this.isSubmitting,
-    required this.statusMessage,
+    required this.status,
   });
 
   factory SessionStartScreenState.initial() {
@@ -15,29 +17,27 @@ class SessionStartScreenState {
       selectedRole: SessionRole.guest,
       selectedMode: SessionMode.easy,
       isSubmitting: false,
-      statusMessage: null,
+      status: SessionStartStatus.idle,
     );
   }
 
   final SessionRole selectedRole;
   final SessionMode selectedMode;
   final bool isSubmitting;
-  final String? statusMessage;
+  final SessionStartStatus status;
 
   SessionStartScreenState copyWith({
     SessionRole? selectedRole,
     SessionMode? selectedMode,
     bool? isSubmitting,
-    String? statusMessage,
-    bool clearStatusMessage = false,
+    SessionStartStatus? status,
+    bool resetStatus = false,
   }) {
     return SessionStartScreenState(
       selectedRole: selectedRole ?? this.selectedRole,
       selectedMode: selectedMode ?? this.selectedMode,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      statusMessage: clearStatusMessage
-          ? null
-          : statusMessage ?? this.statusMessage,
+      status: resetStatus ? SessionStartStatus.idle : status ?? this.status,
     );
   }
 }

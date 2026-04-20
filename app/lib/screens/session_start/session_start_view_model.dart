@@ -9,37 +9,23 @@ class SessionStartViewModel {
   final ValueNotifier<SessionStartScreenState> state;
 
   void selectRole(SessionRole role) {
-    state.value = state.value.copyWith(
-      selectedRole: role,
-      clearStatusMessage: true,
-    );
+    state.value = state.value.copyWith(selectedRole: role, resetStatus: true);
   }
 
   void selectMode(SessionMode mode) {
-    state.value = state.value.copyWith(
-      selectedMode: mode,
-      clearStatusMessage: true,
-    );
+    state.value = state.value.copyWith(selectedMode: mode, resetStatus: true);
   }
 
-  Future<void> prepareSessionWithMessage({
-    required String Function(SessionRole role, SessionMode mode)
-    buildStatusMessage,
-  }) async {
-    state.value = state.value.copyWith(
-      isSubmitting: true,
-      clearStatusMessage: true,
-    );
+  Future<void> prepareSession() async {
+    state.value = state.value.copyWith(isSubmitting: true, resetStatus: true);
 
+    // Keep a short artificial delay for now so the loading state is visible
+    // while this screen still runs without the real backend request.
     await Future<void>.delayed(const Duration(milliseconds: 250));
 
-    final currentState = state.value;
-    state.value = currentState.copyWith(
+    state.value = state.value.copyWith(
       isSubmitting: false,
-      statusMessage: buildStatusMessage(
-        currentState.selectedRole,
-        currentState.selectedMode,
-      ),
+      status: SessionStartStatus.prepared,
     );
   }
 
