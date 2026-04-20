@@ -21,6 +21,12 @@ Prepared targets:
 - Web
 - Android
 
+Current `lib/` structure:
+
+- `lib/core/app/`
+- `lib/core/theme/`
+- `lib/screens/home/`
+
 Later phases of the frontend work should follow the structure described in
 [`docs/architecture-frontend.md`](../docs/architecture-frontend.md).
 
