@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../screens/home/home_screen.dart';
+import '../../screens/session_start/session_start_screen.dart';
 import '../theme/app_theme.dart';
 
 class TrustGameApp extends StatelessWidget {
@@ -11,7 +11,7 @@ class TrustGameApp extends StatelessWidget {
     return MaterialApp(
       title: 'AI Trust Game',
       theme: buildAppTheme(),
-      home: const HomeScreen(),
+      home: const SessionStartScreen(),
     );
   }
 }

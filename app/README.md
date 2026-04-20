@@ -26,6 +26,7 @@ Current `lib/` structure:
 - `lib/core/app/`
 - `lib/core/theme/`
 - `lib/screens/home/`
+- `lib/screens/session_start/`
 
 Later phases of the frontend work should follow the structure described in
 [`docs/architecture-frontend.md`](../docs/architecture-frontend.md).
@@ -34,6 +35,5 @@ Later phases of the frontend work should follow the structure described in
 
 The next frontend increments should focus on:
 
-- moving the bootstrap screen into the first screen-oriented structure
-- adding session start flow
+- wiring the session start flow to the backend
 - adding interaction flow against the existing backend endpoints
