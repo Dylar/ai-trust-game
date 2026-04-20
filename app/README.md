@@ -1,0 +1,33 @@
+# App
+
+This module contains the Flutter client for the project.
+
+This project starts with a minimal web-first bootstrap and already includes the Android platform scaffold so the
+repository has a shared Flutter client entrypoint before session flow and interaction features are added.
+
+## Purpose
+
+- provide a Flutter web app under `app/`
+- prepare Android alongside web so most future work can stay in `lib/`
+- validate that the frontend can run independently
+- create the base for later session start and interaction screens
+
+## Current State
+
+The app currently renders one simple bootstrap screen that confirms the Flutter app is running.
+
+Prepared targets:
+
+- Web
+- Android
+
+Later phases of the frontend work should follow the structure described in
+[`docs/architecture-frontend.md`](../docs/architecture-frontend.md).
+
+## Next Steps
+
+The next frontend increments should focus on:
+
+- moving the bootstrap screen into the first screen-oriented structure
+- adding session start flow
+- adding interaction flow against the existing backend endpoints

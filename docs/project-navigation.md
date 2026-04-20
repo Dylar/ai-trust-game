@@ -40,7 +40,7 @@ Also, you can find the development roadmap and commands reference here.
 - [Capability calculation across easy, medium, and hard modes](../internal/interaction/capability/README.md)
 
 ### Frontend
-Not documented yet because no frontend module exists in the repository today.
+- [Flutter web app bootstrap and frontend entrypoint](../app/README.md)
 
 ## Development
 
