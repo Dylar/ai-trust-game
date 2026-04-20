@@ -29,6 +29,14 @@ This project is more interested in what goes wrong when the system around the mo
 
 The idea is to make those differences visible in a small and understandable setup.
 
+## Quick Start
+
+Run the main service:
+
+`make run SERVICE=main-service`
+
+- [Development commands and example scripts](./docs/commands.md)
+
 ## Project Navigation
 
 Look into this table of contents for more details. There is everything from architecture to development roadmap.

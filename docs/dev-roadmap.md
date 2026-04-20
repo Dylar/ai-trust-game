@@ -113,7 +113,7 @@ Goal: complete the controlled interaction pipeline before integrating a real mod
 
 Goal: introduce model-backed planning and response generation without giving the model system authority
 
-### Phase 9 — Audit Analysis & Detection
+### Phase 9 — Audit Analysis & Detection (Done)
 
 - enrich audit and model-step observability
 - make planning / response generation failures easier to detect and inspect

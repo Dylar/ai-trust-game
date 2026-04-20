@@ -20,8 +20,6 @@ func SetupRoutes(
 	setupInteractionRoute(mux, logger, interactionHandler)
 	setupRequestAnalysisRoute(mux, logger, requestAnalysisHandler)
 	setupSessionAnalysisRoute(mux, logger, requestAnalysisHandler)
-
-	mux.HandleFunc("/health", handleHealth)
 }
 
 func setupChatRoute(mux *http.ServeMux, logger logging.Logger, chatHandler *ChatHandler) {
