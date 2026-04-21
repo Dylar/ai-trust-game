@@ -5,15 +5,23 @@ import 'package:http/http.dart' as http;
 import 'package:app/data/session/start_session_dto.dart';
 
 class SessionApiClient {
-  const SessionApiClient({required this.httpClient, required this.apiBaseUri});
+  const SessionApiClient({
+    required this.httpClient,
+    required this.apiBaseUri,
+    required this.userId,
+  });
 
   final http.Client httpClient;
   final Uri apiBaseUri;
+  final String userId;
 
   Future<StartSessionResponse> startSession(StartSessionRequest request) async {
     final response = await httpClient.post(
       apiBaseUri.resolve('/session/start'),
-      headers: const <String, String>{'Content-Type': 'application/json'},
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'X-User-Id': userId,
+      },
       body: jsonEncode(request.toJson()),
     );
 

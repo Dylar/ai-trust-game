@@ -23,6 +23,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
+      userId: 'user-123',
     );
 
     final response = await client.startSession(
@@ -32,6 +33,7 @@ void main() {
     expect(capturedRequest.method, 'POST');
     expect(capturedRequest.url.path, '/session/start');
     expect(capturedRequest.headers['Content-Type'], 'application/json');
+    expect(capturedRequest.headers['X-User-Id'], 'user-123');
     expect(jsonDecode(capturedRequest.body), <String, String>{
       'role': 'admin',
       'mode': 'hard',

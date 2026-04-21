@@ -15,6 +15,9 @@ Its purpose is to keep transport concerns consistent without moving business dec
 - [`response.go`](./response.go)
   shared JSON response writer
 
+- [`cors.go`](./cors.go)
+  small CORS middleware for browser-based local clients
+
 ## Request Metadata
 
 [`RequestMiddleware`](./request.go) adds a `Metadata` value to every wrapped request context.
@@ -31,6 +34,10 @@ Current fields:
   read from `X-User-Id`
 
 The middleware also writes `X-Request-Id` back to the response so the request can be correlated in logs or tests.
+
+Browser clients need to read that response header and send JSON plus metadata headers. `CORSMiddleware` sets the
+matching CORS headers, handles `OPTIONS` preflight requests, allows `X-Session-Id` and `X-User-Id`, and exposes
+`X-Request-Id` to the frontend.
 
 ## Why This Matters
 

@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/config/app_config.dart';
+import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
@@ -20,6 +21,7 @@ AppDependenciesData buildTestDependencies({
 }) {
   final config = AppConfig(apiBaseUri: Uri.parse('http://localhost:8080'));
   final resolvedHttpClient = httpClient ?? buildBackendMockClient();
+  const userIdentity = UserIdentity(id: 'test-user');
   final resolvedInteractionRepository =
       interactionRepository ?? InMemoryInteractionRepository();
   final resolvedSessionRepository =
@@ -32,6 +34,7 @@ AppDependenciesData buildTestDependencies({
           apiClient: AnalysisApiClient(
             httpClient: resolvedHttpClient,
             apiBaseUri: config.apiBaseUri,
+            userId: userIdentity.id,
           ),
         ),
     config: config,
@@ -41,6 +44,7 @@ AppDependenciesData buildTestDependencies({
       apiClient: InteractionApiClient(
         httpClient: resolvedHttpClient,
         apiBaseUri: config.apiBaseUri,
+        userId: userIdentity.id,
       ),
       interactionRepository: resolvedInteractionRepository,
     ),
@@ -49,8 +53,10 @@ AppDependenciesData buildTestDependencies({
       apiClient: SessionApiClient(
         httpClient: resolvedHttpClient,
         apiBaseUri: config.apiBaseUri,
+        userId: userIdentity.id,
       ),
       sessionRepository: resolvedSessionRepository,
     ),
+    userIdentity: userIdentity,
   );
 }

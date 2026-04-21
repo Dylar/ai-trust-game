@@ -27,12 +27,14 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
+      userId: 'user-123',
     );
 
     final response = await client.getSessionAnalysis('session-1');
 
     expect(capturedRequest.method, 'GET');
     expect(capturedRequest.url.path, '/analysis/session/session-1');
+    expect(capturedRequest.headers['X-User-Id'], 'user-123');
     expect(response.analysis.classification, 'suspicious');
     expect(response.analysis.signals, <String>['prompt-injection']);
   });
@@ -59,12 +61,14 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
+      userId: 'user-123',
     );
 
     final response = await client.getRequestAnalysis('request-1');
 
     expect(capturedRequest.method, 'GET');
     expect(capturedRequest.url.path, '/analysis/request/request-1');
+    expect(capturedRequest.headers['X-User-Id'], 'user-123');
     expect(response.analysis.requestId, 'request-1');
     expect(response.analysis.eventCount, 3);
   });

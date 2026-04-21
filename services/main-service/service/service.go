@@ -26,6 +26,7 @@ func setupChatRoute(mux *http.ServeMux, logger logging.Logger, chatHandler *Chat
 	handleChat := http.Handler(chatHandler)
 	handleChat = logging.HttpLogging(logger)(handleChat)
 	handleChat = network.RequestMiddleware(handleChat)
+	handleChat = network.CORSMiddleware(handleChat)
 	mux.Handle("/chat", handleChat)
 }
 
@@ -33,6 +34,7 @@ func setupStartSessionRoute(mux *http.ServeMux, logger logging.Logger, startSess
 	handleSessionStart := http.Handler(startSessionHandler)
 	handleSessionStart = logging.HttpLogging(logger)(handleSessionStart)
 	handleSessionStart = network.RequestMiddleware(handleSessionStart)
+	handleSessionStart = network.CORSMiddleware(handleSessionStart)
 	mux.Handle("/session/start", handleSessionStart)
 }
 
@@ -40,6 +42,7 @@ func setupInteractionRoute(mux *http.ServeMux, logger logging.Logger, interactio
 	handleSessionStart := http.Handler(interactionHandler)
 	handleSessionStart = logging.HttpLogging(logger)(handleSessionStart)
 	handleSessionStart = network.RequestMiddleware(handleSessionStart)
+	handleSessionStart = network.CORSMiddleware(handleSessionStart)
 	mux.Handle("/interaction", handleSessionStart)
 }
 
@@ -47,6 +50,7 @@ func setupRequestAnalysisRoute(mux *http.ServeMux, logger logging.Logger, reques
 	handleRequestAnalysis := http.Handler(requestAnalysisHandler)
 	handleRequestAnalysis = logging.HttpLogging(logger)(handleRequestAnalysis)
 	handleRequestAnalysis = network.RequestMiddleware(handleRequestAnalysis)
+	handleRequestAnalysis = network.CORSMiddleware(handleRequestAnalysis)
 	mux.Handle("/analysis/request/", handleRequestAnalysis)
 }
 
@@ -54,5 +58,6 @@ func setupSessionAnalysisRoute(mux *http.ServeMux, logger logging.Logger, reques
 	handleSessionAnalysis := http.Handler(requestAnalysisHandler)
 	handleSessionAnalysis = logging.HttpLogging(logger)(handleSessionAnalysis)
 	handleSessionAnalysis = network.RequestMiddleware(handleSessionAnalysis)
+	handleSessionAnalysis = network.CORSMiddleware(handleSessionAnalysis)
 	mux.Handle("/analysis/session/", handleSessionAnalysis)
 }

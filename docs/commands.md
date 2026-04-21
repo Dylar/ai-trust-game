@@ -2,8 +2,8 @@
 
 ## Running the Service
 
-- `make run <service-name>`
-  starts the specified service (e.g., `main-service` for the core HTTP service)
+- `make run SERVICE=<service-name>`
+  starts the specified service (e.g., `make run SERVICE=main-service` for the core HTTP service)
 
 ## Development Scripts
 

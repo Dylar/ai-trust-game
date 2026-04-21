@@ -19,6 +19,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
+      userId: 'user-123',
     );
 
     final response = await client.createInteraction(
@@ -32,6 +33,7 @@ void main() {
     expect(capturedRequest.url.path, '/interaction');
     expect(capturedRequest.headers['Content-Type'], 'application/json');
     expect(capturedRequest.headers['X-Session-Id'], 'session-1');
+    expect(capturedRequest.headers['X-User-Id'], 'user-123');
     expect(jsonDecode(capturedRequest.body), <String, String>{
       'message': 'Can I access the vault?',
     });

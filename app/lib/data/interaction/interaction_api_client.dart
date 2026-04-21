@@ -8,10 +8,12 @@ class InteractionApiClient {
   const InteractionApiClient({
     required this.httpClient,
     required this.apiBaseUri,
+    required this.userId,
   });
 
   final http.Client httpClient;
   final Uri apiBaseUri;
+  final String userId;
 
   Future<InteractionResponse> createInteraction(
     InteractionRequest request,
@@ -21,6 +23,7 @@ class InteractionApiClient {
       headers: <String, String>{
         'Content-Type': 'application/json',
         'X-Session-Id': request.sessionId,
+        'X-User-Id': userId,
       },
       body: jsonEncode(request.toJson()),
     );

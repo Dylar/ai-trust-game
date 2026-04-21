@@ -22,6 +22,7 @@ The app currently has:
 - an `InteractionDetail` screen that loads request-level analysis
 - app-wide dependency access through `AppDependencies`
 - app-wide configuration through `AppConfig`
+- one runtime-scoped generated user ID sent as `X-User-Id`
 - shared frontend models for `Session` and `Interaction`
 - `services/` -> `data/` boundaries for session start, interaction creation, and analysis reads
 - API clients using `http.Client` and `apiBaseUri`
@@ -37,6 +38,7 @@ Current `lib/` structure:
 
 - `lib/core/app/`
 - `lib/core/config/`
+- `lib/core/user/`
 - `lib/data/`
 - `lib/core/theme/`
 - `lib/l10n/`
@@ -52,6 +54,7 @@ Current frontend architecture choices:
 
 - `TrustGameApp` wraps the app with `AppDependencies`
 - `AppConfig.fromEnvironment()` reads `API_BASE_URL`
+- `UserIdentity.newRuntimeIdentity()` creates an in-memory user ID for the current app runtime
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
 - view models stay screen-local and receive dependencies from the screen
@@ -98,7 +101,7 @@ For a manual local run:
 1. Start the backend from the repository root:
 
    ```bash
-   make run main-service
+   make run SERVICE=main-service
    ```
 
 2. Start the Flutter web client from `app/`:
