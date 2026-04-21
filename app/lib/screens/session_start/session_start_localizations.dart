@@ -1,38 +1,38 @@
 import '../../l10n/app_localizations.dart';
-import 'session_start_screen_state.dart';
+import '../../models/session_models.dart';
 
-extension SessionRoleLocalization on SessionRole {
+extension RoleLocalization on Role {
   String localizedLabel(AppLocalizations l10n) {
     switch (this) {
-      case SessionRole.guest:
+      case Role.guest:
         return l10n.sessionRoleGuest;
-      case SessionRole.employee:
+      case Role.employee:
         return l10n.sessionRoleEmployee;
-      case SessionRole.admin:
+      case Role.admin:
         return l10n.sessionRoleAdmin;
     }
   }
 }
 
-extension SessionModeLocalization on SessionMode {
+extension ModeLocalization on Mode {
   String localizedLabel(AppLocalizations l10n) {
     switch (this) {
-      case SessionMode.easy:
+      case Mode.easy:
         return l10n.sessionModeEasy;
-      case SessionMode.medium:
+      case Mode.medium:
         return l10n.sessionModeMedium;
-      case SessionMode.hard:
+      case Mode.hard:
         return l10n.sessionModeHard;
     }
   }
 
   String localizedDescription(AppLocalizations l10n) {
     switch (this) {
-      case SessionMode.easy:
+      case Mode.easy:
         return l10n.sessionModeEasyDescription;
-      case SessionMode.medium:
+      case Mode.medium:
         return l10n.sessionModeMediumDescription;
-      case SessionMode.hard:
+      case Mode.hard:
         return l10n.sessionModeHardDescription;
     }
   }

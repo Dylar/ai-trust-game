@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/session_models.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
@@ -156,8 +157,8 @@ class _SessionStartFormCard extends StatelessWidget {
 
   final SessionStartScreenState state;
   final AppLocalizations l10n;
-  final ValueChanged<SessionRole> onRoleSelected;
-  final ValueChanged<SessionMode> onModeSelected;
+  final ValueChanged<Role> onRoleSelected;
+  final ValueChanged<Mode> onModeSelected;
   final VoidCallback onPrepareSession;
 
   @override
@@ -202,8 +203,8 @@ class _RoleSection extends StatelessWidget {
   });
 
   final AppLocalizations l10n;
-  final SessionRole selectedRole;
-  final ValueChanged<SessionRole> onRoleSelected;
+  final Role selectedRole;
+  final ValueChanged<Role> onRoleSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +218,7 @@ class _RoleSection extends StatelessWidget {
         Wrap(
           spacing: AppSpacing.small,
           runSpacing: AppSpacing.small,
-          children: SessionRole.values
+          children: Role.values
               .map(
                 (role) => _RoleChip(
                   l10n: l10n,
@@ -242,7 +243,7 @@ class _RoleChip extends StatelessWidget {
   });
 
   final AppLocalizations l10n;
-  final SessionRole role;
+  final Role role;
   final bool selected;
   final VoidCallback onSelected;
 
@@ -250,9 +251,9 @@ class _RoleChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChoiceChip(
       key: switch (role) {
-        SessionRole.guest => SessionStartKeys.roleGuest,
-        SessionRole.employee => SessionStartKeys.roleEmployee,
-        SessionRole.admin => SessionStartKeys.roleAdmin,
+        Role.guest => SessionStartKeys.roleGuest,
+        Role.employee => SessionStartKeys.roleEmployee,
+        Role.admin => SessionStartKeys.roleAdmin,
       },
       label: Text(role.localizedLabel(l10n)),
       selected: selected,
@@ -269,8 +270,8 @@ class _ModeSection extends StatelessWidget {
   });
 
   final AppLocalizations l10n;
-  final SessionMode selectedMode;
-  final ValueChanged<SessionMode> onModeSelected;
+  final Mode selectedMode;
+  final ValueChanged<Mode> onModeSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +283,7 @@ class _ModeSection extends StatelessWidget {
         Text(l10n.modeSectionTitle, style: theme.textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         Column(
-          children: SessionMode.values
+          children: Mode.values
               .map(
                 (mode) => Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.small),
@@ -412,7 +413,7 @@ class _ModeCard extends StatelessWidget {
   });
 
   final AppLocalizations l10n;
-  final SessionMode mode;
+  final Mode mode;
   final bool selected;
   final VoidCallback onTap;
 
@@ -422,9 +423,9 @@ class _ModeCard extends StatelessWidget {
 
     return InkWell(
       key: switch (mode) {
-        SessionMode.easy => SessionStartKeys.modeEasy,
-        SessionMode.medium => SessionStartKeys.modeMedium,
-        SessionMode.hard => SessionStartKeys.modeHard,
+        Mode.easy => SessionStartKeys.modeEasy,
+        Mode.medium => SessionStartKeys.modeMedium,
+        Mode.hard => SessionStartKeys.modeHard,
       },
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -459,9 +460,9 @@ class _ModeCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.small),
               Icon(
                 key: switch (mode) {
-                  SessionMode.easy => SessionStartKeys.modeEasyIndicator,
-                  SessionMode.medium => SessionStartKeys.modeMediumIndicator,
-                  SessionMode.hard => SessionStartKeys.modeHardIndicator,
+                  Mode.easy => SessionStartKeys.modeEasyIndicator,
+                  Mode.medium => SessionStartKeys.modeMediumIndicator,
+                  Mode.hard => SessionStartKeys.modeHardIndicator,
                 },
                 selected ? Icons.radio_button_checked : Icons.radio_button_off,
                 color: selected ? theme.colorScheme.primary : null,

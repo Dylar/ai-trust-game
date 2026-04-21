@@ -1,18 +1,4 @@
-import '../session_start/session_start_screen_state.dart';
-
-class HomeSessionItem {
-  const HomeSessionItem({
-    required this.id,
-    required this.role,
-    required this.mode,
-    required this.lastMessagePreview,
-  });
-
-  final String id;
-  final SessionRole role;
-  final SessionMode mode;
-  final String lastMessagePreview;
-}
+import '../../models/session_models.dart';
 
 class HomeScreenState {
   const HomeScreenState({required this.recentSessions});
@@ -20,27 +6,27 @@ class HomeScreenState {
   factory HomeScreenState.initial() {
     return const HomeScreenState(
       recentSessions: [
-        HomeSessionItem(
+        SessionSummary(
           id: 'guest_easy',
-          role: SessionRole.guest,
-          mode: SessionMode.easy,
+          role: Role.guest,
+          mode: Mode.easy,
           lastMessagePreview: 'Asked for the secret directly.',
         ),
-        HomeSessionItem(
+        SessionSummary(
           id: 'employee_medium',
-          role: SessionRole.employee,
-          mode: SessionMode.medium,
+          role: Role.employee,
+          mode: Mode.medium,
           lastMessagePreview: 'Tried a mixed-trust escalation.',
         ),
-        HomeSessionItem(
+        SessionSummary(
           id: 'admin_hard',
-          role: SessionRole.admin,
-          mode: SessionMode.hard,
+          role: Role.admin,
+          mode: Mode.hard,
           lastMessagePreview: 'Reviewed a policy-constrained exchange.',
         ),
       ],
     );
   }
 
-  final List<HomeSessionItem> recentSessions;
+  final List<SessionSummary> recentSessions;
 }

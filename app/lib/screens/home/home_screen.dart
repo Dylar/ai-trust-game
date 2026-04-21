@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/session_models.dart';
 import '../session_start/session_start_screen.dart';
 import '../session_start/session_start_localizations.dart';
 import 'home_keys.dart';
@@ -119,7 +120,7 @@ class _HomeHeader extends StatelessWidget {
 class _RecentSessionsSection extends StatelessWidget {
   const _RecentSessionsSection({required this.sessions});
 
-  final List<HomeSessionItem> sessions;
+  final List<SessionSummary> sessions;
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +190,7 @@ class _EmptySessionsState extends StatelessWidget {
 class _RecentSessionCard extends StatelessWidget {
   const _RecentSessionCard({required this.session});
 
-  final HomeSessionItem session;
+  final SessionSummary session;
 
   @override
   Widget build(BuildContext context) {

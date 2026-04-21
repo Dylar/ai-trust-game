@@ -26,6 +26,7 @@ Current `lib/` structure:
 - `lib/core/app/`
 - `lib/core/theme/`
 - `lib/l10n/`
+- `lib/models/`
 - `lib/screens/home/`
 - `lib/screens/session_start/`
 

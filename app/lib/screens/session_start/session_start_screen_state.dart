@@ -1,6 +1,4 @@
-enum SessionRole { guest, employee, admin }
-
-enum SessionMode { easy, medium, hard }
+import '../../models/session_models.dart';
 
 enum SessionStartStatus { idle, loading, prepared, error }
 
@@ -16,23 +14,23 @@ class SessionStartScreenState {
 
   factory SessionStartScreenState.initial() {
     return const SessionStartScreenState(
-      selectedRole: SessionRole.guest,
-      selectedMode: SessionMode.easy,
+      selectedRole: Role.guest,
+      selectedMode: Mode.easy,
       status: SessionStartStatus.idle,
       error: null,
     );
   }
 
-  final SessionRole selectedRole;
-  final SessionMode selectedMode;
+  final Role selectedRole;
+  final Mode selectedMode;
   final SessionStartStatus status;
   final SessionStartError? error;
 
   bool get isSubmitting => status == SessionStartStatus.loading;
 
   SessionStartScreenState copyWith({
-    SessionRole? selectedRole,
-    SessionMode? selectedMode,
+    Role? selectedRole,
+    Mode? selectedMode,
     SessionStartStatus? status,
     SessionStartError? error,
     bool resetStatus = false,
