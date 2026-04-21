@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../screens/session_start/session_start_screen.dart';
+import '../../screens/home/home_screen.dart';
 import '../theme/app_theme.dart';
 
 class TrustGameApp extends StatelessWidget {
-  const TrustGameApp({super.key});
+  const TrustGameApp({super.key, this.home});
+
+  final Widget? home;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class TrustGameApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const SessionStartScreen(),
+      home: home ?? const HomeScreen(),
     );
   }
 }

@@ -12,6 +12,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'AI Trust Game';
 
   @override
+  String get homeTitle => 'Home';
+
+  @override
+  String get homeDescription =>
+      'Start a new session or continue one of the recent placeholder sessions while the client-side flow takes shape.';
+
+  @override
+  String get homeStartSessionButton => 'Start new session';
+
+  @override
+  String get homeRecentSessionsTitle => 'Recent sessions';
+
+  @override
+  String get homeRecentSessionsDescription =>
+      'These are local placeholder sessions for the next routing and interaction steps.';
+
+  @override
+  String get homeEmptySessions => 'No sessions are available yet.';
+
+  @override
+  String get homeResumeSessionHint => 'Open session';
+
+  @override
+  String homeSessionSummary(String role, String mode) {
+    return '$role in $mode mode';
+  }
+
+  @override
   String get sessionStartTitle => 'Session Start';
 
   @override

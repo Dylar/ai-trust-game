@@ -1,6 +1,24 @@
 {
   "@@locale": "en",
   "appTitle": "AI Trust Game",
+  "homeTitle": "Home",
+  "homeDescription": "Start a new session or continue one of the recent placeholder sessions while the client-side flow takes shape.",
+  "homeStartSessionButton": "Start new session",
+  "homeRecentSessionsTitle": "Recent sessions",
+  "homeRecentSessionsDescription": "These are local placeholder sessions for the next routing and interaction steps.",
+  "homeEmptySessions": "No sessions are available yet.",
+  "homeResumeSessionHint": "Open session",
+  "homeSessionSummary": "{role} in {mode} mode",
+  "@homeSessionSummary": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
   "sessionStartTitle": "Session Start",
   "sessionStartDescription": "Pick the initial role and trust mode for the game. This is the first real frontend flow before backend wiring.",
   "roleSectionTitle": "Role",

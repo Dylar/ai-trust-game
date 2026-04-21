@@ -104,6 +104,54 @@ abstract class AppLocalizations {
   /// **'AI Trust Game'**
   String get appTitle;
 
+  /// No description provided for @homeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeTitle;
+
+  /// No description provided for @homeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new session or continue one of the recent placeholder sessions while the client-side flow takes shape.'**
+  String get homeDescription;
+
+  /// No description provided for @homeStartSessionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new session'**
+  String get homeStartSessionButton;
+
+  /// No description provided for @homeRecentSessionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent sessions'**
+  String get homeRecentSessionsTitle;
+
+  /// No description provided for @homeRecentSessionsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'These are local placeholder sessions for the next routing and interaction steps.'**
+  String get homeRecentSessionsDescription;
+
+  /// No description provided for @homeEmptySessions.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions are available yet.'**
+  String get homeEmptySessions;
+
+  /// No description provided for @homeResumeSessionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open session'**
+  String get homeResumeSessionHint;
+
+  /// No description provided for @homeSessionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{role} in {mode} mode'**
+  String homeSessionSummary(String role, String mode);
+
   /// No description provided for @sessionStartTitle.
   ///
   /// In en, this message translates to:

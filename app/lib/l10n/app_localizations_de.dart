@@ -12,6 +12,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appTitle => 'AI Trust Game';
 
   @override
+  String get homeTitle => 'Start';
+
+  @override
+  String get homeDescription =>
+      'Starte eine neue Sitzung oder fahre mit einer der letzten Platzhalter-Sitzungen fort, während der Client-Flow Gestalt annimmt.';
+
+  @override
+  String get homeStartSessionButton => 'Neue Sitzung starten';
+
+  @override
+  String get homeRecentSessionsTitle => 'Letzte Sitzungen';
+
+  @override
+  String get homeRecentSessionsDescription =>
+      'Das sind lokale Platzhalter-Sitzungen für die nächsten Routing- und Interaction-Schritte.';
+
+  @override
+  String get homeEmptySessions => 'Es sind noch keine Sitzungen vorhanden.';
+
+  @override
+  String get homeResumeSessionHint => 'Sitzung öffnen';
+
+  @override
+  String homeSessionSummary(String role, String mode) {
+    return '$role im Modus $mode';
+  }
+
+  @override
   String get sessionStartTitle => 'Sitzungsstart';
 
   @override

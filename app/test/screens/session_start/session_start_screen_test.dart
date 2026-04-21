@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:app/screens/session_start/session_start_screen.dart';
 
 import 'session_start_test_context.dart';
 
@@ -7,7 +8,7 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp();
+    await context.appBot.startApp(home: const SessionStartScreen());
 
     // When
 
@@ -24,7 +25,7 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp();
+    await context.appBot.startApp(home: const SessionStartScreen());
 
     // When
     await context.screenBot.tapPrepareSession();
@@ -40,7 +41,7 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp();
+    await context.appBot.startApp(home: const SessionStartScreen());
 
     // When
     await context.process.prepareAdminHardSession();

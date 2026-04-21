@@ -1,6 +1,24 @@
 {
   "@@locale": "de",
   "appTitle": "AI Trust Game",
+  "homeTitle": "Start",
+  "homeDescription": "Starte eine neue Sitzung oder fahre mit einer der letzten Platzhalter-Sitzungen fort, während der Client-Flow Gestalt annimmt.",
+  "homeStartSessionButton": "Neue Sitzung starten",
+  "homeRecentSessionsTitle": "Letzte Sitzungen",
+  "homeRecentSessionsDescription": "Das sind lokale Platzhalter-Sitzungen für die nächsten Routing- und Interaction-Schritte.",
+  "homeEmptySessions": "Es sind noch keine Sitzungen vorhanden.",
+  "homeResumeSessionHint": "Sitzung öffnen",
+  "homeSessionSummary": "{role} im Modus {mode}",
+  "@homeSessionSummary": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
   "sessionStartTitle": "Sitzungsstart",
   "sessionStartDescription": "Wähle die anfängliche Rolle und den Vertrauensmodus für das Spiel. Das ist der erste echte Frontend-Flow vor der Backend-Anbindung.",
   "roleSectionTitle": "Rolle",
