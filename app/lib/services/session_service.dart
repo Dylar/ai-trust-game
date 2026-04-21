@@ -1,10 +1,10 @@
 import '../data/session/session_api_client.dart';
 import '../data/session/session_repository.dart';
-import '../models/start_session_models.dart';
+import '../data/session/start_session_dto.dart';
 import '../models/session_models.dart';
 
 abstract interface class SessionService {
-  Future<StartSessionResult> startSession(StartSessionRequest request);
+  Future<SessionSummary> startSession({required Role role, required Mode mode});
 }
 
 class DefaultSessionService implements SessionService {
@@ -17,22 +17,27 @@ class DefaultSessionService implements SessionService {
   final SessionRepository sessionRepository;
 
   @override
-  Future<StartSessionResult> startSession(StartSessionRequest request) async {
-    final result = await apiClient.startSession(request);
-
-    await sessionRepository.saveSession(
-      SessionSummary(
-        id: result.sessionId,
-        role: result.role,
-        mode: result.mode,
-        lastMessagePreview: _buildPlaceholderPreview(result),
-      ),
+  Future<SessionSummary> startSession({
+    required Role role,
+    required Mode mode,
+  }) async {
+    final result = await apiClient.startSession(
+      StartSessionRequest(role: role, mode: mode),
     );
 
-    return result;
+    final session = SessionSummary(
+      id: result.sessionId,
+      role: result.role,
+      mode: result.mode,
+      lastMessagePreview: _buildPlaceholderPreview(result),
+    );
+
+    await sessionRepository.saveSession(session);
+
+    return session;
   }
 
-  String _buildPlaceholderPreview(StartSessionResult result) {
+  String _buildPlaceholderPreview(StartSessionResponse result) {
     return 'Placeholder ${result.role.name}/${result.mode.name} session ready.';
   }
 }

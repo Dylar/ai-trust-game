@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../models/session_models.dart';
 import '../../services/session_service.dart';
-import '../../models/start_session_models.dart';
 import 'session_start_screen_state.dart';
 
 class SessionStartViewModel {
@@ -21,19 +20,17 @@ class SessionStartViewModel {
   }
 
   Future<void> prepareSession() async {
-    final request = StartSessionRequest(
-      role: state.value.selectedRole,
-      mode: state.value.selectedMode,
-    );
-
     state.value = state.value.copyWith(status: SessionStartStatus.loading);
 
     try {
-      final result = await sessionService.startSession(request);
+      final session = await sessionService.startSession(
+        role: state.value.selectedRole,
+        mode: state.value.selectedMode,
+      );
 
       state.value = state.value.copyWith(
         status: SessionStartStatus.prepared,
-        createdSessionId: result.sessionId,
+        createdSessionId: session.id,
       );
     } catch (_) {
       state.value = state.value.copyWith(

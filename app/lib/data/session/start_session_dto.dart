@@ -1,4 +1,4 @@
-import 'session_models.dart';
+import '../../models/session_models.dart';
 
 class StartSessionRequest {
   const StartSessionRequest({required this.role, required this.mode});
@@ -7,8 +7,8 @@ class StartSessionRequest {
   final Mode mode;
 }
 
-class StartSessionResult {
-  const StartSessionResult({
+class StartSessionResponse {
+  const StartSessionResponse({
     required this.sessionId,
     required this.role,
     required this.mode,
