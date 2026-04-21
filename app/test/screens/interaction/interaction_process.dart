@@ -15,6 +15,13 @@ class InteractionProcess {
     await waitUntilSessionLoaded();
     screenBot.expectScreenVisible();
     screenBot.expectSessionDetailsVisible();
+    screenBot.expectInteractionsSectionVisible();
     screenBot.expectSessionIdShown(sessionId);
+  }
+
+  Future<void> expectSessionNotFound() async {
+    await waitUntilSessionLoaded();
+    screenBot.expectScreenVisible();
+    screenBot.expectNotFoundVisible();
   }
 }

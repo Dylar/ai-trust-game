@@ -4,6 +4,7 @@ import '../../core/app/app_dependencies.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/interaction_models.dart';
 import '../../models/session_models.dart';
 import '../session_start/session_start_localizations.dart';
 import 'interaction_keys.dart';
@@ -51,6 +52,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _viewModel ??= InteractionViewModel(
+      interactionRepository: AppDependencies.of(context).interactionRepository,
       sessionRepository: AppDependencies.of(context).sessionRepository,
       sessionId: widget.sessionId,
     );
@@ -80,10 +82,19 @@ class _InteractionScreenState extends State<InteractionScreen> {
                     children: [
                       const _InteractionHeader(),
                       const SizedBox(height: AppSpacing.large),
-                      if (state.hasSession)
-                        _SessionDetailsSection(session: state.session!)
-                      else
-                        _SessionNotFoundState(sessionId: state.sessionId),
+                      switch (state.status) {
+                        InteractionScreenStatus.loading =>
+                          const _InteractionLoadingState(),
+                        InteractionScreenStatus.ready =>
+                          _ReadyInteractionContent(
+                            session: state.session!,
+                            interactions: state.interactions,
+                          ),
+                        InteractionScreenStatus.notFound =>
+                          _SessionNotFoundState(sessionId: state.sessionId),
+                        InteractionScreenStatus.error =>
+                          const _InteractionErrorState(),
+                      },
                     ],
                   ),
                 );
@@ -92,6 +103,43 @@ class _InteractionScreenState extends State<InteractionScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _InteractionLoadingState extends StatelessWidget {
+  const _InteractionLoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      key: InteractionKeys.loadingState,
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.xLarge),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class _ReadyInteractionContent extends StatelessWidget {
+  const _ReadyInteractionContent({
+    required this.session,
+    required this.interactions,
+  });
+
+  final Session session;
+  final List<Interaction> interactions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SessionDetailsSection(session: session),
+        const SizedBox(height: AppSpacing.large),
+        _InteractionsSection(interactions: interactions),
+      ],
     );
   }
 }
@@ -137,7 +185,7 @@ class _InteractionHeader extends StatelessWidget {
 class _SessionDetailsSection extends StatelessWidget {
   const _SessionDetailsSection({required this.session});
 
-  final SessionSummary session;
+  final Session session;
 
   @override
   Widget build(BuildContext context) {
@@ -157,11 +205,6 @@ class _SessionDetailsSection extends StatelessWidget {
         key: InteractionKeys.modeItem,
         label: l10n.interactionModeLabel,
         value: session.mode.localizedLabel(l10n),
-      ),
-      _InteractionDetailItem(
-        key: InteractionKeys.previewItem,
-        label: l10n.interactionPreviewLabel,
-        value: session.lastMessagePreview,
       ),
     ];
 
@@ -192,6 +235,92 @@ class _SessionDetailsSection extends StatelessWidget {
   }
 }
 
+class _InteractionsSection extends StatelessWidget {
+  const _InteractionsSection({required this.interactions});
+
+  final List<Interaction> interactions;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      key: InteractionKeys.interactionsSection,
+      elevation: 0,
+      color: AppColors.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.interactionListTitle,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppSpacing.large),
+            if (interactions.isEmpty)
+              _EmptyInteractionsState(message: l10n.interactionListEmpty)
+            else
+              ...interactions.map(
+                (interaction) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.small),
+                  child: _InteractionCard(interaction: interaction),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyInteractionsState extends StatelessWidget {
+  const _EmptyInteractionsState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: InteractionKeys.emptyInteractionsState,
+      padding: const EdgeInsets.all(AppSpacing.large),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(AppSpacing.medium),
+      ),
+      child: Text(message),
+    );
+  }
+}
+
+class _InteractionCard extends StatelessWidget {
+  const _InteractionCard({required this.interaction});
+
+  final Interaction interaction;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      key: InteractionKeys.interaction(interaction.interactionId),
+      padding: const EdgeInsets.all(AppSpacing.medium),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(AppSpacing.medium),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(interaction.message, style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppSpacing.compact),
+          Text(interaction.answer, style: theme.textTheme.bodyLarge),
+        ],
+      ),
+    );
+  }
+}
+
 class _SessionNotFoundState extends StatelessWidget {
   const _SessionNotFoundState({required this.sessionId});
 
@@ -208,6 +337,24 @@ class _SessionNotFoundState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.large),
         child: Text(l10n.interactionNotFoundDescription(sessionId)),
+      ),
+    );
+  }
+}
+
+class _InteractionErrorState extends StatelessWidget {
+  const _InteractionErrorState();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      elevation: 0,
+      color: AppColors.errorSurface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Text(l10n.interactionLoadErrorDescription),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:app/core/app/app_dependencies.dart';
+import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
@@ -55,15 +56,11 @@ void main() {
     final context = HomeTestContext(tester);
     final repository = InMemorySessionRepository(
       initialSessions: const [
-        SessionSummary(
-          id: 'seeded-session',
-          role: Role.employee,
-          mode: Mode.medium,
-          lastMessagePreview: 'Seeded session for home routing.',
-        ),
+        Session(id: 'seeded-session', role: Role.employee, mode: Mode.medium),
       ],
     );
     final dependencies = AppDependenciesData(
+      interactionRepository: InMemoryInteractionRepository(),
       sessionRepository: repository,
       sessionService: DefaultSessionService(
         apiClient: const SessionApiClient(),

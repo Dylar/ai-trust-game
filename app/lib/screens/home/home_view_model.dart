@@ -7,9 +7,7 @@ class HomeViewModel {
   HomeViewModel({required SessionRepository sessionRepository})
     : _sessionRepository = sessionRepository,
       state = ValueNotifier(HomeScreenState.initial()) {
-    _sessionRepository.recentSessionsListenable.addListener(
-      _handleSessionsChanged,
-    );
+    _sessionRepository.sessionsListenable.addListener(_handleSessionsChanged);
     _handleSessionsChanged();
   }
 
@@ -17,13 +15,20 @@ class HomeViewModel {
   final ValueNotifier<HomeScreenState> state;
 
   Future<void> _handleSessionsChanged() async {
-    final recentSessions = await _sessionRepository.listRecentSessions();
+    final sessions = await _sessionRepository.listSessions();
 
-    state.value = state.value.copyWith(recentSessions: recentSessions);
+    state.value = state.value.copyWith(
+      recentSessions: sessions
+          .map(
+            (session) =>
+                SessionSummary(session: session, lastInteraction: null),
+          )
+          .toList(),
+    );
   }
 
   void dispose() {
-    _sessionRepository.recentSessionsListenable.removeListener(
+    _sessionRepository.sessionsListenable.removeListener(
       _handleSessionsChanged,
     );
     state.dispose();

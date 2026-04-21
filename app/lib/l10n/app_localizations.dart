@@ -308,11 +308,23 @@ abstract class AppLocalizations {
   /// **'Mode'**
   String get interactionModeLabel;
 
-  /// No description provided for @interactionPreviewLabel.
+  /// No description provided for @interactionListTitle.
   ///
   /// In en, this message translates to:
-  /// **'Preview'**
-  String get interactionPreviewLabel;
+  /// **'Interactions'**
+  String get interactionListTitle;
+
+  /// No description provided for @interactionListEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No interactions have been created yet.'**
+  String get interactionListEmpty;
+
+  /// No description provided for @interactionLoadErrorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The session could not be loaded. Please go back and try again.'**
+  String get interactionLoadErrorDescription;
 
   /// No description provided for @interactionNotFoundDescription.
   ///

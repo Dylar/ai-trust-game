@@ -127,7 +127,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get interactionModeLabel => 'Modus';
 
   @override
-  String get interactionPreviewLabel => 'Vorschau';
+  String get interactionListTitle => 'Interactions';
+
+  @override
+  String get interactionListEmpty =>
+      'Es wurden noch keine Interactions erstellt.';
+
+  @override
+  String get interactionLoadErrorDescription =>
+      'Die Sitzung konnte nicht geladen werden. Bitte gehe zurueck und versuche es erneut.';
 
   @override
   String interactionNotFoundDescription(String sessionId) {

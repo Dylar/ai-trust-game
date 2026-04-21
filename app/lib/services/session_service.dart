@@ -4,7 +4,7 @@ import '../data/session/start_session_dto.dart';
 import '../models/session_models.dart';
 
 abstract interface class SessionService {
-  Future<SessionSummary> startSession({required Role role, required Mode mode});
+  Future<Session> startSession({required Role role, required Mode mode});
 }
 
 class DefaultSessionService implements SessionService {
@@ -17,27 +17,19 @@ class DefaultSessionService implements SessionService {
   final SessionRepository sessionRepository;
 
   @override
-  Future<SessionSummary> startSession({
-    required Role role,
-    required Mode mode,
-  }) async {
+  Future<Session> startSession({required Role role, required Mode mode}) async {
     final result = await apiClient.startSession(
       StartSessionRequest(role: role, mode: mode),
     );
 
-    final session = SessionSummary(
+    final session = Session(
       id: result.sessionId,
       role: result.role,
       mode: result.mode,
-      lastMessagePreview: _buildPlaceholderPreview(result),
     );
 
     await sessionRepository.saveSession(session);
 
     return session;
-  }
-
-  String _buildPlaceholderPreview(StartSessionResponse result) {
-    return 'Placeholder ${result.role.name}/${result.mode.name} session ready.';
   }
 }

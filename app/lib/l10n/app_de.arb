@@ -55,7 +55,9 @@
   "interactionSessionIdLabel": "Sitzungs-ID",
   "interactionRoleLabel": "Rolle",
   "interactionModeLabel": "Modus",
-  "interactionPreviewLabel": "Vorschau",
+  "interactionListTitle": "Interactions",
+  "interactionListEmpty": "Es wurden noch keine Interactions erstellt.",
+  "interactionLoadErrorDescription": "Die Sitzung konnte nicht geladen werden. Bitte gehe zurueck und versuche es erneut.",
   "interactionNotFoundDescription": "Keine lokale Sitzung mit der ID {sessionId} gefunden.",
   "@interactionNotFoundDescription": {
     "placeholders": {

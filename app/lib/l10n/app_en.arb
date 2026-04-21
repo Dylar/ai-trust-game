@@ -55,7 +55,9 @@
   "interactionSessionIdLabel": "Session ID",
   "interactionRoleLabel": "Role",
   "interactionModeLabel": "Mode",
-  "interactionPreviewLabel": "Preview",
+  "interactionListTitle": "Interactions",
+  "interactionListEmpty": "No interactions have been created yet.",
+  "interactionLoadErrorDescription": "The session could not be loaded. Please go back and try again.",
   "interactionNotFoundDescription": "No local session with ID {sessionId} is available.",
   "@interactionNotFoundDescription": {
     "placeholders": {

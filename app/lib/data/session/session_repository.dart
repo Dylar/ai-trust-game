@@ -3,31 +3,29 @@ import 'package:flutter/foundation.dart';
 import '../../models/session_models.dart';
 
 abstract interface class SessionRepository {
-  ValueListenable<List<SessionSummary>> get recentSessionsListenable;
+  ValueListenable<List<Session>> get sessionsListenable;
 
-  Future<List<SessionSummary>> listRecentSessions();
+  Future<List<Session>> listSessions();
 
-  Future<SessionSummary?> getSession(String id);
+  Future<Session?> getSession(String id);
 
-  Future<void> saveSession(SessionSummary session);
+  Future<void> saveSession(Session session);
 }
 
 class InMemorySessionRepository implements SessionRepository {
-  InMemorySessionRepository({
-    List<SessionSummary> initialSessions = const <SessionSummary>[],
-  }) : _recentSessions = ValueNotifier<List<SessionSummary>>(
-         List<SessionSummary>.unmodifiable(initialSessions),
-       );
+  InMemorySessionRepository({List<Session> initialSessions = const <Session>[]})
+    : _sessions = ValueNotifier<List<Session>>(
+        List<Session>.unmodifiable(initialSessions),
+      );
 
-  final ValueNotifier<List<SessionSummary>> _recentSessions;
-
-  @override
-  ValueListenable<List<SessionSummary>> get recentSessionsListenable =>
-      _recentSessions;
+  final ValueNotifier<List<Session>> _sessions;
 
   @override
-  Future<SessionSummary?> getSession(String id) async {
-    for (final session in _recentSessions.value) {
+  ValueListenable<List<Session>> get sessionsListenable => _sessions;
+
+  @override
+  Future<Session?> getSession(String id) async {
+    for (final session in _sessions.value) {
       if (session.id == id) {
         return session;
       }
@@ -37,15 +35,15 @@ class InMemorySessionRepository implements SessionRepository {
   }
 
   @override
-  Future<List<SessionSummary>> listRecentSessions() async {
-    return _recentSessions.value;
+  Future<List<Session>> listSessions() async {
+    return _sessions.value;
   }
 
   @override
-  Future<void> saveSession(SessionSummary session) async {
-    _recentSessions.value = List<SessionSummary>.unmodifiable([
+  Future<void> saveSession(Session session) async {
+    _sessions.value = List<Session>.unmodifiable([
       session,
-      ..._recentSessions.value.where((item) => item.id != session.id),
+      ..._sessions.value.where((item) => item.id != session.id),
     ]);
   }
 }

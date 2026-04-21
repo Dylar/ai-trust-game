@@ -4,7 +4,6 @@ import '../../core/app/app_dependencies.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
-import '../../models/session_models.dart';
 import '../interaction/interaction_screen.dart';
 import '../session_start/session_start_screen.dart';
 import '../session_start/session_start_localizations.dart';
@@ -224,7 +223,7 @@ class _RecentSessionCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.compact),
               Text(
-                session.lastMessagePreview,
+                session.preview,
                 style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
               ),
               const SizedBox(height: AppSpacing.small),
