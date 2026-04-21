@@ -271,6 +271,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Prepared {role} session in {mode} mode. Backend start comes next.'**
   String sessionPreparedStatus(String role, String mode);
+
+  /// No description provided for @interactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction'**
+  String get interactionTitle;
+
+  /// No description provided for @interactionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the first placeholder interaction view. It currently shows the selected session data before real message exchange is connected.'**
+  String get interactionDescription;
+
+  /// No description provided for @interactionSessionDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session details'**
+  String get interactionSessionDetailsTitle;
+
+  /// No description provided for @interactionSessionIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Session ID'**
+  String get interactionSessionIdLabel;
+
+  /// No description provided for @interactionRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get interactionRoleLabel;
+
+  /// No description provided for @interactionModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get interactionModeLabel;
+
+  /// No description provided for @interactionPreviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get interactionPreviewLabel;
+
+  /// No description provided for @interactionNotFoundDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No local session with ID {sessionId} is available.'**
+  String interactionNotFoundDescription(String sessionId);
 }
 
 class _AppLocalizationsDelegate

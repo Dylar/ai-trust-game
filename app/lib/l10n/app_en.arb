@@ -48,5 +48,20 @@
         "type": "String"
       }
     }
+  },
+  "interactionTitle": "Interaction",
+  "interactionDescription": "This is the first placeholder interaction view. It currently shows the selected session data before real message exchange is connected.",
+  "interactionSessionDetailsTitle": "Session details",
+  "interactionSessionIdLabel": "Session ID",
+  "interactionRoleLabel": "Role",
+  "interactionModeLabel": "Mode",
+  "interactionPreviewLabel": "Preview",
+  "interactionNotFoundDescription": "No local session with ID {sessionId} is available.",
+  "@interactionNotFoundDescription": {
+    "placeholders": {
+      "sessionId": {
+        "type": "String"
+      }
+    }
   }
 }

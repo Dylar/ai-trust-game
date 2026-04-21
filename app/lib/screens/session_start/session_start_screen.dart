@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../core/app/app_dependencies.dart';
-import '../../models/session_models.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/session_models.dart';
+import '../interaction/interaction_screen.dart';
 import 'session_start_keys.dart';
 import 'session_start_localizations.dart';
 import 'session_start_screen_state.dart';
@@ -51,10 +52,12 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
     final viewModel = _viewModel;
     if (viewModel == null ||
         viewModel.state.value.status != SessionStartStatus.prepared ||
+        viewModel.state.value.createdSessionId == null ||
         !mounted) {
       return;
     }
 
+    final sessionId = viewModel.state.value.createdSessionId!;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
@@ -62,7 +65,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
 
       final navigator = Navigator.of(context);
       if (navigator.canPop()) {
-        navigator.pop();
+        InteractionScreen.replace(context, sessionId: sessionId);
       }
     });
   }

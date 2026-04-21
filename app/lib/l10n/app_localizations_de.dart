@@ -106,4 +106,31 @@ class AppLocalizationsDe extends AppLocalizations {
   String sessionPreparedStatus(String role, String mode) {
     return '$role-Sitzung im Modus $mode vorbereitet. Als Nächstes kommt der Backend-Start.';
   }
+
+  @override
+  String get interactionTitle => 'Interaction';
+
+  @override
+  String get interactionDescription =>
+      'Das ist die erste Platzhalter-Ansicht fuer die Interaction. Aktuell zeigt sie die ausgewaehlten Sitzungsdaten, bevor der echte Nachrichtenaustausch angebunden ist.';
+
+  @override
+  String get interactionSessionDetailsTitle => 'Sitzungsdetails';
+
+  @override
+  String get interactionSessionIdLabel => 'Sitzungs-ID';
+
+  @override
+  String get interactionRoleLabel => 'Rolle';
+
+  @override
+  String get interactionModeLabel => 'Modus';
+
+  @override
+  String get interactionPreviewLabel => 'Vorschau';
+
+  @override
+  String interactionNotFoundDescription(String sessionId) {
+    return 'Keine lokale Sitzung mit der ID $sessionId gefunden.';
+  }
 }

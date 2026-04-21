@@ -18,6 +18,7 @@ The app currently has:
 
 - a real `Home` screen as the app entrypoint
 - a `SessionStart` screen reachable through navigator-based routing
+- an `Interaction` screen that currently renders the selected session as a simple details list
 - app-wide dependency access through `AppDependencies`
 - shared frontend models for session-related vocabulary
 - a first `services/` -> `data/` boundary for session start
@@ -37,6 +38,7 @@ Current `lib/` structure:
 - `lib/models/`
 - `lib/services/`
 - `lib/screens/home/`
+- `lib/screens/interaction/`
 - `lib/screens/session_start/`
 
 Current frontend architecture choices:
@@ -48,6 +50,7 @@ Current frontend architecture choices:
 - shared business vocabulary currently lives in `lib/models/`
 - session flow currently follows `screen -> service -> repository/data`
 - recent sessions are intentionally in-memory only for now and reset when the app restarts
+- current routing paths are `Home -> SessionStart -> Interaction` and `Home -> Interaction`
 
 Current test structure:
 

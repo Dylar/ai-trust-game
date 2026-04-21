@@ -29,9 +29,12 @@ class SessionStartViewModel {
     state.value = state.value.copyWith(status: SessionStartStatus.loading);
 
     try {
-      final _ = await sessionService.startSession(request);
+      final result = await sessionService.startSession(request);
 
-      state.value = state.value.copyWith(status: SessionStartStatus.prepared);
+      state.value = state.value.copyWith(
+        status: SessionStartStatus.prepared,
+        createdSessionId: result.sessionId,
+      );
     } catch (_) {
       state.value = state.value.copyWith(
         status: SessionStartStatus.error,

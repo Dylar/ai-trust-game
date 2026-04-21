@@ -106,4 +106,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String sessionPreparedStatus(String role, String mode) {
     return 'Prepared $role session in $mode mode. Backend start comes next.';
   }
+
+  @override
+  String get interactionTitle => 'Interaction';
+
+  @override
+  String get interactionDescription =>
+      'This is the first placeholder interaction view. It currently shows the selected session data before real message exchange is connected.';
+
+  @override
+  String get interactionSessionDetailsTitle => 'Session details';
+
+  @override
+  String get interactionSessionIdLabel => 'Session ID';
+
+  @override
+  String get interactionRoleLabel => 'Role';
+
+  @override
+  String get interactionModeLabel => 'Mode';
+
+  @override
+  String get interactionPreviewLabel => 'Preview';
+
+  @override
+  String interactionNotFoundDescription(String sessionId) {
+    return 'No local session with ID $sessionId is available.';
+  }
 }

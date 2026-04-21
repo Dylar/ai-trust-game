@@ -48,5 +48,20 @@
         "type": "String"
       }
     }
+  },
+  "interactionTitle": "Interaction",
+  "interactionDescription": "Das ist die erste Platzhalter-Ansicht fuer die Interaction. Aktuell zeigt sie die ausgewaehlten Sitzungsdaten, bevor der echte Nachrichtenaustausch angebunden ist.",
+  "interactionSessionDetailsTitle": "Sitzungsdetails",
+  "interactionSessionIdLabel": "Sitzungs-ID",
+  "interactionRoleLabel": "Rolle",
+  "interactionModeLabel": "Modus",
+  "interactionPreviewLabel": "Vorschau",
+  "interactionNotFoundDescription": "Keine lokale Sitzung mit der ID {sessionId} gefunden.",
+  "@interactionNotFoundDescription": {
+    "placeholders": {
+      "sessionId": {
+        "type": "String"
+      }
+    }
   }
 }

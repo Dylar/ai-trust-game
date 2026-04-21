@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../screens/home/home_screen.dart';
+import '../../screens/interaction/interaction_screen.dart';
 import '../../screens/session_start/session_start_screen.dart';
 
 abstract final class AppRouter {
@@ -8,6 +9,7 @@ abstract final class AppRouter {
     return switch (settings.name) {
       HomeScreen.routeName => _homeRoute(settings),
       SessionStartScreen.routeName => _sessionStartRoute(settings),
+      InteractionScreen.routeName => _interactionRoute(settings),
       _ => _homeRoute(const RouteSettings(name: HomeScreen.routeName)),
     };
   }
@@ -23,6 +25,15 @@ abstract final class AppRouter {
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (_) => const SessionStartScreen(),
+    );
+  }
+
+  static Route<void> _interactionRoute(RouteSettings settings) {
+    final args = settings.arguments as InteractionRouteArgs;
+
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => InteractionScreen(sessionId: args.sessionId),
     );
   }
 }

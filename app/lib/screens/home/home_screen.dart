@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/session_models.dart';
+import '../interaction/interaction_screen.dart';
 import '../session_start/session_start_screen.dart';
 import '../session_start/session_start_localizations.dart';
 import 'home_keys.dart';
@@ -200,37 +201,41 @@ class _RecentSessionCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return Ink(
+    return InkWell(
       key: HomeKeys.session(session.id),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSpacing.medium),
-        border: Border.all(color: AppColors.borderMuted),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.medium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.homeSessionSummary(
-                session.role.localizedLabel(l10n),
-                session.mode.localizedLabel(l10n),
+      onTap: () => InteractionScreen.open(context, sessionId: session.id),
+      borderRadius: BorderRadius.circular(AppSpacing.medium),
+      child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSpacing.medium),
+          border: Border.all(color: AppColors.borderMuted),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.medium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.homeSessionSummary(
+                  session.role.localizedLabel(l10n),
+                  session.mode.localizedLabel(l10n),
+                ),
+                style: theme.textTheme.titleMedium,
               ),
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppSpacing.compact),
-            Text(
-              session.lastMessagePreview,
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
-            ),
-            const SizedBox(height: AppSpacing.small),
-            Text(
-              l10n.homeResumeSessionHint,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.primary,
+              const SizedBox(height: AppSpacing.compact),
+              Text(
+                session.lastMessagePreview,
+                style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.small),
+              Text(
+                l10n.homeResumeSessionHint,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

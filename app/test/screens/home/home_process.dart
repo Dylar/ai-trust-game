@@ -11,11 +11,17 @@ class HomeProcess {
 
   Future<void> openSessionStart() async {
     await screenBot.tapStartSession();
-    await baseBot.pump(const Duration(milliseconds: 1));
+    await baseBot.pump(const Duration(milliseconds: 300));
   }
 
   Future<void> createAdminHardSessionFromHome() async {
     await openSessionStart();
     await sessionStartProcess.prepareAdminHardSession();
+    await baseBot.pump(const Duration(milliseconds: 300));
+  }
+
+  Future<void> openFirstRecentSession() async {
+    await screenBot.tapFirstRecentSession();
+    await baseBot.pump(const Duration(milliseconds: 300));
   }
 }

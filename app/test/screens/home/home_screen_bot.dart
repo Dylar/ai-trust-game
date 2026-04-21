@@ -11,6 +11,19 @@ class HomeScreenBot extends BaseScreenBot {
     await tap(HomeKeys.startSessionButton);
   }
 
+  Future<void> tapRecentSession(String sessionId) async {
+    await tap(HomeKeys.session(sessionId));
+  }
+
+  Future<void> tapFirstRecentSession() async {
+    await tap(
+      find.byWidgetPredicate((widget) {
+        final key = widget.key;
+        return key is ValueKey<String> && key.value.startsWith('home.session.');
+      }).first,
+    );
+  }
+
   void expectScreenVisible() {
     expect(isVisible(HomeKeys.screen), isTrue);
     expect(isVisible(HomeKeys.title), isTrue);
