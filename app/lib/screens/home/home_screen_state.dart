@@ -1,5 +1,5 @@
-import '../../models/session_models.dart';
-import '../../models/interaction_models.dart';
+import 'package:app/models/session_models.dart';
+import 'package:app/models/interaction_models.dart';
 
 class SessionSummary {
   const SessionSummary({required this.session, required this.lastInteraction});

@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import '../../data/interaction/interaction_repository.dart';
-import '../../data/session/session_repository.dart';
-import '../../services/interaction_service.dart';
-import 'interaction_screen_state.dart';
+import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/data/session/session_repository.dart';
+import 'package:app/services/interaction_service.dart';
+import 'package:app/screens/interaction/interaction_screen_state.dart';
 
 class InteractionViewModel {
   InteractionViewModel({

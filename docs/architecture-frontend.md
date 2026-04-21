@@ -90,6 +90,10 @@ large, item details are expensive to load, or scrolling would otherwise trigger 
 Shared frontend-facing contract or app model objects may live in a small common area such as `models/` when multiple
 screens depend on the same business vocabulary.
 
+Use package imports for app code, for example `package:app/screens/home/home_screen.dart`.
+This keeps imports stable when files move during refactors.
+Test-only helper files may still use relative imports because Dart package imports only expose files under `lib/`.
+
 ## Screen Pattern
 
 The frontend should prefer explicit and lightweight structure over heavy abstractions.

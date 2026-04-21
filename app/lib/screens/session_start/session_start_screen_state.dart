@@ -1,4 +1,4 @@
-import '../../models/session_models.dart';
+import 'package:app/models/session_models.dart';
 
 enum SessionStartStatus { idle, loading, prepared, error }
 

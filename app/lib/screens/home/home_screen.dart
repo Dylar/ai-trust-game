@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../core/app/app_dependencies.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_spacing.dart';
-import '../../l10n/app_localizations.dart';
-import '../interaction/interaction_screen.dart';
-import '../session_start/session_start_screen.dart';
-import '../session_start/session_start_localizations.dart';
-import 'home_keys.dart';
-import 'home_screen_state.dart';
-import 'home_view_model.dart';
+import 'package:app/core/app/app_dependencies.dart';
+import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/theme/app_spacing.dart';
+import 'package:app/l10n/app_localizations.dart';
+import 'package:app/screens/interaction/interaction_screen.dart';
+import 'package:app/screens/session_start/session_start_screen.dart';
+import 'package:app/screens/session_start/session_start_localizations.dart';
+import 'package:app/screens/home/home_keys.dart';
+import 'package:app/screens/home/home_screen_state.dart';
+import 'package:app/screens/home/home_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

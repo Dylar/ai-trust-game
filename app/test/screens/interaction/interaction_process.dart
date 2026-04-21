@@ -1,5 +1,5 @@
 import '../../testing/base_screen_bot.dart';
-import 'interaction_screen_bot.dart';
+import '../interaction/interaction_screen_bot.dart';
 
 class InteractionProcess {
   InteractionProcess(this.baseBot, this.screenBot);

@@ -1,7 +1,7 @@
-import '../data/session/session_api_client.dart';
-import '../data/session/session_repository.dart';
-import '../data/session/start_session_dto.dart';
-import '../models/session_models.dart';
+import 'package:app/data/session/session_api_client.dart';
+import 'package:app/data/session/session_repository.dart';
+import 'package:app/data/session/start_session_dto.dart';
+import 'package:app/models/session_models.dart';
 
 abstract interface class SessionService {
   Future<Session> startSession({required Role role, required Mode mode});

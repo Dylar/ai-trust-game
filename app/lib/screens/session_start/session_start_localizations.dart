@@ -1,5 +1,5 @@
-import '../../l10n/app_localizations.dart';
-import '../../models/session_models.dart';
+import 'package:app/l10n/app_localizations.dart';
+import 'package:app/models/session_models.dart';
 
 extension RoleLocalization on Role {
   String localizedLabel(AppLocalizations l10n) {

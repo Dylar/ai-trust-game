@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../testing/app_bot.dart';
 import '../../testing/base_screen_bot.dart';
 import 'interaction_process.dart';
-import 'interaction_screen_bot.dart';
+import '../interaction/interaction_screen_bot.dart';
 
 class InteractionTestContext {
   InteractionTestContext(this.tester)

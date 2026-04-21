@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-import '../../data/interaction/interaction_api_client.dart';
-import '../../data/interaction/interaction_repository.dart';
-import '../../data/session/session_api_client.dart';
-import '../../data/session/session_repository.dart';
-import '../../services/interaction_service.dart';
-import '../../services/session_service.dart';
+import 'package:app/data/interaction/interaction_api_client.dart';
+import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/data/session/session_api_client.dart';
+import 'package:app/data/session/session_repository.dart';
+import 'package:app/services/interaction_service.dart';
+import 'package:app/services/session_service.dart';
 
 class AppDependenciesData {
   const AppDependenciesData({

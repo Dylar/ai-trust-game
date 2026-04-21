@@ -1,5 +1,5 @@
-import '../../models/interaction_models.dart';
-import '../../models/session_models.dart';
+import 'package:app/models/interaction_models.dart';
+import 'package:app/models/session_models.dart';
 
 enum InteractionScreenStatus { loading, ready, notFound, error }
 

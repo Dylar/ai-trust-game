@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-import '../../models/session_models.dart';
-import '../../services/session_service.dart';
-import 'session_start_screen_state.dart';
+import 'package:app/models/session_models.dart';
+import 'package:app/services/session_service.dart';
+import 'package:app/screens/session_start/session_start_screen_state.dart';
 
 class SessionStartViewModel {
   SessionStartViewModel({required this.sessionService})

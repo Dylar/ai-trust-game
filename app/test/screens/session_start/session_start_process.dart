@@ -1,5 +1,5 @@
 import '../../testing/base_screen_bot.dart';
-import 'session_start_screen_bot.dart';
+import '../session_start/session_start_screen_bot.dart';
 
 class SessionStartProcess {
   SessionStartProcess(this.baseBot, this.screenBot);

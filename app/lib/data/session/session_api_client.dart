@@ -1,4 +1,4 @@
-import 'start_session_dto.dart';
+import 'package:app/data/session/start_session_dto.dart';
 
 class SessionApiClient {
   const SessionApiClient();

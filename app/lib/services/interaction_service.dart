@@ -1,8 +1,8 @@
 import 'package:app/data/interaction/interaction_dto.dart';
 
-import '../data/interaction/interaction_api_client.dart';
-import '../data/interaction/interaction_repository.dart';
-import '../models/interaction_models.dart';
+import 'package:app/data/interaction/interaction_api_client.dart';
+import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/models/interaction_models.dart';
 
 abstract interface class InteractionService {
   Future<Interaction> createInteraction({

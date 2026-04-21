@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../screens/home/home_screen.dart';
-import '../../screens/interaction/interaction_screen.dart';
-import '../../screens/session_start/session_start_screen.dart';
+import 'package:app/screens/home/home_screen.dart';
+import 'package:app/screens/interaction/interaction_screen.dart';
+import 'package:app/screens/session_start/session_start_screen.dart';
 
 abstract final class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {

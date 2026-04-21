@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../models/interaction_models.dart';
+import 'package:app/models/interaction_models.dart';
 
 abstract interface class InteractionRepository {
   ValueListenable<List<Interaction>> get interactionsListenable;

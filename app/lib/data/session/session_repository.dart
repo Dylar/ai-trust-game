@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../models/session_models.dart';
+import 'package:app/models/session_models.dart';
 
 abstract interface class SessionRepository {
   ValueListenable<List<Session>> get sessionsListenable;

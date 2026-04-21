@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '../../data/session/session_repository.dart';
-import 'home_screen_state.dart';
+import 'package:app/data/session/session_repository.dart';
+import 'package:app/screens/home/home_screen_state.dart';
 
 class HomeViewModel {
   HomeViewModel({required SessionRepository sessionRepository})
