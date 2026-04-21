@@ -38,7 +38,7 @@ void main() {
     // When
 
     // Then
-    context.process.expectSessionDetailsLoaded('local-admin-hard');
+    await context.process.expectSessionDetailsLoaded('local-admin-hard');
   });
 
   testWidgets('shows not found when the session is missing', (tester) async {

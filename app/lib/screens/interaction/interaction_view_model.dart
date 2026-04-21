@@ -17,10 +17,10 @@ class InteractionViewModel {
   final SessionRepository _sessionRepository;
   final ValueNotifier<InteractionScreenState> state;
 
-  void _loadSession() {
-    state.value = state.value.copyWith(
-      session: _sessionRepository.getSession(state.value.sessionId),
-    );
+  Future<void> _loadSession() async {
+    final session = await _sessionRepository.getSession(state.value.sessionId);
+
+    state.value = state.value.copyWith(session: session);
   }
 
   void dispose() {

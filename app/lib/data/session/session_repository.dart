@@ -5,9 +5,9 @@ import '../../models/session_models.dart';
 abstract interface class SessionRepository {
   ValueListenable<List<SessionSummary>> get recentSessionsListenable;
 
-  List<SessionSummary> listRecentSessions();
+  Future<List<SessionSummary>> listRecentSessions();
 
-  SessionSummary? getSession(String id);
+  Future<SessionSummary?> getSession(String id);
 
   Future<void> saveSession(SessionSummary session);
 }
@@ -26,7 +26,7 @@ class InMemorySessionRepository implements SessionRepository {
       _recentSessions;
 
   @override
-  SessionSummary? getSession(String id) {
+  Future<SessionSummary?> getSession(String id) async {
     for (final session in _recentSessions.value) {
       if (session.id == id) {
         return session;
@@ -37,7 +37,7 @@ class InMemorySessionRepository implements SessionRepository {
   }
 
   @override
-  List<SessionSummary> listRecentSessions() {
+  Future<List<SessionSummary>> listRecentSessions() async {
     return _recentSessions.value;
   }
 

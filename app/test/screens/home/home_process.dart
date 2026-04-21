@@ -14,6 +14,10 @@ class HomeProcess {
     await baseBot.pump(const Duration(milliseconds: 300));
   }
 
+  Future<void> waitUntilRecentSessionsLoaded() async {
+    await baseBot.pump(const Duration(milliseconds: 1));
+  }
+
   Future<void> createAdminHardSessionFromHome() async {
     await openSessionStart();
     await sessionStartProcess.prepareAdminHardSession();

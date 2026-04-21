@@ -73,6 +73,7 @@ void main() {
 
     // Given
     await context.appBot.startApp(dependencies: dependencies);
+    await context.process.waitUntilRecentSessionsLoaded();
     context.screenBot.expectRecentSessionCount(1);
 
     // When

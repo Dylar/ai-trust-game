@@ -16,10 +16,10 @@ class HomeViewModel {
   final SessionRepository _sessionRepository;
   final ValueNotifier<HomeScreenState> state;
 
-  void _handleSessionsChanged() {
-    state.value = state.value.copyWith(
-      recentSessions: _sessionRepository.listRecentSessions(),
-    );
+  Future<void> _handleSessionsChanged() async {
+    final recentSessions = await _sessionRepository.listRecentSessions();
+
+    state.value = state.value.copyWith(recentSessions: recentSessions);
   }
 
   void dispose() {

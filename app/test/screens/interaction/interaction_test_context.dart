@@ -15,5 +15,8 @@ class InteractionTestContext {
   final AppBot appBot;
   final BaseScreenBot baseBot;
   final InteractionScreenBot screenBot;
-  late final InteractionProcess process = InteractionProcess(screenBot);
+  late final InteractionProcess process = InteractionProcess(
+    baseBot,
+    screenBot,
+  );
 }
