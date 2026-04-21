@@ -47,6 +47,10 @@ Logging is reused across multiple screens or flows, keep it under `core/logging/
 
 Routing is app-wide and shared across screens, keep it under `core/routing/`.
 
+App-wide dependency access should live in `core/app/` through a small `InheritedWidget`-based facade.
+That facade should expose the dependencies the UI needs while keeping concrete wiring details behind a stable access
+point.
+
 ### `screens/`
 
 Each screen should live in its own feature folder, for example:
@@ -74,6 +78,9 @@ Small private widgets that only belong to one screen may stay in the same file a
 - persistence
 - platform bridges
 - adapters for external interfaces
+
+Shared frontend-facing contract or app model objects may live in a small common area such as `models/` when multiple
+screens depend on the same business vocabulary.
 
 ## Screen Pattern
 
@@ -175,11 +182,24 @@ They should not:
 - depend on widget APIs
 - contain low-level transport or persistence code
 
+Dependencies should be resolved from the `InheritedWidget` boundary in the screen and then passed into the screen-local
+view model.
+This keeps the view model framework-light while avoiding direct transport access from widgets.
+
 ### Services, Use Cases, And Data
 
 Services and use cases hold frontend-side application behavior that should not sit in widgets or view models.
 
 The data layer communicates with external systems and platform integrations.
+
+Prefer a small sequence like this:
+
+- screen resolves dependencies from `InheritedWidget`
+- view model calls a service or use case
+- service delegates to `data/`
+- `data/` performs transport or platform work
+
+Avoid letting the screen or view model talk directly to API clients.
 
 ### Boundaries
 
@@ -343,10 +363,13 @@ In this repository, frontend architecture currently also follows these additiona
 
 - Flutter is the chosen frontend stack
 - `InheritedWidget` is the default dependency injection mechanism
+- `AppDependencies` is the current app-wide dependency facade
 - `ValueNotifier<ScreenState>` is the default screen-state mechanism
 - screen-level tests with the Robot Pattern are preferred
 - feature tests should prefer `AppBot` + `BaseScreenBot` + `ScreenBot` + optional `Process` + feature `Context`
 - screen bots should stay on the level of screen actions and screen assertions
 - processes should hold test-flow orchestration such as waiting through loading transitions
 - `Key`-based selectors are the default for test interaction points
+- shared frontend models may live under `models/` before later proto-based contracts exist
+- the current frontend boundary style is `AppDependencies` -> `services/` -> `data/`
 - backend state remains authoritative for trust-sensitive behavior

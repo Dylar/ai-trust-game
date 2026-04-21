@@ -14,7 +14,13 @@ repository has a shared Flutter client entrypoint before session flow and intera
 
 ## Current State
 
-The app currently renders one simple bootstrap screen that confirms the Flutter app is running.
+The app currently has:
+
+- a real `Home` screen as the app entrypoint
+- a `SessionStart` screen reachable through navigator-based routing
+- app-wide dependency access through `AppDependencies`
+- shared frontend models for session-related vocabulary
+- a first `services/` -> `data/` boundary for session start
 
 Prepared targets:
 
@@ -32,6 +38,14 @@ Current `lib/` structure:
 - `lib/screens/home/`
 - `lib/screens/session_start/`
 
+Current frontend architecture choices:
+
+- `TrustGameApp` wraps the app with `AppDependencies`
+- navigator-based routing is centralized under `core/routing/`
+- screens expose `routeName` and `open(...)`
+- view models stay screen-local and receive dependencies from the screen
+- shared business vocabulary currently lives in `lib/models/`
+
 Current test structure:
 
 - `test/testing/` for shared test bots such as `AppBot` and `BaseScreenBot`
@@ -44,5 +58,5 @@ Later phases of the frontend work should follow the structure described in
 
 The next frontend increments should focus on:
 
-- wiring the session start flow to the backend
+- replacing the placeholder session API client with the real backend call for session start
 - adding interaction flow against the existing backend endpoints
