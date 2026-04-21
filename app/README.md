@@ -24,9 +24,11 @@ Prepared targets:
 Current `lib/` structure:
 
 - `lib/core/app/`
+- `lib/data/`
 - `lib/core/theme/`
 - `lib/l10n/`
 - `lib/models/`
+- `lib/services/`
 - `lib/screens/home/`
 - `lib/screens/session_start/`
 

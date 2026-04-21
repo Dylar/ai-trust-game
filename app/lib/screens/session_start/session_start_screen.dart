@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/app/app_dependencies.dart';
 import '../../models/session_models.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -23,17 +24,19 @@ class SessionStartScreen extends StatefulWidget {
 }
 
 class _SessionStartScreenState extends State<SessionStartScreen> {
-  late final SessionStartViewModel _viewModel;
+  SessionStartViewModel? _viewModel;
 
   @override
-  void initState() {
-    super.initState();
-    _viewModel = SessionStartViewModel();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewModel ??= SessionStartViewModel(
+      sessionService: AppDependencies.of(context).sessionService,
+    );
   }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    _viewModel?.dispose();
     super.dispose();
   }
 
@@ -48,7 +51,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<SessionStartScreenState>(
-              valueListenable: _viewModel.state,
+              valueListenable: _viewModel!.state,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
@@ -60,9 +63,9 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
                       _SessionStartFormCard(
                         state: state,
                         l10n: l10n,
-                        onRoleSelected: _viewModel.selectRole,
-                        onModeSelected: _viewModel.selectMode,
-                        onPrepareSession: _viewModel.prepareSession,
+                        onRoleSelected: _viewModel!.selectRole,
+                        onModeSelected: _viewModel!.selectMode,
+                        onPrepareSession: _viewModel!.prepareSession,
                       ),
                       if (state.status != SessionStartStatus.idle) ...[
                         const SizedBox(height: AppSpacing.medium),

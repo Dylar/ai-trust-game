@@ -1,13 +1,15 @@
 import 'package:flutter/foundation.dart';
 
-import '../../models/start_session_models.dart';
 import '../../models/session_models.dart';
+import '../../services/session_service.dart';
+import '../../models/start_session_models.dart';
 import 'session_start_screen_state.dart';
 
 class SessionStartViewModel {
-  SessionStartViewModel()
+  SessionStartViewModel({required this.sessionService})
     : state = ValueNotifier(SessionStartScreenState.initial());
 
+  final SessionService sessionService;
   final ValueNotifier<SessionStartScreenState> state;
 
   void selectRole(Role role) {
@@ -26,16 +28,8 @@ class SessionStartViewModel {
 
     state.value = state.value.copyWith(status: SessionStartStatus.loading);
 
-    // Keep a short artificial delay for now so the loading state is visible
-    // while this screen still runs without the real backend request.
     try {
-      await Future<void>.delayed(const Duration(milliseconds: 250));
-
-      final _ = StartSessionResult(
-        sessionId: 'local-${request.role.name}-${request.mode.name}',
-        role: request.role,
-        mode: request.mode,
-      );
+      final _ = await sessionService.startSession(request);
 
       state.value = state.value.copyWith(status: SessionStartStatus.prepared);
     } catch (_) {
