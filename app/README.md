@@ -2,15 +2,14 @@
 
 This module contains the Flutter client for the project.
 
-This project starts with a minimal web-first bootstrap and already includes the Android platform scaffold so the
-repository has a shared Flutter client entrypoint before session flow and interaction features are added.
+This project contains the web-first Flutter client and Android platform scaffold for the AI Trust Game.
 
 ## Purpose
 
 - provide a Flutter web app under `app/`
 - prepare Android alongside web so most future work can stay in `lib/`
 - validate that the frontend can run independently
-- create the base for later session start and interaction screens
+- let users start backend sessions, send interaction messages, and inspect analysis results
 
 ## Current State
 
@@ -18,14 +17,16 @@ The app currently has:
 
 - a real `Home` screen as the app entrypoint
 - a `SessionStart` screen reachable through navigator-based routing
-- an `Interaction` screen with a local placeholder message/answer loop
+- an `Interaction` screen that sends messages to the backend
+- a `SessionDetail` screen that loads aggregated session analysis
+- an `InteractionDetail` screen that loads request-level analysis
 - app-wide dependency access through `AppDependencies`
 - app-wide configuration through `AppConfig`
 - shared frontend models for `Session` and `Interaction`
-- `services/` -> `data/` boundaries for session start and local interaction creation
-- API clients prepared with `http.Client` and `apiBaseUri`
+- `services/` -> `data/` boundaries for session start, interaction creation, and analysis reads
+- API clients using `http.Client` and `apiBaseUri`
 - an in-memory `SessionRepository` that keeps recent sessions for the current app runtime
-- an in-memory `InteractionRepository` that stores local placeholder interactions
+- an in-memory `InteractionRepository` that stores backend interaction results for the current app runtime
 
 Prepared targets:
 
@@ -43,6 +44,8 @@ Current `lib/` structure:
 - `lib/services/`
 - `lib/screens/home/`
 - `lib/screens/interaction/`
+- `lib/screens/interaction_detail/`
+- `lib/screens/session_detail/`
 - `lib/screens/session_start/`
 
 Current frontend architecture choices:
@@ -55,9 +58,12 @@ Current frontend architecture choices:
 - shared business vocabulary currently lives in `lib/models/`
 - Home-specific list summaries are screen state objects, not shared domain models
 - session flow currently follows `screen -> service -> repository/data`
-- interaction flow currently follows `screen -> service -> repository/data` and creates local placeholder answers before backend wiring
+- interaction flow currently follows `screen -> service -> repository/data`
+- analysis detail flows currently follow `screen -> service -> data`
 - recent sessions are intentionally in-memory only for now and reset when the app restarts
-- current routing paths are `Home -> SessionStart -> Interaction` and `Home -> Interaction`
+- interactions are intentionally in-memory only for now and reset when the app restarts
+- current routing paths are `Home -> SessionStart -> Interaction`, `Home -> Interaction`, `Interaction -> SessionDetail`,
+  and `Interaction -> InteractionDetail`
 
 ## Runtime Configuration
 
@@ -85,9 +91,21 @@ Current test structure:
 Later phases of the frontend work should follow the structure described in
 [`docs/architecture-frontend.md`](../docs/architecture-frontend.md).
 
-## Next Steps
+## Development Flow
 
-The next frontend increments should focus on:
+For a manual local run:
 
-- replacing the placeholder session API client with the real backend call for session start
-- adding interaction flow against the existing backend endpoints
+1. Start the backend from the repository root:
+
+   ```bash
+   make run main-service
+   ```
+
+2. Start the Flutter web client from `app/`:
+
+   ```bash
+   flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
+   ```
+
+3. Create a session, send one or more messages, then use the session and interaction analysis links from the
+   interaction screen.

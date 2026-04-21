@@ -16,7 +16,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get homeDescription =>
-      'Starte eine neue Sitzung oder fahre mit einer der letzten Platzhalter-Sitzungen fort, während der Client-Flow Gestalt annimmt.';
+      'Starte eine neue Sitzung oder fahre mit einer der letzten Sitzungen fort.';
 
   @override
   String get homeStartSessionButton => 'Neue Sitzung starten';
@@ -26,7 +26,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get homeRecentSessionsDescription =>
-      'Das sind lokale Platzhalter-Sitzungen für die nächsten Routing- und Interaction-Schritte.';
+      'Diese Sitzungen bleiben fuer die aktuelle App-Laufzeit erhalten.';
 
   @override
   String get homeEmptySessions => 'Es sind noch keine Sitzungen vorhanden.';
@@ -44,7 +44,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sessionStartDescription =>
-      'Wähle die anfängliche Rolle und den Vertrauensmodus für das Spiel. Das ist der erste echte Frontend-Flow vor der Backend-Anbindung.';
+      'Waehle die anfaengliche Rolle und den Vertrauensmodus fuer das Spiel.';
 
   @override
   String get roleSectionTitle => 'Rolle';
@@ -63,7 +63,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sessionStartLoadingDescription =>
-      'Die App bereitet eine lokale Platzhalter-Sitzung vor, solange der Backend-Flow noch nicht angebunden ist.';
+      'Die App fragt das Backend nach einer neuen Sitzung.';
 
   @override
   String get sessionStartErrorTitle => 'Sitzungsstart fehlgeschlagen';
@@ -104,7 +104,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sessionPreparedStatus(String role, String mode) {
-    return '$role-Sitzung im Modus $mode vorbereitet. Als Nächstes kommt der Backend-Start.';
+    return '$role-Sitzung im Modus $mode gestartet.';
   }
 
   @override
@@ -112,7 +112,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get interactionDescription =>
-      'Das ist die erste Platzhalter-Ansicht fuer die Interaction. Aktuell zeigt sie die ausgewaehlten Sitzungsdaten, bevor der echte Nachrichtenaustausch angebunden ist.';
+      'Sende Nachrichten fuer diese Sitzung. Die Analyse bleibt in Detailansichten, damit der naechste Versuch weiterhin dir gehoert.';
 
   @override
   String get interactionSessionDetailsTitle => 'Sitzungsdetails';
@@ -125,6 +125,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get interactionModeLabel => 'Modus';
+
+  @override
+  String get sessionAnalysisButton => 'Sitzungsanalyse ansehen';
 
   @override
   String get interactionMessageInputLabel => 'Nachricht';
@@ -147,6 +150,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Es wurden noch keine Interactions erstellt.';
 
   @override
+  String get interactionAnalysisHint => 'Interaction-Analyse ansehen';
+
+  @override
   String get interactionLoadErrorDescription =>
       'Die Sitzung konnte nicht geladen werden. Bitte gehe zurueck und versuche es erneut.';
 
@@ -154,4 +160,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String interactionNotFoundDescription(String sessionId) {
     return 'Keine lokale Sitzung mit der ID $sessionId gefunden.';
   }
+
+  @override
+  String get sessionDetailTitle => 'Sitzungsanalyse';
+
+  @override
+  String get interactionDetailTitle => 'Interaction-Analyse';
+
+  @override
+  String get analysisLoadErrorDescription =>
+      'Die Analyse konnte noch nicht geladen werden.';
+
+  @override
+  String get analysisSessionIdLabel => 'Sitzungs-ID';
+
+  @override
+  String get analysisRequestIdLabel => 'Request-ID';
+
+  @override
+  String get analysisClassificationLabel => 'Klassifikation';
+
+  @override
+  String get analysisRequestCountLabel => 'Requests';
+
+  @override
+  String get analysisEventCountLabel => 'Events';
+
+  @override
+  String get analysisSuspicionCountLabel => 'Verdachtssignale';
+
+  @override
+  String get analysisModelFailCountLabel => 'Modellfehler';
+
+  @override
+  String get analysisSignalsLabel => 'Signale';
+
+  @override
+  String get analysisAttackPatternsLabel => 'Angriffsmuster';
+
+  @override
+  String get analysisIntentSummaryLabel => 'Intent-Zusammenfassung';
+
+  @override
+  String get analysisEmptyListValue => 'Keine';
 }

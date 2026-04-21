@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeDescription.
   ///
   /// In en, this message translates to:
-  /// **'Start a new session or continue one of the recent placeholder sessions while the client-side flow takes shape.'**
+  /// **'Start a new session or continue one of the recent sessions.'**
   String get homeDescription;
 
   /// No description provided for @homeStartSessionButton.
@@ -131,7 +131,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeRecentSessionsDescription.
   ///
   /// In en, this message translates to:
-  /// **'These are local placeholder sessions for the next routing and interaction steps.'**
+  /// **'These sessions are kept for the current app runtime.'**
   String get homeRecentSessionsDescription;
 
   /// No description provided for @homeEmptySessions.
@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @sessionStartDescription.
   ///
   /// In en, this message translates to:
-  /// **'Pick the initial role and trust mode for the game. This is the first real frontend flow before backend wiring.'**
+  /// **'Pick the initial role and trust mode for the game.'**
   String get sessionStartDescription;
 
   /// No description provided for @roleSectionTitle.
@@ -197,7 +197,7 @@ abstract class AppLocalizations {
   /// No description provided for @sessionStartLoadingDescription.
   ///
   /// In en, this message translates to:
-  /// **'The app is preparing a local placeholder session while the backend flow is not connected yet.'**
+  /// **'The app is asking the backend to start a session.'**
   String get sessionStartLoadingDescription;
 
   /// No description provided for @sessionStartErrorTitle.
@@ -269,7 +269,7 @@ abstract class AppLocalizations {
   /// No description provided for @sessionPreparedStatus.
   ///
   /// In en, this message translates to:
-  /// **'Prepared {role} session in {mode} mode. Backend start comes next.'**
+  /// **'Started {role} session in {mode} mode.'**
   String sessionPreparedStatus(String role, String mode);
 
   /// No description provided for @interactionTitle.
@@ -281,7 +281,7 @@ abstract class AppLocalizations {
   /// No description provided for @interactionDescription.
   ///
   /// In en, this message translates to:
-  /// **'This is the first placeholder interaction view. It currently shows the selected session data before real message exchange is connected.'**
+  /// **'Send messages for this session. Analysis stays in the detail views so the next attempt is still yours.'**
   String get interactionDescription;
 
   /// No description provided for @interactionSessionDetailsTitle.
@@ -307,6 +307,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mode'**
   String get interactionModeLabel;
+
+  /// No description provided for @sessionAnalysisButton.
+  ///
+  /// In en, this message translates to:
+  /// **'View session analysis'**
+  String get sessionAnalysisButton;
 
   /// No description provided for @interactionMessageInputLabel.
   ///
@@ -344,6 +350,12 @@ abstract class AppLocalizations {
   /// **'No interactions have been created yet.'**
   String get interactionListEmpty;
 
+  /// No description provided for @interactionAnalysisHint.
+  ///
+  /// In en, this message translates to:
+  /// **'View interaction analysis'**
+  String get interactionAnalysisHint;
+
   /// No description provided for @interactionLoadErrorDescription.
   ///
   /// In en, this message translates to:
@@ -355,6 +367,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No local session with ID {sessionId} is available.'**
   String interactionNotFoundDescription(String sessionId);
+
+  /// No description provided for @sessionDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session Analysis'**
+  String get sessionDetailTitle;
+
+  /// No description provided for @interactionDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction Analysis'**
+  String get interactionDetailTitle;
+
+  /// No description provided for @analysisLoadErrorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The analysis could not be loaded yet.'**
+  String get analysisLoadErrorDescription;
+
+  /// No description provided for @analysisSessionIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Session ID'**
+  String get analysisSessionIdLabel;
+
+  /// No description provided for @analysisRequestIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Request ID'**
+  String get analysisRequestIdLabel;
+
+  /// No description provided for @analysisClassificationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Classification'**
+  String get analysisClassificationLabel;
+
+  /// No description provided for @analysisRequestCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get analysisRequestCountLabel;
+
+  /// No description provided for @analysisEventCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get analysisEventCountLabel;
+
+  /// No description provided for @analysisSuspicionCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspicion signals'**
+  String get analysisSuspicionCountLabel;
+
+  /// No description provided for @analysisModelFailCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model failures'**
+  String get analysisModelFailCountLabel;
+
+  /// No description provided for @analysisSignalsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signals'**
+  String get analysisSignalsLabel;
+
+  /// No description provided for @analysisAttackPatternsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attack patterns'**
+  String get analysisAttackPatternsLabel;
+
+  /// No description provided for @analysisIntentSummaryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Intent summary'**
+  String get analysisIntentSummaryLabel;
+
+  /// No description provided for @analysisEmptyListValue.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get analysisEmptyListValue;
 }
 
 class _AppLocalizationsDelegate

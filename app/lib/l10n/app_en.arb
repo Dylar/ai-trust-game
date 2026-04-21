@@ -2,10 +2,10 @@
   "@@locale": "en",
   "appTitle": "AI Trust Game",
   "homeTitle": "Home",
-  "homeDescription": "Start a new session or continue one of the recent placeholder sessions while the client-side flow takes shape.",
+  "homeDescription": "Start a new session or continue one of the recent sessions.",
   "homeStartSessionButton": "Start new session",
   "homeRecentSessionsTitle": "Recent sessions",
-  "homeRecentSessionsDescription": "These are local placeholder sessions for the next routing and interaction steps.",
+  "homeRecentSessionsDescription": "These sessions are kept for the current app runtime.",
   "homeEmptySessions": "No sessions are available yet.",
   "homeResumeSessionHint": "Open session",
   "homeSessionSummary": "{role} in {mode} mode",
@@ -20,13 +20,13 @@
     }
   },
   "sessionStartTitle": "Session Start",
-  "sessionStartDescription": "Pick the initial role and trust mode for the game. This is the first real frontend flow before backend wiring.",
+  "sessionStartDescription": "Pick the initial role and trust mode for the game.",
   "roleSectionTitle": "Role",
   "modeSectionTitle": "Mode",
   "prepareSessionButton": "Prepare session",
   "preparingSessionButton": "Preparing session...",
   "sessionStartLoadingTitle": "Preparing session",
-  "sessionStartLoadingDescription": "The app is preparing a local placeholder session while the backend flow is not connected yet.",
+  "sessionStartLoadingDescription": "The app is asking the backend to start a session.",
   "sessionStartErrorTitle": "Session start failed",
   "sessionStartErrorDescription": "The session could not be prepared. Please try again.",
   "sessionRoleGuest": "Guest",
@@ -38,7 +38,7 @@
   "sessionModeMediumDescription": "Partial checks with still-mixed trust boundaries.",
   "sessionModeHard": "Hard",
   "sessionModeHardDescription": "Server-side state stays authoritative.",
-  "sessionPreparedStatus": "Prepared {role} session in {mode} mode. Backend start comes next.",
+  "sessionPreparedStatus": "Started {role} session in {mode} mode.",
   "@sessionPreparedStatus": {
     "placeholders": {
       "role": {
@@ -50,17 +50,19 @@
     }
   },
   "interactionTitle": "Interaction",
-  "interactionDescription": "This is the first placeholder interaction view. It currently shows the selected session data before real message exchange is connected.",
+  "interactionDescription": "Send messages for this session. Analysis stays in the detail views so the next attempt is still yours.",
   "interactionSessionDetailsTitle": "Session details",
   "interactionSessionIdLabel": "Session ID",
   "interactionRoleLabel": "Role",
   "interactionModeLabel": "Mode",
+  "sessionAnalysisButton": "View session analysis",
   "interactionMessageInputLabel": "Message",
   "interactionMessageInputHint": "Ask something for this session...",
   "interactionSendButton": "Send message",
   "interactionSendButtonLoading": "Sending...",
   "interactionListTitle": "Interactions",
   "interactionListEmpty": "No interactions have been created yet.",
+  "interactionAnalysisHint": "View interaction analysis",
   "interactionLoadErrorDescription": "The session could not be loaded. Please go back and try again.",
   "interactionNotFoundDescription": "No local session with ID {sessionId} is available.",
   "@interactionNotFoundDescription": {
@@ -69,5 +71,19 @@
         "type": "String"
       }
     }
-  }
+  },
+  "sessionDetailTitle": "Session Analysis",
+  "interactionDetailTitle": "Interaction Analysis",
+  "analysisLoadErrorDescription": "The analysis could not be loaded yet.",
+  "analysisSessionIdLabel": "Session ID",
+  "analysisRequestIdLabel": "Request ID",
+  "analysisClassificationLabel": "Classification",
+  "analysisRequestCountLabel": "Requests",
+  "analysisEventCountLabel": "Events",
+  "analysisSuspicionCountLabel": "Suspicion signals",
+  "analysisModelFailCountLabel": "Model failures",
+  "analysisSignalsLabel": "Signals",
+  "analysisAttackPatternsLabel": "Attack patterns",
+  "analysisIntentSummaryLabel": "Intent summary",
+  "analysisEmptyListValue": "None"
 }

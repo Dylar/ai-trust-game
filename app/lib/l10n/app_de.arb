@@ -2,10 +2,10 @@
   "@@locale": "de",
   "appTitle": "AI Trust Game",
   "homeTitle": "Start",
-  "homeDescription": "Starte eine neue Sitzung oder fahre mit einer der letzten Platzhalter-Sitzungen fort, während der Client-Flow Gestalt annimmt.",
+  "homeDescription": "Starte eine neue Sitzung oder fahre mit einer der letzten Sitzungen fort.",
   "homeStartSessionButton": "Neue Sitzung starten",
   "homeRecentSessionsTitle": "Letzte Sitzungen",
-  "homeRecentSessionsDescription": "Das sind lokale Platzhalter-Sitzungen für die nächsten Routing- und Interaction-Schritte.",
+  "homeRecentSessionsDescription": "Diese Sitzungen bleiben fuer die aktuelle App-Laufzeit erhalten.",
   "homeEmptySessions": "Es sind noch keine Sitzungen vorhanden.",
   "homeResumeSessionHint": "Sitzung öffnen",
   "homeSessionSummary": "{role} im Modus {mode}",
@@ -20,13 +20,13 @@
     }
   },
   "sessionStartTitle": "Sitzungsstart",
-  "sessionStartDescription": "Wähle die anfängliche Rolle und den Vertrauensmodus für das Spiel. Das ist der erste echte Frontend-Flow vor der Backend-Anbindung.",
+  "sessionStartDescription": "Waehle die anfaengliche Rolle und den Vertrauensmodus fuer das Spiel.",
   "roleSectionTitle": "Rolle",
   "modeSectionTitle": "Modus",
   "prepareSessionButton": "Sitzung vorbereiten",
   "preparingSessionButton": "Sitzung wird vorbereitet...",
   "sessionStartLoadingTitle": "Sitzung wird vorbereitet",
-  "sessionStartLoadingDescription": "Die App bereitet eine lokale Platzhalter-Sitzung vor, solange der Backend-Flow noch nicht angebunden ist.",
+  "sessionStartLoadingDescription": "Die App fragt das Backend nach einer neuen Sitzung.",
   "sessionStartErrorTitle": "Sitzungsstart fehlgeschlagen",
   "sessionStartErrorDescription": "Die Sitzung konnte nicht vorbereitet werden. Bitte versuche es erneut.",
   "sessionRoleGuest": "Gast",
@@ -38,7 +38,7 @@
   "sessionModeMediumDescription": "Teilweise Prüfungen mit weiterhin gemischten Vertrauensgrenzen.",
   "sessionModeHard": "Hart",
   "sessionModeHardDescription": "Serverseitiger Zustand bleibt autoritativ.",
-  "sessionPreparedStatus": "{role}-Sitzung im Modus {mode} vorbereitet. Als Nächstes kommt der Backend-Start.",
+  "sessionPreparedStatus": "{role}-Sitzung im Modus {mode} gestartet.",
   "@sessionPreparedStatus": {
     "placeholders": {
       "role": {
@@ -50,17 +50,19 @@
     }
   },
   "interactionTitle": "Interaction",
-  "interactionDescription": "Das ist die erste Platzhalter-Ansicht fuer die Interaction. Aktuell zeigt sie die ausgewaehlten Sitzungsdaten, bevor der echte Nachrichtenaustausch angebunden ist.",
+  "interactionDescription": "Sende Nachrichten fuer diese Sitzung. Die Analyse bleibt in Detailansichten, damit der naechste Versuch weiterhin dir gehoert.",
   "interactionSessionDetailsTitle": "Sitzungsdetails",
   "interactionSessionIdLabel": "Sitzungs-ID",
   "interactionRoleLabel": "Rolle",
   "interactionModeLabel": "Modus",
+  "sessionAnalysisButton": "Sitzungsanalyse ansehen",
   "interactionMessageInputLabel": "Nachricht",
   "interactionMessageInputHint": "Stelle eine Frage fuer diese Sitzung...",
   "interactionSendButton": "Nachricht senden",
   "interactionSendButtonLoading": "Wird gesendet...",
   "interactionListTitle": "Interactions",
   "interactionListEmpty": "Es wurden noch keine Interactions erstellt.",
+  "interactionAnalysisHint": "Interaction-Analyse ansehen",
   "interactionLoadErrorDescription": "Die Sitzung konnte nicht geladen werden. Bitte gehe zurueck und versuche es erneut.",
   "interactionNotFoundDescription": "Keine lokale Sitzung mit der ID {sessionId} gefunden.",
   "@interactionNotFoundDescription": {
@@ -69,5 +71,19 @@
         "type": "String"
       }
     }
-  }
+  },
+  "sessionDetailTitle": "Sitzungsanalyse",
+  "interactionDetailTitle": "Interaction-Analyse",
+  "analysisLoadErrorDescription": "Die Analyse konnte noch nicht geladen werden.",
+  "analysisSessionIdLabel": "Sitzungs-ID",
+  "analysisRequestIdLabel": "Request-ID",
+  "analysisClassificationLabel": "Klassifikation",
+  "analysisRequestCountLabel": "Requests",
+  "analysisEventCountLabel": "Events",
+  "analysisSuspicionCountLabel": "Verdachtssignale",
+  "analysisModelFailCountLabel": "Modellfehler",
+  "analysisSignalsLabel": "Signale",
+  "analysisAttackPatternsLabel": "Angriffsmuster",
+  "analysisIntentSummaryLabel": "Intent-Zusammenfassung",
+  "analysisEmptyListValue": "Keine"
 }

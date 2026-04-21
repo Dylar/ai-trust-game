@@ -16,7 +16,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeDescription =>
-      'Start a new session or continue one of the recent placeholder sessions while the client-side flow takes shape.';
+      'Start a new session or continue one of the recent sessions.';
 
   @override
   String get homeStartSessionButton => 'Start new session';
@@ -26,7 +26,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeRecentSessionsDescription =>
-      'These are local placeholder sessions for the next routing and interaction steps.';
+      'These sessions are kept for the current app runtime.';
 
   @override
   String get homeEmptySessions => 'No sessions are available yet.';
@@ -44,7 +44,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionStartDescription =>
-      'Pick the initial role and trust mode for the game. This is the first real frontend flow before backend wiring.';
+      'Pick the initial role and trust mode for the game.';
 
   @override
   String get roleSectionTitle => 'Role';
@@ -63,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionStartLoadingDescription =>
-      'The app is preparing a local placeholder session while the backend flow is not connected yet.';
+      'The app is asking the backend to start a session.';
 
   @override
   String get sessionStartErrorTitle => 'Session start failed';
@@ -104,7 +104,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sessionPreparedStatus(String role, String mode) {
-    return 'Prepared $role session in $mode mode. Backend start comes next.';
+    return 'Started $role session in $mode mode.';
   }
 
   @override
@@ -112,7 +112,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get interactionDescription =>
-      'This is the first placeholder interaction view. It currently shows the selected session data before real message exchange is connected.';
+      'Send messages for this session. Analysis stays in the detail views so the next attempt is still yours.';
 
   @override
   String get interactionSessionDetailsTitle => 'Session details';
@@ -125,6 +125,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get interactionModeLabel => 'Mode';
+
+  @override
+  String get sessionAnalysisButton => 'View session analysis';
 
   @override
   String get interactionMessageInputLabel => 'Message';
@@ -145,6 +148,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interactionListEmpty => 'No interactions have been created yet.';
 
   @override
+  String get interactionAnalysisHint => 'View interaction analysis';
+
+  @override
   String get interactionLoadErrorDescription =>
       'The session could not be loaded. Please go back and try again.';
 
@@ -152,4 +158,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String interactionNotFoundDescription(String sessionId) {
     return 'No local session with ID $sessionId is available.';
   }
+
+  @override
+  String get sessionDetailTitle => 'Session Analysis';
+
+  @override
+  String get interactionDetailTitle => 'Interaction Analysis';
+
+  @override
+  String get analysisLoadErrorDescription =>
+      'The analysis could not be loaded yet.';
+
+  @override
+  String get analysisSessionIdLabel => 'Session ID';
+
+  @override
+  String get analysisRequestIdLabel => 'Request ID';
+
+  @override
+  String get analysisClassificationLabel => 'Classification';
+
+  @override
+  String get analysisRequestCountLabel => 'Requests';
+
+  @override
+  String get analysisEventCountLabel => 'Events';
+
+  @override
+  String get analysisSuspicionCountLabel => 'Suspicion signals';
+
+  @override
+  String get analysisModelFailCountLabel => 'Model failures';
+
+  @override
+  String get analysisSignalsLabel => 'Signals';
+
+  @override
+  String get analysisAttackPatternsLabel => 'Attack patterns';
+
+  @override
+  String get analysisIntentSummaryLabel => 'Intent summary';
+
+  @override
+  String get analysisEmptyListValue => 'None';
 }

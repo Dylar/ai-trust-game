@@ -67,7 +67,7 @@ class InteractionScreenBot extends BaseScreenBot {
   }
 
   Future<void> expectPlaceholderAnswerShown(String message) async {
-    await scrollUntilVisible(find.text('Placeholder answer for: "$message"'));
-    expect(find.text('Placeholder answer for: "$message"'), findsOneWidget);
+    await scrollUntilVisible(find.text('Backend answer for: "$message"'));
+    expect(find.text('Backend answer for: "$message"'), findsOneWidget);
   }
 }

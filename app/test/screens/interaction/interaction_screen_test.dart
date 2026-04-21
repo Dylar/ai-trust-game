@@ -66,7 +66,7 @@ void main() {
     await context.process.expectSessionNotFound();
   });
 
-  testWidgets('creates a local placeholder interaction from a message', (
+  testWidgets('creates an interaction from a backend message response', (
     tester,
   ) async {
     final context = InteractionTestContext(tester);

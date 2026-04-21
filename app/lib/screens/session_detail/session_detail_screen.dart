@@ -1,0 +1,243 @@
+import 'package:flutter/material.dart';
+
+import 'package:app/core/app/app_dependencies.dart';
+import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/theme/app_spacing.dart';
+import 'package:app/l10n/app_localizations.dart';
+import 'package:app/models/analysis_models.dart';
+import 'package:app/screens/session_detail/session_detail_keys.dart';
+import 'package:app/screens/session_detail/session_detail_screen_state.dart';
+import 'package:app/screens/session_detail/session_detail_view_model.dart';
+
+class SessionDetailScreen extends StatefulWidget {
+  const SessionDetailScreen({super.key, required this.sessionId});
+
+  static const routeName = '/session-detail';
+
+  final String sessionId;
+
+  static Future<T?> open<T>(BuildContext context, {required String sessionId}) {
+    return Navigator.of(context).pushNamed<T>(
+      routeName,
+      arguments: SessionDetailRouteArgs(sessionId: sessionId),
+    );
+  }
+
+  @override
+  State<SessionDetailScreen> createState() => _SessionDetailScreenState();
+}
+
+class SessionDetailRouteArgs {
+  const SessionDetailRouteArgs({required this.sessionId});
+
+  final String sessionId;
+}
+
+class _SessionDetailScreenState extends State<SessionDetailScreen> {
+  SessionDetailViewModel? _viewModel;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewModel ??= SessionDetailViewModel(
+      analysisService: AppDependencies.of(context).analysisService,
+      sessionId: widget.sessionId,
+    );
+  }
+
+  @override
+  void dispose() {
+    _viewModel?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: SessionDetailKeys.screen,
+      appBar: AppBar(),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: ValueListenableBuilder<SessionDetailScreenState>(
+              valueListenable: _viewModel!.state,
+              builder: (context, state, _) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpacing.large),
+                  child: _SessionDetailContent(state: state),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SessionDetailContent extends StatelessWidget {
+  const _SessionDetailContent({required this.state});
+
+  final SessionDetailScreenState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (state.status) {
+      SessionDetailStatus.loading => const _LoadingState(),
+      SessionDetailStatus.ready => _SessionAnalysisView(
+        analysis: state.analysis!,
+      ),
+      SessionDetailStatus.error => const _ErrorState(),
+    };
+  }
+}
+
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      key: SessionDetailKeys.loadingState,
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.xLarge),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      key: SessionDetailKeys.errorState,
+      elevation: 0,
+      color: AppColors.errorSurface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Text(l10n.analysisLoadErrorDescription),
+      ),
+    );
+  }
+}
+
+class _SessionAnalysisView extends StatelessWidget {
+  const _SessionAnalysisView({required this.analysis});
+
+  final SessionAnalysis analysis;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.sessionDetailTitle,
+          key: SessionDetailKeys.title,
+          style: theme.textTheme.headlineMedium,
+        ),
+        const SizedBox(height: AppSpacing.large),
+        Card(
+          key: SessionDetailKeys.analysisSection,
+          elevation: 0,
+          color: AppColors.surface,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.large),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _MetricRow(
+                  label: l10n.analysisSessionIdLabel,
+                  value: analysis.sessionId,
+                ),
+                _MetricRow(
+                  label: l10n.analysisClassificationLabel,
+                  value: analysis.classification,
+                ),
+                _MetricRow(
+                  label: l10n.analysisRequestCountLabel,
+                  value: analysis.requestCount.toString(),
+                ),
+                _MetricRow(
+                  label: l10n.analysisSuspicionCountLabel,
+                  value: analysis.suspicionCount.toString(),
+                ),
+                _MetricRow(
+                  label: l10n.analysisModelFailCountLabel,
+                  value: analysis.modelFailCount.toString(),
+                ),
+                _ListBlock(
+                  label: l10n.analysisSignalsLabel,
+                  values: analysis.signals,
+                ),
+                _ListBlock(
+                  label: l10n.analysisAttackPatternsLabel,
+                  values: analysis.attackPatterns,
+                ),
+                if (analysis.intentSummary.isNotEmpty)
+                  _MetricRow(
+                    label: l10n.analysisIntentSummaryLabel,
+                    value: analysis.intentSummary,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricRow extends StatelessWidget {
+  const _MetricRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: AppColors.brandForeground,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.compact),
+          Text(value, style: theme.textTheme.bodyLarge),
+        ],
+      ),
+    );
+  }
+}
+
+class _ListBlock extends StatelessWidget {
+  const _ListBlock({required this.label, required this.values});
+
+  final String label;
+  final List<String> values;
+
+  @override
+  Widget build(BuildContext context) {
+    final renderedValues = values.isEmpty
+        ? AppLocalizations.of(context)!.analysisEmptyListValue
+        : values.join(', ');
+
+    return _MetricRow(label: label, value: renderedValues);
+  }
+}

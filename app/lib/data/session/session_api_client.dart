@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 import 'package:app/data/session/start_session_dto.dart';
@@ -9,15 +11,24 @@ class SessionApiClient {
   final Uri apiBaseUri;
 
   Future<StartSessionResponse> startSession(StartSessionRequest request) async {
-    // Keep a short artificial delay for now so the loading state remains visible
-    // while this placeholder client stands in for the later real HTTP call.
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    final response = await httpClient.post(
+      apiBaseUri.resolve('/session/start'),
+      headers: const <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(request.toJson()),
+    );
 
-    return StartSessionResponse(
-      sessionId: 'local-${request.role.name}-${request.mode.name}-$timestamp',
-      role: request.role,
-      mode: request.mode,
+    if (response.statusCode != 200) {
+      throw SessionApiException(response.statusCode);
+    }
+
+    return StartSessionResponse.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
     );
   }
+}
+
+class SessionApiException implements Exception {
+  const SessionApiException(this.statusCode);
+
+  final int statusCode;
 }

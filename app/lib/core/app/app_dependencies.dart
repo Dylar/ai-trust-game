@@ -2,15 +2,18 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:app/core/config/app_config.dart';
+import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';
+import 'package:app/services/analysis_service.dart';
 import 'package:app/services/interaction_service.dart';
 import 'package:app/services/session_service.dart';
 
 class AppDependenciesData {
   const AppDependenciesData({
+    required this.analysisService,
     required this.config,
     required this.httpClient,
     required this.interactionRepository,
@@ -26,6 +29,12 @@ class AppDependenciesData {
     final sessionRepository = InMemorySessionRepository();
 
     return AppDependenciesData(
+      analysisService: AnalysisServiceImpl(
+        apiClient: AnalysisApiClient(
+          httpClient: httpClient,
+          apiBaseUri: config.apiBaseUri,
+        ),
+      ),
       config: config,
       httpClient: httpClient,
       interactionRepository: interactionRepository,
@@ -47,6 +56,7 @@ class AppDependenciesData {
     );
   }
 
+  final AnalysisService analysisService;
   final AppConfig config;
   final http.Client httpClient;
   final InteractionRepository interactionRepository;
@@ -64,6 +74,7 @@ class AppDependencies extends InheritedWidget {
 
   final AppDependenciesData dependencies;
 
+  AnalysisService get analysisService => dependencies.analysisService;
   AppConfig get config => dependencies.config;
   http.Client get httpClient => dependencies.httpClient;
   InteractionRepository get interactionRepository =>

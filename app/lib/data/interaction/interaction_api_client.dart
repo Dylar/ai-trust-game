@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 import 'package:app/data/interaction/interaction_dto.dart';
@@ -14,13 +16,34 @@ class InteractionApiClient {
   Future<InteractionResponse> createInteraction(
     InteractionRequest request,
   ) async {
-    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    final response = await httpClient.post(
+      apiBaseUri.resolve('/interaction'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'X-Session-Id': request.sessionId,
+      },
+      body: jsonEncode(request.toJson()),
+    );
 
-    return InteractionResponse(
+    if (response.statusCode != 200) {
+      throw InteractionApiException(response.statusCode);
+    }
+
+    final requestId =
+        response.headers['x-request-id'] ??
+        'local-${DateTime.now().microsecondsSinceEpoch}';
+
+    return InteractionResponse.fromBackend(
       sessionId: request.sessionId,
-      interactionId: 'local-$timestamp',
-      message: request.message,
-      answer: 'Placeholder answer for: "${request.message}"',
+      requestId: requestId,
+      requestMessage: request.message,
+      json: jsonDecode(response.body) as Map<String, dynamic>,
     );
   }
+}
+
+class InteractionApiException implements Exception {
+  const InteractionApiException(this.statusCode);
+
+  final int statusCode;
 }

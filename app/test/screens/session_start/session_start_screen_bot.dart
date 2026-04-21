@@ -57,7 +57,7 @@ class SessionStartScreenBot extends BaseScreenBot {
   }
 
   void expectPreparedStatusTextShown() {
-    expect(find.textContaining('Prepared'), findsOneWidget);
+    expect(find.textContaining('Started'), findsOneWidget);
   }
 
   ChoiceChip _roleChip(Key key) {

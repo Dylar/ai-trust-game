@@ -6,10 +6,12 @@ import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
+import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
 import 'package:app/screens/session_start/session_start_localizations.dart';
 import 'package:app/screens/interaction/interaction_keys.dart';
 import 'package:app/screens/interaction/interaction_screen_state.dart';
 import 'package:app/screens/interaction/interaction_view_model.dart';
+import 'package:app/screens/session_detail/session_detail_screen.dart';
 
 class InteractionScreen extends StatefulWidget {
   const InteractionScreen({super.key, required this.sessionId});
@@ -345,6 +347,12 @@ class _SessionDetailsSection extends StatelessWidget {
                 child: _InteractionDetailRow(item: item),
               ),
             ),
+            const SizedBox(height: AppSpacing.small),
+            OutlinedButton(
+              onPressed: () =>
+                  SessionDetailScreen.open(context, sessionId: session.id),
+              child: Text(l10n.sessionAnalysisButton),
+            ),
           ],
         ),
       ),
@@ -419,20 +427,36 @@ class _InteractionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return InkWell(
       key: InteractionKeys.interaction(interaction.interactionId),
-      padding: const EdgeInsets.all(AppSpacing.medium),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(AppSpacing.medium),
+      onTap: () => InteractionDetailScreen.open(
+        context,
+        requestId: interaction.interactionId,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(interaction.message, style: theme.textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.compact),
-          Text(interaction.answer, style: theme.textTheme.bodyLarge),
-        ],
+      borderRadius: BorderRadius.circular(AppSpacing.medium),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(AppSpacing.medium),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.medium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(interaction.message, style: theme.textTheme.titleMedium),
+              const SizedBox(height: AppSpacing.compact),
+              Text(interaction.answer, style: theme.textTheme.bodyLarge),
+              const SizedBox(height: AppSpacing.small),
+              Text(
+                AppLocalizations.of(context)!.interactionAnalysisHint,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
