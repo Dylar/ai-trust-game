@@ -2,15 +2,17 @@ import 'package:flutter/foundation.dart';
 
 import '../../data/interaction/interaction_repository.dart';
 import '../../data/session/session_repository.dart';
-import '../../models/interaction_models.dart';
+import '../../services/interaction_service.dart';
 import 'interaction_screen_state.dart';
 
 class InteractionViewModel {
   InteractionViewModel({
     required InteractionRepository interactionRepository,
+    required InteractionService interactionService,
     required SessionRepository sessionRepository,
     required String sessionId,
   }) : _interactionRepository = interactionRepository,
+       _interactionService = interactionService,
        _sessionRepository = sessionRepository,
        state = ValueNotifier(
          InteractionScreenState.initial(sessionId: sessionId),
@@ -19,6 +21,7 @@ class InteractionViewModel {
   }
 
   final InteractionRepository _interactionRepository;
+  final InteractionService _interactionService;
   final SessionRepository _sessionRepository;
   final ValueNotifier<InteractionScreenState> state;
 
@@ -64,14 +67,10 @@ class InteractionViewModel {
     state.value = state.value.copyWith(isSubmitting: true);
 
     try {
-      final interaction = Interaction(
+      await _interactionService.createInteraction(
         sessionId: state.value.sessionId,
-        interactionId: 'local-${DateTime.now().microsecondsSinceEpoch}',
         message: normalizedMessage,
-        answer: _buildPlaceholderAnswer(normalizedMessage),
       );
-
-      await _interactionRepository.saveInteraction(interaction);
       final interactions = await _interactionRepository.listInteractions(
         state.value.sessionId,
       );
@@ -86,10 +85,6 @@ class InteractionViewModel {
         isSubmitting: false,
       );
     }
-  }
-
-  String _buildPlaceholderAnswer(String message) {
-    return 'Placeholder answer for: "$message"';
   }
 
   void dispose() {

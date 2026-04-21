@@ -1,13 +1,16 @@
 import 'package:flutter/widgets.dart';
 
+import '../../data/interaction/interaction_api_client.dart';
 import '../../data/interaction/interaction_repository.dart';
 import '../../data/session/session_api_client.dart';
 import '../../data/session/session_repository.dart';
+import '../../services/interaction_service.dart';
 import '../../services/session_service.dart';
 
 class AppDependenciesData {
   const AppDependenciesData({
     required this.interactionRepository,
+    required this.interactionService,
     required this.sessionRepository,
     required this.sessionService,
   });
@@ -18,8 +21,12 @@ class AppDependenciesData {
 
     return AppDependenciesData(
       interactionRepository: interactionRepository,
+      interactionService: InteractionServiceImpl(
+        interactionRepository: interactionRepository,
+        apiClient: InteractionApiClient(),
+      ),
       sessionRepository: sessionRepository,
-      sessionService: DefaultSessionService(
+      sessionService: SessionServiceImpl(
         sessionRepository: sessionRepository,
         apiClient: SessionApiClient(),
       ),
@@ -27,6 +34,7 @@ class AppDependenciesData {
   }
 
   final InteractionRepository interactionRepository;
+  final InteractionService interactionService;
   final SessionRepository sessionRepository;
   final SessionService sessionService;
 }
@@ -42,6 +50,7 @@ class AppDependencies extends InheritedWidget {
 
   InteractionRepository get interactionRepository =>
       dependencies.interactionRepository;
+  InteractionService get interactionService => dependencies.interactionService;
   SessionRepository get sessionRepository => dependencies.sessionRepository;
   SessionService get sessionService => dependencies.sessionService;
 

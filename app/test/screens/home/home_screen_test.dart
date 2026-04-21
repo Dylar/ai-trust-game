@@ -1,8 +1,10 @@
 import 'package:app/core/app/app_dependencies.dart';
+import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
+import 'package:app/services/interaction_service.dart';
 import 'package:app/services/session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -54,15 +56,20 @@ void main() {
 
   testWidgets('opens interaction from a recent home session', (tester) async {
     final context = HomeTestContext(tester);
+    final interactionRepository = InMemoryInteractionRepository();
     final repository = InMemorySessionRepository(
       initialSessions: const [
         Session(id: 'seeded-session', role: Role.employee, mode: Mode.medium),
       ],
     );
     final dependencies = AppDependenciesData(
-      interactionRepository: InMemoryInteractionRepository(),
+      interactionRepository: interactionRepository,
+      interactionService: InteractionServiceImpl(
+        apiClient: const InteractionApiClient(),
+        interactionRepository: interactionRepository,
+      ),
       sessionRepository: repository,
-      sessionService: DefaultSessionService(
+      sessionService: SessionServiceImpl(
         apiClient: const SessionApiClient(),
         sessionRepository: repository,
       ),

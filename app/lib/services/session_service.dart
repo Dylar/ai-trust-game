@@ -7,8 +7,8 @@ abstract interface class SessionService {
   Future<Session> startSession({required Role role, required Mode mode});
 }
 
-class DefaultSessionService implements SessionService {
-  const DefaultSessionService({
+class SessionServiceImpl implements SessionService {
+  const SessionServiceImpl({
     required this.apiClient,
     required this.sessionRepository,
   });

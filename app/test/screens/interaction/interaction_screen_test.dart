@@ -1,10 +1,12 @@
 import 'package:app/core/app/app_dependencies.dart';
+import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
 import 'package:app/screens/interaction/interaction_screen.dart';
+import 'package:app/services/interaction_service.dart';
 import 'package:app/services/session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,8 +32,12 @@ void main() {
     );
     final dependencies = AppDependenciesData(
       interactionRepository: interactionRepository,
+      interactionService: InteractionServiceImpl(
+        apiClient: const InteractionApiClient(),
+        interactionRepository: interactionRepository,
+      ),
       sessionRepository: repository,
-      sessionService: DefaultSessionService(
+      sessionService: SessionServiceImpl(
         apiClient: const SessionApiClient(),
         sessionRepository: repository,
       ),
@@ -57,8 +63,12 @@ void main() {
     final repository = InMemorySessionRepository();
     final dependencies = AppDependenciesData(
       interactionRepository: interactionRepository,
+      interactionService: InteractionServiceImpl(
+        apiClient: const InteractionApiClient(),
+        interactionRepository: interactionRepository,
+      ),
       sessionRepository: repository,
-      sessionService: DefaultSessionService(
+      sessionService: SessionServiceImpl(
         apiClient: const SessionApiClient(),
         sessionRepository: repository,
       ),
@@ -88,8 +98,12 @@ void main() {
     );
     final dependencies = AppDependenciesData(
       interactionRepository: interactionRepository,
+      interactionService: InteractionServiceImpl(
+        apiClient: const InteractionApiClient(),
+        interactionRepository: interactionRepository,
+      ),
       sessionRepository: repository,
-      sessionService: DefaultSessionService(
+      sessionService: SessionServiceImpl(
         apiClient: const SessionApiClient(),
         sessionRepository: repository,
       ),

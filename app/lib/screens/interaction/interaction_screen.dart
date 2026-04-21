@@ -53,6 +53,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
     super.didChangeDependencies();
     _viewModel ??= InteractionViewModel(
       interactionRepository: AppDependencies.of(context).interactionRepository,
+      interactionService: AppDependencies.of(context).interactionService,
       sessionRepository: AppDependencies.of(context).sessionRepository,
       sessionId: widget.sessionId,
     );
