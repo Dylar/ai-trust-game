@@ -11,6 +11,12 @@ import 'session_start_view_model.dart';
 class SessionStartScreen extends StatefulWidget {
   const SessionStartScreen({super.key});
 
+  static const routeName = '/session-start';
+
+  static Future<T?> open<T>(BuildContext context) {
+    return Navigator.of(context).pushNamed<T>(routeName);
+  }
+
   @override
   State<SessionStartScreen> createState() => _SessionStartScreenState();
 }

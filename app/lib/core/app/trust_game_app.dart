@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import '../routing/app_router.dart';
 import '../../l10n/app_localizations.dart';
 import '../../screens/home/home_screen.dart';
 import '../theme/app_theme.dart';
@@ -22,7 +23,9 @@ class TrustGameApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: home ?? const HomeScreen(),
+      onGenerateRoute: AppRouter.onGenerateRoute,
+      initialRoute: HomeScreen.routeName,
+      home: home,
     );
   }
 }

@@ -3,16 +3,20 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
+import '../session_start/session_start_screen.dart';
 import '../session_start/session_start_localizations.dart';
 import 'home_keys.dart';
 import 'home_screen_state.dart';
 import 'home_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, this.onStartSession, this.onResumeSession});
+  const HomeScreen({super.key});
 
-  final VoidCallback? onStartSession;
-  final ValueChanged<String>? onResumeSession;
+  static const routeName = '/';
+
+  static Future<T?> open<T>(BuildContext context) {
+    return Navigator.of(context).pushNamed<T>(routeName);
+  }
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -24,10 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = HomeViewModel(
-      onStartSession: widget.onStartSession,
-      onResumeSession: widget.onResumeSession,
-    );
+    _viewModel = HomeViewModel();
   }
 
   @override
@@ -53,13 +54,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _HomeHeader(
-                        onStartSession: _viewModel.requestStartSession,
+                        onStartSession: () => SessionStartScreen.open(context),
                       ),
                       const SizedBox(height: AppSpacing.large),
-                      _RecentSessionsSection(
-                        sessions: state.recentSessions,
-                        onResumeSession: _viewModel.resumeSession,
-                      ),
+                      _RecentSessionsSection(sessions: state.recentSessions),
                     ],
                   ),
                 );
@@ -119,13 +117,9 @@ class _HomeHeader extends StatelessWidget {
 }
 
 class _RecentSessionsSection extends StatelessWidget {
-  const _RecentSessionsSection({
-    required this.sessions,
-    required this.onResumeSession,
-  });
+  const _RecentSessionsSection({required this.sessions});
 
   final List<HomeSessionItem> sessions;
-  final ValueChanged<String> onResumeSession;
 
   @override
   Widget build(BuildContext context) {
@@ -161,10 +155,7 @@ class _RecentSessionsSection extends StatelessWidget {
                         padding: const EdgeInsets.only(
                           bottom: AppSpacing.small,
                         ),
-                        child: _RecentSessionCard(
-                          session: session,
-                          onResumeSession: () => onResumeSession(session.id),
-                        ),
+                        child: _RecentSessionCard(session: session),
                       ),
                     )
                     .toList(),
@@ -196,54 +187,46 @@ class _EmptySessionsState extends StatelessWidget {
 }
 
 class _RecentSessionCard extends StatelessWidget {
-  const _RecentSessionCard({
-    required this.session,
-    required this.onResumeSession,
-  });
+  const _RecentSessionCard({required this.session});
 
   final HomeSessionItem session;
-  final VoidCallback onResumeSession;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return InkWell(
+    return Ink(
       key: HomeKeys.session(session.id),
-      onTap: onResumeSession,
-      borderRadius: BorderRadius.circular(AppSpacing.medium),
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSpacing.medium),
-          border: Border.all(color: AppColors.borderMuted),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.medium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.homeSessionSummary(
-                  session.role.localizedLabel(l10n),
-                  session.mode.localizedLabel(l10n),
-                ),
-                style: theme.textTheme.titleMedium,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppSpacing.medium),
+        border: Border.all(color: AppColors.borderMuted),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.homeSessionSummary(
+                session.role.localizedLabel(l10n),
+                session.mode.localizedLabel(l10n),
               ),
-              const SizedBox(height: AppSpacing.compact),
-              Text(
-                session.lastMessagePreview,
-                style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppSpacing.compact),
+            Text(
+              session.lastMessagePreview,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
+            ),
+            const SizedBox(height: AppSpacing.small),
+            Text(
+              l10n.homeResumeSessionHint,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: theme.colorScheme.primary,
               ),
-              const SizedBox(height: AppSpacing.small),
-              Text(
-                l10n.homeResumeSessionHint,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

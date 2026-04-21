@@ -6,6 +6,10 @@ import '../../testing/base_screen_bot.dart';
 class HomeScreenBot extends BaseScreenBot {
   HomeScreenBot(super.tester);
 
+  Future<void> tapStartSession() async {
+    await tap(HomeKeys.startSessionButton);
+  }
+
   void expectScreenVisible() {
     expect(isVisible(HomeKeys.screen), isTrue);
     expect(isVisible(HomeKeys.title), isTrue);
