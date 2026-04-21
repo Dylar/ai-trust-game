@@ -12,6 +12,8 @@ abstract final class InteractionKeys {
   static const emptyInteractionsState = Key(
     'interaction.empty_interactions_state',
   );
+  static const composerMessageInput = Key('interaction.composer.message_input');
+  static const composerSendButton = Key('interaction.composer.send_button');
 
   static const sessionIdItem = Key('interaction.item.session_id');
   static const roleItem = Key('interaction.item.role');

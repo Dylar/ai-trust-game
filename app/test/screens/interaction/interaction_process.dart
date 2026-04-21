@@ -15,8 +15,19 @@ class InteractionProcess {
     await waitUntilSessionLoaded();
     screenBot.expectScreenVisible();
     screenBot.expectSessionDetailsVisible();
-    screenBot.expectInteractionsSectionVisible();
     screenBot.expectSessionIdShown(sessionId);
+  }
+
+  Future<void> sendMessage(String message) async {
+    await screenBot.enterMessage(message);
+    screenBot.expectSendButtonEnabled();
+    await screenBot.tapSendMessage();
+    await baseBot.pump(const Duration(milliseconds: 1));
+  }
+
+  Future<void> expectInteractionCreated(String message) async {
+    await screenBot.expectInteractionMessageShown(message);
+    await screenBot.expectPlaceholderAnswerShown(message);
   }
 
   Future<void> expectSessionNotFound() async {

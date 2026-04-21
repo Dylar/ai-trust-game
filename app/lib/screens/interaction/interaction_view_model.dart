@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../data/interaction/interaction_repository.dart';
 import '../../data/session/session_repository.dart';
+import '../../models/interaction_models.dart';
 import 'interaction_screen_state.dart';
 
 class InteractionViewModel {
@@ -50,6 +51,45 @@ class InteractionViewModel {
         resetSession: true,
       );
     }
+  }
+
+  Future<void> submitMessage(String message) async {
+    final normalizedMessage = message.trim();
+    if (normalizedMessage.isEmpty ||
+        state.value.status != InteractionScreenStatus.ready ||
+        state.value.isSubmitting) {
+      return;
+    }
+
+    state.value = state.value.copyWith(isSubmitting: true);
+
+    try {
+      final interaction = Interaction(
+        sessionId: state.value.sessionId,
+        interactionId: 'local-${DateTime.now().microsecondsSinceEpoch}',
+        message: normalizedMessage,
+        answer: _buildPlaceholderAnswer(normalizedMessage),
+      );
+
+      await _interactionRepository.saveInteraction(interaction);
+      final interactions = await _interactionRepository.listInteractions(
+        state.value.sessionId,
+      );
+
+      state.value = state.value.copyWith(
+        interactions: interactions,
+        isSubmitting: false,
+      );
+    } catch (_) {
+      state.value = state.value.copyWith(
+        status: InteractionScreenStatus.error,
+        isSubmitting: false,
+      );
+    }
+  }
+
+  String _buildPlaceholderAnswer(String message) {
+    return 'Placeholder answer for: "$message"';
   }
 
   void dispose() {

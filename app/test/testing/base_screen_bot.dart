@@ -25,6 +25,14 @@ class BaseScreenBot {
     await tester.pump();
   }
 
+  Future<void> enterText(dynamic target, String text) async {
+    final finder = getFinder(target);
+    await tester.tap(finder);
+    await tester.pump();
+    await tester.enterText(finder, text);
+    await tester.pump();
+  }
+
   Future<void> scrollUntilVisible(
     dynamic target, {
     double delta = 200,

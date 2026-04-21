@@ -82,6 +82,11 @@ Small private widgets that only belong to one screen may stay in the same file a
 Feature-facing repositories may also live under `data/` when they abstract local persistence or app-runtime state, for
 example an in-memory repository used before a real backend or proto-backed implementation exists.
 
+Repository APIs should stay as simple as the current feature needs.
+For normal-sized lists, prefer loading the list items directly.
+Only introduce ID-first loading, item-level lazy loading, or explicit caches when lists are expected to become very
+large, item details are expensive to load, or scrolling would otherwise trigger repeated unnecessary data fetches.
+
 Shared frontend-facing contract or app model objects may live in a small common area such as `models/` when multiple
 screens depend on the same business vocabulary.
 

@@ -1,4 +1,5 @@
 import 'package:app/screens/interaction/interaction_keys.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../testing/base_screen_bot.dart';
@@ -22,15 +23,33 @@ class InteractionScreenBot extends BaseScreenBot {
     expect(isVisible(InteractionKeys.modeItem), isTrue);
   }
 
-  void expectInteractionsSectionVisible() {
+  Future<void> expectInteractionsSectionVisible() async {
+    await scrollUntilVisible(InteractionKeys.interactionsSection);
     expect(isVisible(InteractionKeys.interactionsSection), isTrue);
   }
 
-  void expectEmptyInteractionsVisible() {
+  Future<void> enterMessage(String message) async {
+    await enterText(InteractionKeys.composerMessageInput, message);
+  }
+
+  Future<void> tapSendMessage() async {
+    await tap(InteractionKeys.composerSendButton);
+  }
+
+  void expectSendButtonEnabled() {
+    final button = tester.widget<FilledButton>(
+      find.byKey(InteractionKeys.composerSendButton),
+    );
+    expect(button.onPressed, isNotNull);
+  }
+
+  Future<void> expectEmptyInteractionsVisible() async {
+    await scrollUntilVisible(InteractionKeys.emptyInteractionsState);
     expect(isVisible(InteractionKeys.emptyInteractionsState), isTrue);
   }
 
-  void expectInteractionVisible(String interactionId) {
+  Future<void> expectInteractionVisible(String interactionId) async {
+    await scrollUntilVisible(InteractionKeys.interaction(interactionId));
     expect(isVisible(InteractionKeys.interaction(interactionId)), isTrue);
   }
 
@@ -40,5 +59,15 @@ class InteractionScreenBot extends BaseScreenBot {
 
   void expectSessionIdShown(String sessionId) {
     expect(find.text(sessionId), findsOneWidget);
+  }
+
+  Future<void> expectInteractionMessageShown(String message) async {
+    await scrollUntilVisible(find.text(message));
+    expect(find.text(message), findsOneWidget);
+  }
+
+  Future<void> expectPlaceholderAnswerShown(String message) async {
+    await scrollUntilVisible(find.text('Placeholder answer for: "$message"'));
+    expect(find.text('Placeholder answer for: "$message"'), findsOneWidget);
   }
 }

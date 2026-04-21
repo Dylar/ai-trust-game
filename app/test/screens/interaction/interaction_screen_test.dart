@@ -48,7 +48,7 @@ void main() {
 
     // Then
     await context.process.expectSessionDetailsLoaded('local-admin-hard');
-    context.screenBot.expectInteractionVisible('request-1');
+    await context.screenBot.expectInteractionVisible('request-1');
   });
 
   testWidgets('shows not found when the session is missing', (tester) async {
@@ -74,5 +74,39 @@ void main() {
 
     // Then
     await context.process.expectSessionNotFound();
+  });
+
+  testWidgets('creates a local placeholder interaction from a message', (
+    tester,
+  ) async {
+    final context = InteractionTestContext(tester);
+    final interactionRepository = InMemoryInteractionRepository();
+    final repository = InMemorySessionRepository(
+      initialSessions: const [
+        Session(id: 'local-admin-hard', role: Role.admin, mode: Mode.hard),
+      ],
+    );
+    final dependencies = AppDependenciesData(
+      interactionRepository: interactionRepository,
+      sessionRepository: repository,
+      sessionService: DefaultSessionService(
+        apiClient: const SessionApiClient(),
+        sessionRepository: repository,
+      ),
+    );
+
+    // Given
+    await context.appBot.startApp(
+      home: const InteractionScreen(sessionId: 'local-admin-hard'),
+      dependencies: dependencies,
+    );
+    await context.process.expectSessionDetailsLoaded('local-admin-hard');
+    await context.screenBot.expectEmptyInteractionsVisible();
+
+    // When
+    await context.process.sendMessage('Can I access the vault?');
+
+    // Then
+    await context.process.expectInteractionCreated('Can I access the vault?');
   });
 }

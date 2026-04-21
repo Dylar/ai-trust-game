@@ -9,6 +9,7 @@ class InteractionScreenState {
     required this.status,
     required this.session,
     required this.interactions,
+    required this.isSubmitting,
   });
 
   factory InteractionScreenState.initial({required String sessionId}) {
@@ -17,6 +18,7 @@ class InteractionScreenState {
       status: InteractionScreenStatus.loading,
       session: null,
       interactions: const <Interaction>[],
+      isSubmitting: false,
     );
   }
 
@@ -24,12 +26,14 @@ class InteractionScreenState {
   final InteractionScreenStatus status;
   final Session? session;
   final List<Interaction> interactions;
+  final bool isSubmitting;
 
   InteractionScreenState copyWith({
     String? sessionId,
     InteractionScreenStatus? status,
     Session? session,
     List<Interaction>? interactions,
+    bool? isSubmitting,
     bool resetSession = false,
   }) {
     return InteractionScreenState(
@@ -37,6 +41,7 @@ class InteractionScreenState {
       status: status ?? this.status,
       session: resetSession ? null : session ?? this.session,
       interactions: interactions ?? this.interactions,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
     );
   }
 }

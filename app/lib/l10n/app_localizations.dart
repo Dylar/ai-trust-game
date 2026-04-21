@@ -308,6 +308,30 @@ abstract class AppLocalizations {
   /// **'Mode'**
   String get interactionModeLabel;
 
+  /// No description provided for @interactionMessageInputLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get interactionMessageInputLabel;
+
+  /// No description provided for @interactionMessageInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask something for this session...'**
+  String get interactionMessageInputHint;
+
+  /// No description provided for @interactionSendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get interactionSendButton;
+
+  /// No description provided for @interactionSendButtonLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending...'**
+  String get interactionSendButtonLoading;
+
   /// No description provided for @interactionListTitle.
   ///
   /// In en, this message translates to:

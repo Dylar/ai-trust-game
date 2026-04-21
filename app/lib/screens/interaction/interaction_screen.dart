@@ -75,33 +75,49 @@ class _InteractionScreenState extends State<InteractionScreen> {
             child: ValueListenableBuilder<InteractionScreenState>(
               valueListenable: _viewModel!.state,
               builder: (context, state, _) {
-                return SingleChildScrollView(
+                return Padding(
                   padding: const EdgeInsets.all(AppSpacing.large),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const _InteractionHeader(),
-                      const SizedBox(height: AppSpacing.large),
-                      switch (state.status) {
-                        InteractionScreenStatus.loading =>
-                          const _InteractionLoadingState(),
-                        InteractionScreenStatus.ready =>
-                          _ReadyInteractionContent(
-                            session: state.session!,
-                            interactions: state.interactions,
-                          ),
-                        InteractionScreenStatus.notFound =>
-                          _SessionNotFoundState(sessionId: state.sessionId),
-                        InteractionScreenStatus.error =>
-                          const _InteractionErrorState(),
-                      },
-                    ],
-                  ),
+                  child: switch (state.status) {
+                    InteractionScreenStatus.loading =>
+                      const _InteractionScaffold(
+                        child: _InteractionLoadingState(),
+                      ),
+                    InteractionScreenStatus.ready => _ReadyInteractionContent(
+                      state: state,
+                      viewModel: _viewModel!,
+                    ),
+                    InteractionScreenStatus.notFound => _InteractionScaffold(
+                      child: _SessionNotFoundState(sessionId: state.sessionId),
+                    ),
+                    InteractionScreenStatus.error => const _InteractionScaffold(
+                      child: _InteractionErrorState(),
+                    ),
+                  },
                 );
               },
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _InteractionScaffold extends StatelessWidget {
+  const _InteractionScaffold({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const _InteractionHeader(),
+          const SizedBox(height: AppSpacing.large),
+          child,
+        ],
       ),
     );
   }
@@ -124,22 +140,122 @@ class _InteractionLoadingState extends StatelessWidget {
 
 class _ReadyInteractionContent extends StatelessWidget {
   const _ReadyInteractionContent({
-    required this.session,
-    required this.interactions,
+    required this.state,
+    required this.viewModel,
   });
 
-  final Session session;
-  final List<Interaction> interactions;
+  final InteractionScreenState state;
+  final InteractionViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SessionDetailsSection(session: session),
+        Expanded(
+          child: ListView(
+            children: [
+              const _InteractionHeader(),
+              const SizedBox(height: AppSpacing.large),
+              _SessionDetailsSection(session: state.session!),
+              const SizedBox(height: AppSpacing.large),
+              _InteractionsSection(interactions: state.interactions),
+            ],
+          ),
+        ),
         const SizedBox(height: AppSpacing.large),
-        _InteractionsSection(interactions: interactions),
+        _InteractionComposer(state: state, viewModel: viewModel),
       ],
+    );
+  }
+}
+
+class _InteractionComposer extends StatefulWidget {
+  const _InteractionComposer({required this.state, required this.viewModel});
+
+  final InteractionScreenState state;
+  final InteractionViewModel viewModel;
+
+  @override
+  State<_InteractionComposer> createState() => _InteractionComposerState();
+}
+
+class _InteractionComposerState extends State<_InteractionComposer> {
+  final TextEditingController _messageController = TextEditingController();
+
+  bool get _canSubmit =>
+      !widget.state.isSubmitting && _messageController.text.trim().isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController.addListener(_handleMessageChanged);
+  }
+
+  @override
+  void dispose() {
+    _messageController.removeListener(_handleMessageChanged);
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _handleMessageChanged() {
+    setState(() {});
+  }
+
+  Future<void> _submitMessage() async {
+    if (!_canSubmit) {
+      return;
+    }
+
+    final message = _messageController.text;
+    await widget.viewModel.submitMessage(message);
+    if (!mounted) {
+      return;
+    }
+
+    _messageController.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      elevation: 0,
+      color: AppColors.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              key: InteractionKeys.composerMessageInput,
+              controller: _messageController,
+              enabled: !widget.state.isSubmitting,
+              minLines: 2,
+              maxLines: 5,
+              decoration: InputDecoration(
+                labelText: l10n.interactionMessageInputLabel,
+                hintText: l10n.interactionMessageInputHint,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.medium),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton(
+                key: InteractionKeys.composerSendButton,
+                onPressed: _canSubmit ? _submitMessage : null,
+                child: Text(
+                  widget.state.isSubmitting
+                      ? l10n.interactionSendButtonLoading
+                      : l10n.interactionSendButton,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -127,6 +127,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interactionModeLabel => 'Mode';
 
   @override
+  String get interactionMessageInputLabel => 'Message';
+
+  @override
+  String get interactionMessageInputHint => 'Ask something for this session...';
+
+  @override
+  String get interactionSendButton => 'Send message';
+
+  @override
+  String get interactionSendButtonLoading => 'Sending...';
+
+  @override
   String get interactionListTitle => 'Interactions';
 
   @override
