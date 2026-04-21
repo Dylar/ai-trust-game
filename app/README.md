@@ -21,6 +21,7 @@ The app currently has:
 - app-wide dependency access through `AppDependencies`
 - shared frontend models for session-related vocabulary
 - a first `services/` -> `data/` boundary for session start
+- an in-memory `SessionRepository` that keeps recent sessions for the current app runtime
 
 Prepared targets:
 
@@ -45,6 +46,8 @@ Current frontend architecture choices:
 - screens expose `routeName` and `open(...)`
 - view models stay screen-local and receive dependencies from the screen
 - shared business vocabulary currently lives in `lib/models/`
+- session flow currently follows `screen -> service -> repository/data`
+- recent sessions are intentionally in-memory only for now and reset when the app restarts
 
 Current test structure:
 

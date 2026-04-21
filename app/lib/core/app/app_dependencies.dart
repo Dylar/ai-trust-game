@@ -1,16 +1,28 @@
 import 'package:flutter/widgets.dart';
 
 import '../../data/session/session_api_client.dart';
+import '../../data/session/session_repository.dart';
 import '../../services/session_service.dart';
 
 class AppDependenciesData {
-  const AppDependenciesData({required this.sessionService});
+  const AppDependenciesData({
+    required this.sessionRepository,
+    required this.sessionService,
+  });
 
-  const AppDependenciesData.defaults()
-    : sessionService = const DefaultSessionService(
+  factory AppDependenciesData.defaults() {
+    final sessionRepository = InMemorySessionRepository();
+
+    return AppDependenciesData(
+      sessionRepository: sessionRepository,
+      sessionService: DefaultSessionService(
+        sessionRepository: sessionRepository,
         apiClient: SessionApiClient(),
-      );
+      ),
+    );
+  }
 
+  final SessionRepository sessionRepository;
   final SessionService sessionService;
 }
 
@@ -23,6 +35,7 @@ class AppDependencies extends InheritedWidget {
 
   final AppDependenciesData dependencies;
 
+  SessionRepository get sessionRepository => dependencies.sessionRepository;
   SessionService get sessionService => dependencies.sessionService;
 
   static AppDependencies of(BuildContext context) {

@@ -8,11 +8,8 @@ import '../../screens/home/home_screen.dart';
 import '../theme/app_theme.dart';
 
 class TrustGameApp extends StatelessWidget {
-  const TrustGameApp({
-    super.key,
-    this.home,
-    this.dependencies = const AppDependenciesData.defaults(),
-  });
+  TrustGameApp({super.key, this.home, AppDependenciesData? dependencies})
+    : dependencies = dependencies ?? AppDependenciesData.defaults();
 
   final Widget? home;
   final AppDependenciesData dependencies;

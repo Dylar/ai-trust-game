@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/app/app_dependencies.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../l10n/app_localizations.dart';
@@ -24,17 +25,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final HomeViewModel _viewModel;
+  HomeViewModel? _viewModel;
 
   @override
-  void initState() {
-    super.initState();
-    _viewModel = HomeViewModel();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewModel ??= HomeViewModel(
+      sessionRepository: AppDependencies.of(context).sessionRepository,
+    );
   }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    _viewModel?.dispose();
     super.dispose();
   }
 
@@ -47,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<HomeScreenState>(
-              valueListenable: _viewModel.state,
+              valueListenable: _viewModel!.state,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),

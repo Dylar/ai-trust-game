@@ -79,6 +79,9 @@ Small private widgets that only belong to one screen may stay in the same file a
 - platform bridges
 - adapters for external interfaces
 
+Feature-facing repositories may also live under `data/` when they abstract local persistence or app-runtime state, for
+example an in-memory repository used before a real backend or proto-backed implementation exists.
+
 Shared frontend-facing contract or app model objects may live in a small common area such as `models/` when multiple
 screens depend on the same business vocabulary.
 
@@ -196,7 +199,8 @@ Prefer a small sequence like this:
 
 - screen resolves dependencies from `InheritedWidget`
 - view model calls a service or use case
-- service delegates to `data/`
+- service delegates to repositories or `data/`
+- repositories coordinate stored app state when needed
 - `data/` performs transport or platform work
 
 Avoid letting the screen or view model talk directly to API clients.

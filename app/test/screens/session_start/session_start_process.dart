@@ -9,6 +9,7 @@ class SessionStartProcess {
 
   Future<void> waitUntilPreparationFinished() async {
     await baseBot.pump(const Duration(milliseconds: 300));
+    await baseBot.pump(const Duration(milliseconds: 1));
   }
 
   Future<void> prepareAdminHardSession() async {

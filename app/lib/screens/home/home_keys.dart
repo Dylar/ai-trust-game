@@ -7,16 +7,18 @@ abstract final class HomeKeys {
   static const recentSessionsSection = Key('home.recent_sessions_section');
   static const emptySessionsState = Key('home.empty_sessions_state');
 
-  static const sessionGuestEasy = Key('home.session.guest_easy');
-  static const sessionEmployeeMedium = Key('home.session.employee_medium');
-  static const sessionAdminHard = Key('home.session.admin_hard');
+  static const sessionGuestEasy = ValueKey<String>('home.session.guest_easy');
+  static const sessionEmployeeMedium = ValueKey<String>(
+    'home.session.employee_medium',
+  );
+  static const sessionAdminHard = ValueKey<String>('home.session.admin_hard');
 
-  static Key session(String id) {
+  static ValueKey<String> session(String id) {
     return switch (id) {
       'guest_easy' => sessionGuestEasy,
       'employee_medium' => sessionEmployeeMedium,
       'admin_hard' => sessionAdminHard,
-      _ => Key('home.session.$id'),
+      _ => ValueKey<String>('home.session.$id'),
     };
   }
 }

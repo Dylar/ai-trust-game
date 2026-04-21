@@ -29,15 +29,42 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _viewModel ??= SessionStartViewModel(
+    if (_viewModel != null) {
+      return;
+    }
+
+    final viewModel = SessionStartViewModel(
       sessionService: AppDependencies.of(context).sessionService,
     );
+    viewModel.state.addListener(_handleStateChanged);
+    _viewModel = viewModel;
   }
 
   @override
   void dispose() {
+    _viewModel?.state.removeListener(_handleStateChanged);
     _viewModel?.dispose();
     super.dispose();
+  }
+
+  void _handleStateChanged() {
+    final viewModel = _viewModel;
+    if (viewModel == null ||
+        viewModel.state.value.status != SessionStartStatus.prepared ||
+        !mounted) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      final navigator = Navigator.of(context);
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
+    });
   }
 
   @override
@@ -54,7 +81,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
               valueListenable: _viewModel!.state,
               builder: (context, state, _) {
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(AppSpacing.large),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
