@@ -1,15 +1,11 @@
-import 'package:app/core/app/app_dependencies.dart';
-import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
-import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
 import 'package:app/screens/interaction/interaction_screen.dart';
-import 'package:app/services/interaction_service.dart';
-import 'package:app/services/session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../testing/test_dependencies.dart';
 import 'interaction_test_context.dart';
 
 void main() {
@@ -30,17 +26,9 @@ void main() {
         Session(id: 'local-admin-hard', role: Role.admin, mode: Mode.hard),
       ],
     );
-    final dependencies = AppDependenciesData(
+    final dependencies = buildTestDependencies(
       interactionRepository: interactionRepository,
-      interactionService: InteractionServiceImpl(
-        apiClient: const InteractionApiClient(),
-        interactionRepository: interactionRepository,
-      ),
       sessionRepository: repository,
-      sessionService: SessionServiceImpl(
-        apiClient: const SessionApiClient(),
-        sessionRepository: repository,
-      ),
     );
 
     // Given
@@ -61,17 +49,9 @@ void main() {
     final context = InteractionTestContext(tester);
     final interactionRepository = InMemoryInteractionRepository();
     final repository = InMemorySessionRepository();
-    final dependencies = AppDependenciesData(
+    final dependencies = buildTestDependencies(
       interactionRepository: interactionRepository,
-      interactionService: InteractionServiceImpl(
-        apiClient: const InteractionApiClient(),
-        interactionRepository: interactionRepository,
-      ),
       sessionRepository: repository,
-      sessionService: SessionServiceImpl(
-        apiClient: const SessionApiClient(),
-        sessionRepository: repository,
-      ),
     );
 
     // Given
@@ -96,17 +76,9 @@ void main() {
         Session(id: 'local-admin-hard', role: Role.admin, mode: Mode.hard),
       ],
     );
-    final dependencies = AppDependenciesData(
+    final dependencies = buildTestDependencies(
       interactionRepository: interactionRepository,
-      interactionService: InteractionServiceImpl(
-        apiClient: const InteractionApiClient(),
-        interactionRepository: interactionRepository,
-      ),
       sessionRepository: repository,
-      sessionService: SessionServiceImpl(
-        apiClient: const SessionApiClient(),
-        sessionRepository: repository,
-      ),
     );
 
     // Given

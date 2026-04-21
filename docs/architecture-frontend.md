@@ -51,6 +51,10 @@ App-wide dependency access should live in `core/app/` through a small `Inherited
 That facade should expose the dependencies the UI needs while keeping concrete wiring details behind a stable access
 point.
 
+Runtime configuration should live under `core/config/`.
+Use `--dart-define` for simple environment values such as the API base URL before introducing heavier configuration
+mechanisms.
+
 ### `screens/`
 
 Each screen should live in its own feature folder, for example:
@@ -227,6 +231,9 @@ Typical examples:
 
 Frontend code should consume these boundaries through clear services, use cases, or adapters instead of letting widgets
 talk to them directly.
+
+API clients should receive their transport dependencies explicitly, such as an `http.Client` and a base `Uri`.
+Do not hardcode backend URLs inside individual API methods.
 
 ## Routing, Logging, And Testing
 

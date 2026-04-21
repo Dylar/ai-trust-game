@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
 
+import 'package:app/core/config/app_config.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
@@ -9,6 +11,8 @@ import 'package:app/services/session_service.dart';
 
 class AppDependenciesData {
   const AppDependenciesData({
+    required this.config,
+    required this.httpClient,
     required this.interactionRepository,
     required this.interactionService,
     required this.sessionRepository,
@@ -16,23 +20,35 @@ class AppDependenciesData {
   });
 
   factory AppDependenciesData.defaults() {
+    final config = AppConfig.fromEnvironment();
+    final httpClient = http.Client();
     final interactionRepository = InMemoryInteractionRepository();
     final sessionRepository = InMemorySessionRepository();
 
     return AppDependenciesData(
+      config: config,
+      httpClient: httpClient,
       interactionRepository: interactionRepository,
       interactionService: InteractionServiceImpl(
         interactionRepository: interactionRepository,
-        apiClient: InteractionApiClient(),
+        apiClient: InteractionApiClient(
+          httpClient: httpClient,
+          apiBaseUri: config.apiBaseUri,
+        ),
       ),
       sessionRepository: sessionRepository,
       sessionService: SessionServiceImpl(
         sessionRepository: sessionRepository,
-        apiClient: SessionApiClient(),
+        apiClient: SessionApiClient(
+          httpClient: httpClient,
+          apiBaseUri: config.apiBaseUri,
+        ),
       ),
     );
   }
 
+  final AppConfig config;
+  final http.Client httpClient;
   final InteractionRepository interactionRepository;
   final InteractionService interactionService;
   final SessionRepository sessionRepository;
@@ -48,6 +64,8 @@ class AppDependencies extends InheritedWidget {
 
   final AppDependenciesData dependencies;
 
+  AppConfig get config => dependencies.config;
+  http.Client get httpClient => dependencies.httpClient;
   InteractionRepository get interactionRepository =>
       dependencies.interactionRepository;
   InteractionService get interactionService => dependencies.interactionService;

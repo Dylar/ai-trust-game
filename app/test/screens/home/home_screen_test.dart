@@ -1,13 +1,9 @@
-import 'package:app/core/app/app_dependencies.dart';
-import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
-import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
-import 'package:app/services/interaction_service.dart';
-import 'package:app/services/session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../testing/test_dependencies.dart';
 import 'home_test_context.dart';
 
 void main() {
@@ -62,17 +58,9 @@ void main() {
         Session(id: 'seeded-session', role: Role.employee, mode: Mode.medium),
       ],
     );
-    final dependencies = AppDependenciesData(
+    final dependencies = buildTestDependencies(
       interactionRepository: interactionRepository,
-      interactionService: InteractionServiceImpl(
-        apiClient: const InteractionApiClient(),
-        interactionRepository: interactionRepository,
-      ),
       sessionRepository: repository,
-      sessionService: SessionServiceImpl(
-        apiClient: const SessionApiClient(),
-        sessionRepository: repository,
-      ),
     );
 
     // Given

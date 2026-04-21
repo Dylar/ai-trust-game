@@ -1,7 +1,12 @@
+import 'package:http/http.dart' as http;
+
 import 'package:app/data/session/start_session_dto.dart';
 
 class SessionApiClient {
-  const SessionApiClient();
+  const SessionApiClient({required this.httpClient, required this.apiBaseUri});
+
+  final http.Client httpClient;
+  final Uri apiBaseUri;
 
   Future<StartSessionResponse> startSession(StartSessionRequest request) async {
     // Keep a short artificial delay for now so the loading state remains visible

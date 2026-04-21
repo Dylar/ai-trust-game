@@ -20,8 +20,10 @@ The app currently has:
 - a `SessionStart` screen reachable through navigator-based routing
 - an `Interaction` screen with a local placeholder message/answer loop
 - app-wide dependency access through `AppDependencies`
+- app-wide configuration through `AppConfig`
 - shared frontend models for `Session` and `Interaction`
 - `services/` -> `data/` boundaries for session start and local interaction creation
+- API clients prepared with `http.Client` and `apiBaseUri`
 - an in-memory `SessionRepository` that keeps recent sessions for the current app runtime
 - an in-memory `InteractionRepository` that stores local placeholder interactions
 
@@ -33,6 +35,7 @@ Prepared targets:
 Current `lib/` structure:
 
 - `lib/core/app/`
+- `lib/core/config/`
 - `lib/data/`
 - `lib/core/theme/`
 - `lib/l10n/`
@@ -45,6 +48,7 @@ Current `lib/` structure:
 Current frontend architecture choices:
 
 - `TrustGameApp` wraps the app with `AppDependencies`
+- `AppConfig.fromEnvironment()` reads `API_BASE_URL`
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
 - view models stay screen-local and receive dependencies from the screen
@@ -54,6 +58,24 @@ Current frontend architecture choices:
 - interaction flow currently follows `screen -> service -> repository/data` and creates local placeholder answers before backend wiring
 - recent sessions are intentionally in-memory only for now and reset when the app restarts
 - current routing paths are `Home -> SessionStart -> Interaction` and `Home -> Interaction`
+
+## Runtime Configuration
+
+The API base URL is read from `API_BASE_URL` via `--dart-define`.
+
+For local web runs:
+
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
+```
+
+For Android emulator runs, use the host bridge address instead of `localhost`:
+
+```bash
+flutter run -d android --dart-define=API_BASE_URL=http://10.0.2.2:8080
+```
+
+If `API_BASE_URL` is not provided, the app defaults to `http://localhost:8080`.
 
 Current test structure:
 
