@@ -20,7 +20,7 @@ The app currently has:
 - a `SessionStart` screen reachable through navigator-based routing
 - an `Interaction` screen that currently renders the selected session as a simple details list
 - app-wide dependency access through `AppDependencies`
-- shared frontend models for session-related vocabulary
+- shared frontend models for `Session` and `Interaction`
 - a first `services/` -> `data/` boundary for session start
 - an in-memory `SessionRepository` that keeps recent sessions for the current app runtime
 
@@ -48,6 +48,7 @@ Current frontend architecture choices:
 - screens expose `routeName` and `open(...)`
 - view models stay screen-local and receive dependencies from the screen
 - shared business vocabulary currently lives in `lib/models/`
+- Home-specific list summaries are screen state objects, not shared domain models
 - session flow currently follows `screen -> service -> repository/data`
 - recent sessions are intentionally in-memory only for now and reset when the app restarts
 - current routing paths are `Home -> SessionStart -> Interaction` and `Home -> Interaction`
