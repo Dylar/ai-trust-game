@@ -22,6 +22,7 @@ The app currently has:
 - an `InteractionDetail` screen that loads request-level analysis
 - app-wide dependency access through `AppDependencies`
 - app-wide configuration through `AppConfig`
+- Dev, Test, and Prod flavor configuration
 - one runtime-scoped generated user ID sent as `X-User-Id`
 - shared frontend models for `Session` and `Interaction`
 - `services/` -> `data/` boundaries for session start, interaction creation, and analysis reads
@@ -53,7 +54,7 @@ Current `lib/` structure:
 Current frontend architecture choices:
 
 - `TrustGameApp` wraps the app with `AppDependencies`
-- `AppConfig.fromEnvironment()` reads `API_BASE_URL`
+- `AppConfig.fromEnvironment()` reads `APP_FLAVOR` and `API_BASE_URL`
 - `UserIdentity.newRuntimeIdentity()` creates an in-memory user ID for the current app runtime
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
@@ -70,20 +71,37 @@ Current frontend architecture choices:
 
 ## Runtime Configuration
 
+The app flavor is read from `APP_FLAVOR` via `--dart-define`.
+Supported values are:
+
+- `dev`
+- `test`
+- `prod`
+
 The API base URL is read from `API_BASE_URL` via `--dart-define`.
 
 For local web runs:
 
 ```bash
-flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
+flutter run -d chrome --dart-define=APP_FLAVOR=dev --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
 For Android emulator runs, use the host bridge address instead of `localhost`:
 
 ```bash
-flutter run -d android --dart-define=API_BASE_URL=http://10.0.2.2:8080
+flutter run --flavor dev -d android --dart-define=APP_FLAVOR=dev --dart-define=API_BASE_URL=http://10.0.2.2:8080
 ```
 
+For test and prod Android builds, switch the native flavor and matching Dart define.
+Android Gradle reserves flavor names starting with `test`, so the native Android test flavor is named `t3st` while the
+Flutter app flavor remains `test`.
+
+```bash
+flutter run --flavor t3st -d android --dart-define=APP_FLAVOR=test --dart-define=API_BASE_URL=http://10.0.2.2:8080
+flutter run --flavor prod -d android --dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=https://api.example.com
+```
+
+If `APP_FLAVOR` is not provided, the app defaults to `dev`.
 If `API_BASE_URL` is not provided, the app defaults to `http://localhost:8080`.
 
 Current test structure:
@@ -107,7 +125,7 @@ For a manual local run:
 2. Start the Flutter web client from `app/`:
 
    ```bash
-   flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
+   flutter run -d chrome --dart-define=APP_FLAVOR=dev --dart-define=API_BASE_URL=http://localhost:8080
    ```
 
 3. Create a session, send one or more messages, then use the session and interaction analysis links from the

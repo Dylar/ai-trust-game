@@ -20,14 +20,34 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.app"
+        applicationId = "com.dylar.aitrustgame"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            resValue("string", "app_name", "AI Trust Game Dev")
+        }
+
+        create("t3st") {
+            dimension = "environment"
+            applicationIdSuffix = ".test"
+            resValue("string", "app_name", "AI Trust Game Test")
+        }
+
+        create("prod") {
+            dimension = "environment"
+            resValue("string", "app_name", "AI Trust Game")
+        }
     }
 
     buildTypes {
