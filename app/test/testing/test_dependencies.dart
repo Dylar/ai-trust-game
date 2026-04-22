@@ -5,6 +5,7 @@ import 'package:app/core/config/app_config.dart';
 import 'package:app/core/config/app_flavor.dart';
 import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
+import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
@@ -15,6 +16,7 @@ import 'package:app/services/session_service.dart';
 import 'mocks/backend_mock_client.dart';
 
 AppDependenciesData buildTestDependencies({
+  AnalysisRepository? analysisRepository,
   AnalysisService? analysisService,
   http.Client? httpClient,
   InteractionRepository? interactionRepository,
@@ -28,6 +30,8 @@ AppDependenciesData buildTestDependencies({
   );
   final resolvedHttpClient = httpClient ?? buildBackendMockClient();
   const userIdentity = UserIdentity(id: 'test-user');
+  final resolvedAnalysisRepository =
+      analysisRepository ?? InMemoryAnalysisRepository();
   final resolvedInteractionRepository =
       interactionRepository ?? InMemoryInteractionRepository();
   final resolvedSessionRepository =
@@ -37,6 +41,7 @@ AppDependenciesData buildTestDependencies({
     analysisService:
         analysisService ??
         AnalysisServiceImpl(
+          analysisRepository: resolvedAnalysisRepository,
           apiClient: AnalysisApiClient(
             httpClient: resolvedHttpClient,
             apiBaseUri: config.apiBaseUri,

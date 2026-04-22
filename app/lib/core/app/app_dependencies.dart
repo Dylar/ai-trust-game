@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:app/core/config/app_config.dart';
 import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
+import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
@@ -28,11 +29,13 @@ class AppDependenciesData {
     final config = AppConfig.fromEnvironment();
     final httpClient = http.Client();
     final userIdentity = UserIdentity.newRuntimeIdentity();
+    final analysisRepository = InMemoryAnalysisRepository();
     final interactionRepository = InMemoryInteractionRepository();
     final sessionRepository = InMemorySessionRepository();
 
     return AppDependenciesData(
       analysisService: AnalysisServiceImpl(
+        analysisRepository: analysisRepository,
         apiClient: AnalysisApiClient(
           httpClient: httpClient,
           apiBaseUri: config.apiBaseUri,
