@@ -46,18 +46,14 @@ class SessionStartScreenBot extends BaseScreenBot {
     expect(_filledButton().onPressed, isNotNull);
   }
 
-  void expectLoadingFeedbackVisible() {
-    expect(isVisible(SessionStartKeys.feedbackCard), isTrue);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  void expectPrepareButtonLoading() {
+    expect(_filledButton().onPressed, isNull);
     expect(find.text('Preparing session...'), findsOneWidget);
   }
 
-  void expectPreparedStatusVisible() {
-    expect(isVisible(SessionStartKeys.feedbackCard), isTrue);
-  }
-
-  void expectPreparedStatusTextShown() {
-    expect(find.textContaining('Started'), findsOneWidget);
+  void expectErrorDialogVisible() {
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Session start failed'), findsWidgets);
   }
 
   ChoiceChip _roleChip(Key key) {

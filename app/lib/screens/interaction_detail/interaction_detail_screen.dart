@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
@@ -8,6 +6,7 @@ import 'package:app/models/analysis_models.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_keys.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_screen_state.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_view_model.dart';
+import 'package:flutter/material.dart';
 
 class InteractionDetailScreen extends StatefulWidget {
   const InteractionDetailScreen({super.key, required this.requestId});
@@ -89,42 +88,8 @@ class _InteractionDetailContent extends StatelessWidget {
       InteractionDetailStatus.ready => _RequestAnalysisView(
         analysis: state.analysis!,
       ),
-      InteractionDetailStatus.error => const _ErrorState(),
+      InteractionDetailStatus.error => _ErrorState(error: state.error),
     };
-  }
-}
-
-class _LoadingState extends StatelessWidget {
-  const _LoadingState();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      key: InteractionDetailKeys.loadingState,
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacing.xLarge),
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Card(
-      key: InteractionDetailKeys.errorState,
-      elevation: 0,
-      color: AppColors.errorSurface,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.large),
-        child: Text(l10n.analysisLoadErrorDescription),
-      ),
-    );
   }
 }
 
@@ -244,5 +209,53 @@ class _ListBlock extends StatelessWidget {
         : values.join(', ');
 
     return _MetricRow(label: label, value: renderedValues);
+  }
+}
+
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      key: InteractionDetailKeys.loadingState,
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.xLarge),
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.error});
+
+  final InteractionDetailError? error;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      key: InteractionDetailKeys.errorState,
+      elevation: 0,
+      color: AppColors.errorSurface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.analysisLoadErrorDescription,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            if (error?.httpStatusCode != null) ...[
+              const SizedBox(height: AppSpacing.small),
+              Text(l10n.analysisHttpError(error!.httpStatusCode!)),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }

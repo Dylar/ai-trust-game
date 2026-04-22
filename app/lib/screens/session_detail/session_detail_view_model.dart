@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
-
+import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/screens/session_detail/session_detail_screen_state.dart';
 import 'package:app/services/analysis_service.dart';
+import 'package:flutter/foundation.dart';
 
 class SessionDetailViewModel {
   SessionDetailViewModel({
@@ -11,14 +11,17 @@ class SessionDetailViewModel {
        state = ValueNotifier(
          SessionDetailScreenState.initial(sessionId: sessionId),
        ) {
-    load();
+    loadSessionAnalysis();
   }
 
   final AnalysisService _analysisService;
   final ValueNotifier<SessionDetailScreenState> state;
 
-  Future<void> load() async {
-    state.value = state.value.copyWith(status: SessionDetailStatus.loading);
+  Future<void> loadSessionAnalysis() async {
+    state.value = state.value.copyWith(
+      status: SessionDetailStatus.loading,
+      resetError: true,
+    );
 
     try {
       final analysis = await _analysisService.getSessionAnalysis(
@@ -28,8 +31,16 @@ class SessionDetailViewModel {
         status: SessionDetailStatus.ready,
         analysis: analysis,
       );
+    } on AnalysisApiException catch (error) {
+      state.value = state.value.copyWith(
+        status: SessionDetailStatus.error,
+        error: SessionDetailError(httpStatusCode: error.statusCode),
+      );
     } catch (_) {
-      state.value = state.value.copyWith(status: SessionDetailStatus.error);
+      state.value = state.value.copyWith(
+        status: SessionDetailStatus.error,
+        error: const SessionDetailError(),
+      );
     }
   }
 

@@ -60,9 +60,13 @@
   "interactionMessageInputHint": "Ask something for this session...",
   "interactionSendButton": "Send message",
   "interactionSendButtonLoading": "Sending...",
+  "interactionSendErrorTitle": "Message could not be sent",
+  "interactionSendErrorDescription": "The backend did not accept the message. Please try again.",
   "interactionListTitle": "Interactions",
   "interactionListEmpty": "No interactions have been created yet.",
   "interactionAnalysisHint": "View interaction analysis",
+  "interactionUserMessageLabel": "You",
+  "interactionAssistantMessageLabel": "Assistant",
   "interactionLoadErrorDescription": "The session could not be loaded. Please go back and try again.",
   "interactionNotFoundDescription": "No local session with ID {sessionId} is available.",
   "@interactionNotFoundDescription": {
@@ -75,6 +79,14 @@
   "sessionDetailTitle": "Session Analysis",
   "interactionDetailTitle": "Interaction Analysis",
   "analysisLoadErrorDescription": "The analysis could not be loaded yet.",
+  "analysisHttpError": "HTTP status: {statusCode}",
+  "@analysisHttpError": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
   "analysisSessionIdLabel": "Session ID",
   "analysisRequestIdLabel": "Request ID",
   "analysisClassificationLabel": "Classification",

@@ -43,6 +43,16 @@ class InteractionScreenBot extends BaseScreenBot {
     expect(button.onPressed, isNotNull);
   }
 
+  void expectMessageInputText(String message) {
+    expect(
+      tester
+          .widget<TextField>(find.byKey(InteractionKeys.composerMessageInput))
+          .controller
+          ?.text,
+      message,
+    );
+  }
+
   Future<void> expectEmptyInteractionsVisible() async {
     await scrollUntilVisible(InteractionKeys.emptyInteractionsState);
     expect(isVisible(InteractionKeys.emptyInteractionsState), isTrue);
@@ -58,7 +68,7 @@ class InteractionScreenBot extends BaseScreenBot {
   }
 
   void expectSessionIdShown(String sessionId) {
-    expect(find.text(sessionId), findsOneWidget);
+    expect(find.textContaining(sessionId, findRichText: true), findsOneWidget);
   }
 
   Future<void> expectInteractionMessageShown(String message) async {
@@ -69,5 +79,9 @@ class InteractionScreenBot extends BaseScreenBot {
   Future<void> expectPlaceholderAnswerShown(String message) async {
     await scrollUntilVisible(find.text('Backend answer for: "$message"'));
     expect(find.text('Backend answer for: "$message"'), findsOneWidget);
+  }
+
+  void expectSendErrorDialogVisible() {
+    expect(find.text('Message could not be sent'), findsOneWidget);
   }
 }

@@ -18,7 +18,9 @@ AppDependenciesData buildTestDependencies({
   AnalysisService? analysisService,
   http.Client? httpClient,
   InteractionRepository? interactionRepository,
+  InteractionService? interactionService,
   SessionRepository? sessionRepository,
+  SessionService? sessionService,
 }) {
   final config = AppConfig(
     apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -44,23 +46,27 @@ AppDependenciesData buildTestDependencies({
     config: config,
     httpClient: resolvedHttpClient,
     interactionRepository: resolvedInteractionRepository,
-    interactionService: InteractionServiceImpl(
-      apiClient: InteractionApiClient(
-        httpClient: resolvedHttpClient,
-        apiBaseUri: config.apiBaseUri,
-        userId: userIdentity.id,
-      ),
-      interactionRepository: resolvedInteractionRepository,
-    ),
+    interactionService:
+        interactionService ??
+        InteractionServiceImpl(
+          apiClient: InteractionApiClient(
+            httpClient: resolvedHttpClient,
+            apiBaseUri: config.apiBaseUri,
+            userId: userIdentity.id,
+          ),
+          interactionRepository: resolvedInteractionRepository,
+        ),
     sessionRepository: resolvedSessionRepository,
-    sessionService: SessionServiceImpl(
-      apiClient: SessionApiClient(
-        httpClient: resolvedHttpClient,
-        apiBaseUri: config.apiBaseUri,
-        userId: userIdentity.id,
-      ),
-      sessionRepository: resolvedSessionRepository,
-    ),
+    sessionService:
+        sessionService ??
+        SessionServiceImpl(
+          apiClient: SessionApiClient(
+            httpClient: resolvedHttpClient,
+            apiBaseUri: config.apiBaseUri,
+            userId: userIdentity.id,
+          ),
+          sessionRepository: resolvedSessionRepository,
+        ),
     userIdentity: userIdentity,
   );
 }

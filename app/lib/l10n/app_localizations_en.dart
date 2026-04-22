@@ -142,6 +142,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interactionSendButtonLoading => 'Sending...';
 
   @override
+  String get interactionSendErrorTitle => 'Message could not be sent';
+
+  @override
+  String get interactionSendErrorDescription =>
+      'The backend did not accept the message. Please try again.';
+
+  @override
   String get interactionListTitle => 'Interactions';
 
   @override
@@ -149,6 +156,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get interactionAnalysisHint => 'View interaction analysis';
+
+  String get interactionUserMessageLabel => 'You';
+
+  @override
+  String get interactionAssistantMessageLabel => 'Assistant';
 
   @override
   String get interactionLoadErrorDescription =>
@@ -170,6 +182,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The analysis could not be loaded yet.';
 
   @override
+  String analysisHttpError(int statusCode) {
+    return 'HTTP status: $statusCode';
+  }
+
   String get analysisSessionIdLabel => 'Session ID';
 
   @override

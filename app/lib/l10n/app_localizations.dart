@@ -338,6 +338,18 @@ abstract class AppLocalizations {
   /// **'Sending...'**
   String get interactionSendButtonLoading;
 
+  /// No description provided for @interactionSendErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Message could not be sent'**
+  String get interactionSendErrorTitle;
+
+  /// No description provided for @interactionSendErrorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend did not accept the message. Please try again.'**
+  String get interactionSendErrorDescription;
+
   /// No description provided for @interactionListTitle.
   ///
   /// In en, this message translates to:
@@ -355,6 +367,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View interaction analysis'**
   String get interactionAnalysisHint;
+
+  /// No description provided for @interactionUserMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get interactionUserMessageLabel;
+
+  /// No description provided for @interactionAssistantMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant'**
+  String get interactionAssistantMessageLabel;
 
   /// No description provided for @interactionLoadErrorDescription.
   ///
@@ -385,6 +409,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The analysis could not be loaded yet.'**
   String get analysisLoadErrorDescription;
+
+  /// No description provided for @analysisHttpError.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP status: {statusCode}'**
+  String analysisHttpError(int statusCode);
 
   /// No description provided for @analysisSessionIdLabel.
   ///

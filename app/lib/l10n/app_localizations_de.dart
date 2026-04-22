@@ -143,6 +143,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get interactionSendButtonLoading => 'Wird gesendet...';
 
   @override
+  String get interactionSendErrorTitle =>
+      'Nachricht konnte nicht gesendet werden';
+
+  @override
+  String get interactionSendErrorDescription =>
+      'Das Backend hat die Nachricht nicht angenommen. Bitte versuche es erneut.';
+
+  @override
   String get interactionListTitle => 'Interactions';
 
   @override
@@ -151,6 +159,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get interactionAnalysisHint => 'Interaction-Analyse ansehen';
+
+  String get interactionUserMessageLabel => 'Du';
+
+  @override
+  String get interactionAssistantMessageLabel => 'Assistant';
 
   @override
   String get interactionLoadErrorDescription =>
@@ -172,6 +185,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Analyse konnte noch nicht geladen werden.';
 
   @override
+  String analysisHttpError(int statusCode) {
+    return 'HTTP-Status: $statusCode';
+  }
+
   String get analysisSessionIdLabel => 'Sitzungs-ID';
 
   @override

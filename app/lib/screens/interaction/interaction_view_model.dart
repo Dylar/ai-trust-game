@@ -64,7 +64,7 @@ class InteractionViewModel {
       return;
     }
 
-    state.value = state.value.copyWith(isSubmitting: true);
+    state.value = state.value.copyWith(isSubmitting: true, resetError: true);
 
     try {
       await _interactionService.createInteraction(
@@ -81,10 +81,14 @@ class InteractionViewModel {
       );
     } catch (_) {
       state.value = state.value.copyWith(
-        status: InteractionScreenStatus.error,
+        error: InteractionScreenError.sendFailed,
         isSubmitting: false,
       );
     }
+  }
+
+  void clearError() {
+    state.value = state.value.copyWith(resetError: true);
   }
 
   void dispose() {

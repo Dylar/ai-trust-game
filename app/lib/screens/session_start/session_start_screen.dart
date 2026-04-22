@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:app/core/app/app_dependencies.dart';
+import 'package:app/core/app/app_error_dialog.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -26,6 +27,7 @@ class SessionStartScreen extends StatefulWidget {
 
 class _SessionStartScreenState extends State<SessionStartScreen> {
   SessionStartViewModel? _viewModel;
+  bool _isShowingErrorDialog = false;
 
   @override
   void didChangeDependencies() {
@@ -50,10 +52,26 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
 
   void _handleStateChanged() {
     final viewModel = _viewModel;
-    if (viewModel == null ||
-        viewModel.state.value.status != SessionStartStatus.prepared ||
-        viewModel.state.value.createdSessionId == null ||
-        !mounted) {
+    if (viewModel == null || !mounted) {
+      return;
+    }
+
+    if (viewModel.state.value.status == SessionStartStatus.error &&
+        !_isShowingErrorDialog) {
+      _isShowingErrorDialog = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          return;
+        }
+
+        await _showErrorDialog();
+        _isShowingErrorDialog = false;
+      });
+      return;
+    }
+
+    if (viewModel.state.value.status != SessionStartStatus.prepared ||
+        viewModel.state.value.createdSessionId == null) {
       return;
     }
 
@@ -68,6 +86,16 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
         InteractionScreen.replace(context, sessionId: sessionId);
       }
     });
+  }
+
+  Future<void> _showErrorDialog() {
+    final l10n = AppLocalizations.of(context)!;
+
+    return showAppErrorDialog(
+      context: context,
+      title: l10n.sessionStartErrorTitle,
+      message: l10n.sessionStartErrorDescription,
+    );
   }
 
   @override
@@ -97,14 +125,6 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
                         onModeSelected: _viewModel!.selectMode,
                         onPrepareSession: _viewModel!.prepareSession,
                       ),
-                      if (state.status != SessionStartStatus.idle) ...[
-                        const SizedBox(height: AppSpacing.medium),
-                        _SessionFeedbackCard(
-                          status: state.status,
-                          title: _feedbackTitle(l10n: l10n, state: state),
-                          message: _feedbackMessage(l10n: l10n, state: state),
-                        ),
-                      ],
                     ],
                   ),
                 );
@@ -115,37 +135,6 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
       ),
     );
   }
-}
-
-String _feedbackTitle({
-  required AppLocalizations l10n,
-  required SessionStartScreenState state,
-}) {
-  return switch (state.status) {
-    SessionStartStatus.loading => l10n.sessionStartLoadingTitle,
-    SessionStartStatus.prepared => l10n.sessionPreparedStatus(
-      state.selectedRole.localizedLabel(l10n),
-      state.selectedMode.localizedLabel(l10n),
-    ),
-    SessionStartStatus.error => l10n.sessionStartErrorTitle,
-    SessionStartStatus.idle => '',
-  };
-}
-
-String _feedbackMessage({
-  required AppLocalizations l10n,
-  required SessionStartScreenState state,
-}) {
-  return switch (state.status) {
-    SessionStartStatus.loading => l10n.sessionStartLoadingDescription,
-    SessionStartStatus.prepared => state.selectedMode.localizedDescription(
-      l10n,
-    ),
-    SessionStartStatus.error => switch (state.error) {
-      SessionStartError.unexpected || null => l10n.sessionStartErrorDescription,
-    },
-    SessionStartStatus.idle => '',
-  };
 }
 
 class _SessionStartHeader extends StatelessWidget {
@@ -355,85 +344,6 @@ class _PrepareSessionButton extends StatelessWidget {
         isSubmitting ? l10n.preparingSessionButton : l10n.prepareSessionButton,
       ),
     );
-  }
-}
-
-class _SessionFeedbackCard extends StatelessWidget {
-  const _SessionFeedbackCard({
-    required this.status,
-    required this.title,
-    required this.message,
-  });
-
-  final SessionStartStatus status;
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      key: SessionStartKeys.feedbackCard,
-      elevation: 0,
-      color: switch (status) {
-        SessionStartStatus.loading => AppColors.infoSurface,
-        SessionStartStatus.prepared => AppColors.successSurface,
-        SessionStartStatus.error => AppColors.errorSurface,
-        SessionStartStatus.idle => AppColors.surface,
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.medium),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _FeedbackIndicator(status: status),
-            const SizedBox(width: AppSpacing.medium),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: theme.textTheme.titleMedium),
-                  const SizedBox(height: AppSpacing.compact),
-                  Text(message, style: theme.textTheme.bodyLarge),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FeedbackIndicator extends StatelessWidget {
-  const _FeedbackIndicator({required this.status});
-
-  final SessionStartStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return switch (status) {
-      SessionStartStatus.loading => SizedBox(
-        key: SessionStartKeys.feedbackIndicator,
-        width: AppSpacing.large,
-        height: AppSpacing.large,
-        child: const CircularProgressIndicator(strokeWidth: 2),
-      ),
-      SessionStartStatus.prepared => Icon(
-        Icons.check_circle,
-        key: SessionStartKeys.feedbackIndicator,
-        color: colorScheme.primary,
-      ),
-      SessionStartStatus.error => Icon(
-        Icons.error_outline,
-        key: SessionStartKeys.feedbackIndicator,
-        color: colorScheme.error,
-      ),
-      SessionStartStatus.idle => const SizedBox.shrink(),
-    };
   }
 }
 

@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
-
+import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_screen_state.dart';
 import 'package:app/services/analysis_service.dart';
+import 'package:flutter/foundation.dart';
 
 class InteractionDetailViewModel {
   InteractionDetailViewModel({
@@ -11,14 +11,17 @@ class InteractionDetailViewModel {
        state = ValueNotifier(
          InteractionDetailScreenState.initial(requestId: requestId),
        ) {
-    load();
+    loadRequestAnalysis();
   }
 
   final AnalysisService _analysisService;
   final ValueNotifier<InteractionDetailScreenState> state;
 
-  Future<void> load() async {
-    state.value = state.value.copyWith(status: InteractionDetailStatus.loading);
+  Future<void> loadRequestAnalysis() async {
+    state.value = state.value.copyWith(
+      status: InteractionDetailStatus.loading,
+      resetError: true,
+    );
 
     try {
       final analysis = await _analysisService.getRequestAnalysis(
@@ -28,8 +31,16 @@ class InteractionDetailViewModel {
         status: InteractionDetailStatus.ready,
         analysis: analysis,
       );
+    } on AnalysisApiException catch (error) {
+      state.value = state.value.copyWith(
+        status: InteractionDetailStatus.error,
+        error: InteractionDetailError(httpStatusCode: error.statusCode),
+      );
     } catch (_) {
-      state.value = state.value.copyWith(status: InteractionDetailStatus.error);
+      state.value = state.value.copyWith(
+        status: InteractionDetailStatus.error,
+        error: const InteractionDetailError(),
+      );
     }
   }
 

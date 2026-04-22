@@ -3,6 +3,8 @@ import 'package:app/models/session_models.dart';
 
 enum InteractionScreenStatus { loading, ready, notFound, error }
 
+enum InteractionScreenError { sendFailed }
+
 class InteractionScreenState {
   const InteractionScreenState({
     required this.sessionId,
@@ -10,6 +12,7 @@ class InteractionScreenState {
     required this.session,
     required this.interactions,
     required this.isSubmitting,
+    required this.error,
   });
 
   factory InteractionScreenState.initial({required String sessionId}) {
@@ -19,6 +22,7 @@ class InteractionScreenState {
       session: null,
       interactions: const <Interaction>[],
       isSubmitting: false,
+      error: null,
     );
   }
 
@@ -27,6 +31,7 @@ class InteractionScreenState {
   final Session? session;
   final List<Interaction> interactions;
   final bool isSubmitting;
+  final InteractionScreenError? error;
 
   InteractionScreenState copyWith({
     String? sessionId,
@@ -34,7 +39,9 @@ class InteractionScreenState {
     Session? session,
     List<Interaction>? interactions,
     bool? isSubmitting,
+    InteractionScreenError? error,
     bool resetSession = false,
+    bool resetError = false,
   }) {
     return InteractionScreenState(
       sessionId: sessionId ?? this.sessionId,
@@ -42,6 +49,7 @@ class InteractionScreenState {
       session: resetSession ? null : session ?? this.session,
       interactions: interactions ?? this.interactions,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      error: resetError ? null : error ?? this.error,
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:app/models/session_models.dart';
 import 'package:app/screens/interaction/interaction_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../testing/mocks/failing_services.dart';
 import '../../testing/test_dependencies.dart';
 import 'interaction_test_context.dart';
 
@@ -94,5 +95,38 @@ void main() {
 
     // Then
     await context.process.expectInteractionCreated('Can I access the vault?');
+  });
+
+  testWidgets('keeps the failed message visible when sending fails', (
+    tester,
+  ) async {
+    final context = InteractionTestContext(tester);
+    final interactionRepository = InMemoryInteractionRepository();
+    final repository = InMemorySessionRepository(
+      initialSessions: const [
+        Session(id: 'local-admin-hard', role: Role.admin, mode: Mode.hard),
+      ],
+    );
+    final dependencies = buildTestDependencies(
+      interactionRepository: interactionRepository,
+      interactionService: const FailingInteractionService(),
+      sessionRepository: repository,
+    );
+
+    // Given
+    await context.appBot.startApp(
+      home: const InteractionScreen(sessionId: 'local-admin-hard'),
+      dependencies: dependencies,
+    );
+    await context.process.expectSessionDetailsLoaded('local-admin-hard');
+
+    // When
+    await context.process.sendMessage('Can I access the vault?');
+    await tester.pumpAndSettle();
+
+    // Then
+    context.screenBot.expectSessionDetailsVisible();
+    context.screenBot.expectSendErrorDialogVisible();
+    context.screenBot.expectMessageInputText('Can I access the vault?');
   });
 }

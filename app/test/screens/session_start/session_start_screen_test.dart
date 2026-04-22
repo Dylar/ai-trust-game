@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:app/screens/session_start/session_start_screen.dart';
 
+import '../../testing/mocks/failing_services.dart';
+import '../../testing/test_dependencies.dart';
 import 'session_start_test_context.dart';
 
 void main() {
@@ -31,11 +33,11 @@ void main() {
     await context.screenBot.tapPrepareSession();
 
     // Then
-    context.screenBot.expectLoadingFeedbackVisible();
+    context.screenBot.expectPrepareButtonLoading();
     await context.process.waitUntilPreparationFinished();
   });
 
-  testWidgets('shows the prepared state after selecting admin and hard', (
+  testWidgets('does not show prepared feedback after session preparation', (
     tester,
   ) async {
     final context = SessionStartTestContext(tester);
@@ -47,7 +49,26 @@ void main() {
     await context.process.prepareAdminHardSession();
 
     // Then
-    context.screenBot.expectPreparedStatusVisible();
-    context.screenBot.expectPreparedStatusTextShown();
+    expect(find.textContaining('Started'), findsNothing);
+  });
+
+  testWidgets('opens a dialog when preparing a session fails', (tester) async {
+    final context = SessionStartTestContext(tester);
+    final dependencies = buildTestDependencies(
+      sessionService: const FailingSessionService(),
+    );
+
+    // Given
+    await context.appBot.startApp(
+      home: const SessionStartScreen(),
+      dependencies: dependencies,
+    );
+
+    // When
+    await context.screenBot.tapPrepareSession();
+    await tester.pumpAndSettle();
+
+    // Then
+    context.screenBot.expectErrorDialogVisible();
   });
 }
