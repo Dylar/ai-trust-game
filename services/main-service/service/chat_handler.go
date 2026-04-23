@@ -27,11 +27,7 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 	ctx := req.Context()
 
 	if req.Method != http.MethodPost {
-		network.WriteJSON(
-			w,
-			http.StatusMethodNotAllowed,
-			ChatResponse{Message: "Whatever your intention was, I dont know why you are trying to do that."},
-		)
+		network.WriteJSONError(w, http.StatusMethodNotAllowed, network.ErrorCodeMethodNotAllowed)
 		return
 	}
 
@@ -41,11 +37,7 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 
 	var request ChatRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		network.WriteJSON(
-			w,
-			http.StatusBadRequest,
-			ChatResponse{Message: "Whatever you said, I dont understand it"},
-		)
+		network.WriteJSONError(w, http.StatusBadRequest, network.ErrorCodeInvalidJSON)
 		return
 	}
 
@@ -58,24 +50,20 @@ func (handler *ChatHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) 
 				logging.WithError(err),
 			)
 		}
-		status, errorResponse := handler.mapChatError(err)
-		network.WriteJSON(w, status, errorResponse)
+		status, errorCode := handler.mapChatError(err)
+		network.WriteJSONError(w, status, errorCode)
 		return
 	}
 
 	network.WriteJSON(w, http.StatusOK, response)
 }
 
-func (handler *ChatHandler) mapChatError(err error) (int, ChatResponse) {
+func (handler *ChatHandler) mapChatError(err error) (int, string) {
 	if errors.Is(err, ErrEmptyMessage) {
-		return http.StatusBadRequest, ChatResponse{
-			Message: "Are you shy? You didn't say anything :P",
-		}
+		return http.StatusBadRequest, errorCodeEmptyMessage
 	}
 
-	return http.StatusInternalServerError, ChatResponse{
-		Message: "Something went wrong",
-	}
+	return http.StatusInternalServerError, network.ErrorCodeInternal
 }
 
 func (handler *ChatHandler) handleChat(ctx context.Context, req ChatRequest) (ChatResponse, error) {

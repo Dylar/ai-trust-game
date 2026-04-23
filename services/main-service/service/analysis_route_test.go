@@ -45,6 +45,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 
 	type Then struct {
 		expectedStatus             int
+		expectedErrorCode          string
 		expectedClassification     string
 		expectedIntentSummary      string
 		expectedSignalCount        int
@@ -79,7 +80,10 @@ func TestRequestAnalysisRoute(t *testing.T) {
 				"THEN returns 404",
 			given: Given{path: "/analysis/request/request-missing"},
 			when:  When{method: http.MethodGet},
-			then:  Then{expectedStatus: http.StatusNotFound},
+			then: Then{
+				expectedStatus:    http.StatusNotFound,
+				expectedErrorCode: errorCodeRequestAnalysisNotFound,
+			},
 		},
 		{
 			name: "GIVEN missing request id path " +
@@ -87,7 +91,10 @@ func TestRequestAnalysisRoute(t *testing.T) {
 				"THEN returns 400",
 			given: Given{path: "/analysis/request/"},
 			when:  When{method: http.MethodGet},
-			then:  Then{expectedStatus: http.StatusBadRequest},
+			then: Then{
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeMissingAnalysisRequest,
+			},
 		},
 		{
 			name: "GIVEN wrong method " +
@@ -95,7 +102,10 @@ func TestRequestAnalysisRoute(t *testing.T) {
 				"THEN returns 405",
 			given: Given{path: "/analysis/request/request-123"},
 			when:  When{method: http.MethodPost},
-			then:  Then{expectedStatus: http.StatusMethodNotAllowed},
+			then: Then{
+				expectedStatus:    http.StatusMethodNotAllowed,
+				expectedErrorCode: network.ErrorCodeMethodNotAllowed,
+			},
 		},
 	}
 
@@ -112,6 +122,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			if then.expectedStatus != http.StatusOK {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
 				return
 			}
 
@@ -175,6 +186,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 
 	type Then struct {
 		expectedStatus         int
+		expectedErrorCode      string
 		expectedClassification string
 		expectedIntentSummary  string
 		expectedSignals        []string
@@ -221,7 +233,10 @@ func TestSessionAnalysisRoute(t *testing.T) {
 				"THEN returns 404",
 			given: Given{path: "/analysis/session/session-missing"},
 			when:  When{method: http.MethodGet},
-			then:  Then{expectedStatus: http.StatusNotFound},
+			then: Then{
+				expectedStatus:    http.StatusNotFound,
+				expectedErrorCode: errorCodeSessionAnalysisNotFound,
+			},
 		},
 		{
 			name: "GIVEN missing session id path " +
@@ -229,7 +244,10 @@ func TestSessionAnalysisRoute(t *testing.T) {
 				"THEN returns 400",
 			given: Given{path: "/analysis/session/"},
 			when:  When{method: http.MethodGet},
-			then:  Then{expectedStatus: http.StatusBadRequest},
+			then: Then{
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeMissingAnalysisSession,
+			},
 		},
 	}
 
@@ -246,6 +264,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			if then.expectedStatus != http.StatusOK {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
 				return
 			}
 

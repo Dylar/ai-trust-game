@@ -86,8 +86,9 @@ func TestInteractionRoute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedStatus  int
-		expectedMessage string
+		expectedStatus    int
+		expectedErrorCode string
+		expectedMessage   string
 	}
 
 	type Scenario struct {
@@ -209,7 +210,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeMissingSession,
 			},
 		},
 		{
@@ -227,7 +229,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusNotFound,
+				expectedStatus:    http.StatusNotFound,
+				expectedErrorCode: errorCodeSessionNotFound,
 			},
 		},
 		{
@@ -245,7 +248,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeEmptyMessage,
 			},
 		},
 		{
@@ -263,7 +267,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: network.ErrorCodeInvalidJSON,
 			},
 		},
 		{
@@ -277,7 +282,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodGet,
 			},
 			then: Then{
-				expectedStatus: http.StatusMethodNotAllowed,
+				expectedStatus:    http.StatusMethodNotAllowed,
+				expectedErrorCode: network.ErrorCodeMethodNotAllowed,
 			},
 		},
 	}
@@ -303,6 +309,7 @@ func TestInteractionRoute(t *testing.T) {
 			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			if then.expectedMessage == "" {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
 				return
 			}
 

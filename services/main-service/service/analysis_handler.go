@@ -41,7 +41,7 @@ func NewRequestAnalysisHandlerWithSummarizer(
 
 func (handler *RequestAnalysisHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
-		network.WriteJSON(w, http.StatusMethodNotAllowed, nil)
+		network.WriteJSONError(w, http.StatusMethodNotAllowed, network.ErrorCodeMethodNotAllowed)
 		return
 	}
 
@@ -49,8 +49,8 @@ func (handler *RequestAnalysisHandler) ServeHTTP(w http.ResponseWriter, req *htt
 	if strings.HasPrefix(path, "/analysis/session/") {
 		response, err := handler.handleGetSessionAnalysis(sessionIDFromPath(path))
 		if err != nil {
-			status, body := handler.mapSessionAnalysisError(err)
-			network.WriteJSON(w, status, body)
+			status, errorCode := handler.mapSessionAnalysisError(err)
+			network.WriteJSONError(w, status, errorCode)
 			return
 		}
 
@@ -60,8 +60,8 @@ func (handler *RequestAnalysisHandler) ServeHTTP(w http.ResponseWriter, req *htt
 
 	response, err := handler.handleGetRequestAnalysis(requestIDFromPath(path))
 	if err != nil {
-		status, body := handler.mapRequestAnalysisError(err)
-		network.WriteJSON(w, status, body)
+		status, errorCode := handler.mapRequestAnalysisError(err)
+		network.WriteJSONError(w, status, errorCode)
 		return
 	}
 
@@ -93,15 +93,15 @@ func (handler *RequestAnalysisHandler) handleGetRequestAnalysis(requestID string
 	}, nil
 }
 
-func (handler *RequestAnalysisHandler) mapRequestAnalysisError(err error) (int, RequestAnalysisResponse) {
+func (handler *RequestAnalysisHandler) mapRequestAnalysisError(err error) (int, string) {
 	if errors.Is(err, ErrNoAnalysisRequestID) {
-		return http.StatusBadRequest, RequestAnalysisResponse{}
+		return http.StatusBadRequest, errorCodeMissingAnalysisRequest
 	}
 	if errors.Is(err, ErrRequestAnalysisNotFound) {
-		return http.StatusNotFound, RequestAnalysisResponse{}
+		return http.StatusNotFound, errorCodeRequestAnalysisNotFound
 	}
 
-	return http.StatusInternalServerError, RequestAnalysisResponse{}
+	return http.StatusInternalServerError, network.ErrorCodeInternal
 }
 
 func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string) (SessionAnalysisResponse, error) {
@@ -156,15 +156,15 @@ func (handler *RequestAnalysisHandler) shouldSummarizeSessionIntent(session audi
 	return session.RequestCount > 1 || session.Classification != audit.ClassificationClean
 }
 
-func (handler *RequestAnalysisHandler) mapSessionAnalysisError(err error) (int, SessionAnalysisResponse) {
+func (handler *RequestAnalysisHandler) mapSessionAnalysisError(err error) (int, string) {
 	if errors.Is(err, ErrNoAnalysisSessionID) {
-		return http.StatusBadRequest, SessionAnalysisResponse{}
+		return http.StatusBadRequest, errorCodeMissingAnalysisSession
 	}
 	if errors.Is(err, ErrSessionAnalysisNotFound) {
-		return http.StatusNotFound, SessionAnalysisResponse{}
+		return http.StatusNotFound, errorCodeSessionAnalysisNotFound
 	}
 
-	return http.StatusInternalServerError, SessionAnalysisResponse{}
+	return http.StatusInternalServerError, network.ErrorCodeInternal
 }
 
 func requestIDFromPath(path string) string {

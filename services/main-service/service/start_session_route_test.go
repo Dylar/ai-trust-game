@@ -30,9 +30,10 @@ func TestStartSessionRoute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedStatus int
-		expectedRole   string
-		expectedMode   string
+		expectedStatus    int
+		expectedErrorCode string
+		expectedRole      string
+		expectedMode      string
 	}
 
 	type Scenario struct {
@@ -70,7 +71,8 @@ func TestStartSessionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeInvalidRole,
 			},
 		},
 		{
@@ -84,7 +86,8 @@ func TestStartSessionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeInvalidMode,
 			},
 		},
 		{
@@ -98,7 +101,8 @@ func TestStartSessionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: network.ErrorCodeInvalidJSON,
 			},
 		},
 		{
@@ -110,7 +114,8 @@ func TestStartSessionRoute(t *testing.T) {
 				method: http.MethodGet,
 			},
 			then: Then{
-				expectedStatus: http.StatusMethodNotAllowed,
+				expectedStatus:    http.StatusMethodNotAllowed,
+				expectedErrorCode: network.ErrorCodeMethodNotAllowed,
 			},
 		},
 	}
@@ -139,6 +144,7 @@ func TestStartSessionRoute(t *testing.T) {
 
 			hasExpectedBody := then.expectedRole != "" || then.expectedMode != ""
 			if !hasExpectedBody {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
 				return
 			}
 

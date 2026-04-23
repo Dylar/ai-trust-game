@@ -36,11 +36,7 @@ func (handler *StartSessionHandler) ServeHTTP(w http.ResponseWriter, req *http.R
 	ctx := req.Context()
 
 	if req.Method != http.MethodPost {
-		network.WriteJSON(
-			w,
-			http.StatusMethodNotAllowed,
-			nil,
-		)
+		network.WriteJSONError(w, http.StatusMethodNotAllowed, network.ErrorCodeMethodNotAllowed)
 		return
 	}
 
@@ -50,11 +46,7 @@ func (handler *StartSessionHandler) ServeHTTP(w http.ResponseWriter, req *http.R
 
 	var request StartSessionRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		network.WriteJSON(
-			w,
-			http.StatusBadRequest,
-			nil,
-		)
+		network.WriteJSONError(w, http.StatusBadRequest, network.ErrorCodeInvalidJSON)
 		return
 	}
 
@@ -65,8 +57,8 @@ func (handler *StartSessionHandler) ServeHTTP(w http.ResponseWriter, req *http.R
 			"start session failed",
 			logging.WithError(err),
 		)
-		status, errorResponse := handler.mapStartSessionError(err)
-		network.WriteJSON(w, status, errorResponse)
+		status, errorCode := handler.mapStartSessionError(err)
+		network.WriteJSONError(w, status, errorCode)
 		return
 	}
 
@@ -114,9 +106,12 @@ func (handler *StartSessionHandler) handleStartSession(ctx context.Context, req 
 	return response, nil
 }
 
-func (handler *StartSessionHandler) mapStartSessionError(err error) (int, StartSessionResponse) {
-	if errors.Is(err, ErrInvalidRole) || errors.Is(err, ErrInvalidMode) {
-		return http.StatusBadRequest, StartSessionResponse{}
+func (handler *StartSessionHandler) mapStartSessionError(err error) (int, string) {
+	if errors.Is(err, ErrInvalidRole) {
+		return http.StatusBadRequest, errorCodeInvalidRole
 	}
-	return http.StatusInternalServerError, StartSessionResponse{}
+	if errors.Is(err, ErrInvalidMode) {
+		return http.StatusBadRequest, errorCodeInvalidMode
+	}
+	return http.StatusInternalServerError, network.ErrorCodeInternal
 }

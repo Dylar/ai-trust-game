@@ -28,8 +28,9 @@ func TestChatRoute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedStatus  int
-		expectedMessage string
+		expectedStatus    int
+		expectedErrorCode string
+		expectedMessage   string
 	}
 
 	type Scenario struct {
@@ -64,8 +65,8 @@ func TestChatRoute(t *testing.T) {
 				method: http.MethodGet,
 			},
 			then: Then{
-				expectedStatus:  http.StatusMethodNotAllowed,
-				expectedMessage: "Whatever your intention was, I dont know why you are trying to do that.",
+				expectedStatus:    http.StatusMethodNotAllowed,
+				expectedErrorCode: network.ErrorCodeMethodNotAllowed,
 			},
 		},
 		{
@@ -79,8 +80,8 @@ func TestChatRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus:  http.StatusBadRequest,
-				expectedMessage: "Whatever you said, I dont understand it",
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: network.ErrorCodeInvalidJSON,
 			},
 		},
 		{
@@ -94,8 +95,8 @@ func TestChatRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus:  http.StatusBadRequest,
-				expectedMessage: "Are you shy? You didn't say anything :P",
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeEmptyMessage,
 			},
 		},
 		{
@@ -136,6 +137,11 @@ func TestChatRoute(t *testing.T) {
 			requestID := rec.Header().Get(network.RequestIDHeader)
 			assert.NotEmpty(t, requestID, "expected X-Request-Id header to be set")
 			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
+
+			if then.expectedStatus != http.StatusOK {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
+				return
+			}
 
 			var response ChatResponse
 			if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {

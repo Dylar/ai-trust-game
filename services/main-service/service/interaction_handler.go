@@ -40,11 +40,7 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 	ctx := req.Context()
 
 	if req.Method != http.MethodPost {
-		network.WriteJSON(
-			w,
-			http.StatusMethodNotAllowed,
-			nil,
-		)
+		network.WriteJSONError(w, http.StatusMethodNotAllowed, network.ErrorCodeMethodNotAllowed)
 		return
 	}
 
@@ -54,11 +50,7 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 
 	var request InteractionRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		network.WriteJSON(
-			w,
-			http.StatusBadRequest,
-			nil,
-		)
+		network.WriteJSONError(w, http.StatusBadRequest, network.ErrorCodeInvalidJSON)
 		return
 	}
 
@@ -78,8 +70,8 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 
 			handler.logger.Error(ctx, "interaction failed", fields...)
 		}
-		status, errorResponse := handler.mapInteractionError(err)
-		network.WriteJSON(w, status, errorResponse)
+		status, errorCode := handler.mapInteractionError(err)
+		network.WriteJSONError(w, status, errorCode)
 		return
 	}
 
@@ -126,17 +118,17 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 	return handler.mapToResponse(result), nil
 }
 
-func (handler *InteractionHandler) mapInteractionError(err error) (int, InteractionResponse) {
+func (handler *InteractionHandler) mapInteractionError(err error) (int, string) {
 	if errors.Is(err, ErrNoSessionProvided) {
-		return http.StatusBadRequest, InteractionResponse{}
+		return http.StatusBadRequest, errorCodeMissingSession
 	}
 	if errors.Is(err, interaction.ErrEmptyInteractionMessage) {
-		return http.StatusBadRequest, InteractionResponse{}
+		return http.StatusBadRequest, errorCodeEmptyMessage
 	}
 	if errors.Is(err, ErrNoSessionFound) {
-		return http.StatusNotFound, InteractionResponse{}
+		return http.StatusNotFound, errorCodeSessionNotFound
 	}
-	return http.StatusInternalServerError, InteractionResponse{}
+	return http.StatusInternalServerError, network.ErrorCodeInternal
 }
 
 func (handler *InteractionHandler) mapToResponse(result interactionresponse.Result) InteractionResponse {

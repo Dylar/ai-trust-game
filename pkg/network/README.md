@@ -13,7 +13,7 @@ Its purpose is to keep transport concerns consistent without moving business dec
   metadata type plus context helpers
 
 - [`response.go`](./response.go)
-  shared JSON response writer
+  shared JSON response and error-response writers
 
 - [`cors.go`](./cors.go)
   small CORS middleware for browser-based local clients
@@ -63,3 +63,24 @@ It currently:
 - encodes the provided payload when one exists
 
 This keeps simple handler responses consistent across the service layer.
+
+[`WriteJSONError`](./response.go) writes non-success responses with a stable JSON envelope:
+
+```json
+{
+  "error": {
+    "code": "session_not_found"
+  }
+}
+```
+
+The network package owns only the transport shape.
+Service handlers still choose the HTTP status and concrete error code.
+
+Generic transport error codes are defined here as exported constants:
+
+- `ErrorCodeInvalidJSON`
+- `ErrorCodeMethodNotAllowed`
+- `ErrorCodeInternal`
+
+Service-specific validation or domain codes belong to the service layer.
