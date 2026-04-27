@@ -100,6 +100,22 @@ class _HomeHeader extends StatelessWidget {
                 color: AppColors.brandForeground,
               ),
             ),
+            const SizedBox(height: AppSpacing.medium),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 180,
+                  maxHeight: 180,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSpacing.large),
+                  child: Image.asset(
+                    'assets/app_icon.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: AppSpacing.small),
             Text(l10n.homeTitle, style: theme.textTheme.headlineMedium),
             const SizedBox(height: AppSpacing.small),

@@ -18,21 +18,95 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="AI Trust Game">
+  <meta name="theme-color" content="#F6F1E8">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="app">
+  <meta name="apple-mobile-web-app-title" content="AI Trust Game">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>app</title>
+  <title>AI Trust Game</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #F6F1E8;
+    }
+
+    body {
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #app-loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F6F1E8;
+      z-index: 9999;
+      transition: opacity 180ms ease;
+    }
+
+    #app-loading.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .app-loading__content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      padding: 32px;
+    }
+
+    .app-loading__logo {
+      width: 112px;
+      height: 112px;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 24px rgba(18, 53, 36, 0.14));
+    }
+
+    .app-loading__title {
+      color: #123524;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .app-loading__spinner {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 3px solid rgba(11, 110, 79, 0.18);
+      border-top-color: #0B6E4F;
+      animation: app-loading-spin 900ms linear infinite;
+    }
+
+    @keyframes app-loading-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 <body>
+  <div id="app-loading" aria-label="Loading application">
+    <div class="app-loading__content">
+      <img class="app-loading__logo" src="logo.png" alt="AI Trust Game logo" />
+      <div class="app-loading__title">AI Trust Game</div>
+      <div class="app-loading__spinner"></div>
+    </div>
+  </div>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader
@@ -41,6 +115,19 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      const loadingElement = document.getElementById('app-loading');
+      if (!loadingElement) {
+        return;
+      }
+
+      loadingElement.classList.add('is-hidden');
+      window.setTimeout(function () {
+        loadingElement.remove();
+      }, 220);
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

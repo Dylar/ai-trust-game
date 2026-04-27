@@ -7,21 +7,23 @@ import '../../testing/base_screen_bot.dart';
 class HomeScreenBot extends BaseScreenBot {
   HomeScreenBot(super.tester);
 
+  Finder get _recentSessionFinder => find.byWidgetPredicate((widget) {
+    final key = widget.key;
+    return key is ValueKey<String> && key.value.startsWith('home.session.');
+  });
+
   Future<void> tapStartSession() async {
     await tap(HomeKeys.startSessionButton);
   }
 
   Future<void> tapRecentSession(String sessionId) async {
+    await scrollUntilVisible(HomeKeys.session(sessionId));
     await tap(HomeKeys.session(sessionId));
   }
 
   Future<void> tapFirstRecentSession() async {
-    await tap(
-      find.byWidgetPredicate((widget) {
-        final key = widget.key;
-        return key is ValueKey<String> && key.value.startsWith('home.session.');
-      }).first,
-    );
+    await scrollUntilVisible(_recentSessionFinder.first);
+    await tap(_recentSessionFinder.first);
   }
 
   void expectScreenVisible() {
@@ -48,12 +50,6 @@ class HomeScreenBot extends BaseScreenBot {
   }
 
   void expectRecentSessionCount(int count) {
-    expect(
-      find.byWidgetPredicate((widget) {
-        final key = widget.key;
-        return key is ValueKey<String> && key.value.startsWith('home.session.');
-      }),
-      findsNWidgets(count),
-    );
+    expect(_recentSessionFinder, findsNWidgets(count));
   }
 }
