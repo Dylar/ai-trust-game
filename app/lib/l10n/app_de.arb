@@ -7,6 +7,7 @@
   "homeRecentSessionsTitle": "Letzte Sitzungen",
   "homeRecentSessionsDescription": "Diese Sitzungen bleiben fuer die aktuelle App-Laufzeit erhalten.",
   "homeEmptySessions": "Es sind noch keine Sitzungen vorhanden.",
+  "homeNoInteractionPreview": "Noch keine Interaction vorhanden.",
   "homeResumeSessionHint": "Sitzung öffnen",
   "homeSessionSummary": "{role} im Modus {mode}",
   "@homeSessionSummary": {
@@ -92,6 +93,23 @@
     }
   },
   "sessionDetailTitle": "Sitzungsanalyse",
+  "sessionDetailRequestsTitle": "Requests dieser Sitzung",
+  "sessionDetailRequestsDescription": "Öffne einen Request, um die Detailanalyse anzusehen.",
+  "sessionDetailRequestsEmpty": "Es sind noch keine Request-Analysen verfügbar.",
+  "sessionDetailRequestSummary": "{classification} · Verdachtssignale: {suspicionCount} · Modellfehler: {modelFailCount}",
+  "@sessionDetailRequestSummary": {
+    "placeholders": {
+      "classification": {
+        "type": "String"
+      },
+      "suspicionCount": {
+        "type": "int"
+      },
+      "modelFailCount": {
+        "type": "int"
+      }
+    }
+  },
   "interactionDetailTitle": "Interaction-Analyse",
   "analysisLoadErrorDescription": "Die Analyse konnte noch nicht geladen werden.",
   "analysisHttpError": "HTTP-Status: {statusCode}",

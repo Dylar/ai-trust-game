@@ -14,4 +14,8 @@ class SessionDetailProcess {
     screenBot.expectSessionIdShown(sessionId);
     screenBot.expectClassificationShown(classification);
   }
+
+  Future<void> expectRequestVisible(String requestId) async {
+    screenBot.expectRequestVisible(requestId);
+  }
 }

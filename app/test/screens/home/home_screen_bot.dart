@@ -52,4 +52,8 @@ class HomeScreenBot extends BaseScreenBot {
   void expectRecentSessionCount(int count) {
     expect(_recentSessionFinder, findsNWidgets(count));
   }
+
+  void expectRecentSessionPreviewVisible(String previewMessage) {
+    expect(find.text(previewMessage), findsOneWidget);
+  }
 }

@@ -32,6 +32,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeEmptySessions => 'Es sind noch keine Sitzungen vorhanden.';
 
   @override
+  String get homeNoInteractionPreview => 'Noch keine Interaction vorhanden.';
+
+  @override
   String get homeResumeSessionHint => 'Sitzung öffnen';
 
   @override
@@ -235,6 +238,26 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sessionDetailTitle => 'Sitzungsanalyse';
+
+  @override
+  String get sessionDetailRequestsTitle => 'Requests dieser Sitzung';
+
+  @override
+  String get sessionDetailRequestsDescription =>
+      'Öffne einen Request, um die Detailanalyse anzusehen.';
+
+  @override
+  String get sessionDetailRequestsEmpty =>
+      'Es sind noch keine Request-Analysen verfügbar.';
+
+  @override
+  String sessionDetailRequestSummary(
+    String classification,
+    int suspicionCount,
+    int modelFailCount,
+  ) {
+    return '$classification · Verdachtssignale: $suspicionCount · Modellfehler: $modelFailCount';
+  }
 
   @override
   String get interactionDetailTitle => 'Interaction-Analyse';

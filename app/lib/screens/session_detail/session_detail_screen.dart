@@ -4,6 +4,7 @@ import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/models/analysis_models.dart';
+import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
 import 'package:app/screens/session_detail/session_detail_keys.dart';
 import 'package:app/screens/session_detail/session_detail_screen_state.dart';
 import 'package:app/screens/session_detail/session_detail_view_model.dart';
@@ -158,7 +159,116 @@ class _SessionAnalysisView extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: AppSpacing.large),
+        _SessionRequestsSection(requests: analysis.requests),
       ],
+    );
+  }
+}
+
+class _SessionRequestsSection extends StatelessWidget {
+  const _SessionRequestsSection({required this.requests});
+
+  final List<RequestAnalysis> requests;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return Card(
+      key: SessionDetailKeys.requestsSection,
+      elevation: 0,
+      color: AppColors.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.sessionDetailRequestsTitle,
+              style: theme.textTheme.titleLarge,
+            ),
+            const SizedBox(height: AppSpacing.small),
+            Text(
+              l10n.sessionDetailRequestsDescription,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
+            ),
+            const SizedBox(height: AppSpacing.large),
+            if (requests.isEmpty)
+              Text(l10n.sessionDetailRequestsEmpty)
+            else
+              Column(
+                children: requests
+                    .map(
+                      (request) => Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: AppSpacing.small,
+                        ),
+                        child: _RequestAnalysisCard(request: request),
+                      ),
+                    )
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RequestAnalysisCard extends StatelessWidget {
+  const _RequestAnalysisCard({required this.request});
+
+  final RequestAnalysis request;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return InkWell(
+      key: SessionDetailKeys.requestCard(request.requestId),
+      onTap: () =>
+          InteractionDetailScreen.open(context, requestId: request.requestId),
+      borderRadius: BorderRadius.circular(AppSpacing.medium),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(AppSpacing.medium),
+          border: Border.all(color: AppColors.borderMuted),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.medium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                request.requestId,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: AppColors.brandForeground,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.compact),
+              Text(
+                l10n.sessionDetailRequestSummary(
+                  request.classification,
+                  request.suspicionCount,
+                  request.modelFailCount,
+                ),
+                style: theme.textTheme.bodyMedium,
+              ),
+              if (request.intentSummary.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.compact),
+                Text(
+                  request.intentSummary,
+                  style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

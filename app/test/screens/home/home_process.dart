@@ -28,4 +28,8 @@ class HomeProcess {
     await screenBot.tapFirstRecentSession();
     await baseBot.pump(const Duration(milliseconds: 300));
   }
+
+  void expectRecentSessionPreviewVisible(String previewMessage) {
+    screenBot.expectRecentSessionPreviewVisible(previewMessage);
+  }
 }

@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _viewModel ??= HomeViewModel(
+      interactionRepository: AppDependencies.of(context).interactionRepository,
       sessionRepository: AppDependencies.of(context).sessionRepository,
     );
   }
@@ -239,7 +240,7 @@ class _RecentSessionCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.compact),
               Text(
-                session.preview,
+                session.previewMessage ?? l10n.homeNoInteractionPreview,
                 style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
               ),
               const SizedBox(height: AppSpacing.small),

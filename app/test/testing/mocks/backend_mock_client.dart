@@ -41,7 +41,20 @@ http.Client buildBackendMockClient() {
           'request_count': 1,
           'suspicion_count': 0,
           'model_fail_count': 0,
-          'requests': <Object>[],
+          'requests': <Object>[
+            <String, Object>{
+              'request_id': 'request-1',
+              'session_id': sessionId,
+              'completed_at': '2026-04-21T10:00:00Z',
+              'classification': 'clean',
+              'signals': <String>[],
+              'attack_patterns': <String>[],
+              'intent_summary': '',
+              'event_count': 1,
+              'suspicion_count': 0,
+              'model_fail_count': 0,
+            },
+          ],
         }),
         200,
       );

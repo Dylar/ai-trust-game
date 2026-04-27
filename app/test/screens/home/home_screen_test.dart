@@ -1,4 +1,5 @@
 import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/models/interaction_models.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,5 +75,36 @@ void main() {
     // Then
     context.interactionScreenBot.expectScreenVisible();
     context.interactionScreenBot.expectSessionDetailsVisible();
+  });
+
+  testWidgets('shows the last interaction message in recent sessions', (
+    tester,
+  ) async {
+    final context = HomeTestContext(tester);
+    final interactionRepository = InMemoryInteractionRepository(
+      initialInteractions: const [
+        Interaction(
+          sessionId: 'seeded-session',
+          interactionId: 'request-1',
+          message: 'Latest preview message',
+          answer: 'Backend answer',
+        ),
+      ],
+    );
+    final repository = InMemorySessionRepository(
+      initialSessions: const [
+        Session(id: 'seeded-session', role: Role.employee, mode: Mode.medium),
+      ],
+    );
+    final dependencies = buildTestDependencies(
+      interactionRepository: interactionRepository,
+      sessionRepository: repository,
+    );
+
+    await context.appBot.startApp(dependencies: dependencies);
+    await context.process.waitUntilRecentSessionsLoaded();
+
+    context.screenBot.expectRecentSessionVisible('seeded-session');
+    context.process.expectRecentSessionPreviewVisible('Latest preview message');
   });
 }

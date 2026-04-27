@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'No sessions are available yet.'**
   String get homeEmptySessions;
 
+  /// No description provided for @homeNoInteractionPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'No interaction yet.'**
+  String get homeNoInteractionPreview;
+
   /// No description provided for @homeResumeSessionHint.
   ///
   /// In en, this message translates to:
@@ -487,6 +493,34 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Session Analysis'**
   String get sessionDetailTitle;
+
+  /// No description provided for @sessionDetailRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests in this session'**
+  String get sessionDetailRequestsTitle;
+
+  /// No description provided for @sessionDetailRequestsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a request to inspect its detailed analysis.'**
+  String get sessionDetailRequestsDescription;
+
+  /// No description provided for @sessionDetailRequestsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No request analyses are available yet.'**
+  String get sessionDetailRequestsEmpty;
+
+  /// No description provided for @sessionDetailRequestSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{classification} · Suspicion signals: {suspicionCount} · Model failures: {modelFailCount}'**
+  String sessionDetailRequestSummary(
+    String classification,
+    int suspicionCount,
+    int modelFailCount,
+  );
 
   /// No description provided for @interactionDetailTitle.
   ///

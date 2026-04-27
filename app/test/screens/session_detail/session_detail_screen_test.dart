@@ -23,6 +23,7 @@ void main() {
       sessionId: 'local-admin-hard',
       classification: 'clean',
     );
+    await context.process.expectRequestVisible('request-1');
   });
 
   testWidgets('shows backend error text when session analysis loading fails', (

@@ -32,6 +32,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeEmptySessions => 'No sessions are available yet.';
 
   @override
+  String get homeNoInteractionPreview => 'No interaction yet.';
+
+  @override
   String get homeResumeSessionHint => 'Open session';
 
   @override
@@ -228,6 +231,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionDetailTitle => 'Session Analysis';
+
+  @override
+  String get sessionDetailRequestsTitle => 'Requests in this session';
+
+  @override
+  String get sessionDetailRequestsDescription =>
+      'Open a request to inspect its detailed analysis.';
+
+  @override
+  String get sessionDetailRequestsEmpty =>
+      'No request analyses are available yet.';
+
+  @override
+  String sessionDetailRequestSummary(
+    String classification,
+    int suspicionCount,
+    int modelFailCount,
+  ) {
+    return '$classification · Suspicion signals: $suspicionCount · Model failures: $modelFailCount';
+  }
 
   @override
   String get interactionDetailTitle => 'Interaction Analysis';

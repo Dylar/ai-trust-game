@@ -1,5 +1,5 @@
-import 'package:app/models/session_models.dart';
 import 'package:app/models/interaction_models.dart';
+import 'package:app/models/session_models.dart';
 
 class SessionSummary {
   const SessionSummary({required this.session, required this.lastInteraction});
@@ -10,7 +10,7 @@ class SessionSummary {
   String get id => session.id;
   Role get role => session.role;
   Mode get mode => session.mode;
-  String get preview => lastInteraction?.message ?? 'No interaction yet.';
+  String? get previewMessage => lastInteraction?.message;
 }
 
 class HomeScreenState {

@@ -21,4 +21,8 @@ class SessionDetailScreenBot extends BaseScreenBot {
   void expectClassificationShown(String classification) {
     expect(find.text(classification), findsOneWidget);
   }
+
+  void expectRequestVisible(String requestId) {
+    expect(isVisible(SessionDetailKeys.requestCard(requestId)), isTrue);
+  }
 }
