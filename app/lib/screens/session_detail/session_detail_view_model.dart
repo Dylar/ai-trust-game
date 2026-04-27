@@ -34,7 +34,10 @@ class SessionDetailViewModel {
     } on AnalysisApiException catch (error) {
       state.value = state.value.copyWith(
         status: SessionDetailStatus.error,
-        error: SessionDetailError(httpStatusCode: error.statusCode),
+        error: SessionDetailError(
+          httpStatusCode: error.statusCode,
+          code: error.code,
+        ),
       );
     } catch (_) {
       state.value = state.value.copyWith(

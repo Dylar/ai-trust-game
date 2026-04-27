@@ -1,3 +1,4 @@
+import 'package:app/core/app/api_error_localizations.dart';
 import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
@@ -246,7 +247,9 @@ class _ErrorState extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.analysisLoadErrorDescription,
+              error?.code == null
+                  ? l10n.analysisLoadErrorDescription
+                  : l10n.apiErrorDescription(error!.code),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             if (error?.httpStatusCode != null) ...[

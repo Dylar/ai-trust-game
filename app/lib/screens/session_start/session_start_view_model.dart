@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:app/data/api/api_error.dart';
 import 'package:app/models/session_models.dart';
 import 'package:app/services/session_service.dart';
 import 'package:app/screens/session_start/session_start_screen_state.dart';
@@ -32,10 +33,18 @@ class SessionStartViewModel {
         status: SessionStartStatus.prepared,
         createdSessionId: session.id,
       );
+    } on ApiException catch (error) {
+      state.value = state.value.copyWith(
+        status: SessionStartStatus.error,
+        error: SessionStartError(
+          httpStatusCode: error.statusCode,
+          code: error.code,
+        ),
+      );
     } catch (_) {
       state.value = state.value.copyWith(
         status: SessionStartStatus.error,
-        error: SessionStartError.unexpected,
+        error: const SessionStartError(),
       );
     }
   }

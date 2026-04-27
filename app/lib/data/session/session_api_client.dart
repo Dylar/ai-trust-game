@@ -1,7 +1,7 @@
-import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 
+import 'package:app/data/api/api_error.dart';
+import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/session/start_session_dto.dart';
 
 class SessionApiClient {
@@ -16,27 +16,27 @@ class SessionApiClient {
   final String userId;
 
   Future<StartSessionResponse> startSession(StartSessionRequest request) async {
-    final response = await httpClient.post(
-      apiBaseUri.resolve('/session/start'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'X-User-Id': userId,
-      },
-      body: jsonEncode(request.toJson()),
-    );
-
-    if (response.statusCode != 200) {
-      throw SessionApiException(response.statusCode);
+    try {
+      final json = await sendPostJsonRequest(
+        httpClient,
+        apiBaseUri.resolve('/session/start'),
+        headers: buildHeaders(userId: userId, includeJsonContentType: true),
+        body: request.toJson(),
+      );
+      return StartSessionResponse.fromJson(json);
+    } on ApiException catch (error) {
+      throw SessionApiException.fromApiException(error);
     }
-
-    return StartSessionResponse.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
   }
 }
 
-class SessionApiException implements Exception {
-  const SessionApiException(this.statusCode);
+class SessionApiException extends ApiException {
+  const SessionApiException({required super.statusCode, super.error});
 
-  final int statusCode;
+  factory SessionApiException.fromApiException(ApiException error) {
+    return SessionApiException(
+      statusCode: error.statusCode,
+      error: error.error,
+    );
+  }
 }

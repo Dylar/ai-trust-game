@@ -1,7 +1,7 @@
-import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 
+import 'package:app/data/api/api_error.dart';
+import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/analysis/analysis_dto.dart';
 
 class AnalysisApiClient {
@@ -16,38 +16,39 @@ class AnalysisApiClient {
   final String userId;
 
   Future<SessionAnalysisResponse> getSessionAnalysis(String sessionId) async {
-    final response = await httpClient.get(
-      apiBaseUri.resolve('/analysis/session/$sessionId'),
-      headers: <String, String>{'X-User-Id': userId},
-    );
-
-    if (response.statusCode != 200) {
-      throw AnalysisApiException(response.statusCode);
+    try {
+      final json = await sendGetJsonRequest(
+        httpClient,
+        apiBaseUri.resolve('/analysis/session/$sessionId'),
+        headers: buildHeaders(userId: userId),
+      );
+      return SessionAnalysisResponse.fromJson(json);
+    } on ApiException catch (error) {
+      throw AnalysisApiException.fromApiException(error);
     }
-
-    return SessionAnalysisResponse.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
   }
 
   Future<RequestAnalysisResponse> getRequestAnalysis(String requestId) async {
-    final response = await httpClient.get(
-      apiBaseUri.resolve('/analysis/request/$requestId'),
-      headers: <String, String>{'X-User-Id': userId},
-    );
-
-    if (response.statusCode != 200) {
-      throw AnalysisApiException(response.statusCode);
+    try {
+      final json = await sendGetJsonRequest(
+        httpClient,
+        apiBaseUri.resolve('/analysis/request/$requestId'),
+        headers: buildHeaders(userId: userId),
+      );
+      return RequestAnalysisResponse.fromJson(json);
+    } on ApiException catch (error) {
+      throw AnalysisApiException.fromApiException(error);
     }
-
-    return RequestAnalysisResponse.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
   }
 }
 
-class AnalysisApiException implements Exception {
-  const AnalysisApiException(this.statusCode);
+class AnalysisApiException extends ApiException {
+  const AnalysisApiException({required super.statusCode, super.error});
 
-  final int statusCode;
+  factory AnalysisApiException.fromApiException(ApiException error) {
+    return AnalysisApiException(
+      statusCode: error.statusCode,
+      error: error.error,
+    );
+  }
 }

@@ -212,6 +212,96 @@ abstract class AppLocalizations {
   /// **'The session could not be prepared. Please try again.'**
   String get sessionStartErrorDescription;
 
+  /// No description provided for @apiErrorInvalidJson.
+  ///
+  /// In en, this message translates to:
+  /// **'The request could not be read by the backend.'**
+  String get apiErrorInvalidJson;
+
+  /// No description provided for @apiErrorMethodNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is not supported by the backend endpoint.'**
+  String get apiErrorMethodNotAllowed;
+
+  /// No description provided for @apiErrorInternal.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend ran into an internal error.'**
+  String get apiErrorInternal;
+
+  /// No description provided for @apiErrorInvalidRole.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected role is not supported.'**
+  String get apiErrorInvalidRole;
+
+  /// No description provided for @apiErrorInvalidMode.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected mode is not supported.'**
+  String get apiErrorInvalidMode;
+
+  /// No description provided for @apiErrorMissingSession.
+  ///
+  /// In en, this message translates to:
+  /// **'The request did not include a session.'**
+  String get apiErrorMissingSession;
+
+  /// No description provided for @apiErrorSessionNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The session could not be found on the backend.'**
+  String get apiErrorSessionNotFound;
+
+  /// No description provided for @apiErrorEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The message cannot be empty.'**
+  String get apiErrorEmptyMessage;
+
+  /// No description provided for @apiErrorMissingAnalysisRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'No request was selected for analysis.'**
+  String get apiErrorMissingAnalysisRequest;
+
+  /// No description provided for @apiErrorRequestAnalysisNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No analysis is available for this interaction yet.'**
+  String get apiErrorRequestAnalysisNotFound;
+
+  /// No description provided for @apiErrorMissingAnalysisSession.
+  ///
+  /// In en, this message translates to:
+  /// **'No session was selected for analysis.'**
+  String get apiErrorMissingAnalysisSession;
+
+  /// No description provided for @apiErrorSessionAnalysisNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No analysis is available for this session yet.'**
+  String get apiErrorSessionAnalysisNotFound;
+
+  /// No description provided for @apiErrorBackendUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend is not reachable. Please check whether the service is running.'**
+  String get apiErrorBackendUnreachable;
+
+  /// No description provided for @apiErrorRequestTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend did not respond in time. Please try again.'**
+  String get apiErrorRequestTimeout;
+
+  /// No description provided for @apiErrorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend returned an unexpected error.'**
+  String get apiErrorUnknown;
+
   /// No description provided for @sessionRoleGuest.
   ///
   /// In en, this message translates to:

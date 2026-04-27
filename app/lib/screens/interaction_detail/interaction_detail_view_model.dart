@@ -34,7 +34,10 @@ class InteractionDetailViewModel {
     } on AnalysisApiException catch (error) {
       state.value = state.value.copyWith(
         status: InteractionDetailStatus.error,
-        error: InteractionDetailError(httpStatusCode: error.statusCode),
+        error: InteractionDetailError(
+          httpStatusCode: error.statusCode,
+          code: error.code,
+        ),
       );
     } catch (_) {
       state.value = state.value.copyWith(

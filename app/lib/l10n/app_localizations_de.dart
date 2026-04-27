@@ -73,6 +73,64 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Sitzung konnte nicht vorbereitet werden. Bitte versuche es erneut.';
 
   @override
+  String get apiErrorInvalidJson =>
+      'Das Backend konnte die Anfrage nicht lesen.';
+
+  @override
+  String get apiErrorMethodNotAllowed =>
+      'Diese Aktion wird vom Backend-Endpunkt nicht unterstützt.';
+
+  @override
+  String get apiErrorInternal =>
+      'Im Backend ist ein interner Fehler aufgetreten.';
+
+  @override
+  String get apiErrorInvalidRole =>
+      'Die ausgewählte Rolle wird nicht unterstützt.';
+
+  @override
+  String get apiErrorInvalidMode =>
+      'Der ausgewählte Modus wird nicht unterstützt.';
+
+  @override
+  String get apiErrorMissingSession => 'Die Anfrage enthält keine Sitzung.';
+
+  @override
+  String get apiErrorSessionNotFound =>
+      'Die Sitzung wurde im Backend nicht gefunden.';
+
+  @override
+  String get apiErrorEmptyMessage => 'Die Nachricht darf nicht leer sein.';
+
+  @override
+  String get apiErrorMissingAnalysisRequest =>
+      'Es wurde kein Request für die Analyse ausgewählt.';
+
+  @override
+  String get apiErrorRequestAnalysisNotFound =>
+      'Für diese Interaction ist noch keine Analyse verfügbar.';
+
+  @override
+  String get apiErrorMissingAnalysisSession =>
+      'Es wurde keine Sitzung für die Analyse ausgewählt.';
+
+  @override
+  String get apiErrorSessionAnalysisNotFound =>
+      'Für diese Sitzung ist noch keine Analyse verfügbar.';
+
+  @override
+  String get apiErrorBackendUnreachable =>
+      'Das Backend ist nicht erreichbar. Bitte pruefe, ob der Service laeuft.';
+
+  @override
+  String get apiErrorRequestTimeout =>
+      'Das Backend hat nicht rechtzeitig geantwortet. Bitte versuche es erneut.';
+
+  @override
+  String get apiErrorUnknown =>
+      'Das Backend hat einen unerwarteten Fehler zurückgegeben.';
+
+  @override
   String get sessionRoleGuest => 'Gast';
 
   @override
@@ -160,6 +218,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get interactionAnalysisHint => 'Interaction-Analyse ansehen';
 
+  @override
   String get interactionUserMessageLabel => 'Du';
 
   @override
@@ -189,6 +248,7 @@ class AppLocalizationsDe extends AppLocalizations {
     return 'HTTP-Status: $statusCode';
   }
 
+  @override
   String get analysisSessionIdLabel => 'Sitzungs-ID';
 
   @override

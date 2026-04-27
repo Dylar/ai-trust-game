@@ -1,7 +1,7 @@
-import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 
+import 'package:app/data/api/api_error.dart';
+import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/interaction/interaction_dto.dart';
 
 class InteractionApiClient {
@@ -18,35 +18,41 @@ class InteractionApiClient {
   Future<InteractionResponse> createInteraction(
     InteractionRequest request,
   ) async {
-    final response = await httpClient.post(
-      apiBaseUri.resolve('/interaction'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'X-Session-Id': request.sessionId,
-        'X-User-Id': userId,
-      },
-      body: jsonEncode(request.toJson()),
-    );
+    try {
+      final response = await sendPostRequest(
+        httpClient,
+        apiBaseUri.resolve('/interaction'),
+        headers: buildHeaders(
+          userId: userId,
+          sessionId: request.sessionId,
+          includeJsonContentType: true,
+        ),
+        body: request.toJson(),
+      );
 
-    if (response.statusCode != 200) {
-      throw InteractionApiException(response.statusCode);
+      final requestId =
+          response.headers['x-request-id'] ??
+          'local-${DateTime.now().microsecondsSinceEpoch}';
+
+      return InteractionResponse.fromBackend(
+        sessionId: request.sessionId,
+        requestId: requestId,
+        requestMessage: request.message,
+        json: parseJsonResponse(response),
+      );
+    } on ApiException catch (error) {
+      throw InteractionApiException.fromApiException(error);
     }
-
-    final requestId =
-        response.headers['x-request-id'] ??
-        'local-${DateTime.now().microsecondsSinceEpoch}';
-
-    return InteractionResponse.fromBackend(
-      sessionId: request.sessionId,
-      requestId: requestId,
-      requestMessage: request.message,
-      json: jsonDecode(response.body) as Map<String, dynamic>,
-    );
   }
 }
 
-class InteractionApiException implements Exception {
-  const InteractionApiException(this.statusCode);
+class InteractionApiException extends ApiException {
+  const InteractionApiException({required super.statusCode, super.error});
 
-  final int statusCode;
+  factory InteractionApiException.fromApiException(ApiException error) {
+    return InteractionApiException(
+      statusCode: error.statusCode,
+      error: error.error,
+    );
+  }
 }

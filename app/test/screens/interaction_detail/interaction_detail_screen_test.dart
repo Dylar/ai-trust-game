@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app/screens/interaction_detail/interaction_detail_keys.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,12 +25,19 @@ void main() {
     );
   });
 
-  testWidgets('shows HTTP status when request analysis loading fails', (
+  testWidgets('shows backend error text when request analysis loading fails', (
     tester,
   ) async {
     final context = InteractionDetailTestContext(tester);
     final dependencies = buildTestDependencies(
-      httpClient: MockClient((_) async => http.Response('', 404)),
+      httpClient: MockClient(
+        (_) async => http.Response(
+          jsonEncode(<String, Object>{
+            'error': <String, String>{'code': 'request_analysis_not_found'},
+          }),
+          404,
+        ),
+      ),
     );
 
     await context.appBot.startApp(
@@ -38,6 +47,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
 
     expect(find.byKey(InteractionDetailKeys.errorState), findsOneWidget);
+    expect(
+      find.text('No analysis is available for this interaction yet.'),
+      findsOneWidget,
+    );
     expect(find.text('HTTP status: 404'), findsOneWidget);
   });
 }

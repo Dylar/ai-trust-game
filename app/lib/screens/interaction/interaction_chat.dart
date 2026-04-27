@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app/core/app/api_error_localizations.dart';
 import 'package:app/core/app/app_error_dialog.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
@@ -75,13 +76,10 @@ class _InteractionReadyContentState extends State<InteractionReadyContent> {
 
     return showAppErrorDialog(
       context: context,
-      title: switch (error) {
-        InteractionScreenError.sendFailed => l10n.interactionSendErrorTitle,
-      },
-      message: switch (error) {
-        InteractionScreenError.sendFailed =>
-          l10n.interactionSendErrorDescription,
-      },
+      title: l10n.interactionSendErrorTitle,
+      message: error.code == null
+          ? l10n.interactionSendErrorDescription
+          : l10n.apiErrorDescription(error.code),
     );
   }
 

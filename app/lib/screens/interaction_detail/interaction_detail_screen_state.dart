@@ -1,11 +1,13 @@
+import 'package:app/data/api/api_error.dart';
 import 'package:app/models/analysis_models.dart';
 
 enum InteractionDetailStatus { loading, ready, error }
 
 class InteractionDetailError {
-  const InteractionDetailError({this.httpStatusCode});
+  const InteractionDetailError({this.httpStatusCode, this.code});
 
   final int? httpStatusCode;
+  final ApiErrorCode? code;
 }
 
 class InteractionDetailScreenState {

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:app/data/api/api_error.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/services/interaction_service.dart';
@@ -79,9 +80,17 @@ class InteractionViewModel {
         interactions: interactions,
         isSubmitting: false,
       );
+    } on ApiException catch (error) {
+      state.value = state.value.copyWith(
+        error: InteractionScreenError(
+          httpStatusCode: error.statusCode,
+          code: error.code,
+        ),
+        isSubmitting: false,
+      );
     } catch (_) {
       state.value = state.value.copyWith(
-        error: InteractionScreenError.sendFailed,
+        error: const InteractionScreenError(),
         isSubmitting: false,
       );
     }

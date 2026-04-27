@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app/core/app/api_error_localizations.dart';
 import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/app/app_error_dialog.dart';
 import 'package:app/core/theme/app_colors.dart';
@@ -64,7 +65,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
           return;
         }
 
-        await _showErrorDialog();
+        await _showErrorDialog(viewModel.state.value.error);
         _isShowingErrorDialog = false;
       });
       return;
@@ -88,13 +89,15 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
     });
   }
 
-  Future<void> _showErrorDialog() {
+  Future<void> _showErrorDialog(SessionStartError? error) {
     final l10n = AppLocalizations.of(context)!;
 
     return showAppErrorDialog(
       context: context,
       title: l10n.sessionStartErrorTitle,
-      message: l10n.sessionStartErrorDescription,
+      message: error?.code == null
+          ? l10n.sessionStartErrorDescription
+          : l10n.apiErrorDescription(error!.code),
     );
   }
 

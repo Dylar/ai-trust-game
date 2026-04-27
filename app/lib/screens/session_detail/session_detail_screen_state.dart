@@ -1,11 +1,13 @@
+import 'package:app/data/api/api_error.dart';
 import 'package:app/models/analysis_models.dart';
 
 enum SessionDetailStatus { loading, ready, error }
 
 class SessionDetailError {
-  const SessionDetailError({this.httpStatusCode});
+  const SessionDetailError({this.httpStatusCode, this.code});
 
   final int? httpStatusCode;
+  final ApiErrorCode? code;
 }
 
 class SessionDetailScreenState {

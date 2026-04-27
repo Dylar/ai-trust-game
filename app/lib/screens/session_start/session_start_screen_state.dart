@@ -1,8 +1,14 @@
+import 'package:app/data/api/api_error.dart';
 import 'package:app/models/session_models.dart';
 
 enum SessionStartStatus { idle, loading, prepared, error }
 
-enum SessionStartError { unexpected }
+class SessionStartError {
+  const SessionStartError({this.httpStatusCode, this.code});
+
+  final int? httpStatusCode;
+  final ApiErrorCode? code;
+}
 
 class SessionStartScreenState {
   const SessionStartScreenState({

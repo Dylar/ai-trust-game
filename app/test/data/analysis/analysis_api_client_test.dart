@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app/data/api/api_error.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -71,5 +72,33 @@ void main() {
     expect(capturedRequest.headers['X-User-Id'], 'user-123');
     expect(response.analysis.requestId, 'request-1');
     expect(response.analysis.eventCount, 3);
+  });
+
+  test('throws analysis exception with backend error code', () async {
+    final client = AnalysisApiClient(
+      httpClient: MockClient((_) async {
+        return http.Response(
+          jsonEncode(<String, Object>{
+            'error': <String, String>{'code': 'request_analysis_not_found'},
+          }),
+          404,
+        );
+      }),
+      apiBaseUri: Uri.parse('http://localhost:8080'),
+      userId: 'user-123',
+    );
+
+    expect(
+      () => client.getRequestAnalysis('missing-request'),
+      throwsA(
+        isA<AnalysisApiException>()
+            .having((error) => error.statusCode, 'statusCode', 404)
+            .having(
+              (error) => error.code,
+              'code',
+              ApiErrorCode.requestAnalysisNotFound,
+            ),
+      ),
+    );
   });
 }

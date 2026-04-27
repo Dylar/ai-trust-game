@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app/data/api/api_error.dart';
 import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/start_session_dto.dart';
 import 'package:app/models/session_models.dart';
@@ -41,5 +42,31 @@ void main() {
     expect(response.sessionId, 'session-1');
     expect(response.role, Role.admin);
     expect(response.mode, Mode.hard);
+  });
+
+  test('throws session exception with backend error code', () async {
+    final client = SessionApiClient(
+      httpClient: MockClient((_) async {
+        return http.Response(
+          jsonEncode(<String, Object>{
+            'error': <String, String>{'code': 'invalid_role'},
+          }),
+          400,
+        );
+      }),
+      apiBaseUri: Uri.parse('http://localhost:8080'),
+      userId: 'user-123',
+    );
+
+    expect(
+      () => client.startSession(
+        const StartSessionRequest(role: Role.admin, mode: Mode.hard),
+      ),
+      throwsA(
+        isA<SessionApiException>()
+            .having((error) => error.statusCode, 'statusCode', 400)
+            .having((error) => error.code, 'code', ApiErrorCode.invalidRole),
+      ),
+    );
   });
 }

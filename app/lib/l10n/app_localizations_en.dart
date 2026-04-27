@@ -73,6 +73,60 @@ class AppLocalizationsEn extends AppLocalizations {
       'The session could not be prepared. Please try again.';
 
   @override
+  String get apiErrorInvalidJson =>
+      'The request could not be read by the backend.';
+
+  @override
+  String get apiErrorMethodNotAllowed =>
+      'This action is not supported by the backend endpoint.';
+
+  @override
+  String get apiErrorInternal => 'The backend ran into an internal error.';
+
+  @override
+  String get apiErrorInvalidRole => 'The selected role is not supported.';
+
+  @override
+  String get apiErrorInvalidMode => 'The selected mode is not supported.';
+
+  @override
+  String get apiErrorMissingSession => 'The request did not include a session.';
+
+  @override
+  String get apiErrorSessionNotFound =>
+      'The session could not be found on the backend.';
+
+  @override
+  String get apiErrorEmptyMessage => 'The message cannot be empty.';
+
+  @override
+  String get apiErrorMissingAnalysisRequest =>
+      'No request was selected for analysis.';
+
+  @override
+  String get apiErrorRequestAnalysisNotFound =>
+      'No analysis is available for this interaction yet.';
+
+  @override
+  String get apiErrorMissingAnalysisSession =>
+      'No session was selected for analysis.';
+
+  @override
+  String get apiErrorSessionAnalysisNotFound =>
+      'No analysis is available for this session yet.';
+
+  @override
+  String get apiErrorBackendUnreachable =>
+      'The backend is not reachable. Please check whether the service is running.';
+
+  @override
+  String get apiErrorRequestTimeout =>
+      'The backend did not respond in time. Please try again.';
+
+  @override
+  String get apiErrorUnknown => 'The backend returned an unexpected error.';
+
+  @override
   String get sessionRoleGuest => 'Guest';
 
   @override
@@ -157,6 +211,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get interactionAnalysisHint => 'View interaction analysis';
 
+  @override
   String get interactionUserMessageLabel => 'You';
 
   @override
@@ -186,6 +241,7 @@ class AppLocalizationsEn extends AppLocalizations {
     return 'HTTP status: $statusCode';
   }
 
+  @override
   String get analysisSessionIdLabel => 'Session ID';
 
   @override

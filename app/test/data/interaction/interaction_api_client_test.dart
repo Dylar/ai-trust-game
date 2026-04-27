@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app/data/api/api_error.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_dto.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,5 +42,35 @@ void main() {
     expect(response.interactionId, 'request-1');
     expect(response.message, 'Can I access the vault?');
     expect(response.answer, 'No.');
+  });
+
+  test('throws interaction exception with backend error code', () async {
+    final client = InteractionApiClient(
+      httpClient: MockClient((_) async {
+        return http.Response(
+          jsonEncode(<String, Object>{
+            'error': <String, String>{'code': 'session_not_found'},
+          }),
+          404,
+        );
+      }),
+      apiBaseUri: Uri.parse('http://localhost:8080'),
+      userId: 'user-123',
+    );
+
+    expect(
+      () => client.createInteraction(
+        const InteractionRequest(sessionId: 'missing', message: 'Hello'),
+      ),
+      throwsA(
+        isA<InteractionApiException>()
+            .having((error) => error.statusCode, 'statusCode', 404)
+            .having(
+              (error) => error.code,
+              'code',
+              ApiErrorCode.sessionNotFound,
+            ),
+      ),
+    );
   });
 }
