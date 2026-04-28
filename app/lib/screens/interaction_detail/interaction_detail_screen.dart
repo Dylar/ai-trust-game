@@ -41,6 +41,7 @@ class _InteractionDetailScreenState extends State<InteractionDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _viewModel ??= InteractionDetailViewModel(
+      appLogger: AppDependencies.of(context).appLogger,
       analysisService: AppDependencies.of(context).analysisService,
       requestId: widget.requestId,
     );

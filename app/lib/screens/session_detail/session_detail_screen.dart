@@ -41,6 +41,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _viewModel ??= SessionDetailViewModel(
+      appLogger: AppDependencies.of(context).appLogger,
       analysisService: AppDependencies.of(context).analysisService,
       sessionId: widget.sessionId,
     );
