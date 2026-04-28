@@ -3,8 +3,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-http.Client buildBackendMockClient() {
+typedef BackendMockOverride =
+    Future<http.Response?> Function(http.Request request);
+
+http.Client buildBackendMockClient({BackendMockOverride? override}) {
   return MockClient((request) async {
+    final overrideResponse = await override?.call(request);
+    if (overrideResponse != null) {
+      return overrideResponse;
+    }
+
     if (request.url.path == '/session/start') {
       await Future<void>.delayed(const Duration(milliseconds: 250));
       final body = jsonDecode(request.body) as Map<String, dynamic>;

@@ -3,8 +3,9 @@ import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
-import '../../testing/mocks/failing_services.dart';
+import '../../testing/mocks/backend_mock_client.dart';
 import '../../testing/test_dependencies.dart';
 import 'interaction_test_context.dart';
 
@@ -111,7 +112,15 @@ void main() {
     );
     final dependencies = buildTestDependencies(
       interactionRepository: interactionRepository,
-      interactionService: const FailingInteractionService(),
+      httpClient: buildBackendMockClient(
+        override: (request) async {
+          if (request.url.path == '/interaction') {
+            return http.Response('', 500);
+          }
+
+          return null;
+        },
+      ),
       sessionRepository: repository,
     );
 

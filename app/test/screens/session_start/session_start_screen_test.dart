@@ -1,7 +1,7 @@
+import 'package:http/http.dart' as http;
 import 'package:flutter_test/flutter_test.dart';
-
-import '../../testing/mocks/failing_services.dart';
 import '../../testing/test_dependencies.dart';
+import '../../testing/mocks/backend_mock_client.dart';
 import 'session_start_test_context.dart';
 
 void main() {
@@ -60,7 +60,15 @@ void main() {
   testWidgets('opens a dialog when preparing a session fails', (tester) async {
     final context = SessionStartTestContext(tester);
     final dependencies = buildTestDependencies(
-      sessionService: const FailingSessionService(),
+      httpClient: buildBackendMockClient(
+        override: (request) async {
+          if (request.url.path == '/session/start') {
+            return http.Response('', 500);
+          }
+
+          return null;
+        },
+      ),
     );
 
     // Given
