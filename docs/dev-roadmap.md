@@ -122,7 +122,7 @@ Goal: introduce model-backed planning and response generation without giving the
 
 Goal: turn runtime traces into useful detection and analysis signals
 
-### Phase 10 - Client / UI
+### Phase 10 - Client / UI (Done)
 
 - build Flutter client (web first)
 - session start and interaction flow

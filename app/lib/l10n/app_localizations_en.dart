@@ -233,6 +233,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionDetailTitle => 'Session Analysis';
 
   @override
+  String get sessionDetailAnalysisEmpty =>
+      'No interactions are available yet for a session analysis.';
+
+  @override
   String get sessionDetailRequestsTitle => 'Requests in this session';
 
   @override

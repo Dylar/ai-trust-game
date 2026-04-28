@@ -50,9 +50,9 @@ void main() {
 
     expect(find.byKey(SessionDetailKeys.errorState), findsOneWidget);
     expect(
-      find.text('No analysis is available for this session yet.'),
+      find.text('No interactions are available yet for a session analysis.'),
       findsOneWidget,
     );
-    expect(find.text('HTTP status: 404'), findsOneWidget);
+    expect(find.text('HTTP status: 404'), findsNothing);
   });
 }

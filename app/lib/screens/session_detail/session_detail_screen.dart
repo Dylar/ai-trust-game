@@ -1,4 +1,5 @@
 import 'package:app/core/app/api_error_localizations.dart';
+import 'package:app/data/api/api_error.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -41,9 +42,13 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       key: SessionDetailKeys.screen,
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(l10n.sessionDetailTitle, key: SessionDetailKeys.title),
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -76,8 +81,33 @@ class _SessionDetailContent extends StatelessWidget {
       SessionDetailStatus.ready => _SessionAnalysisView(
         analysis: state.analysis!,
       ),
-      SessionDetailStatus.error => _ErrorState(error: state.error),
+      SessionDetailStatus.error => state.error?.code ==
+              ApiErrorCode.sessionAnalysisNotFound
+          ? const _EmptyAnalysisState()
+          : _ErrorState(error: state.error),
     };
+  }
+}
+
+class _EmptyAnalysisState extends StatelessWidget {
+  const _EmptyAnalysisState();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      key: SessionDetailKeys.errorState,
+      elevation: 0,
+      color: AppColors.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Text(
+          l10n.sessionDetailAnalysisEmpty,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
+    );
   }
 }
 
@@ -89,17 +119,10 @@ class _SessionAnalysisView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.sessionDetailTitle,
-          key: SessionDetailKeys.title,
-          style: theme.textTheme.headlineMedium,
-        ),
-        const SizedBox(height: AppSpacing.large),
         Card(
           key: SessionDetailKeys.analysisSection,
           elevation: 0,
@@ -186,6 +209,7 @@ class _SessionRequestsSection extends StatelessWidget {
               Text(l10n.sessionDetailRequestsEmpty)
             else
               Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: requests
                     .map(
                       (request) => Padding(

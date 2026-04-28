@@ -44,6 +44,8 @@ Good candidates for `core/` are:
 Avoid putting feature-specific UI, screen behavior, or business logic into `core/`.
 
 Logging is reused across multiple screens or flows, keep it under `core/logging/`.
+Concrete logging adapters that talk to external systems should live under `data/`, for example a backend log sink under
+`data/logging/`.
 
 Routing is app-wide and shared across screens, keep it under `core/routing/`.
 
@@ -82,6 +84,7 @@ Small private widgets that only belong to one screen may stay in the same file a
 - persistence
 - platform bridges
 - adapters for external interfaces
+- concrete logging adapters that send events to backend or platform integrations
 
 Feature-facing repositories may also live under `data/` when they abstract local persistence or app-runtime state, for
 example an in-memory repository used before a real backend or proto-backed implementation exists.

@@ -41,9 +41,16 @@ class _InteractionDetailScreenState extends State<InteractionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       key: InteractionDetailKeys.screen,
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(
+          l10n.interactionDetailTitle,
+          key: InteractionDetailKeys.title,
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -89,17 +96,10 @@ class _RequestAnalysisView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.interactionDetailTitle,
-          key: InteractionDetailKeys.title,
-          style: theme.textTheme.headlineMedium,
-        ),
-        const SizedBox(height: AppSpacing.large),
         Card(
           key: InteractionDetailKeys.analysisSection,
           elevation: 0,

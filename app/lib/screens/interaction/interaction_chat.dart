@@ -88,8 +88,6 @@ class _InteractionReadyContentState extends State<InteractionReadyContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const CompactInteractionHeader(),
-        const SizedBox(height: AppSpacing.medium),
         SessionDetailsSection(session: widget.state.session!),
         const SizedBox(height: AppSpacing.medium),
         Expanded(

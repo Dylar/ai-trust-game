@@ -8,24 +8,6 @@ import 'package:app/screens/interaction/interaction_keys.dart';
 import 'package:app/screens/session_detail/session_detail_screen.dart';
 import 'package:app/screens/session_start/session_start_localizations.dart';
 
-class CompactInteractionHeader extends StatelessWidget {
-  const CompactInteractionHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Text(
-      l10n.interactionTitle,
-      key: InteractionKeys.title,
-      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-        color: AppColors.brandForeground,
-        fontWeight: FontWeight.w700,
-      ),
-    );
-  }
-}
-
 class InteractionHeader extends StatelessWidget {
   const InteractionHeader({super.key});
 
@@ -38,20 +20,17 @@ class InteractionHeader extends StatelessWidget {
       elevation: 0,
       color: AppColors.surface,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xLarge),
+        padding: const EdgeInsets.all(AppSpacing.large),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.appTitle,
-              key: InteractionKeys.title,
               style: theme.textTheme.displaySmall?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: AppColors.brandForeground,
               ),
             ),
-            const SizedBox(height: AppSpacing.small),
-            Text(l10n.interactionTitle, style: theme.textTheme.headlineMedium),
             const SizedBox(height: AppSpacing.small),
             Text(
               l10n.interactionDescription,

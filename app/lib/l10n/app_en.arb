@@ -93,6 +93,7 @@
     }
   },
   "sessionDetailTitle": "Session Analysis",
+  "sessionDetailAnalysisEmpty": "No interactions are available yet for a session analysis.",
   "sessionDetailRequestsTitle": "Requests in this session",
   "sessionDetailRequestsDescription": "Open a request to inspect its detailed analysis.",
   "sessionDetailRequestsEmpty": "No request analyses are available yet.",

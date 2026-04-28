@@ -84,8 +84,13 @@ class _InteractionScreenState extends State<InteractionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       key: InteractionKeys.screen,
+      appBar: AppBar(
+        title: Text(l10n.interactionTitle, key: InteractionKeys.title),
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(

@@ -99,6 +99,9 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
 
     return Scaffold(
       key: SessionStartKeys.screen,
+      appBar: AppBar(
+        title: Text(l10n.sessionStartTitle, key: SessionStartKeys.title),
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -151,8 +154,6 @@ class _SessionStartHeader extends StatelessWidget {
             color: AppColors.brandForeground,
           ),
         ),
-        const SizedBox(height: AppSpacing.small),
-        Text(l10n.sessionStartTitle, style: theme.textTheme.headlineMedium),
         const SizedBox(height: AppSpacing.small),
         Text(
           l10n.sessionStartDescription,

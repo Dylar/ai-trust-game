@@ -41,8 +41,10 @@ Current `lib/` structure:
 - `lib/core/app/`
 - `lib/core/config/`
 - `lib/core/logging/`
+- `lib/core/routing/`
 - `lib/core/user/`
 - `lib/data/`
+- `lib/data/logging/`
 - `lib/core/theme/`
 - `lib/l10n/`
 - `lib/models/`
@@ -57,7 +59,8 @@ Current frontend architecture choices:
 
 - `TrustGameApp` wraps the app with `AppDependencies`
 - `AppConfig.fromEnvironment()` reads `APP_FLAVOR` and `API_BASE_URL`
-- `AppLogger` is the frontend logging boundary and currently fans out to a local app log sink and backend log shipping
+- `AppLogger` is the frontend logging boundary under `core/logging/`
+- backend log shipping is implemented as a concrete adapter under `data/logging/`
 - `UserIdentity.newRuntimeIdentity()` creates an in-memory user ID for the current app runtime
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
@@ -110,6 +113,7 @@ If `API_BASE_URL` is not provided, the app defaults to `http://localhost:8080`.
 Current test structure:
 
 - `test/testing/` for shared test bots such as `AppBot` and `BaseScreenBot`
+- `test/testing/mocks/` for reusable transport and unit-test doubles
 - `test/screens/<feature>/` for feature-local screen bots, processes, contexts, and screen tests
 
 Later phases of the frontend work should follow the structure described in

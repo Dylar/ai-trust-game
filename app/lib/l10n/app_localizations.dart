@@ -494,6 +494,12 @@ abstract class AppLocalizations {
   /// **'Session Analysis'**
   String get sessionDetailTitle;
 
+  /// No description provided for @sessionDetailAnalysisEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No interactions are available yet for a session analysis.'**
+  String get sessionDetailAnalysisEmpty;
+
   /// No description provided for @sessionDetailRequestsTitle.
   ///
   /// In en, this message translates to:
