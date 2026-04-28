@@ -57,7 +57,7 @@ Current frontend architecture choices:
 
 - `TrustGameApp` wraps the app with `AppDependencies`
 - `AppConfig.fromEnvironment()` reads `APP_FLAVOR` and `API_BASE_URL`
-- `AppLogger` is the frontend logging boundary and currently writes to a local app log sink
+- `AppLogger` is the frontend logging boundary and currently fans out to a local app log sink and backend log shipping
 - `UserIdentity.newRuntimeIdentity()` creates an in-memory user ID for the current app runtime
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`

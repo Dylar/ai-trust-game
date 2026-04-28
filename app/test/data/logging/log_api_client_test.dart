@@ -35,7 +35,7 @@ void main() {
     expect(capturedRequest.headers['X-User-Id'], 'user-123');
     expect(capturedRequest.headers['X-Session-Id'], 'session-1');
     expect(jsonDecode(capturedRequest.body), <String, Object?>{
-      'level': 'warning',
+      'level': 'WARN',
       'category': 'interaction',
       'message': 'Send failed',
       'attributes': <String, Object?>{'retryable': true},

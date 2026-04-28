@@ -1,12 +1,12 @@
 import 'package:app/core/config/app_config.dart';
 import 'package:app/core/logging/app_logger.dart';
-import 'package:app/core/logging/backend_app_log_sink.dart';
 import 'package:app/core/logging/local_app_log_sink.dart';
 import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/data/logging/backend_app_log_sink.dart';
 import 'package:app/data/logging/log_api_client.dart';
 import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';

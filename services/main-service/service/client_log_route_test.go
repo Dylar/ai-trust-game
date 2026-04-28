@@ -43,7 +43,7 @@ func TestClientLogRoute(t *testing.T) {
 				"WHEN POST /logs/client " +
 				"THEN returns 202",
 			given: Given{
-				requestBody: `{"level":"info","category":"interaction","message":"message sent"}`,
+				requestBody: `{"level":"INFO","category":"interaction","message":"message sent"}`,
 			},
 			when: When{
 				method: http.MethodPost,
@@ -68,11 +68,25 @@ func TestClientLogRoute(t *testing.T) {
 			},
 		},
 		{
+			name: "GIVEN valid warn log " +
+				"WHEN POST /logs/client " +
+				"THEN returns 202",
+			given: Given{
+				requestBody: `{"level":"WARN","category":"interaction","message":"message sent"}`,
+			},
+			when: When{
+				method: http.MethodPost,
+			},
+			then: Then{
+				expectedStatus: http.StatusAccepted,
+			},
+		},
+		{
 			name: "GIVEN missing message " +
 				"WHEN POST /logs/client " +
 				"THEN returns 400",
 			given: Given{
-				requestBody: `{"level":"info","category":"interaction","message":""}`,
+				requestBody: `{"level":"INFO","category":"interaction","message":""}`,
 			},
 			when: When{
 				method: http.MethodPost,
@@ -87,7 +101,7 @@ func TestClientLogRoute(t *testing.T) {
 				"WHEN POST /logs/client " +
 				"THEN returns 400",
 			given: Given{
-				requestBody: `{"level":"info","category":"interaction","message":}`,
+				requestBody: `{"level":"INFO","category":"interaction","message":}`,
 			},
 			when: When{
 				method: http.MethodPost,

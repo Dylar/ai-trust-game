@@ -32,7 +32,7 @@ func TestHandleClientLog(t *testing.T) {
 				"THEN writes the log with info level",
 			given: Given{
 				request: ClientLogRequest{
-					Level:    "info",
+					Level:    "INFO",
 					Category: "interaction",
 					Message:  "message sent",
 				},
@@ -48,7 +48,7 @@ func TestHandleClientLog(t *testing.T) {
 				"THEN returns ErrMissingClientLogMessage",
 			given: Given{
 				request: ClientLogRequest{
-					Level:    "info",
+					Level:    "INFO",
 					Category: "interaction",
 				},
 			},
@@ -62,7 +62,7 @@ func TestHandleClientLog(t *testing.T) {
 				"THEN returns ErrMissingClientLogCategory",
 			given: Given{
 				request: ClientLogRequest{
-					Level:   "info",
+					Level:   "INFO",
 					Message: "message sent",
 				},
 			},
@@ -83,6 +83,22 @@ func TestHandleClientLog(t *testing.T) {
 			},
 			then: Then{
 				expectedError: ErrInvalidClientLogLevel,
+			},
+		},
+		{
+			name: "GIVEN valid warn log " +
+				"WHEN handleClientLog is called " +
+				"THEN writes the log with warning level",
+			given: Given{
+				request: ClientLogRequest{
+					Level:    "WARN",
+					Category: "interaction",
+					Message:  "message sent",
+				},
+			},
+			then: Then{
+				expectedLevel: "warning",
+				expectedMsg:   "client log received",
 			},
 		},
 	}

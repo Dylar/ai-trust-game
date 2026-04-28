@@ -2,6 +2,17 @@ import 'dart:async';
 
 enum AppLogLevel { debug, info, warning, error }
 
+extension on AppLogLevel {
+  String get apiValue {
+    return switch (this) {
+      AppLogLevel.debug => 'DEBUG',
+      AppLogLevel.info => 'INFO',
+      AppLogLevel.warning => 'WARN',
+      AppLogLevel.error => 'ERROR',
+    };
+  }
+}
+
 class AppLogEvent {
   AppLogEvent({
     required this.level,
@@ -25,7 +36,7 @@ class AppLogEvent {
 
   Map<String, Object?> toJson() {
     return <String, Object?>{
-      'level': level.name,
+      'level': level.apiValue,
       'category': category,
       'message': message,
       'attributes': attributes,
