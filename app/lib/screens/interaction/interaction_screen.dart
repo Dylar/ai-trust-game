@@ -56,6 +56,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
     }
 
     _viewModel = InteractionViewModel(
+      appLogger: AppDependencies.of(context).appLogger,
       interactionRepository: AppDependencies.of(context).interactionRepository,
       interactionService: AppDependencies.of(context).interactionService,
       sessionRepository: AppDependencies.of(context).sessionRepository,

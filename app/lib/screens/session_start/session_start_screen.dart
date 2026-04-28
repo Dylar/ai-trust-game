@@ -38,6 +38,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
     }
 
     final viewModel = SessionStartViewModel(
+      appLogger: AppDependencies.of(context).appLogger,
       sessionService: AppDependencies.of(context).sessionService,
     );
     viewModel.state.addListener(_handleStateChanged);
