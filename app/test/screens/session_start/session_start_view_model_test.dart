@@ -1,17 +1,18 @@
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/api/api_error.dart';
-import 'package:app/models/session_models.dart';
 import 'package:app/screens/session_start/session_start_screen_state.dart';
 import 'package:app/screens/session_start/session_start_view_model.dart';
-import 'package:app/services/session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../testing/mocks/recording_app_log_sink.dart';
+import '../../testing/mocks/session_service_mocks.dart';
 
 void main() {
   test('logs session preparation start and success', () async {
-    final sink = _RecordingSink();
+    final sink = RecordingAppLogSink();
     final viewModel = SessionStartViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-      sessionService: _SuccessfulSessionService(),
+      sessionService: const SuccessfulSessionService(),
     );
 
     await viewModel.prepareSession();
@@ -35,10 +36,13 @@ void main() {
   });
 
   test('logs session preparation error details', () async {
-    final sink = _RecordingSink();
+    final sink = RecordingAppLogSink();
     final viewModel = SessionStartViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-      sessionService: const _ApiFailingSessionService(),
+      sessionService: const ApiFailingSessionService(
+        statusCode: 400,
+        code: ApiErrorCode.invalidMode,
+      ),
     );
 
     await viewModel.prepareSession();
@@ -54,32 +58,4 @@ void main() {
       'errorCode': 'invalid_mode',
     });
   });
-}
-
-class _RecordingSink implements AppLogSink {
-  final List<AppLogEvent> events = <AppLogEvent>[];
-
-  @override
-  Future<void> write(AppLogEvent event) async {
-    events.add(event);
-  }
-}
-
-class _SuccessfulSessionService implements SessionService {
-  @override
-  Future<Session> startSession({required Role role, required Mode mode}) async {
-    return Session(id: 'session-1', role: role, mode: mode);
-  }
-}
-
-class _ApiFailingSessionService implements SessionService {
-  const _ApiFailingSessionService();
-
-  @override
-  Future<Session> startSession({required Role role, required Mode mode}) {
-    throw const ApiException(
-      statusCode: 400,
-      error: ApiError(code: ApiErrorCode.invalidMode),
-    );
-  }
 }
