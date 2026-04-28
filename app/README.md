@@ -22,6 +22,7 @@ The app currently has:
 - an `InteractionDetail` screen that loads request-level analysis
 - app-wide dependency access through `AppDependencies`
 - app-wide configuration through `AppConfig`
+- app-wide logging through `core/logging/` and `AppLogger`
 - Dev, Test, and Prod flavor configuration
 - one runtime-scoped generated user ID sent as `X-User-Id`
 - shared frontend models for `Session` and `Interaction`
@@ -39,6 +40,7 @@ Current `lib/` structure:
 
 - `lib/core/app/`
 - `lib/core/config/`
+- `lib/core/logging/`
 - `lib/core/user/`
 - `lib/data/`
 - `lib/core/theme/`
@@ -55,6 +57,7 @@ Current frontend architecture choices:
 
 - `TrustGameApp` wraps the app with `AppDependencies`
 - `AppConfig.fromEnvironment()` reads `APP_FLAVOR` and `API_BASE_URL`
+- `AppLogger` is the frontend logging boundary and currently writes to a local app log sink
 - `UserIdentity.newRuntimeIdentity()` creates an in-memory user ID for the current app runtime
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`

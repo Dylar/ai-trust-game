@@ -1,7 +1,6 @@
-import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
-
 import 'package:app/core/config/app_config.dart';
+import 'package:app/core/logging/app_logger.dart';
+import 'package:app/core/logging/local_app_log_sink.dart';
 import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
@@ -12,10 +11,13 @@ import 'package:app/data/session/session_repository.dart';
 import 'package:app/services/analysis_service.dart';
 import 'package:app/services/interaction_service.dart';
 import 'package:app/services/session_service.dart';
+import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
 
 class AppDependenciesData {
   const AppDependenciesData({
     required this.analysisService,
+    required this.appLogger,
     required this.config,
     required this.httpClient,
     required this.interactionRepository,
@@ -30,6 +32,7 @@ class AppDependenciesData {
     final httpClient = http.Client();
     final userIdentity = UserIdentity.newRuntimeIdentity();
     final analysisRepository = InMemoryAnalysisRepository();
+    const appLogger = AppLogger(sinks: <AppLogSink>[LocalAppLogSink()]);
     final interactionRepository = InMemoryInteractionRepository();
     final sessionRepository = InMemorySessionRepository();
 
@@ -42,6 +45,7 @@ class AppDependenciesData {
           userId: userIdentity.id,
         ),
       ),
+      appLogger: appLogger,
       config: config,
       httpClient: httpClient,
       interactionRepository: interactionRepository,
@@ -67,6 +71,7 @@ class AppDependenciesData {
   }
 
   final AnalysisService analysisService;
+  final AppLogger appLogger;
   final AppConfig config;
   final http.Client httpClient;
   final InteractionRepository interactionRepository;
@@ -86,6 +91,7 @@ class AppDependencies extends InheritedWidget {
   final AppDependenciesData dependencies;
 
   AnalysisService get analysisService => dependencies.analysisService;
+  AppLogger get appLogger => dependencies.appLogger;
   AppConfig get config => dependencies.config;
   http.Client get httpClient => dependencies.httpClient;
   InteractionRepository get interactionRepository =>
