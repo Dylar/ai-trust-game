@@ -34,7 +34,7 @@ The project starts small, but is planned with a broader service-oriented setup i
 
 ## Development Phases
 
-### Phase 1 — Service Foundation (Done)
+### Phase 1 - Service Foundation (Done)
 
 - basic HTTP service
 - routing and request handling
@@ -45,7 +45,7 @@ The project starts small, but is planned with a broader service-oriented setup i
 
 Goal: establish a clean and maintainable baseline
 
-### Phase 2 — Observability & Runtime (Done)
+### Phase 2 - Observability & Runtime (Done)
 
 - structured logging
 - request lifecycle tracking
@@ -56,7 +56,7 @@ Goal: establish a clean and maintainable baseline
 
 Goal: make runtime behavior visible and understandable
 
-### Phase 3 — Session & State (Done)
+### Phase 3 - Session & State (Done)
 
 - session model (`Session`, `Role`, `Mode`)
 - session start flow
@@ -65,7 +65,7 @@ Goal: make runtime behavior visible and understandable
 
 Goal: introduce authoritative server-side state and make interaction stateful
 
-### Phase 4 — Interaction Flow (Done)
+### Phase 4 - Interaction Flow (Done)
 
 - refine interaction request / response model
 - strengthen validation and error handling
@@ -74,7 +74,7 @@ Goal: introduce authoritative server-side state and make interaction stateful
 
 Goal: define a clean and extensible interaction flow before adding AI
 
-### Phase 5 — Policy & Decision Layer (Done)
+### Phase 5 - Policy & Decision Layer (Done)
 
 - separate claims from verified state
 - introduce policy checks
@@ -83,7 +83,7 @@ Goal: define a clean and extensible interaction flow before adding AI
 
 Goal: move control into deterministic system logic
 
-### Phase 6 — Security Modes (Done)
+### Phase 6 - Security Modes (Done)
 
 - introduce easy / medium / hard modes
 - vary validation and enforcement by mode
@@ -92,7 +92,7 @@ Goal: move control into deterministic system logic
 
 Goal: demonstrate how architecture changes system security
 
-### Phase 7 — Execution & Response Flow (Done)
+### Phase 7 - Execution & Response Flow (Done)
 
 - separate planning, policy, execution, and response building
 - model deterministic execution for allowed actions
@@ -101,7 +101,7 @@ Goal: demonstrate how architecture changes system security
 
 Goal: complete the controlled interaction pipeline before integrating a real model
 
-### Phase 8 — LLM Integration & Traceability (Done)
+### Phase 8 - LLM Integration & Traceability (Done)
 
 - introduce provider abstraction and model client boundaries
 - define prompt construction for the existing pipeline stages
@@ -113,7 +113,7 @@ Goal: complete the controlled interaction pipeline before integrating a real mod
 
 Goal: introduce model-backed planning and response generation without giving the model system authority
 
-### Phase 9 — Audit Analysis & Detection (Done)
+### Phase 9 - Audit Analysis & Detection (Done)
 
 - enrich audit and model-step observability
 - make planning / response generation failures easier to detect and inspect
@@ -122,46 +122,72 @@ Goal: introduce model-backed planning and response generation without giving the
 
 Goal: turn runtime traces into useful detection and analysis signals
 
-### Phase 10 — Client / UI
+### Phase 10 - Client / UI
 
 - build Flutter client (web first)
 - session start and interaction flow
 - client-side session handling
-- visualize system behavior across modes
+- analysis detail views for sessions and requests
+- app logging interface and client-side log shipping to the backend
+- error and loading handling across the main user-facing flows
 
 Goal: validate system behavior through real user interaction
 
-### Phase 11 — Multi-Model / Agent Setup
+### Phase 11 - Integration, Delivery & Operations
 
-- multiple providers
-- role-specific models
-- model comparison and routing
-
-Goal: decouple responsibilities from a single model
-
-### Phase 12 — Service Decomposition
-
-- split into services where useful
-- introduce gRPC / Proto contracts
-- define clear service boundaries
-
-Goal: move towards scalable architecture
-
-### Phase 13 — Persistence
-
-- PostgreSQL integration
-- persistent sessions
-- audit/event storage
-
-Goal: move beyond in-memory runtime state
-
-### Phase 14 — Integration, Delivery & Operations
-
-- integration and end-to-end tests
 - CI/CD pipelines
 - container builds
 - deployment automation
 - Docker and Kubernetes setup
-- monitoring and alerting
+- production-like local and remote runtime setup
 
 Goal: run the system in a production-like environment
+
+### Phase 12 - Service Decomposition
+
+- split into services where useful
+- introduce gRPC / Proto contracts
+- define clear service boundaries
+- separate responsibilities so later persistence, telemetry, and model routing can evolve independently
+
+Goal: move towards scalable architecture
+
+### Phase 13 - Persistence
+
+- Backend: PostgreSQL integration
+- Frontend: drift integration
+- persistent backend sessions and interactions
+- local app persistence and restore flows
+- audit/event storage
+- define how app-side persisted state and backend authoritative state stay aligned
+- define migration strategy for persisted frontend and backend schemas
+
+Goal: move beyond in-memory runtime state
+
+### Phase 14 - Monitoring, Dashboards & Analysis
+
+- mode comparison views and security posture comparisons
+- ingest and correlate backend audit events, backend logs, and client-side logs
+- audit and log dashboards
+- monitoring-oriented analysis over runtime traces and stored events
+- prepare operator-facing observability views beyond the gameplay UI
+
+Goal: turn observability data into explorable operator and evaluation views
+
+### Phase 15 - Testing
+
+- integration tests across service and persistence boundaries
+- end-to-end and system tests across backend, frontend, and deployed runtime
+- regression suites for security modes, analysis flows, and observability behavior
+- define the final validation baseline for release-like environments
+
+Goal: verify the system holistically once architecture, persistence, delivery, and observability are in place
+
+### Phase 16 - Multi-Model / Agent Setup
+
+- multiple providers
+- role-specific models
+- different models per pipeline step such as planning vs. response generation
+- model comparison and routing
+
+Goal: decouple responsibilities from a single model and support step-specific model choice
