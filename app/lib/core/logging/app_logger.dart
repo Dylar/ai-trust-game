@@ -9,6 +9,7 @@ class AppLogEvent {
     required this.message,
     this.attributes = const <String, Object?>{},
     this.error,
+    this.sessionId,
     this.stackTrace,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now().toUtc();
@@ -18,8 +19,18 @@ class AppLogEvent {
   final Object? error;
   final AppLogLevel level;
   final String message;
+  final String? sessionId;
   final StackTrace? stackTrace;
   final DateTime timestamp;
+
+  Map<String, Object?> toJson() {
+    return <String, Object?>{
+      'level': level.name,
+      'category': category,
+      'message': message,
+      'attributes': attributes,
+    };
+  }
 }
 
 abstract interface class AppLogSink {

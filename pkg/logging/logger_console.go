@@ -9,24 +9,6 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/network"
 )
 
-type LogLevel string
-
-const (
-	Debug LogLevel = "DEBUG"
-	Info  LogLevel = "INFO"
-	Warn  LogLevel = "WARN"
-	Error LogLevel = "ERROR"
-)
-
-func (level LogLevel) IsValid() bool {
-	switch level {
-	case Debug, Info, Warn, Error:
-		return true
-	default:
-		return false
-	}
-}
-
 type ConsoleLogger struct{}
 
 func NewConsoleLogger() *ConsoleLogger {

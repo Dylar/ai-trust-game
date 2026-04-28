@@ -104,7 +104,26 @@ Map<String, dynamic> parseJsonResponse(http.Response response) {
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
-  throw ApiException(
+  throw buildApiException(response);
+}
+
+void ensureSuccessResponse(
+  http.Response response, {
+  Set<int>? successStatusCodes,
+}) {
+  final isSuccessfulStatus =
+      successStatusCodes?.contains(response.statusCode) ??
+      (response.statusCode >= 200 && response.statusCode < 300);
+
+  if (isSuccessfulStatus) {
+    return;
+  }
+
+  throw buildApiException(response);
+}
+
+ApiException buildApiException(http.Response response) {
+  return ApiException(
     statusCode: response.statusCode,
     error: _parseError(response.body),
   );

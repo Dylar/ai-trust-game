@@ -1,11 +1,13 @@
 import 'package:app/core/config/app_config.dart';
 import 'package:app/core/logging/app_logger.dart';
+import 'package:app/core/logging/backend_app_log_sink.dart';
 import 'package:app/core/logging/local_app_log_sink.dart';
 import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/data/logging/log_api_client.dart';
 import 'package:app/data/session/session_api_client.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/services/analysis_service.dart';
@@ -32,8 +34,18 @@ class AppDependenciesData {
     final httpClient = http.Client();
     final userIdentity = UserIdentity.newRuntimeIdentity();
     final analysisRepository = InMemoryAnalysisRepository();
-    const appLogger = AppLogger(sinks: <AppLogSink>[LocalAppLogSink()]);
     final interactionRepository = InMemoryInteractionRepository();
+    final logApiClient = LogApiClient(
+      httpClient: httpClient,
+      apiBaseUri: config.apiBaseUri,
+      userId: userIdentity.id,
+    );
+    final appLogger = AppLogger(
+      sinks: <AppLogSink>[
+        const LocalAppLogSink(),
+        BackendAppLogSink(apiClient: logApiClient),
+      ],
+    );
     final sessionRepository = InMemorySessionRepository();
 
     return AppDependenciesData(

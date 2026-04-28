@@ -13,13 +13,23 @@ func SetupRoutes(
 	chatHandler *ChatHandler,
 	startSessionHandler *StartSessionHandler,
 	interactionHandler *InteractionHandler,
+	clientLogHandler *ClientLogHandler,
 	requestAnalysisHandler *RequestAnalysisHandler,
 ) {
 	setupChatRoute(mux, logger, chatHandler)
 	setupStartSessionRoute(mux, logger, startSessionHandler)
 	setupInteractionRoute(mux, logger, interactionHandler)
+	setupClientLogRoute(mux, logger, clientLogHandler)
 	setupRequestAnalysisRoute(mux, logger, requestAnalysisHandler)
 	setupSessionAnalysisRoute(mux, logger, requestAnalysisHandler)
+}
+
+func setupClientLogRoute(mux *http.ServeMux, logger logging.Logger, clientLogHandler *ClientLogHandler) {
+	handleClientLog := http.Handler(clientLogHandler)
+	handleClientLog = logging.HttpLogging(logger)(handleClientLog)
+	handleClientLog = network.RequestMiddleware(handleClientLog)
+	handleClientLog = network.CORSMiddleware(handleClientLog)
+	mux.Handle("/logs/client", handleClientLog)
 }
 
 func setupChatRoute(mux *http.ServeMux, logger logging.Logger, chatHandler *ChatHandler) {

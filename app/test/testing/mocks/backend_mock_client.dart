@@ -79,6 +79,10 @@ http.Client buildBackendMockClient() {
       );
     }
 
+    if (request.url.path == '/logs/client') {
+      return http.Response('', 202);
+    }
+
     return http.Response('', 404);
   });
 }

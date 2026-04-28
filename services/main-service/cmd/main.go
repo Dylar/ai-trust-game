@@ -29,6 +29,7 @@ func main() {
 
 	processor := newConfiguredProcessor(logger, auditSink)
 	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
+	clientLogHandler := service.NewClientLogHandler(logger)
 
 	srv := infra.NewServer(
 		logger,
@@ -38,7 +39,7 @@ func main() {
 					Name: "main-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler, interactionHandler, requestAnalysisHandler)
+						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler, interactionHandler, clientLogHandler, requestAnalysisHandler)
 					},
 				},
 			},

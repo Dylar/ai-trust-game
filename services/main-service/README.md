@@ -54,6 +54,9 @@ Current routes:
 - `POST /interaction`
   loads the authoritative session and runs the interaction pipeline
 
+- `POST /logs/client`
+  accepts client-side app log events and forwards them into the backend logging path
+
 - `GET /analysis/request/{requestId}`
   returns one stored request analysis
 
@@ -88,6 +91,9 @@ It trusts the request metadata header and loads the authoritative session from t
 
 - [`interaction_handler.go`](./service/interaction_handler.go)
   validates request metadata, loads the session, delegates to `interaction.Processor`, and saves updated session state
+
+- [`client_log_handler.go`](./service/client_log_handler.go)
+  validates client-side app log events and forwards them into the backend logger with request metadata
 
 - [`analysis_handler.go`](./service/analysis_handler.go)
   maps stored request analyses into request and session read models and optionally adds session intent summaries
