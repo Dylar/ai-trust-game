@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -12,9 +11,11 @@ import 'package:app/screens/home/home_screen_state.dart';
 import 'package:app/screens/home/home_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.viewModel});
 
   static const routeName = '/';
+
+  final HomeViewModel viewModel;
 
   static Future<T?> open<T>(BuildContext context) {
     return Navigator.of(context).pushNamed<T>(routeName);
@@ -25,20 +26,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  HomeViewModel? _viewModel;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _viewModel ??= HomeViewModel(
-      interactionRepository: AppDependencies.of(context).interactionRepository,
-      sessionRepository: AppDependencies.of(context).sessionRepository,
-    );
-  }
-
   @override
   void dispose() {
-    _viewModel?.dispose();
+    widget.viewModel.dispose();
     super.dispose();
   }
 
@@ -51,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<HomeScreenState>(
-              valueListenable: _viewModel!.state,
+              valueListenable: widget.viewModel.state,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),

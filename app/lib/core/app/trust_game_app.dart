@@ -17,6 +17,8 @@ class TrustGameApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final router = AppRouter(dependencies: dependencies);
+
     return AppDependencies(
       dependencies: dependencies,
       child: MaterialApp(
@@ -30,8 +32,8 @@ class TrustGameApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
-        onGenerateRoute: AppRouter.onGenerateRoute,
-        home: home ?? const HomeScreen(),
+        onGenerateRoute: router.onGenerateRoute,
+        home: home ?? router.buildHomeScreen(),
       ),
     );
   }

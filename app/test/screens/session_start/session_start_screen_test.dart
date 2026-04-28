@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:app/screens/session_start/session_start_screen.dart';
 
 import '../../testing/mocks/failing_services.dart';
 import '../../testing/test_dependencies.dart';
@@ -10,7 +9,9 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp(home: const SessionStartScreen());
+    await context.appBot.startApp(
+      homeBuilder: (router) => router.buildSessionStartScreen(),
+    );
 
     // When
 
@@ -27,7 +28,9 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp(home: const SessionStartScreen());
+    await context.appBot.startApp(
+      homeBuilder: (router) => router.buildSessionStartScreen(),
+    );
 
     // When
     await context.screenBot.tapPrepareSession();
@@ -43,7 +46,9 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp(home: const SessionStartScreen());
+    await context.appBot.startApp(
+      homeBuilder: (router) => router.buildSessionStartScreen(),
+    );
 
     // When
     await context.process.prepareAdminHardSession();
@@ -60,8 +65,8 @@ void main() {
 
     // Given
     await context.appBot.startApp(
-      home: const SessionStartScreen(),
       dependencies: dependencies,
+      homeBuilder: (router) => router.buildSessionStartScreen(),
     );
 
     // When

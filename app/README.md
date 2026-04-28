@@ -61,7 +61,7 @@ Current frontend architecture choices:
 - `UserIdentity.newRuntimeIdentity()` creates an in-memory user ID for the current app runtime
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
-- view models stay screen-local and receive dependencies from the screen
+- view models stay screen-local and are composed in the router before being passed into screens
 - shared business vocabulary currently lives in `lib/models/`
 - Home-specific list summaries are screen state objects, not shared domain models
 - session flow currently follows `screen -> service -> repository/data`

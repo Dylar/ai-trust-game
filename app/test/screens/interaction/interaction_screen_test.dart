@@ -2,7 +2,6 @@ import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
-import 'package:app/screens/interaction/interaction_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../testing/mocks/failing_services.dart';
@@ -34,12 +33,13 @@ void main() {
 
     // Given
     await context.appBot.startApp(
-      home: const InteractionScreen(sessionId: 'local-admin-hard'),
       dependencies: dependencies,
+      homeBuilder: (router) =>
+          router.buildInteractionScreen(sessionId: 'local-admin-hard'),
     );
 
     // When
-    context.screenBot.expectLoadingVisible();
+    context.screenBot.expectScreenVisible();
 
     // Then
     await context.process.expectSessionDetailsLoaded('local-admin-hard');
@@ -57,8 +57,9 @@ void main() {
 
     // Given
     await context.appBot.startApp(
-      home: const InteractionScreen(sessionId: 'missing-session'),
       dependencies: dependencies,
+      homeBuilder: (router) =>
+          router.buildInteractionScreen(sessionId: 'missing-session'),
     );
 
     // When
@@ -84,8 +85,9 @@ void main() {
 
     // Given
     await context.appBot.startApp(
-      home: const InteractionScreen(sessionId: 'local-admin-hard'),
       dependencies: dependencies,
+      homeBuilder: (router) =>
+          router.buildInteractionScreen(sessionId: 'local-admin-hard'),
     );
     await context.process.expectSessionDetailsLoaded('local-admin-hard');
     await context.screenBot.expectEmptyInteractionsVisible();
@@ -115,8 +117,9 @@ void main() {
 
     // Given
     await context.appBot.startApp(
-      home: const InteractionScreen(sessionId: 'local-admin-hard'),
       dependencies: dependencies,
+      homeBuilder: (router) =>
+          router.buildInteractionScreen(sessionId: 'local-admin-hard'),
     );
     await context.process.expectSessionDetailsLoaded('local-admin-hard');
 

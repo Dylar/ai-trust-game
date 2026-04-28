@@ -1,4 +1,3 @@
-import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -10,11 +9,10 @@ import 'package:app/screens/interaction/interaction_view_model.dart';
 import 'package:flutter/material.dart';
 
 class InteractionScreen extends StatefulWidget {
-  const InteractionScreen({super.key, required this.sessionId});
+  const InteractionScreen({super.key, required this.viewModel});
 
   static const routeName = '/interaction';
-
-  final String sessionId;
+  final InteractionViewModel viewModel;
 
   static Future<T?> open<T>(BuildContext context, {required String sessionId}) {
     return Navigator.of(context).pushNamed<T>(
@@ -45,37 +43,25 @@ class InteractionRouteArgs {
 
 class _InteractionScreenState extends State<InteractionScreen> {
   final ScrollController _scrollController = ScrollController();
-  InteractionViewModel? _viewModel;
   int _lastInteractionCount = 0;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_viewModel != null) {
-      return;
-    }
-
-    _viewModel = InteractionViewModel(
-      appLogger: AppDependencies.of(context).appLogger,
-      interactionRepository: AppDependencies.of(context).interactionRepository,
-      interactionService: AppDependencies.of(context).interactionService,
-      sessionRepository: AppDependencies.of(context).sessionRepository,
-      sessionId: widget.sessionId,
-    );
-    _viewModel?.state.addListener(_handleStateChanged);
+  void initState() {
+    super.initState();
+    widget.viewModel.state.addListener(_handleStateChanged);
   }
 
   @override
   void dispose() {
-    _viewModel?.state.removeListener(_handleStateChanged);
-    _viewModel?.dispose();
+    widget.viewModel.state.removeListener(_handleStateChanged);
+    widget.viewModel.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   void _handleStateChanged() {
-    final state = _viewModel?.state.value;
-    if (state == null || !mounted) {
+    final state = widget.viewModel.state.value;
+    if (!mounted) {
       return;
     }
 
@@ -105,7 +91,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<InteractionScreenState>(
-              valueListenable: _viewModel!.state,
+              valueListenable: widget.viewModel.state,
               builder: (context, state, _) {
                 return Padding(
                   padding: const EdgeInsets.all(AppSpacing.large),
@@ -117,8 +103,8 @@ class _InteractionScreenState extends State<InteractionScreen> {
                     InteractionScreenStatus.ready => InteractionReadyContent(
                       state: state,
                       scrollController: _scrollController,
-                      onSubmitMessage: _viewModel!.submitMessage,
-                      onErrorShown: _viewModel!.clearError,
+                      onSubmitMessage: widget.viewModel.submitMessage,
+                      onErrorShown: widget.viewModel.clearError,
                     ),
                     InteractionScreenStatus.notFound => _InteractionScaffold(
                       child: _SessionNotFoundState(sessionId: state.sessionId),

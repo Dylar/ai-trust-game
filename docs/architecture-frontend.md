@@ -106,8 +106,9 @@ The default screen pattern is:
 
 - a screen owns UI composition for one user-facing flow
 - a screen may be a `StatefulWidget` when it needs lifecycle handling
-- a screen creates its screen-local view model in `initState`
-- dependencies are resolved from `InheritedWidget`
+- routing creates the screen-local view model during screen composition
+- the screen receives its view model through the constructor
+- dependencies are resolved from the app-wide dependency boundary during screen composition
 - the view model exposes one `ScreenState`
 - screen state is held in `ValueNotifier<ScreenState>`
 - the UI rebuilds with `ValueListenableBuilder`
@@ -177,9 +178,9 @@ Screens own UI composition and lifecycle for one user-facing flow.
 
 They should:
 
-- create screen-local view models when needed
 - bind UI to screen state
 - forward user actions to the view model
+- dispose the injected screen-local view model when they own its lifecycle
 
 ### View Models
 
@@ -198,8 +199,9 @@ They should not:
 - depend on widget APIs
 - contain low-level transport or persistence code
 
-Dependencies should be resolved from the `InheritedWidget` boundary in the screen and then passed into the screen-local
-view model.
+Dependencies should be resolved from the app-wide dependency boundary and then passed into the screen-local view model.
+In this repository, that screen-local composition is typically done in the app router, which receives app-wide
+dependencies and constructs the screen plus its view model together.
 This keeps the view model framework-light while avoiding direct transport access from widgets.
 
 ### Services, Use Cases, And Data
@@ -210,7 +212,8 @@ The data layer communicates with external systems and platform integrations.
 
 Prefer a small sequence like this:
 
-- screen resolves dependencies from `InheritedWidget`
+- app bootstrap exposes dependencies through the app-wide dependency boundary
+- routing composes the screen-local view model
 - view model calls a service or use case
 - service delegates to repositories or `data/`
 - repositories coordinate stored app state when needed

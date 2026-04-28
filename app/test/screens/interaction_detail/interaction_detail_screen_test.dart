@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:app/screens/interaction_detail/interaction_detail_keys.dart';
-import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -14,7 +13,8 @@ void main() {
     final context = InteractionDetailTestContext(tester);
 
     await context.appBot.startApp(
-      home: const InteractionDetailScreen(requestId: 'request-1'),
+      homeBuilder: (router) =>
+          router.buildInteractionDetailScreen(requestId: 'request-1'),
     );
     await tester.pump(const Duration(milliseconds: 1));
 
@@ -41,8 +41,9 @@ void main() {
     );
 
     await context.appBot.startApp(
-      home: const InteractionDetailScreen(requestId: 'request-1'),
       dependencies: dependencies,
+      homeBuilder: (router) =>
+          router.buildInteractionDetailScreen(requestId: 'request-1'),
     );
     await tester.pump(const Duration(milliseconds: 1));
 

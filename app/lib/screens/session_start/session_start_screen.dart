@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:app/core/app/api_error_localizations.dart';
-import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/app/app_error_dialog.dart';
+import 'package:app/core/app/api_error_localizations.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -14,9 +13,11 @@ import 'package:app/screens/session_start/session_start_screen_state.dart';
 import 'package:app/screens/session_start/session_start_view_model.dart';
 
 class SessionStartScreen extends StatefulWidget {
-  const SessionStartScreen({super.key});
+  const SessionStartScreen({super.key, required this.viewModel});
 
   static const routeName = '/session-start';
+
+  final SessionStartViewModel viewModel;
 
   static Future<T?> open<T>(BuildContext context) {
     return Navigator.of(context).pushNamed<T>(routeName);
@@ -27,34 +28,24 @@ class SessionStartScreen extends StatefulWidget {
 }
 
 class _SessionStartScreenState extends State<SessionStartScreen> {
-  SessionStartViewModel? _viewModel;
   bool _isShowingErrorDialog = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_viewModel != null) {
-      return;
-    }
-
-    final viewModel = SessionStartViewModel(
-      appLogger: AppDependencies.of(context).appLogger,
-      sessionService: AppDependencies.of(context).sessionService,
-    );
-    viewModel.state.addListener(_handleStateChanged);
-    _viewModel = viewModel;
+  void initState() {
+    super.initState();
+    widget.viewModel.state.addListener(_handleStateChanged);
   }
 
   @override
   void dispose() {
-    _viewModel?.state.removeListener(_handleStateChanged);
-    _viewModel?.dispose();
+    widget.viewModel.state.removeListener(_handleStateChanged);
+    widget.viewModel.dispose();
     super.dispose();
   }
 
   void _handleStateChanged() {
-    final viewModel = _viewModel;
-    if (viewModel == null || !mounted) {
+    final viewModel = widget.viewModel;
+    if (!mounted) {
       return;
     }
 
@@ -113,7 +104,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<SessionStartScreenState>(
-              valueListenable: _viewModel!.state,
+              valueListenable: widget.viewModel.state,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),
@@ -125,9 +116,9 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
                       _SessionStartFormCard(
                         state: state,
                         l10n: l10n,
-                        onRoleSelected: _viewModel!.selectRole,
-                        onModeSelected: _viewModel!.selectMode,
-                        onPrepareSession: _viewModel!.prepareSession,
+                        onRoleSelected: widget.viewModel.selectRole,
+                        onModeSelected: widget.viewModel.selectMode,
+                        onPrepareSession: widget.viewModel.prepareSession,
                       ),
                     ],
                   ),

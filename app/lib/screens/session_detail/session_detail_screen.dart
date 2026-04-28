@@ -1,5 +1,4 @@
 import 'package:app/core/app/api_error_localizations.dart';
-import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -11,11 +10,10 @@ import 'package:app/screens/session_detail/session_detail_view_model.dart';
 import 'package:flutter/material.dart';
 
 class SessionDetailScreen extends StatefulWidget {
-  const SessionDetailScreen({super.key, required this.sessionId});
+  const SessionDetailScreen({super.key, required this.viewModel});
 
   static const routeName = '/session-detail';
-
-  final String sessionId;
+  final SessionDetailViewModel viewModel;
 
   static Future<T?> open<T>(BuildContext context, {required String sessionId}) {
     return Navigator.of(context).pushNamed<T>(
@@ -35,21 +33,9 @@ class SessionDetailRouteArgs {
 }
 
 class _SessionDetailScreenState extends State<SessionDetailScreen> {
-  SessionDetailViewModel? _viewModel;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _viewModel ??= SessionDetailViewModel(
-      appLogger: AppDependencies.of(context).appLogger,
-      analysisService: AppDependencies.of(context).analysisService,
-      sessionId: widget.sessionId,
-    );
-  }
-
   @override
   void dispose() {
-    _viewModel?.dispose();
+    widget.viewModel.dispose();
     super.dispose();
   }
 
@@ -63,7 +49,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<SessionDetailScreenState>(
-              valueListenable: _viewModel!.state,
+              valueListenable: widget.viewModel.state,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),

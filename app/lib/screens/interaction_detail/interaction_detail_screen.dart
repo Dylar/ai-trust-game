@@ -1,5 +1,4 @@
 import 'package:app/core/app/api_error_localizations.dart';
-import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -10,11 +9,10 @@ import 'package:app/screens/interaction_detail/interaction_detail_view_model.dar
 import 'package:flutter/material.dart';
 
 class InteractionDetailScreen extends StatefulWidget {
-  const InteractionDetailScreen({super.key, required this.requestId});
+  const InteractionDetailScreen({super.key, required this.viewModel});
 
   static const routeName = '/interaction-detail';
-
-  final String requestId;
+  final InteractionDetailViewModel viewModel;
 
   static Future<T?> open<T>(BuildContext context, {required String requestId}) {
     return Navigator.of(context).pushNamed<T>(
@@ -35,21 +33,9 @@ class InteractionDetailRouteArgs {
 }
 
 class _InteractionDetailScreenState extends State<InteractionDetailScreen> {
-  InteractionDetailViewModel? _viewModel;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _viewModel ??= InteractionDetailViewModel(
-      appLogger: AppDependencies.of(context).appLogger,
-      analysisService: AppDependencies.of(context).analysisService,
-      requestId: widget.requestId,
-    );
-  }
-
   @override
   void dispose() {
-    _viewModel?.dispose();
+    widget.viewModel.dispose();
     super.dispose();
   }
 
@@ -63,7 +49,7 @@ class _InteractionDetailScreenState extends State<InteractionDetailScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<InteractionDetailScreenState>(
-              valueListenable: _viewModel!.state,
+              valueListenable: widget.viewModel.state,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),
