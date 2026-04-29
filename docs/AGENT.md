@@ -49,6 +49,7 @@ Your goal is to:
 
 ## Documentation Rules (STRICT)
 
+Documentation is always written in English.
 You MUST update documentation if ANY of the following changes:
 
 ### Update architecture docs if:

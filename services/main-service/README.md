@@ -116,3 +116,27 @@ Current runtime configuration is read in the service composition root:
 
 `openai` is already accepted as a configured provider value, but the service currently falls back to static behavior for
 both interaction processing and audit intent summarization.
+
+## Container Build
+
+The repository currently uses one shared Go service image definition in
+[`infrastructure/docker/go-service.Dockerfile`](../../infrastructure/docker/go-service.Dockerfile).
+
+`main-service` is built through that shared Dockerfile by passing the service name as a build argument.
+This keeps the default container setup consistent across multiple Go services while still letting individual services
+add their own deployment files later, for example under `k8s/`.
+
+Build the local image from the repository root:
+
+```bash
+make docker-build SERVICE=main-service
+```
+
+Run the container locally:
+
+```bash
+docker run --rm -p 8080:8080 -e PORT=8080 main-service:local
+```
+
+Provide `LLM_PROVIDER`, `GROQ_API_KEY`, and `GROQ_MODEL` as container environment variables when testing model-backed
+runtime behavior.

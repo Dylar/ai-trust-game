@@ -34,7 +34,7 @@ docker-build:
 		echo "Example: make docker-build SERVICE=main-service"; \
 		exit 1; \
 	fi
-	docker build -t $(SERVICE):local ./services/$(SERVICE)/cmd
+	docker build --build-arg SERVICE=$(SERVICE) -f ./infrastructure/docker/go-service.Dockerfile -t $(SERVICE):local .
 
 test:
 	go test ./...

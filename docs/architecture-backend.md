@@ -29,7 +29,13 @@ The preferred structure is:
 Shared supporting areas may also exist outside the individual service:
 
 - `tooling/` for shared helpers used by tests and scripts
+- `infrastructure/` for shared delivery and deployment assets such as Docker, Kubernetes, or later Terraform setup
 - `pkg/k8s/` for shared Kubernetes building blocks reused by multiple services
+
+When multiple Go services share the same container build pattern, keep the default Docker build definition in a shared
+location under `infrastructure/`, for example `infrastructure/docker/`.
+Service-specific deployment files such as Kubernetes manifests may still move near the owning service later under
+`services/<service-name>/k8s/` when service boundaries become concrete.
 
 ### `cmd/`
 

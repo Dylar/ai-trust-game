@@ -5,6 +5,10 @@
 - `make run SERVICE=<service-name>`
   starts the specified service (e.g., `make run SERVICE=main-service` for the core HTTP service)
 
+- `make docker-build SERVICE=<service-name>`
+  builds the local Docker image for the specified Go service through the shared Dockerfile
+  (e.g., `make docker-build SERVICE=main-service`)
+
 ## Development Scripts
 
 - `go run ./services/main-service/scripts/start-session`
