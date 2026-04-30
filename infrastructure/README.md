@@ -12,6 +12,9 @@ It is intentionally separate from `tooling/`:
 - [`docker/`](./docker/)
   shared Docker build definitions for services
 
+- [`../compose.yml`](../compose.yml)
+  local multi-container stack definition for the current development setup
+
 ## Planned Structure
 
 - `k8s/`

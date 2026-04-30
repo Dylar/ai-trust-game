@@ -1,13 +1,22 @@
 SERVICE ?=
+PORT ?= 8080
+BACKEND_PORT ?= 8080
+FRONTEND_PORT ?= 3000
+APP_FLAVOR ?= dev
+API_BASE_URL ?= http://localhost:8080
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
 
-.PHONY: help run build test lint docker-build
+.PHONY: help run build test lint docker-build docker-run docker-build-run compose-up compose-down
 
 help:
 	@echo "Commands:"
 	@echo "  make run SERVICE=<name>"
 	@echo "  make build SERVICE=<name>"
 	@echo "  make docker-build SERVICE=<name>"
+	@echo "  make docker-run SERVICE=<name> [PORT=<host-port>]"
+	@echo "  make docker-build-run SERVICE=<name> [PORT=<host-port>]"
+	@echo "  make compose-up"
+	@echo "  make compose-down"
 	@echo "  make test"
 	@echo "  make lint"
 
@@ -35,6 +44,22 @@ docker-build:
 		exit 1; \
 	fi
 	docker build --build-arg SERVICE=$(SERVICE) -f ./infrastructure/docker/go-service.Dockerfile -t $(SERVICE):local .
+
+docker-run:
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "Error: SERVICE missing"; \
+		echo "Example: make docker-run SERVICE=main-service"; \
+		exit 1; \
+	fi
+	docker run --rm -p $(PORT):8080 -e PORT=8080 $(SERVICE):local
+
+docker-build-run: docker-build docker-run
+
+compose-up:
+	BACKEND_PORT=$(BACKEND_PORT) FRONTEND_PORT=$(FRONTEND_PORT) APP_FLAVOR=$(APP_FLAVOR) API_BASE_URL=$(API_BASE_URL) docker compose up --build
+
+compose-down:
+	docker compose down
 
 test:
 	go test ./...

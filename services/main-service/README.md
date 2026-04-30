@@ -132,11 +132,22 @@ Build the local image from the repository root:
 make docker-build SERVICE=main-service
 ```
 
+Rebuild and start the container in one step after local code changes:
+
+```bash
+make docker-build-run SERVICE=main-service
+```
+
 Run the container locally:
 
 ```bash
-docker run --rm -p 8080:8080 -e PORT=8080 main-service:local
+make docker-run SERVICE=main-service
 ```
 
 Provide `LLM_PROVIDER`, `GROQ_API_KEY`, and `GROQ_MODEL` as container environment variables when testing model-backed
 runtime behavior.
+
+When the Flutter web app runs locally with `API_BASE_URL=http://localhost:8080`, it can talk to the containerized
+backend through the published host port.
+
+For a local full-stack container run together with the Flutter web app, use the repository root `compose.yml`.

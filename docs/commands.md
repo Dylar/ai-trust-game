@@ -9,6 +9,20 @@
   builds the local Docker image for the specified Go service through the shared Dockerfile
   (e.g., `make docker-build SERVICE=main-service`)
 
+- `make docker-run SERVICE=<service-name> [PORT=<host-port>]`
+  runs the previously built local Docker image and publishes container port `8080` to the selected host port
+  (e.g., `make docker-run SERVICE=main-service`)
+
+- `make docker-build-run SERVICE=<service-name> [PORT=<host-port>]`
+  rebuilds the local Docker image and then starts it immediately
+  (e.g., `make docker-build-run SERVICE=main-service`)
+
+- `make compose-up`
+  builds and starts the local stack from `compose.yml`, currently `main-service` plus the Flutter web app
+
+- `make compose-down`
+  stops and removes the local stack started through `compose.yml`
+
 ## Development Scripts
 
 - `go run ./services/main-service/scripts/start-session`

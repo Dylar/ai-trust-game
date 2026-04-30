@@ -1,0 +1,28 @@
+services:
+  main-service:
+    build:
+      context: .
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      args:
+        SERVICE: main-service
+    image: main-service:local
+    environment:
+      PORT: 8080
+      LLM_PROVIDER: ${LLM_PROVIDER:-static}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+
+  frontend-web:
+    build:
+      context: .
+      dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      args:
+        APP_FLAVOR: ${APP_FLAVOR:-dev}
+        API_BASE_URL: ${API_BASE_URL:-http://localhost:8080}
+    image: frontend-web:local
+    depends_on:
+      - main-service
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"

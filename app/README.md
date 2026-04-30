@@ -137,3 +137,24 @@ For a manual local run:
 
 3. Create a session, send one or more messages, then use the session and interaction analysis links from the
    interaction screen.
+
+## Containerized Local Stack
+
+The repository root `compose.yml` can build and run the current local stack:
+
+- `main-service` on `http://localhost:8080`
+- Flutter web app on `http://localhost:3000`
+
+Start it from the repository root:
+
+```bash
+make compose-up
+```
+
+Stop it again:
+
+```bash
+make compose-down
+```
+
+The compose setup currently builds the web app with `APP_FLAVOR=dev` and `API_BASE_URL=http://localhost:8080`.
