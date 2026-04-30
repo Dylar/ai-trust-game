@@ -169,5 +169,11 @@ Follow the combined stack logs:
 make compose-logs
 ```
 
+Inspect the current compose containers and their state:
+
+```bash
+make compose-ps
+```
+
 The compose setup currently builds the web app with `APP_ENV=dev` and `API_BASE_URL=http://localhost:8080`.
 Prepared env files currently live under `infrastructure/env/`.

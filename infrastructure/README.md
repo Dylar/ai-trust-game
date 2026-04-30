@@ -18,6 +18,12 @@ It is intentionally separate from `tooling/`:
 - [`env/`](./env/)
   shared environment variable files for local stack variants such as `dev` and `test`
 
+The `env/` directory is the intentionally lightweight Phase 11 starting point.
+Right now it keeps environment selection simple while the project still runs as one main service plus one frontend
+stack.
+Later, once multiple services and Kubernetes-specific environment differences become concrete, this may evolve into a
+more environment-centered structure such as dedicated `dev/`, `test/`, and `prod/` deployment areas.
+
 ## Planned Structure
 
 - `k8s/`

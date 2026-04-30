@@ -21,15 +21,24 @@
   follows the logs of the currently running local container for that image
   (e.g., `make docker-logs SERVICE=main-service`)
 
+- `make compose-build [TARGET_ENV=dev|test]`
+  builds the current compose stack images without starting the containers
+
 - `make compose-up [TARGET_ENV=dev|test]`
   builds and starts the local stack from `compose.yml` using the selected env file under `infrastructure/env/`
   (e.g., `make compose-up TARGET_ENV=test`)
+
+- `make compose-rebuild [TARGET_ENV=dev|test]`
+  rebuilds and recreates the current compose stack in one step
 
 - `make compose-down`
   stops and removes the local stack started through `compose.yml`
 
 - `make compose-logs`
   follows the combined logs of the current compose stack
+
+- `make compose-ps`
+  shows the current compose containers and their status, including health state when available
 
 ## Development Scripts
 

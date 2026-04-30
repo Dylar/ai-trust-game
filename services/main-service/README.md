@@ -155,6 +155,8 @@ runtime behavior.
 
 The service also reads `APP_ENV` for environment tagging in logs.
 
+It exposes `GET /healthz` for local runtime checks and container health checks.
+
 When the Flutter web app runs locally with `API_BASE_URL=http://localhost:8080`, it can talk to the containerized
 backend through the published host port.
 

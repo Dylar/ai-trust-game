@@ -10,18 +10,28 @@ import (
 func SetupRoutes(
 	mux *http.ServeMux,
 	logger logging.Logger,
+	healthHandler *HealthHandler,
 	chatHandler *ChatHandler,
 	startSessionHandler *StartSessionHandler,
 	interactionHandler *InteractionHandler,
 	clientLogHandler *ClientLogHandler,
 	requestAnalysisHandler *RequestAnalysisHandler,
 ) {
+	setupHealthRoute(mux, logger, healthHandler)
 	setupChatRoute(mux, logger, chatHandler)
 	setupStartSessionRoute(mux, logger, startSessionHandler)
 	setupInteractionRoute(mux, logger, interactionHandler)
 	setupClientLogRoute(mux, logger, clientLogHandler)
 	setupRequestAnalysisRoute(mux, logger, requestAnalysisHandler)
 	setupSessionAnalysisRoute(mux, logger, requestAnalysisHandler)
+}
+
+func setupHealthRoute(mux *http.ServeMux, logger logging.Logger, healthHandler *HealthHandler) {
+	handleHealth := http.Handler(healthHandler)
+	handleHealth = logging.HttpLogging(logger)(handleHealth)
+	handleHealth = network.RequestMiddleware(handleHealth)
+	handleHealth = network.CORSMiddleware(handleHealth)
+	mux.Handle("/healthz", handleHealth)
 }
 
 func setupClientLogRoute(mux *http.ServeMux, logger logging.Logger, clientLogHandler *ClientLogHandler) {

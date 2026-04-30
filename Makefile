@@ -8,7 +8,7 @@ API_BASE_URL ?= http://localhost:8080
 COMPOSE_ENV_FILE ?= ./infrastructure/env/$(TARGET_ENV).env
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
 
-.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-up compose-down compose-logs
+.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-down compose-logs compose-ps compose-rebuild
 
 help:
 	@echo "Commands:"
@@ -18,9 +18,12 @@ help:
 	@echo "  make docker-run SERVICE=<name> [PORT=<host-port>]"
 	@echo "  make docker-build-run SERVICE=<name> [PORT=<host-port>]"
 	@echo "  make docker-logs SERVICE=<name>"
+	@echo "  make compose-build [TARGET_ENV=dev|test]"
 	@echo "  make compose-up [TARGET_ENV=dev|test]"
+	@echo "  make compose-rebuild [TARGET_ENV=dev|test]"
 	@echo "  make compose-down"
 	@echo "  make compose-logs"
+	@echo "  make compose-ps"
 	@echo "  make test"
 	@echo "  make lint"
 
@@ -70,11 +73,20 @@ docker-logs:
 compose-up:
 	BACKEND_PORT=$(BACKEND_PORT) FRONTEND_PORT=$(FRONTEND_PORT) APP_ENV=$(APP_ENV) API_BASE_URL=$(API_BASE_URL) docker compose --env-file $(COMPOSE_ENV_FILE) up --build
 
+compose-build:
+	BACKEND_PORT=$(BACKEND_PORT) FRONTEND_PORT=$(FRONTEND_PORT) APP_ENV=$(APP_ENV) API_BASE_URL=$(API_BASE_URL) docker compose --env-file $(COMPOSE_ENV_FILE) build
+
+compose-rebuild:
+	BACKEND_PORT=$(BACKEND_PORT) FRONTEND_PORT=$(FRONTEND_PORT) APP_ENV=$(APP_ENV) API_BASE_URL=$(API_BASE_URL) docker compose --env-file $(COMPOSE_ENV_FILE) up --build --force-recreate
+
 compose-down:
 	docker compose --env-file $(COMPOSE_ENV_FILE) down
 
 compose-logs:
 	docker compose --env-file $(COMPOSE_ENV_FILE) logs -f
+
+compose-ps:
+	docker compose --env-file $(COMPOSE_ENV_FILE) ps
 
 test:
 	go test ./...
