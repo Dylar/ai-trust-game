@@ -28,8 +28,17 @@
   builds and starts the local stack from `compose.yml` using the selected env file under `infrastructure/env/`
   (e.g., `make compose-up TARGET_ENV=test`)
 
+- `make compose-up-detached [TARGET_ENV=dev|test]`
+  builds and starts the local stack in the background
+
 - `make compose-rebuild [TARGET_ENV=dev|test]`
   rebuilds and recreates the current compose stack in one step
+
+- `make compose-rebuild-detached [TARGET_ENV=dev|test]`
+  rebuilds and recreates the current compose stack in the background
+
+- `make compose-restart [TARGET_ENV=dev|test]`
+  restarts the current compose containers without rebuilding the images
 
 - `make compose-down`
   stops and removes the local stack started through `compose.yml`

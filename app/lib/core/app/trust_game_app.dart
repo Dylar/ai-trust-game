@@ -5,7 +5,6 @@ import 'app_dependencies.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/routing/app_router.dart';
 import 'package:app/l10n/app_localizations.dart';
-import 'package:app/screens/home/home_screen.dart';
 import 'package:app/core/theme/app_theme.dart';
 
 class TrustGameApp extends StatelessWidget {

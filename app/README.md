@@ -151,6 +151,12 @@ Start it from the repository root:
 make compose-up
 ```
 
+Start it in the background:
+
+```bash
+make compose-up-detached
+```
+
 Select another prepared environment file when needed:
 
 ```bash
@@ -173,6 +179,12 @@ Inspect the current compose containers and their state:
 
 ```bash
 make compose-ps
+```
+
+Rebuild and recreate the stack in the background after code changes:
+
+```bash
+make compose-rebuild-detached
 ```
 
 The compose setup currently builds the web app with `APP_ENV=dev` and `API_BASE_URL=http://localhost:8080`.
