@@ -6,7 +6,7 @@ APP_FLAVOR ?= dev
 API_BASE_URL ?= http://localhost:8080
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
 
-.PHONY: help run build test lint docker-build docker-run docker-build-run compose-up compose-down
+.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-up compose-down compose-logs
 
 help:
 	@echo "Commands:"
@@ -15,8 +15,10 @@ help:
 	@echo "  make docker-build SERVICE=<name>"
 	@echo "  make docker-run SERVICE=<name> [PORT=<host-port>]"
 	@echo "  make docker-build-run SERVICE=<name> [PORT=<host-port>]"
+	@echo "  make docker-logs SERVICE=<name>"
 	@echo "  make compose-up"
 	@echo "  make compose-down"
+	@echo "  make compose-logs"
 	@echo "  make test"
 	@echo "  make lint"
 
@@ -55,11 +57,22 @@ docker-run:
 
 docker-build-run: docker-build docker-run
 
+docker-logs:
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "Error: SERVICE missing"; \
+		echo "Example: make docker-logs SERVICE=main-service"; \
+		exit 1; \
+	fi
+	docker logs -f $$(docker ps -q --filter ancestor=$(SERVICE):local | head -n 1)
+
 compose-up:
 	BACKEND_PORT=$(BACKEND_PORT) FRONTEND_PORT=$(FRONTEND_PORT) APP_FLAVOR=$(APP_FLAVOR) API_BASE_URL=$(API_BASE_URL) docker compose up --build
 
 compose-down:
 	docker compose down
+
+compose-logs:
+	docker compose logs -f
 
 test:
 	go test ./...

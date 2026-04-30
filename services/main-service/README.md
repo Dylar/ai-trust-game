@@ -144,6 +144,12 @@ Run the container locally:
 make docker-run SERVICE=main-service
 ```
 
+Follow the container logs:
+
+```bash
+make docker-logs SERVICE=main-service
+```
+
 Provide `LLM_PROVIDER`, `GROQ_API_KEY`, and `GROQ_MODEL` as container environment variables when testing model-backed
 runtime behavior.
 

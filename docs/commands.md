@@ -17,11 +17,18 @@
   rebuilds the local Docker image and then starts it immediately
   (e.g., `make docker-build-run SERVICE=main-service`)
 
+- `make docker-logs SERVICE=<service-name>`
+  follows the logs of the currently running local container for that image
+  (e.g., `make docker-logs SERVICE=main-service`)
+
 - `make compose-up`
   builds and starts the local stack from `compose.yml`, currently `main-service` plus the Flutter web app
 
 - `make compose-down`
   stops and removes the local stack started through `compose.yml`
+
+- `make compose-logs`
+  follows the combined logs of the current compose stack
 
 ## Development Scripts
 

@@ -157,4 +157,10 @@ Stop it again:
 make compose-down
 ```
 
+Follow the combined stack logs:
+
+```bash
+make compose-logs
+```
+
 The compose setup currently builds the web app with `APP_FLAVOR=dev` and `API_BASE_URL=http://localhost:8080`.
