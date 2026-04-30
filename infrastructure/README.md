@@ -15,6 +15,9 @@ It is intentionally separate from `tooling/`:
 - [`../compose.yml`](../compose.yml)
   local multi-container stack definition for the current development setup
 
+- [`env/`](./env/)
+  shared environment variable files for local stack variants such as `dev` and `test`
+
 ## Planned Structure
 
 - `k8s/`

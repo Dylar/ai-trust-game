@@ -7,6 +7,7 @@ services:
         SERVICE: main-service
     image: main-service:local
     environment:
+      APP_ENV: ${APP_ENV:-dev}
       PORT: 8080
       LLM_PROVIDER: ${LLM_PROVIDER:-static}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
@@ -19,7 +20,7 @@ services:
       context: .
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       args:
-        APP_FLAVOR: ${APP_FLAVOR:-dev}
+        APP_ENV: ${APP_ENV:-dev}
         API_BASE_URL: ${API_BASE_URL:-http://localhost:8080}
     image: frontend-web:local
     depends_on:

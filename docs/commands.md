@@ -21,8 +21,9 @@
   follows the logs of the currently running local container for that image
   (e.g., `make docker-logs SERVICE=main-service`)
 
-- `make compose-up`
-  builds and starts the local stack from `compose.yml`, currently `main-service` plus the Flutter web app
+- `make compose-up [TARGET_ENV=dev|test]`
+  builds and starts the local stack from `compose.yml` using the selected env file under `infrastructure/env/`
+  (e.g., `make compose-up TARGET_ENV=test`)
 
 - `make compose-down`
   stops and removes the local stack started through `compose.yml`

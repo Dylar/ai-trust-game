@@ -1,9 +1,11 @@
+TARGET_ENV ?= dev
 SERVICE ?=
 PORT ?= 8080
 BACKEND_PORT ?= 8080
 FRONTEND_PORT ?= 3000
-APP_FLAVOR ?= dev
+APP_ENV ?= $(TARGET_ENV)
 API_BASE_URL ?= http://localhost:8080
+COMPOSE_ENV_FILE ?= ./infrastructure/env/$(TARGET_ENV).env
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
 
 .PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-up compose-down compose-logs
@@ -16,7 +18,7 @@ help:
 	@echo "  make docker-run SERVICE=<name> [PORT=<host-port>]"
 	@echo "  make docker-build-run SERVICE=<name> [PORT=<host-port>]"
 	@echo "  make docker-logs SERVICE=<name>"
-	@echo "  make compose-up"
+	@echo "  make compose-up [TARGET_ENV=dev|test]"
 	@echo "  make compose-down"
 	@echo "  make compose-logs"
 	@echo "  make test"
@@ -53,7 +55,7 @@ docker-run:
 		echo "Example: make docker-run SERVICE=main-service"; \
 		exit 1; \
 	fi
-	docker run --rm -p $(PORT):8080 -e PORT=8080 $(SERVICE):local
+	docker run --rm -p $(PORT):8080 -e PORT=8080 -e APP_ENV=$(APP_ENV) $(SERVICE):local
 
 docker-build-run: docker-build docker-run
 
@@ -66,13 +68,13 @@ docker-logs:
 	docker logs -f $$(docker ps -q --filter ancestor=$(SERVICE):local | head -n 1)
 
 compose-up:
-	BACKEND_PORT=$(BACKEND_PORT) FRONTEND_PORT=$(FRONTEND_PORT) APP_FLAVOR=$(APP_FLAVOR) API_BASE_URL=$(API_BASE_URL) docker compose up --build
+	BACKEND_PORT=$(BACKEND_PORT) FRONTEND_PORT=$(FRONTEND_PORT) APP_ENV=$(APP_ENV) API_BASE_URL=$(API_BASE_URL) docker compose --env-file $(COMPOSE_ENV_FILE) up --build
 
 compose-down:
-	docker compose down
+	docker compose --env-file $(COMPOSE_ENV_FILE) down
 
 compose-logs:
-	docker compose logs -f
+	docker compose --env-file $(COMPOSE_ENV_FILE) logs -f
 
 test:
 	go test ./...

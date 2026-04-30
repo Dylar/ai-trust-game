@@ -4,8 +4,8 @@ class AppConfig {
   const AppConfig({required this.apiBaseUri, required this.flavor});
 
   factory AppConfig.fromEnvironment() {
-    const flavorName = String.fromEnvironment(
-      'APP_FLAVOR',
+    const envName = String.fromEnvironment(
+      'APP_ENV',
       defaultValue: 'dev',
     );
 
@@ -16,7 +16,7 @@ class AppConfig {
           defaultValue: 'http://localhost:8080',
         ),
       ),
-      flavor: AppFlavor.fromName(flavorName),
+      flavor: AppFlavor.fromName(envName),
     );
   }
 

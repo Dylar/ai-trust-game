@@ -153,6 +153,8 @@ make docker-logs SERVICE=main-service
 Provide `LLM_PROVIDER`, `GROQ_API_KEY`, and `GROQ_MODEL` as container environment variables when testing model-backed
 runtime behavior.
 
+The service also reads `APP_ENV` for environment tagging in logs.
+
 When the Flutter web app runs locally with `API_BASE_URL=http://localhost:8080`, it can talk to the containerized
 backend through the published host port.
 
