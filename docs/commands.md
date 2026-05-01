@@ -1,9 +1,11 @@
 # Development Commands
 
-## Running the Service
+## Local Service Run
 
 - `make run SERVICE=<service-name>`
   starts the specified service (e.g., `make run SERVICE=main-service` for the core HTTP service)
+
+## Single Service Docker
 
 - `make docker-build SERVICE=<service-name>`
   builds the local Docker image for the specified Go service through the shared Dockerfile
@@ -20,6 +22,8 @@
 - `make docker-logs SERVICE=<service-name>`
   follows the logs of the currently running local container for that image
   (e.g., `make docker-logs SERVICE=main-service`)
+
+## Compose Stack
 
 - `make compose-build [TARGET_ENV=dev|test]`
   builds the current compose stack images without starting the containers
@@ -49,7 +53,7 @@
 - `make compose-ps`
   shows the current compose containers and their status, including health state when available
 
-## Development Scripts
+## Service Scripts
 
 - `go run ./services/main-service/scripts/start-session`
   starts a session against the running service
@@ -65,7 +69,7 @@
   fetches the stored analyses for all completed requests in one session, plus the aggregated session view and an
   optional session-level intent summary
 
-## Testing and Linting
+## Quality Checks
 
 - `make test`
   runs the full Go test suite
