@@ -4,9 +4,6 @@ permissions:
   contents: read
   packages: write
 
-env:
-  FLUTTER_VERSION: 3.41.2
-
 on:
   push:
     branches:
@@ -19,7 +16,7 @@ jobs:
   flutter-checks:
     uses: ./.github/workflows/reusable-flutter.yml
     with:
-      flutter-version: ${{ env.FLUTTER_VERSION }}
+      flutter-version: "3.41.2"
 
   docker-build-main-service:
     uses: ./.github/workflows/reusable-docker-build.yml
