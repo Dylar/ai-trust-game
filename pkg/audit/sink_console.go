@@ -2,8 +2,8 @@ package audit
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"time"
 )
 
 type ConsoleSink struct{}
@@ -13,17 +13,13 @@ func NewConsoleSink() *ConsoleSink {
 }
 
 func (s *ConsoleSink) WriteEvent(_ context.Context, event Event) error {
-	fmt.Printf(
-		"audit ts=%q type=%q request_id=%q session_id=%q user_id=%q outcome=%q suspicion=%q reason=%q input=%q\n",
-		event.Timestamp.Format(time.RFC3339),
-		event.Type,
-		event.RequestID,
-		event.SessionID,
-		event.UserID,
-		event.Outcome,
-		event.Suspicion,
-		event.Reason,
-		event.Input,
-	)
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("---///\\\\\\---")
+	fmt.Printf("[AUDIT]: %s\n", payload)
+	fmt.Println("---\\\\\\///---")
 	return nil
 }

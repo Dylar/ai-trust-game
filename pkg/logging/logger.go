@@ -2,6 +2,24 @@ package logging
 
 import "context"
 
+type LogLevel string
+
+const (
+	Debug LogLevel = "DEBUG"
+	Info  LogLevel = "INFO"
+	Warn  LogLevel = "WARN"
+	Error LogLevel = "ERROR"
+)
+
+func (level LogLevel) IsValid() bool {
+	switch level {
+	case Debug, Info, Warn, Error:
+		return true
+	default:
+		return false
+	}
+}
+
 type Field struct {
 	Key   string
 	Value any

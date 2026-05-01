@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestPolicyFor(t *testing.T) {
@@ -27,7 +27,7 @@ func TestPolicyFor(t *testing.T) {
 		{
 			name: "GIVEN easy mode " +
 				"WHEN PolicyFor is called " +
-				"THEN returns PolicyEasy",
+				"THEN returns Easy",
 			given: Given{
 				mode: domain.ModeEasy,
 			},
@@ -35,7 +35,7 @@ func TestPolicyFor(t *testing.T) {
 				expectError: false,
 				assertPolicy: func(t *testing.T, policy Policy) {
 					t.Helper()
-					if _, ok := policy.(PolicyEasy); !ok {
+					if _, ok := policy.(Easy); !ok {
 						t.Fatalf("unexpected policy type %T", policy)
 					}
 				},
@@ -44,7 +44,7 @@ func TestPolicyFor(t *testing.T) {
 		{
 			name: "GIVEN medium mode " +
 				"WHEN PolicyFor is called " +
-				"THEN returns PolicyMedium",
+				"THEN returns Medium",
 			given: Given{
 				mode: domain.ModeMedium,
 			},
@@ -52,7 +52,7 @@ func TestPolicyFor(t *testing.T) {
 				expectError: false,
 				assertPolicy: func(t *testing.T, policy Policy) {
 					t.Helper()
-					if _, ok := policy.(PolicyMedium); !ok {
+					if _, ok := policy.(Medium); !ok {
 						t.Fatalf("unexpected policy type %T", policy)
 					}
 				},
@@ -61,7 +61,7 @@ func TestPolicyFor(t *testing.T) {
 		{
 			name: "GIVEN hard mode " +
 				"WHEN PolicyFor is called " +
-				"THEN returns PolicyHard",
+				"THEN returns Hard",
 			given: Given{
 				mode: domain.ModeHard,
 			},
@@ -69,7 +69,7 @@ func TestPolicyFor(t *testing.T) {
 				expectError: false,
 				assertPolicy: func(t *testing.T, policy Policy) {
 					t.Helper()
-					if _, ok := policy.(PolicyHard); !ok {
+					if _, ok := policy.(Hard); !ok {
 						t.Fatalf("unexpected policy type %T", policy)
 					}
 				},
@@ -99,14 +99,14 @@ func TestPolicyFor(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			policy, err := DefaultPolicyResolver{}.PolicyFor(given.mode)
+			policy, err := NewResolver().PolicyFor(given.mode)
 
 			if then.expectError {
 				if err == nil {
 					t.Fatalf("expected policy resolver error")
 				}
 			} else {
-				tests.AssertErrorIs(t, err, nil, "unexpected policy resolver error")
+				assert.ErrorIs(t, err, nil, "unexpected policy resolver error")
 			}
 
 			then.assertPolicy(t, policy)

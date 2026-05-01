@@ -1,0 +1,135 @@
+{
+  "@@locale": "en",
+  "appTitle": "AI Trust Game",
+  "homeTitle": "Home",
+  "homeDescription": "Start a new session or continue one of the recent sessions.",
+  "homeStartSessionButton": "Start new session",
+  "homeRecentSessionsTitle": "Recent sessions",
+  "homeRecentSessionsDescription": "These sessions are kept for the current app runtime.",
+  "homeEmptySessions": "No sessions are available yet.",
+  "homeNoInteractionPreview": "No interaction yet.",
+  "homeResumeSessionHint": "Open session",
+  "homeSessionSummary": "{role} in {mode} mode",
+  "@homeSessionSummary": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionStartTitle": "Session Start",
+  "sessionStartDescription": "Pick the initial role and trust mode for the game.",
+  "roleSectionTitle": "Role",
+  "modeSectionTitle": "Mode",
+  "prepareSessionButton": "Prepare session",
+  "preparingSessionButton": "Preparing session...",
+  "sessionStartLoadingTitle": "Preparing session",
+  "sessionStartLoadingDescription": "The app is asking the backend to start a session.",
+  "sessionStartErrorTitle": "Session start failed",
+  "sessionStartErrorDescription": "The session could not be prepared. Please try again.",
+  "apiErrorInvalidJson": "The request could not be read by the backend.",
+  "apiErrorMethodNotAllowed": "This action is not supported by the backend endpoint.",
+  "apiErrorInternal": "The backend ran into an internal error.",
+  "apiErrorInvalidRole": "The selected role is not supported.",
+  "apiErrorInvalidMode": "The selected mode is not supported.",
+  "apiErrorMissingSession": "The request did not include a session.",
+  "apiErrorSessionNotFound": "The session could not be found on the backend.",
+  "apiErrorEmptyMessage": "The message cannot be empty.",
+  "apiErrorMissingAnalysisRequest": "No request was selected for analysis.",
+  "apiErrorRequestAnalysisNotFound": "No analysis is available for this interaction yet.",
+  "apiErrorMissingAnalysisSession": "No session was selected for analysis.",
+  "apiErrorSessionAnalysisNotFound": "No analysis is available for this session yet.",
+  "apiErrorBackendUnreachable": "The backend is not reachable. Please check whether the service is running.",
+  "apiErrorRequestTimeout": "The backend did not respond in time. Please try again.",
+  "apiErrorUnknown": "The backend returned an unexpected error.",
+  "sessionRoleGuest": "Guest",
+  "sessionRoleEmployee": "Employee",
+  "sessionRoleAdmin": "Admin",
+  "sessionModeEasy": "Easy",
+  "sessionModeEasyDescription": "Permissive and intentionally insecure.",
+  "sessionModeMedium": "Medium",
+  "sessionModeMediumDescription": "Partial checks with still-mixed trust boundaries.",
+  "sessionModeHard": "Hard",
+  "sessionModeHardDescription": "Server-side state stays authoritative.",
+  "sessionPreparedStatus": "Started {role} session in {mode} mode.",
+  "@sessionPreparedStatus": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "interactionTitle": "Interaction",
+  "interactionDescription": "Send messages for this session. Analysis stays in the detail views so the next attempt is still yours.",
+  "interactionSessionDetailsTitle": "Session details",
+  "interactionSessionIdLabel": "Session ID",
+  "interactionRoleLabel": "Role",
+  "interactionModeLabel": "Mode",
+  "sessionAnalysisButton": "View session analysis",
+  "interactionMessageInputLabel": "Message",
+  "interactionMessageInputHint": "Ask something for this session...",
+  "interactionSendButton": "Send message",
+  "interactionSendButtonLoading": "Sending...",
+  "interactionSendErrorTitle": "Message could not be sent",
+  "interactionSendErrorDescription": "The backend did not accept the message. Please try again.",
+  "interactionListTitle": "Interactions",
+  "interactionListEmpty": "No interactions have been created yet.",
+  "interactionAnalysisHint": "View interaction analysis",
+  "interactionUserMessageLabel": "You",
+  "interactionAssistantMessageLabel": "Assistant",
+  "interactionLoadErrorDescription": "The session could not be loaded. Please go back and try again.",
+  "interactionNotFoundDescription": "No local session with ID {sessionId} is available.",
+  "@interactionNotFoundDescription": {
+    "placeholders": {
+      "sessionId": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionDetailTitle": "Session Analysis",
+  "sessionDetailAnalysisEmpty": "No interactions are available yet for a session analysis.",
+  "sessionDetailRequestsTitle": "Requests in this session",
+  "sessionDetailRequestsDescription": "Open a request to inspect its detailed analysis.",
+  "sessionDetailRequestsEmpty": "No request analyses are available yet.",
+  "sessionDetailRequestSummary": "{classification} · Suspicion signals: {suspicionCount} · Model failures: {modelFailCount}",
+  "@sessionDetailRequestSummary": {
+    "placeholders": {
+      "classification": {
+        "type": "String"
+      },
+      "suspicionCount": {
+        "type": "int"
+      },
+      "modelFailCount": {
+        "type": "int"
+      }
+    }
+  },
+  "interactionDetailTitle": "Interaction Analysis",
+  "analysisLoadErrorDescription": "The analysis could not be loaded yet.",
+  "analysisHttpError": "HTTP status: {statusCode}",
+  "@analysisHttpError": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisSessionIdLabel": "Session ID",
+  "analysisRequestIdLabel": "Request ID",
+  "analysisClassificationLabel": "Classification",
+  "analysisRequestCountLabel": "Requests",
+  "analysisEventCountLabel": "Events",
+  "analysisSuspicionCountLabel": "Suspicion signals",
+  "analysisModelFailCountLabel": "Model failures",
+  "analysisSignalsLabel": "Signals",
+  "analysisAttackPatternsLabel": "Attack patterns",
+  "analysisIntentSummaryLabel": "Intent summary",
+  "analysisEmptyListValue": "None"
+}

@@ -8,12 +8,14 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/tooling/tests/mocks"
 )
 
 func TestChatRoute(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewConsoleLogger()
-	auditSink := &tests.FakeAuditSink{}
+	auditSink := &mocks.FakeAuditSink{}
 	chatHandler := NewChatHandler(logger, auditSink)
 	setupChatRoute(mux, logger, chatHandler)
 
@@ -26,8 +28,9 @@ func TestChatRoute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedStatus  int
-		expectedMessage string
+		expectedStatus    int
+		expectedErrorCode string
+		expectedMessage   string
 	}
 
 	type Scenario struct {
@@ -62,8 +65,8 @@ func TestChatRoute(t *testing.T) {
 				method: http.MethodGet,
 			},
 			then: Then{
-				expectedStatus:  http.StatusMethodNotAllowed,
-				expectedMessage: "Whatever your intention was, I dont know why you are trying to do that.",
+				expectedStatus:    http.StatusMethodNotAllowed,
+				expectedErrorCode: network.ErrorCodeMethodNotAllowed,
 			},
 		},
 		{
@@ -77,8 +80,8 @@ func TestChatRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus:  http.StatusBadRequest,
-				expectedMessage: "Whatever you said, I dont understand it",
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: network.ErrorCodeInvalidJSON,
 			},
 		},
 		{
@@ -92,8 +95,8 @@ func TestChatRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus:  http.StatusBadRequest,
-				expectedMessage: "Are you shy? You didn't say anything :P",
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeEmptyMessage,
 			},
 		},
 		{
@@ -132,15 +135,20 @@ func TestChatRoute(t *testing.T) {
 			)
 
 			requestID := rec.Header().Get(network.RequestIDHeader)
-			tests.AssertNotEmpty(t, requestID, "expected X-Request-Id header to be set")
-			tests.AssertEqual(t, rec.Code, then.expectedStatus, "unexpected status code")
+			assert.NotEmpty(t, requestID, "expected X-Request-Id header to be set")
+			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
+
+			if then.expectedStatus != http.StatusOK {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
+				return
+			}
 
 			var response ChatResponse
 			if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
 				t.Fatalf("failed to unmarshal response body: %v", err)
 			}
 
-			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
+			assert.Equal(t, response.Message, then.expectedMessage, "unexpected response message")
 		})
 	}
 }

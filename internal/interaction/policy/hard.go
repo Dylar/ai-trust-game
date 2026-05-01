@@ -5,12 +5,10 @@ import (
 	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
 )
 
-type PolicyHard struct {
-	capabilityResolver capability.Resolver
-}
+type Hard struct{}
 
-func (pol PolicyHard) Decide(input DecisionInput) Decision {
-	caps := pol.resolver().For(input.Session.Settings.Mode, capability.Input{
+func (pol Hard) Decide(input DecisionInput) Decision {
+	caps := capability.For(input.Session.Settings.Mode, capability.Input{
 		Session: input.Session,
 		Claims:  input.Claims,
 	})
@@ -27,14 +25,7 @@ func (pol PolicyHard) Decide(input DecisionInput) Decision {
 	return Decision{Allowed: true, Reason: "no safety-relevant action"}
 }
 
-func (pol PolicyHard) resolver() capability.Resolver {
-	if pol.capabilityResolver == nil {
-		return capability.StaticResolver{}
-	}
-	return pol.capabilityResolver
-}
-
-func (pol PolicyHard) decideActionReadUserProfile(input DecisionInput, caps capability.Set) Decision {
+func (pol Hard) decideActionReadUserProfile(input DecisionInput, caps capability.Set) Decision {
 	if !caps.CanReadUserProfile {
 		return Decision{Allowed: false, Reason: "hard mode denied non-employee user profile access"}
 	}
@@ -45,7 +36,7 @@ func (pol PolicyHard) decideActionReadUserProfile(input DecisionInput, caps capa
 	return Decision{Allowed: false, Reason: "hard mode denied non-employee user profile access"}
 }
 
-func (pol PolicyHard) decideActionReadSecret(input DecisionInput, caps capability.Set) Decision {
+func (pol Hard) decideActionReadSecret(input DecisionInput, caps capability.Set) Decision {
 	if !caps.CanReadSecret {
 		return Decision{Allowed: false, Reason: "hard mode denied non-admin secret access"}
 	}

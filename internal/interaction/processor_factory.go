@@ -6,16 +6,35 @@ import (
 	interactionpolicy "github.com/Dylar/ai-trust-game/internal/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	interactionstate "github.com/Dylar/ai-trust-game/internal/interaction/state"
+	"github.com/Dylar/ai-trust-game/internal/llm"
+	"github.com/Dylar/ai-trust-game/pkg/audit"
+	"github.com/Dylar/ai-trust-game/pkg/logging"
 )
 
-func NewStaticProcessor() Processor {
+func NewStaticProcessor(auditSink audit.Sink, logger logging.Logger) Processor {
 	return NewProcessor(
-		interactionpolicy.DefaultPolicyResolver{},
-		interactionplanning.StaticPlanner{},
-		interactionexecution.StaticExecutor{},
-		interactionstate.StaticUpdater{},
-		interactionresponse.StaticDataGuard{},
-		interactionresponse.StaticBuilder{},
-		interactionresponse.StaticValidator{},
+		interactionpolicy.NewResolver(),
+		interactionplanning.NewStaticPlanner(),
+		interactionexecution.NewExecutor(),
+		interactionstate.NewUpdater(),
+		interactionresponse.NewDataGuard(),
+		interactionresponse.NewStaticBuilder(),
+		interactionresponse.NewValidator(),
+		auditSink,
+		logger,
+	)
+}
+
+func NewLLMProcessor(auditSink audit.Sink, client llm.Client, logger logging.Logger) Processor {
+	return NewProcessor(
+		interactionpolicy.NewResolver(),
+		interactionplanning.NewPlanner(client),
+		interactionexecution.NewExecutor(),
+		interactionstate.NewUpdater(),
+		interactionresponse.NewDataGuard(),
+		interactionresponse.NewLLMBuilder(client),
+		interactionresponse.NewValidator(),
+		auditSink,
+		logger,
 	)
 }

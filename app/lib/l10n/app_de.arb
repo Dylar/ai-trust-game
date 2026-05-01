@@ -1,0 +1,135 @@
+{
+  "@@locale": "de",
+  "appTitle": "AI Trust Game",
+  "homeTitle": "Start",
+  "homeDescription": "Starte eine neue Sitzung oder fahre mit einer der letzten Sitzungen fort.",
+  "homeStartSessionButton": "Neue Sitzung starten",
+  "homeRecentSessionsTitle": "Letzte Sitzungen",
+  "homeRecentSessionsDescription": "Diese Sitzungen bleiben fuer die aktuelle App-Laufzeit erhalten.",
+  "homeEmptySessions": "Es sind noch keine Sitzungen vorhanden.",
+  "homeNoInteractionPreview": "Noch keine Interaction vorhanden.",
+  "homeResumeSessionHint": "Sitzung öffnen",
+  "homeSessionSummary": "{role} im Modus {mode}",
+  "@homeSessionSummary": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionStartTitle": "Sitzungsstart",
+  "sessionStartDescription": "Waehle die anfaengliche Rolle und den Vertrauensmodus fuer das Spiel.",
+  "roleSectionTitle": "Rolle",
+  "modeSectionTitle": "Modus",
+  "prepareSessionButton": "Sitzung vorbereiten",
+  "preparingSessionButton": "Sitzung wird vorbereitet...",
+  "sessionStartLoadingTitle": "Sitzung wird vorbereitet",
+  "sessionStartLoadingDescription": "Die App fragt das Backend nach einer neuen Sitzung.",
+  "sessionStartErrorTitle": "Sitzungsstart fehlgeschlagen",
+  "sessionStartErrorDescription": "Die Sitzung konnte nicht vorbereitet werden. Bitte versuche es erneut.",
+  "apiErrorInvalidJson": "Das Backend konnte die Anfrage nicht lesen.",
+  "apiErrorMethodNotAllowed": "Diese Aktion wird vom Backend-Endpunkt nicht unterstützt.",
+  "apiErrorInternal": "Im Backend ist ein interner Fehler aufgetreten.",
+  "apiErrorInvalidRole": "Die ausgewählte Rolle wird nicht unterstützt.",
+  "apiErrorInvalidMode": "Der ausgewählte Modus wird nicht unterstützt.",
+  "apiErrorMissingSession": "Die Anfrage enthält keine Sitzung.",
+  "apiErrorSessionNotFound": "Die Sitzung wurde im Backend nicht gefunden.",
+  "apiErrorEmptyMessage": "Die Nachricht darf nicht leer sein.",
+  "apiErrorMissingAnalysisRequest": "Es wurde kein Request für die Analyse ausgewählt.",
+  "apiErrorRequestAnalysisNotFound": "Für diese Interaction ist noch keine Analyse verfügbar.",
+  "apiErrorMissingAnalysisSession": "Es wurde keine Sitzung für die Analyse ausgewählt.",
+  "apiErrorSessionAnalysisNotFound": "Für diese Sitzung ist noch keine Analyse verfügbar.",
+  "apiErrorBackendUnreachable": "Das Backend ist nicht erreichbar. Bitte pruefe, ob der Service laeuft.",
+  "apiErrorRequestTimeout": "Das Backend hat nicht rechtzeitig geantwortet. Bitte versuche es erneut.",
+  "apiErrorUnknown": "Das Backend hat einen unerwarteten Fehler zurückgegeben.",
+  "sessionRoleGuest": "Gast",
+  "sessionRoleEmployee": "Mitarbeiter",
+  "sessionRoleAdmin": "Admin",
+  "sessionModeEasy": "Einfach",
+  "sessionModeEasyDescription": "Freizügig und absichtlich unsicher.",
+  "sessionModeMedium": "Mittel",
+  "sessionModeMediumDescription": "Teilweise Prüfungen mit weiterhin gemischten Vertrauensgrenzen.",
+  "sessionModeHard": "Hart",
+  "sessionModeHardDescription": "Serverseitiger Zustand bleibt autoritativ.",
+  "sessionPreparedStatus": "{role}-Sitzung im Modus {mode} gestartet.",
+  "@sessionPreparedStatus": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "interactionTitle": "Interaction",
+  "interactionDescription": "Sende Nachrichten fuer diese Sitzung. Die Analyse bleibt in Detailansichten, damit der naechste Versuch weiterhin dir gehoert.",
+  "interactionSessionDetailsTitle": "Sitzungsdetails",
+  "interactionSessionIdLabel": "Sitzungs-ID",
+  "interactionRoleLabel": "Rolle",
+  "interactionModeLabel": "Modus",
+  "sessionAnalysisButton": "Sitzungsanalyse ansehen",
+  "interactionMessageInputLabel": "Nachricht",
+  "interactionMessageInputHint": "Stelle eine Frage fuer diese Sitzung...",
+  "interactionSendButton": "Nachricht senden",
+  "interactionSendButtonLoading": "Wird gesendet...",
+  "interactionSendErrorTitle": "Nachricht konnte nicht gesendet werden",
+  "interactionSendErrorDescription": "Das Backend hat die Nachricht nicht angenommen. Bitte versuche es erneut.",
+  "interactionListTitle": "Interactions",
+  "interactionListEmpty": "Es wurden noch keine Interactions erstellt.",
+  "interactionAnalysisHint": "Interaction-Analyse ansehen",
+  "interactionUserMessageLabel": "Du",
+  "interactionAssistantMessageLabel": "Assistant",
+  "interactionLoadErrorDescription": "Die Sitzung konnte nicht geladen werden. Bitte gehe zurueck und versuche es erneut.",
+  "interactionNotFoundDescription": "Keine lokale Sitzung mit der ID {sessionId} gefunden.",
+  "@interactionNotFoundDescription": {
+    "placeholders": {
+      "sessionId": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionDetailTitle": "Sitzungsanalyse",
+  "sessionDetailAnalysisEmpty": "Es sind noch keine Interaktionen für eine Sitzungsanalyse verfügbar.",
+  "sessionDetailRequestsTitle": "Requests dieser Sitzung",
+  "sessionDetailRequestsDescription": "Öffne einen Request, um die Detailanalyse anzusehen.",
+  "sessionDetailRequestsEmpty": "Es sind noch keine Request-Analysen verfügbar.",
+  "sessionDetailRequestSummary": "{classification} · Verdachtssignale: {suspicionCount} · Modellfehler: {modelFailCount}",
+  "@sessionDetailRequestSummary": {
+    "placeholders": {
+      "classification": {
+        "type": "String"
+      },
+      "suspicionCount": {
+        "type": "int"
+      },
+      "modelFailCount": {
+        "type": "int"
+      }
+    }
+  },
+  "interactionDetailTitle": "Interaction-Analyse",
+  "analysisLoadErrorDescription": "Die Analyse konnte noch nicht geladen werden.",
+  "analysisHttpError": "HTTP-Status: {statusCode}",
+  "@analysisHttpError": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisSessionIdLabel": "Sitzungs-ID",
+  "analysisRequestIdLabel": "Request-ID",
+  "analysisClassificationLabel": "Klassifikation",
+  "analysisRequestCountLabel": "Requests",
+  "analysisEventCountLabel": "Events",
+  "analysisSuspicionCountLabel": "Verdachtssignale",
+  "analysisModelFailCountLabel": "Modellfehler",
+  "analysisSignalsLabel": "Signale",
+  "analysisAttackPatternsLabel": "Angriffsmuster",
+  "analysisIntentSummaryLabel": "Intent-Zusammenfassung",
+  "analysisEmptyListValue": "Keine"
+}

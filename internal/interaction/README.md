@@ -22,7 +22,8 @@ are wired together, then dive into the individual components from there.
 The module is intentionally split into small parts so that trust and authority stay explicit.
 
 - `planning`
-  Detects the intended action, claims, and structured request details from the user message.
+  Builds the planning prompt, asks the configured client for structured output, and turns that output into a validated
+  `domain.Plan`.
 
 - `policy`
   Decides whether a planned action is allowed.
@@ -39,9 +40,21 @@ The module is intentionally split into small parts so that trust and authority s
 
 - `response`
   Shapes what response data may flow forward, builds the final user-visible message, and validates the final output.
+  The builder can use either a static client or a provider-backed client, but the guard stays authoritative.
 
 This separation exists so that later model-based components can be swapped in without turning the whole interaction flow
 into one opaque AI step.
+
+Two variation points are especially important right now:
+
+- `policy.Policy`
+  because the different game modes intentionally express different trust and decision rules
+
+- `llm.Client`
+  because provider access is an infrastructure boundary and should stay replaceable
+
+The rest of the interaction flow is currently kept concrete on purpose.
+That keeps the code easier to follow while preserving the important control points.
 
 ## Pipeline
 
@@ -49,14 +62,31 @@ The current pipeline in [`processor.go`](./processor.go) is:
 
 1. validate incoming interaction
 2. plan the interaction
-3. resolve the policy for the current mode
-4. make an explicit allow / deny decision
-5. execute the allowed action deterministically
-6. build structured response input
-7. guard the response payload
-8. build the final response message
-9. validate the final response
-10. update authoritative session state
+3. write a planning audit event
+4. resolve the policy for the current mode
+5. make an explicit allow / deny decision
+6. execute the allowed action deterministically
+7. build structured response input
+8. guard the response payload
+9. build the final response message
+10. validate the final response
+11. update authoritative session state
+
+If planning or response generation fails, the processor also writes a failure audit event for that step before
+returning the error. This keeps model-step failures observable without moving authority out of the deterministic flow.
+The planning audit step also emits early detection signals such as a claimed role exceeding the currently trusted role
+or invalid planner output.
+
+For analysis work, `pkg/audit` also provides:
+
+- request-level aggregation that classifies completed requests as `clean`, `suspicious`, or `failed_model_step`
+- session-level aggregation over stored request analyses
+- optional AI-written intent summaries for suspicious or failed requests and for whole sessions
+
+The important split is:
+
+- structured signals and attack patterns stay authoritative for analysis
+- AI-written summaries stay descriptive and supportive
 
 ## Why The Guard Comes Before The Builder
 
@@ -78,8 +108,8 @@ That means the system first limits the payload and only then allows free-text ge
 This is the current deterministic wiring of the whole interaction flow:
 
 - static planner
-- static policy resolver
-- static capability resolver usage inside policy / execution
+- default policy resolver
+- shared capability calculation used by policy and execution
 - static executor
 - static state updater
 - static response guard
@@ -90,3 +120,16 @@ The goal is not to keep everything static forever.
 
 The goal is to establish the control flow and boundaries first, so that later LLM integration can replace selected parts
 without making the model the authority.
+
+Today that replacement already exists for selected steps:
+
+- the planner speaks to `llm.Client` and expects structured JSON output
+- the response builder speaks to `llm.Client` and expects user-visible free text
+
+The authoritative parts still remain deterministic:
+
+- policy
+- capability calculation
+- execution
+- state updates
+- response guarding

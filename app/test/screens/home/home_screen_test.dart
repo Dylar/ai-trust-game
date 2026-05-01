@@ -1,0 +1,110 @@
+import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/models/interaction_models.dart';
+import 'package:app/data/session/session_repository.dart';
+import 'package:app/models/session_models.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../testing/test_dependencies.dart';
+import 'home_test_context.dart';
+
+void main() {
+  testWidgets('shows the home screen with a start action and an empty list', (
+    tester,
+  ) async {
+    final context = HomeTestContext(tester);
+
+    // Given
+    await context.appBot.startApp();
+
+    // When
+
+    // Then
+    context.screenBot.expectScreenVisible();
+    context.screenBot.expectStartSessionVisible();
+    context.screenBot.expectEmptySessionsVisible();
+  });
+
+  testWidgets('navigates from home to session start', (tester) async {
+    final context = HomeTestContext(tester);
+
+    // Given
+    await context.appBot.startApp();
+
+    // When
+    await context.process.openSessionStart();
+
+    // Then
+    context.sessionStartBot.expectScreenVisible();
+  });
+
+  testWidgets('navigates from session start to interaction', (tester) async {
+    final context = HomeTestContext(tester);
+
+    // Given
+    await context.appBot.startApp();
+
+    // When
+    await context.process.createAdminHardSessionFromHome();
+
+    // Then
+    context.interactionScreenBot.expectScreenVisible();
+    context.interactionScreenBot.expectSessionDetailsVisible();
+  });
+
+  testWidgets('opens interaction from a recent home session', (tester) async {
+    final context = HomeTestContext(tester);
+    final interactionRepository = InMemoryInteractionRepository();
+    final repository = InMemorySessionRepository(
+      initialSessions: const [
+        Session(id: 'seeded-session', role: Role.employee, mode: Mode.medium),
+      ],
+    );
+    final dependencies = buildTestDependencies(
+      interactionRepository: interactionRepository,
+      sessionRepository: repository,
+    );
+
+    // Given
+    await context.appBot.startApp(dependencies: dependencies);
+    await context.process.waitUntilRecentSessionsLoaded();
+    context.screenBot.expectRecentSessionCount(1);
+
+    // When
+    await context.process.openFirstRecentSession();
+
+    // Then
+    context.interactionScreenBot.expectScreenVisible();
+    context.interactionScreenBot.expectSessionDetailsVisible();
+  });
+
+  testWidgets('shows the last interaction message in recent sessions', (
+    tester,
+  ) async {
+    final context = HomeTestContext(tester);
+    final interactionRepository = InMemoryInteractionRepository(
+      initialInteractions: const [
+        Interaction(
+          sessionId: 'seeded-session',
+          interactionId: 'request-1',
+          message: 'Latest preview message',
+          answer: 'Backend answer',
+        ),
+      ],
+    );
+    final repository = InMemorySessionRepository(
+      initialSessions: const [
+        Session(id: 'seeded-session', role: Role.employee, mode: Mode.medium),
+      ],
+    );
+    final dependencies = buildTestDependencies(
+      interactionRepository: interactionRepository,
+      sessionRepository: repository,
+    );
+
+    await context.appBot.startApp(dependencies: dependencies);
+    await context.process.waitUntilRecentSessionsLoaded();
+
+    context.screenBot.expectRecentSessionVisible('seeded-session');
+    context.process.expectRecentSessionPreviewVisible('Latest preview message');
+  });
+}

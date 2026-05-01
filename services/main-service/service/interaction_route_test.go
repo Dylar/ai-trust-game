@@ -8,9 +8,11 @@ import (
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/session"
+	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
 func TestInteractionRoute(t *testing.T) {
@@ -18,7 +20,7 @@ func TestInteractionRoute(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	sessionRepo := session.NewInMemoryRepository()
-	processor := interaction.NewStaticProcessor()
+	processor := interaction.NewStaticProcessor(audit.NewNoopSink(), logger)
 	handler := NewInteractionHandler(logger, sessionRepo, processor)
 
 	setupInteractionRoute(mux, logger, handler)
@@ -84,8 +86,9 @@ func TestInteractionRoute(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedStatus  int
-		expectedMessage string
+		expectedStatus    int
+		expectedErrorCode string
+		expectedMessage   string
 	}
 
 	type Scenario struct {
@@ -207,7 +210,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeMissingSession,
 			},
 		},
 		{
@@ -225,7 +229,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusNotFound,
+				expectedStatus:    http.StatusNotFound,
+				expectedErrorCode: errorCodeSessionNotFound,
 			},
 		},
 		{
@@ -243,7 +248,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeEmptyMessage,
 			},
 		},
 		{
@@ -261,7 +267,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodPost,
 			},
 			then: Then{
-				expectedStatus: http.StatusBadRequest,
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: network.ErrorCodeInvalidJSON,
 			},
 		},
 		{
@@ -275,7 +282,8 @@ func TestInteractionRoute(t *testing.T) {
 				method: http.MethodGet,
 			},
 			then: Then{
-				expectedStatus: http.StatusMethodNotAllowed,
+				expectedStatus:    http.StatusMethodNotAllowed,
+				expectedErrorCode: network.ErrorCodeMethodNotAllowed,
 			},
 		},
 	}
@@ -297,10 +305,11 @@ func TestInteractionRoute(t *testing.T) {
 			)
 
 			requestID := rec.Header().Get(network.RequestIDHeader)
-			tests.AssertNotEmpty(t, requestID, "expected X-Request-Id header to be set")
-			tests.AssertEqual(t, rec.Code, then.expectedStatus, "unexpected status code")
+			assert.NotEmpty(t, requestID, "expected X-Request-Id header to be set")
+			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
 
 			if then.expectedMessage == "" {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
 				return
 			}
 
@@ -309,7 +318,7 @@ func TestInteractionRoute(t *testing.T) {
 				t.Fatalf("failed to unmarshal response body: %v", err)
 			}
 
-			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
+			assert.Equal(t, response.Message, then.expectedMessage, "unexpected response message")
 		})
 	}
 }

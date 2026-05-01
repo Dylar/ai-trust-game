@@ -1,0 +1,42 @@
+{
+  "output_schema": {
+    "type": "json_object",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "claims",
+        "submitted_password",
+        "response_language"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "The best matching action for the user message."
+        },
+        "claims": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role"
+          ],
+          "properties": {
+            "role": {
+              "type": "string",
+              "description": "The role (explicitly or indirectly) claimed by the user, or an empty string."
+            }
+          }
+        },
+        "submitted_password": {
+          "type": "string",
+          "description": "The password text found in the user message, or an empty string."
+        },
+        "response_language": {
+          "type": "string",
+          "description": "The language code for the final user-visible response."
+        }
+      }
+    }
+  }
+}

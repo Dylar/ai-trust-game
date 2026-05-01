@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )
 
-func TestPolicyMediumDecide(t *testing.T) {
+func TestMediumDecide(t *testing.T) {
 	type Given struct {
 		input DecisionInput
 	}
@@ -26,7 +26,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 	scenarios := []Scenario{
 		{
 			name: "GIVEN verified admin requesting available actions " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -39,7 +39,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionListAvailableActions,
 					Claims: domain.Claims{},
 				},
@@ -51,7 +51,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest requesting available actions " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -64,7 +64,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionListAvailableActions,
 					Claims: domain.Claims{},
 				},
@@ -76,7 +76,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN verified admin requesting secret " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -89,7 +89,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -101,7 +101,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest claiming admin and requesting secret " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -114,7 +114,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{Role: domain.RoleAdmin},
 				},
@@ -126,7 +126,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest requesting secret without admin claim " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN denies the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -139,7 +139,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -151,7 +151,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest with unlocked secret requesting secret " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -165,7 +165,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 							TrustedRole:    domain.RoleGuest,
 							SecretUnlocked: true,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -177,7 +177,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest with trusted admin role requesting secret " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -190,7 +190,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleAdmin,
 						},
-						},
+					},
 					Action: domain.ActionReadSecret,
 					Claims: domain.Claims{},
 				},
@@ -202,7 +202,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN non safety-relevant action " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -215,7 +215,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionChat,
 					Claims: domain.Claims{},
 				},
@@ -227,7 +227,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN employee requesting user profile " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -240,7 +240,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -252,7 +252,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest with trusted employee role requesting user profile " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN allows the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -265,7 +265,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleEmployee,
 						},
-						},
+					},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -277,7 +277,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 		},
 		{
 			name: "GIVEN guest requesting user profile " +
-				"WHEN PolicyMedium Decide is called " +
+				"WHEN Medium Decide is called " +
 				"THEN denies the interaction",
 			given: Given{
 				input: DecisionInput{
@@ -290,7 +290,7 @@ func TestPolicyMediumDecide(t *testing.T) {
 						State: domain.GameState{
 							TrustedRole: domain.RoleGuest,
 						},
-						},
+					},
 					Action: domain.ActionReadUserProfile,
 					Claims: domain.Claims{},
 				},
@@ -307,10 +307,10 @@ func TestPolicyMediumDecide(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			result := PolicyMedium{}.Decide(given.input)
+			result := Medium{}.Decide(given.input)
 
-			tests.AssertEqual(t, result.Allowed, then.expectedAllowed, "unexpected decision allowed flag")
-			tests.AssertEqual(t, result.Reason, then.expectedReason, "unexpected decision reason")
+			assert.Equal(t, result.Allowed, then.expectedAllowed, "unexpected decision allowed flag")
+			assert.Equal(t, result.Reason, then.expectedReason, "unexpected decision reason")
 		})
 	}
 }

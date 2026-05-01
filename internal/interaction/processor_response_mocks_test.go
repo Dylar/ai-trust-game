@@ -1,6 +1,10 @@
 package interaction
 
-import interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
+import (
+	"context"
+
+	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
+)
 
 type stubResponseDataGuard struct {
 	input interactionresponse.Input
@@ -25,36 +29,38 @@ func (guard *spyResponseDataGuard) Guard(input interactionresponse.Input) intera
 
 type stubResponseBuilder struct {
 	result interactionresponse.Result
+	err    error
 }
 
-func (builder stubResponseBuilder) Build(_ interactionresponse.Input) interactionresponse.Result {
-	return builder.result
+func (builder stubResponseBuilder) Build(_ context.Context, _ interactionresponse.Input) (interactionresponse.Result, error) {
+	return builder.result, builder.err
 }
 
 type spyResponseBuilder struct {
 	result    interactionresponse.Result
+	err       error
 	lastInput interactionresponse.Input
 }
 
-func (builder *spyResponseBuilder) Build(input interactionresponse.Input) interactionresponse.Result {
+func (builder *spyResponseBuilder) Build(_ context.Context, input interactionresponse.Input) (interactionresponse.Result, error) {
 	builder.lastInput = input
-	return builder.result
+	return builder.result, builder.err
 }
 
 type stubResponseValidator struct {
 	result interactionresponse.Result
 }
 
-func (validator stubResponseValidator) Validate(_ interactionresponse.ValidatorInput) interactionresponse.Result {
+func (validator stubResponseValidator) Validate(_ interactionresponse.ValidationInput) interactionresponse.Result {
 	return validator.result
 }
 
 type spyResponseValidator struct {
 	result    interactionresponse.Result
-	lastInput interactionresponse.ValidatorInput
+	lastInput interactionresponse.ValidationInput
 }
 
-func (validator *spyResponseValidator) Validate(input interactionresponse.ValidatorInput) interactionresponse.Result {
+func (validator *spyResponseValidator) Validate(input interactionresponse.ValidationInput) interactionresponse.Result {
 	validator.lastInput = input
 	return validator.result
 }

@@ -1,0 +1,131 @@
+import 'package:flutter/foundation.dart';
+
+import 'package:app/core/logging/app_logger.dart';
+import 'package:app/data/api/api_error.dart';
+import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/data/session/session_repository.dart';
+import 'package:app/screens/interaction/interaction_logger.dart';
+import 'package:app/screens/interaction/interaction_screen_state.dart';
+import 'package:app/services/interaction_service.dart';
+
+class InteractionViewModel {
+  InteractionViewModel({
+    required AppLogger appLogger,
+    required InteractionRepository interactionRepository,
+    required InteractionService interactionService,
+    required SessionRepository sessionRepository,
+    required String sessionId,
+  }) : _logger = InteractionLogger(appLogger: appLogger),
+       _interactionRepository = interactionRepository,
+       _interactionService = interactionService,
+       _sessionRepository = sessionRepository,
+       state = ValueNotifier(
+         InteractionScreenState.initial(sessionId: sessionId),
+       ) {
+    _loadSessionData();
+  }
+
+  final InteractionLogger _logger;
+  final InteractionRepository _interactionRepository;
+  final InteractionService _interactionService;
+  final SessionRepository _sessionRepository;
+  final ValueNotifier<InteractionScreenState> state;
+
+  Future<void> _loadSessionData() async {
+    try {
+      final session = await _sessionRepository.getSession(
+        state.value.sessionId,
+      );
+
+      if (session == null) {
+        state.value = state.value.copyWith(
+          status: InteractionScreenStatus.notFound,
+          resetSession: true,
+        );
+        return;
+      }
+
+      final interactions = await _interactionRepository.listInteractions(
+        state.value.sessionId,
+      );
+
+      state.value = state.value.copyWith(
+        status: InteractionScreenStatus.ready,
+        session: session,
+        interactions: interactions,
+      );
+    } catch (_) {
+      state.value = state.value.copyWith(
+        status: InteractionScreenStatus.error,
+        resetSession: true,
+      );
+    }
+  }
+
+  Future<void> submitMessage(String message) async {
+    final normalizedMessage = message.trim();
+    if (normalizedMessage.isEmpty ||
+        state.value.status != InteractionScreenStatus.ready ||
+        state.value.isSubmitting) {
+      return;
+    }
+
+    state.value = state.value.copyWith(isSubmitting: true, resetError: true);
+    await _logger.logSubmissionStarted(
+      sessionId: state.value.sessionId,
+      message: normalizedMessage,
+    );
+
+    try {
+      final interaction = await _interactionService.createInteraction(
+        sessionId: state.value.sessionId,
+        message: normalizedMessage,
+      );
+      await _logger.logSubmissionSucceeded(
+        sessionId: state.value.sessionId,
+        message: normalizedMessage,
+        interactionId: interaction.interactionId,
+      );
+      final interactions = await _interactionRepository.listInteractions(
+        state.value.sessionId,
+      );
+
+      state.value = state.value.copyWith(
+        interactions: interactions,
+        isSubmitting: false,
+      );
+    } on ApiException catch (error) {
+      await _logger.logSubmissionFailed(
+        sessionId: state.value.sessionId,
+        message: normalizedMessage,
+        error: error,
+        httpStatusCode: error.statusCode,
+        errorCode: error.code?.value,
+      );
+      state.value = state.value.copyWith(
+        error: InteractionScreenError(
+          httpStatusCode: error.statusCode,
+          code: error.code,
+        ),
+        isSubmitting: false,
+      );
+    } catch (_) {
+      await _logger.logSubmissionFailed(
+        sessionId: state.value.sessionId,
+        message: normalizedMessage,
+      );
+      state.value = state.value.copyWith(
+        error: const InteractionScreenError(),
+        isSubmitting: false,
+      );
+    }
+  }
+
+  void clearError() {
+    state.value = state.value.copyWith(resetError: true);
+  }
+
+  void dispose() {
+    state.dispose();
+  }
+}

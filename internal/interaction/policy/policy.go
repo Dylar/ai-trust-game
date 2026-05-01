@@ -2,8 +2,8 @@ package policy
 
 import (
 	"fmt"
+
 	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/interaction/capability"
 )
 
 type Policy interface {
@@ -21,20 +21,20 @@ type Decision struct {
 	Reason  string
 }
 
-type PolicyResolver interface {
-	PolicyFor(mode domain.Mode) (Policy, error)
+type Resolver struct{}
+
+func NewResolver() Resolver {
+	return Resolver{}
 }
 
-type DefaultPolicyResolver struct{}
-
-func (DefaultPolicyResolver) PolicyFor(mode domain.Mode) (Policy, error) {
+func (Resolver) PolicyFor(mode domain.Mode) (Policy, error) {
 	switch mode {
 	case domain.ModeEasy:
-		return PolicyEasy{}, nil
+		return Easy{}, nil
 	case domain.ModeMedium:
-		return PolicyMedium{capabilityResolver: capability.StaticResolver{}}, nil
+		return Medium{}, nil
 	case domain.ModeHard:
-		return PolicyHard{capabilityResolver: capability.StaticResolver{}}, nil
+		return Hard{}, nil
 	}
 	return nil, fmt.Errorf("unknown policy mode %v", mode)
 }

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/Dylar/ai-trust-game/internal/domain"
 	"github.com/Dylar/ai-trust-game/internal/interaction"
+	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
 	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
 	"net/http"
 
@@ -39,11 +40,7 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 	ctx := req.Context()
 
 	if req.Method != http.MethodPost {
-		network.WriteJSON(
-			w,
-			http.StatusMethodNotAllowed,
-			nil,
-		)
+		network.WriteJSONError(w, http.StatusMethodNotAllowed, network.ErrorCodeMethodNotAllowed)
 		return
 	}
 
@@ -53,11 +50,7 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 
 	var request InteractionRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		network.WriteJSON(
-			w,
-			http.StatusBadRequest,
-			nil,
-		)
+		network.WriteJSONError(w, http.StatusBadRequest, network.ErrorCodeInvalidJSON)
 		return
 	}
 
@@ -66,14 +59,19 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 		if !errors.Is(err, ErrNoSessionProvided) &&
 			!errors.Is(err, ErrNoSessionFound) &&
 			!errors.Is(err, interaction.ErrEmptyInteractionMessage) {
-			handler.logger.Error(
-				ctx,
-				"interaction failed",
+			fields := []logging.Field{
 				logging.WithError(err),
-			)
+			}
+
+			var plannerOutputErr interactionplanning.OutputError
+			if errors.As(err, &plannerOutputErr) {
+				fields = append(fields, logging.WithField("planner_raw_output", plannerOutputErr.RawOutput))
+			}
+
+			handler.logger.Error(ctx, "interaction failed", fields...)
 		}
-		status, errorResponse := handler.mapInteractionError(err)
-		network.WriteJSON(w, status, errorResponse)
+		status, errorCode := handler.mapInteractionError(err)
+		network.WriteJSONError(w, status, errorCode)
 		return
 	}
 
@@ -109,7 +107,7 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 		Session: sess,
 		Message: req.Message,
 	}
-	result, err := handler.processor.Process(interactionInput)
+	result, err := handler.processor.Process(ctx, interactionInput)
 	if err != nil {
 		return InteractionResponse{}, err
 	}
@@ -120,17 +118,17 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 	return handler.mapToResponse(result), nil
 }
 
-func (handler *InteractionHandler) mapInteractionError(err error) (int, InteractionResponse) {
+func (handler *InteractionHandler) mapInteractionError(err error) (int, string) {
 	if errors.Is(err, ErrNoSessionProvided) {
-		return http.StatusBadRequest, InteractionResponse{}
+		return http.StatusBadRequest, errorCodeMissingSession
 	}
 	if errors.Is(err, interaction.ErrEmptyInteractionMessage) {
-		return http.StatusBadRequest, InteractionResponse{}
+		return http.StatusBadRequest, errorCodeEmptyMessage
 	}
 	if errors.Is(err, ErrNoSessionFound) {
-		return http.StatusNotFound, InteractionResponse{}
+		return http.StatusNotFound, errorCodeSessionNotFound
 	}
-	return http.StatusInternalServerError, InteractionResponse{}
+	return http.StatusInternalServerError, network.ErrorCodeInternal
 }
 
 func (handler *InteractionHandler) mapToResponse(result interactionresponse.Result) InteractionResponse {

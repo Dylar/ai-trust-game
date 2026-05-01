@@ -1,0 +1,36 @@
+name: Reusable Docker Build
+
+on:
+  workflow_call:
+    inputs:
+      job-name:
+        required: true
+        type: string
+      dockerfile:
+        required: true
+        type: string
+      build-args:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  docker-build:
+    name: ${{ inputs.job-name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          build-args: ${{ inputs.build-args }}
+          push: false
+          load: false

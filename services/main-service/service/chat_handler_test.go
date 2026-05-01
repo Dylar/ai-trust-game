@@ -5,9 +5,11 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
-	"github.com/Dylar/ai-trust-game/tooling/tests"
+	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/tooling/tests/mocks"
 )
 
 func TestHandleChat(t *testing.T) {
@@ -24,7 +26,7 @@ func TestHandleChat(t *testing.T) {
 		expectedMessage    string
 		expectedError      error
 		expectedAuditCount int
-		expectedAuditType  string
+		expectedAuditType  audit.EventType
 	}
 
 	type Scenario struct {
@@ -79,7 +81,7 @@ func TestHandleChat(t *testing.T) {
 				expectedMessage:    "I could hear you, but I am shy to talk back :P",
 				expectedError:      nil,
 				expectedAuditCount: 1,
-				expectedAuditType:  "suspicious_input",
+				expectedAuditType:  audit.EventTypeSuspiciousInput,
 			},
 		},
 		{
@@ -96,7 +98,7 @@ func TestHandleChat(t *testing.T) {
 				expectedMessage:    "I could hear you, but I am shy to talk back :P",
 				expectedError:      nil,
 				expectedAuditCount: 1,
-				expectedAuditType:  "suspicious_input",
+				expectedAuditType:  audit.EventTypeSuspiciousInput,
 			},
 		},
 	}
@@ -106,7 +108,7 @@ func TestHandleChat(t *testing.T) {
 		then := scenario.then
 
 		t.Run(scenario.name, func(t *testing.T) {
-			auditSink := &tests.FakeAuditSink{}
+			auditSink := &mocks.FakeAuditSink{}
 			handler := NewChatHandler(logger, auditSink)
 
 			ctx := network.WithMetadata(context.Background(), network.Metadata{
@@ -123,17 +125,17 @@ func TestHandleChat(t *testing.T) {
 				t.Fatalf("expected error %v, got %v", then.expectedError, err)
 			}
 
-			tests.AssertEqual(t, response.Message, then.expectedMessage, "unexpected response message")
-			tests.AssertEqual(t, len(auditSink.Events), then.expectedAuditCount, "unexpected number of audit events")
+			assert.Equal(t, response.Message, then.expectedMessage, "unexpected response message")
+			assert.Equal(t, len(auditSink.Events), then.expectedAuditCount, "unexpected number of audit events")
 
 			if then.expectedAuditCount > 0 {
 				event := auditSink.Events[0]
 
-				tests.AssertEqual(t, event.Type, then.expectedAuditType, "unexpected audit event type")
-				tests.AssertEqual(t, event.RequestID, given.requestID, "unexpected request id")
-				tests.AssertEqual(t, event.SessionID, given.sessionID, "unexpected session id")
-				tests.AssertEqual(t, event.UserID, given.userID, "unexpected user id")
-				tests.AssertEqual(t, event.Input, given.message, "unexpected audit input")
+				assert.Equal(t, event.Type, then.expectedAuditType, "unexpected audit event type")
+				assert.Equal(t, event.RequestID, given.requestID, "unexpected request id")
+				assert.Equal(t, event.SessionID, given.sessionID, "unexpected session id")
+				assert.Equal(t, event.UserID, given.userID, "unexpected user id")
+				assert.Equal(t, event.Input, given.message, "unexpected audit input")
 			}
 		})
 	}

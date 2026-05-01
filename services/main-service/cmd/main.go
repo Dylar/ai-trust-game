@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Dylar/ai-trust-game/internal/interaction"
 	"log"
 	"net/http"
 
@@ -13,20 +12,27 @@ import (
 )
 
 func main() {
+	appEnv := infra.GetEnv("APP_ENV", "dev")
+
 	var logger logging.Logger = logging.NewConsoleLogger()
 	logger = logging.WithFields(logger,
 		logging.WithField("service", "main-service"),
-		logging.WithField("env", "dev"),
+		logging.WithField("env", appEnv),
 	)
 
-	auditSink := audit.NewConsoleSink()
+	requestAnalysisRepo := audit.NewInMemoryRequestAnalysisRepository()
+	intentSummarizer := newConfiguredIntentSummarizer(logger)
+	auditSink := audit.NewAnalyzingSinkWithSummarizer(audit.NewConsoleSink(), requestAnalysisRepo, intentSummarizer)
+	healthHandler := service.NewHealthHandler()
 	chatHandler := service.NewChatHandler(logger, auditSink)
+	requestAnalysisHandler := service.NewRequestAnalysisHandlerWithSummarizer(requestAnalysisRepo, intentSummarizer)
 
 	sessionRepo := session.NewInMemoryRepository()
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
 
-	processor := interaction.NewStaticProcessor()
+	processor := newConfiguredProcessor(logger, auditSink)
 	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
+	clientLogHandler := service.NewClientLogHandler(logger)
 
 	srv := infra.NewServer(
 		logger,
@@ -36,7 +42,7 @@ func main() {
 					Name: "main-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, chatHandler, startSessionHandler, interactionHandler)
+						service.SetupRoutes(mux, logger, healthHandler, chatHandler, startSessionHandler, interactionHandler, clientLogHandler, requestAnalysisHandler)
 					},
 				},
 			},

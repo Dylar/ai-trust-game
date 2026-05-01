@@ -8,6 +8,14 @@ const (
 	RoleAdmin    Role = "admin"
 )
 
+func AllRoles() []string {
+	return []string{
+		string(RoleGuest),
+		string(RoleEmployee),
+		string(RoleAdmin),
+	}
+}
+
 func ParseRole(input string) (Role, bool) {
 	switch Role(input) {
 	case RoleGuest,

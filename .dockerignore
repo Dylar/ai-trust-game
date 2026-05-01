@@ -1,0 +1,13 @@
+.git
+.github
+.idea
+.dart_tool
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+bin
+app/.dart_tool
+app/build
+app/.packages
+app/.flutter-plugins
+app/.flutter-plugins-dependencies

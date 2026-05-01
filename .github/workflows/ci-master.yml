@@ -1,0 +1,70 @@
+name: CI Master And Publish
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  FLUTTER_VERSION: 3.41.2
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  go-checks:
+    uses: ./.github/workflows/reusable-go.yml
+
+  flutter-checks:
+    uses: ./.github/workflows/reusable-flutter.yml
+    with:
+      flutter-version: ${{ env.FLUTTER_VERSION }}
+
+  docker-build-main-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Main Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=main-service
+
+  docker-build-frontend-web:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Frontend Web
+      dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      build-args: |
+        APP_ENV=dev
+        API_BASE_URL=http://localhost:8080
+
+  publish-main-service:
+    needs:
+      - go-checks
+      - flutter-checks
+      - docker-build-main-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Main Service To GHCR
+      image-name: ai-trust-game-main-service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=main-service
+
+  publish-frontend-web:
+    needs:
+      - go-checks
+      - flutter-checks
+      - docker-build-main-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Frontend Web To GHCR
+      image-name: ai-trust-game-frontend-web
+      dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      build-args: |
+        APP_ENV=prod
+        API_BASE_URL=https://api.example.com
