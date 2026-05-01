@@ -18,8 +18,8 @@ It is intentionally separate from `tooling/`:
 - [`env/`](./env/)
   shared environment variable files for local stack variants such as `dev` and `test`
 
-- [`../.github/workflows/ci.yml`](../.github/workflows/ci.yml)
-  continuous integration checks for Go, Flutter, and Docker image builds
+- [`.github/workflows/`](../.github/workflows/)
+  reusable GitHub Actions building blocks plus small caller workflows for `PR -> test` and `push -> master`
 
 The `env/` directory is the intentionally lightweight Phase 11 starting point.
 Right now it keeps environment selection simple while the project still runs as one main service plus one frontend

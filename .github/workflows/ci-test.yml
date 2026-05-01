@@ -1,0 +1,35 @@
+name: CI Test PR
+
+env:
+  FLUTTER_VERSION: 3.41.2
+
+on:
+  pull_request:
+    branches:
+      - test
+
+jobs:
+  go-checks:
+    uses: ./.github/workflows/reusable-go.yml
+
+  flutter-checks:
+    uses: ./.github/workflows/reusable-flutter.yml
+    with:
+      flutter-version: ${{ env.FLUTTER_VERSION }}
+
+  docker-build-main-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Main Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=main-service
+
+  docker-build-frontend-web:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Frontend Web
+      dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      build-args: |
+        APP_ENV=dev
+        API_BASE_URL=http://localhost:8080

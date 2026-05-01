@@ -1,0 +1,36 @@
+name: Reusable Flutter Checks
+
+on:
+  workflow_call:
+    inputs:
+      flutter-version:
+        required: true
+        type: string
+
+jobs:
+  flutter-checks:
+    name: Flutter Analyze And Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Flutter analyze
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        run: flutter test
