@@ -7,8 +7,9 @@ APP_ENV ?= $(TARGET_ENV)
 API_BASE_URL ?= http://localhost:8080
 COMPOSE_ENV_FILE ?= ./infrastructure/env/$(TARGET_ENV).env
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
+K8S_DIR ?= ./services/main-service/k8s/overlays/$(TARGET_ENV)
 
-.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart
+.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-apply k8s-delete k8s-status
 
 help:
 	@echo "Commands:"
@@ -27,6 +28,9 @@ help:
 	@echo "  make compose-down"
 	@echo "  make compose-logs"
 	@echo "  make compose-ps"
+	@echo "  make k8s-apply [TARGET_ENV=dev|test|prod]"
+	@echo "  make k8s-delete [TARGET_ENV=dev|test|prod]"
+	@echo "  make k8s-status"
 	@echo "  make test"
 	@echo "  make lint"
 
@@ -99,6 +103,15 @@ compose-logs:
 
 compose-ps:
 	docker compose --env-file $(COMPOSE_ENV_FILE) ps
+
+k8s-apply:
+	kubectl apply -k $(K8S_DIR)
+
+k8s-delete:
+	kubectl delete -k $(K8S_DIR)
+
+k8s-status:
+	kubectl get deploy,svc,pods -A -l app.kubernetes.io/part-of=ai-trust-game
 
 test:
 	go test ./...

@@ -53,6 +53,17 @@
 - `make compose-ps`
   shows the current compose containers and their status, including health state when available
 
+## Kubernetes
+
+- `make k8s-apply [TARGET_ENV=dev|test|prod]`
+  applies the Kubernetes manifests for the selected environment through Kustomize
+
+- `make k8s-delete [TARGET_ENV=dev|test|prod]`
+  removes the Kubernetes manifests for the selected environment through Kustomize
+
+- `make k8s-status`
+  shows the deployed Kubernetes workloads and services labeled as part of `ai-trust-game` across all namespaces
+
 ## Service Scripts
 
 - `go run ./services/main-service/scripts/start-session`

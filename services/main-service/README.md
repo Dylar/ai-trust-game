@@ -22,6 +22,9 @@ The service keeps transport concerns in `service/` and composes core workflow de
 - [`scripts/`](./scripts/)
   small development helpers for calling the HTTP endpoints manually
 
+- [`k8s/`](./k8s/)
+  Kubernetes manifests for deploying this service
+
 ## Runtime Wiring
 
 [`cmd/main.go`](./cmd/main.go) is the composition root.
@@ -161,3 +164,10 @@ When the Flutter web app runs locally with `API_BASE_URL=http://localhost:8080`,
 backend through the published host port.
 
 For a local full-stack container run together with the Flutter web app, use the repository root `compose.yml`.
+
+## Kubernetes
+
+Service-owned Kubernetes manifests live in [`k8s/`](./k8s/).
+
+They define the `main-service` `Deployment`, `Service`, runtime `ConfigMap`, an example secret shape for `GROQ_API_KEY`,
+and environment overlays for `dev`, `test`, and `prod`.

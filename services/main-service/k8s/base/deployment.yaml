@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-service
+  labels:
+    app.kubernetes.io/name: main-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: ai-trust-game
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: main-service
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/part-of: ai-trust-game
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: main-service
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: ai-trust-game
+    spec:
+      containers:
+        - name: main-service
+          image: main-service:local
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: main-service-config-map
+            - secretRef:
+                name: main-service-secret
+                optional: true
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
