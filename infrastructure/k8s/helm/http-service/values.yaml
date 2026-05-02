@@ -1,0 +1,43 @@
+serviceName: http-service
+namespace: ai-trust-game-dev
+environment: dev
+component: backend
+partOf: ai-trust-game
+
+replicas: 1
+
+image:
+  repository: http-service
+  tag: local
+  pullPolicy: IfNotPresent
+
+containerPort: 8080
+servicePort: 8080
+
+probes:
+  readiness:
+    path: /healthz
+    initialDelaySeconds: 3
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  liveness:
+    path: /healthz
+    initialDelaySeconds: 10
+    periodSeconds: 20
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+config:
+  APP_ENV: dev
+  PORT: "8080"
+  LLM_PROVIDER: static
+  GROQ_MODEL: ""

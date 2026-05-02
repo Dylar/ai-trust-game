@@ -1,0 +1,29 @@
+serviceName: main-service
+namespace: ai-trust-game-dev
+environment: dev
+component: backend
+partOf: ai-trust-game
+
+replicas: 1
+
+image:
+  repository: main-service
+  tag: local
+  pullPolicy: IfNotPresent
+
+containerPort: 8080
+servicePort: 8080
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+config:
+  APP_ENV: dev
+  PORT: "8080"
+  LLM_PROVIDER: static
+  GROQ_MODEL: ""

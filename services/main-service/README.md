@@ -23,7 +23,7 @@ The service keeps transport concerns in `service/` and composes core workflow de
   small development helpers for calling the HTTP endpoints manually
 
 - [`k8s/`](./k8s/)
-  Kubernetes manifests for deploying this service
+  Helm values for deploying this service
 
 ## Runtime Wiring
 
@@ -167,7 +167,8 @@ For a local full-stack container run together with the Flutter web app, use the 
 
 ## Kubernetes
 
-Service-owned Kubernetes manifests live in [`k8s/`](./k8s/).
+Service-owned Kubernetes values live in [`k8s/`](./k8s/).
 
-They define the `main-service` `Deployment`, `Service`, runtime `ConfigMap`, an example secret shape for `GROQ_API_KEY`,
-and environment overlays for `dev`, `test`, and `prod`.
+They define the `main-service` values for `dev`, `test`, and `prod`.
+The shared chart that renders the `Deployment`, `Service`, `ConfigMap`, and namespace lives under
+[`infrastructure/k8s/helm/http-service`](../../infrastructure/k8s/helm/http-service/).

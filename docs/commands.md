@@ -55,11 +55,17 @@
 
 ## Kubernetes
 
-- `make k8s-apply [TARGET_ENV=dev|test|prod]`
-  applies the Kubernetes manifests for the selected environment through Kustomize
+- `make k8s-lint [K8S_SERVICE=main-service] [K8S_ENVS='dev test prod']`
+  lints the Helm chart and renders each selected environment without applying it
 
-- `make k8s-delete [TARGET_ENV=dev|test|prod]`
-  removes the Kubernetes manifests for the selected environment through Kustomize
+- `make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
+  renders the Kubernetes manifests for the selected service and environment through Helm
+
+- `make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
+  installs or upgrades the selected service and environment through Helm
+
+- `make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
+  uninstalls the selected Helm release from the selected environment namespace
 
 - `make k8s-status`
   shows the deployed Kubernetes workloads and services labeled as part of `ai-trust-game` across all namespaces

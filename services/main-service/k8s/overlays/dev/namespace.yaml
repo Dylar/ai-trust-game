@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ai-trust-game-dev
-  labels:
-    app.kubernetes.io/part-of: ai-trust-game
-    app.kubernetes.io/environment: dev

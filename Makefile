@@ -7,9 +7,13 @@ APP_ENV ?= $(TARGET_ENV)
 API_BASE_URL ?= http://localhost:8080
 COMPOSE_ENV_FILE ?= ./infrastructure/env/$(TARGET_ENV).env
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
-K8S_DIR ?= ./services/main-service/k8s/overlays/$(TARGET_ENV)
+K8S_SERVICE ?= main-service
+K8S_RELEASE ?= $(K8S_SERVICE)
+K8S_CHART ?= ./infrastructure/k8s/helm/http-service
+K8S_VALUES ?= ./services/$(K8S_SERVICE)/k8s/values-$(TARGET_ENV).yaml
+K8S_ENVS ?= dev test prod
 
-.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-apply k8s-delete k8s-status
+.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-lint k8s-template k8s-apply k8s-delete k8s-status
 
 help:
 	@echo "Commands:"
@@ -28,8 +32,10 @@ help:
 	@echo "  make compose-down"
 	@echo "  make compose-logs"
 	@echo "  make compose-ps"
-	@echo "  make k8s-apply [TARGET_ENV=dev|test|prod]"
-	@echo "  make k8s-delete [TARGET_ENV=dev|test|prod]"
+	@echo "  make k8s-lint [K8S_SERVICE=main-service] [K8S_ENVS='dev test prod']"
+	@echo "  make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
+	@echo "  make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
+	@echo "  make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
 	@echo "  make k8s-status"
 	@echo "  make test"
 	@echo "  make lint"
@@ -104,11 +110,23 @@ compose-logs:
 compose-ps:
 	docker compose --env-file $(COMPOSE_ENV_FILE) ps
 
+k8s-lint:
+	@for env in $(K8S_ENVS); do \
+		values_file=./services/$(K8S_SERVICE)/k8s/values-$$env.yaml; \
+		echo "Linting $(K8S_SERVICE) $$env"; \
+		helm lint $(K8S_CHART) -f $$values_file; \
+		echo "Rendering $(K8S_SERVICE) $$env"; \
+		helm template $(K8S_RELEASE) $(K8S_CHART) -f $$values_file >/dev/null; \
+	done
+
+k8s-template:
+	helm template $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES)
+
 k8s-apply:
-	kubectl apply -k $(K8S_DIR)
+	helm upgrade --install $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES) --namespace ai-trust-game-$(TARGET_ENV) --create-namespace
 
 k8s-delete:
-	kubectl delete -k $(K8S_DIR)
+	helm uninstall $(K8S_RELEASE) --namespace ai-trust-game-$(TARGET_ENV)
 
 k8s-status:
 	kubectl get deploy,svc,pods -A -l app.kubernetes.io/part-of=ai-trust-game

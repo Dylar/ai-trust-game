@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: main-service-config-map
-data:
-  APP_ENV: test
-  LLM_PROVIDER: static
-  GROQ_MODEL: ""

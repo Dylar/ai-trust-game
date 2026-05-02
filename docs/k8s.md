@@ -1,41 +1,55 @@
 # Kubernetes Deployment Guide
 
-The project uses Kustomize for Kubernetes manifests.
+The project uses Helm for Kubernetes manifests.
 
-Kustomize keeps the YAML readable:
+Helm keeps shared Kubernetes structure in one chart while services provide environment-specific values.
 
-- `base/` contains complete Kubernetes resources for one service
-- `overlays/<env>/` contains only environment-specific changes
+The chart templates are intentionally close to regular Kubernetes YAML. They only use placeholders for values that vary
+between services or environments.
 
-This avoids templating while still keeping `dev`, `test`, and `prod` separate.
+This avoids copying the same deployment shape for each service while still keeping `dev`, `test`, and `prod` separate.
 
 ## Current Layout
 
-The current Kubernetes starting point is service-local:
+The shared chart lives under infrastructure:
+
+```text
+infrastructure/k8s/helm/http-service/
+  Chart.yaml
+  values.yaml
+  templates/
+    config-map.yaml
+    deployment.yaml
+    namespace.yaml
+    service.yaml
+```
+
+Service values live next to the service:
 
 ```text
 services/main-service/k8s/
-  base/
-    config-map.yaml
-    deployment.yaml
-    kustomization.yaml
-    secret.example.yaml
-    service.yaml
-  overlays/
-    dev/
-    test/
-    prod/
+  values-dev.yaml
+  values-test.yaml
+  values-prod.yaml
 ```
 
-The base is complete and can be read as the default deployment shape.
-Each overlay references the base and patches only the values that differ for that environment.
+The chart is the shared deployment shape.
+The service values define identity, image, namespace, replicas, resources, ports, probes, and runtime configuration.
 
 ## Commands
+
+These commands require the Helm CLI to be installed locally.
 
 Render an environment without applying it:
 
 ```sh
-kubectl kustomize services/main-service/k8s/overlays/dev
+make k8s-template TARGET_ENV=dev
+```
+
+Lint and render all prepared environments:
+
+```sh
+make k8s-lint
 ```
 
 Apply an environment:
@@ -58,50 +72,28 @@ make k8s-status
 
 The status command searches all namespaces for resources labeled as part of `ai-trust-game`.
 
+CI runs the same type of Helm validation through `.github/workflows/reusable-helm.yml`.
+It lints the shared chart and renders the `main-service` `dev`, `test`, and `prod` values files.
+
 ## Adding A New Service
 
-When adding a new backend service, create a service-owned Kubernetes directory:
+When adding a new backend service, create a service-owned values directory:
 
 ```text
 services/<service-name>/k8s/
-  base/
-    config-map.yaml
-    deployment.yaml
-    kustomization.yaml
-    secret.example.yaml
-    service.yaml
-  overlays/
-    dev/
-      config-map.patch.yaml
-      deployment.patch.yaml
-      kustomization.yaml
-      namespace.yaml
-    test/
-      config-map.patch.yaml
-      deployment.patch.yaml
-      kustomization.yaml
-      namespace.yaml
-    prod/
-      config-map.patch.yaml
-      deployment.patch.yaml
-      kustomization.yaml
-      namespace.yaml
+  values-dev.yaml
+  values-test.yaml
+  values-prod.yaml
 ```
 
-The easiest starting point is to copy `services/main-service/k8s/` and then rename the service-specific values.
+The easiest starting point is to copy the `main-service` values files and then rename the service-specific values.
 
 ## Values To Rename
 
 Replace these values everywhere they appear:
 
 - `main-service`
-  Kubernetes resource name, container name, image name, and `app.kubernetes.io/name`
-
-- `main-service-config-map`
-  ConfigMap name referenced by the deployment
-
-- `main-service-secret`
-  optional Secret name referenced by the deployment
+  Helm release name, Kubernetes resource name, container name, image name, and `app.kubernetes.io/name`
 
 - `ai-trust-game-<env>`
   namespace names if the service should use a different namespace strategy
@@ -109,13 +101,12 @@ Replace these values everywhere they appear:
 - `ghcr.io/dylar/ai-trust-game-main-service`
   production image repository
 
-Keep labels consistent between:
+The chart derives ConfigMap and Secret names from `serviceName`:
 
-- `Deployment.spec.selector.matchLabels`
-- `Deployment.spec.template.metadata.labels`
-- `Service.spec.selector`
+- `<serviceName>-config-map`
+- `<serviceName>-secret`
 
-If these do not match, Pods may run but Services will not route traffic to them.
+The Secret reference is optional, so static-provider local deployments do not need a Secret.
 
 ## Service Settings To Review
 
@@ -148,15 +139,15 @@ Review these settings for every new service:
 - `resources.limits`
   CPU and memory the container is allowed to use.
 
-- `ConfigMap.data`
+- `config`
   Non-secret runtime environment variables.
 
 - `Secret`
   Secret values such as API keys. Keep only examples in Git.
 
-## Environment Overlays
+## Environment Values
 
-Use overlays for values that differ between environments:
+Use values files for values that differ between environments:
 
 - `APP_ENV`
 - replicas
@@ -165,5 +156,5 @@ Use overlays for values that differ between environments:
 - provider settings such as `LLM_PROVIDER` and `GROQ_MODEL`
 - namespace
 
-Avoid changing the service shape in overlays unless the environment really requires it.
-If every environment needs the same change, update the base instead.
+Avoid changing the chart for service-specific values.
+If one service needs a different deployment shape, first consider whether that service needs a separate chart.

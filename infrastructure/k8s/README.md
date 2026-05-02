@@ -1,6 +1,7 @@
 # Kubernetes
 
-This directory is reserved for shared Kubernetes infrastructure once common deployment patterns become concrete.
+This directory contains shared Kubernetes deployment assets.
 
-The current Phase 11 Kubernetes starting point is intentionally service-local and lives in
+The current shared Helm chart lives in [`helm/http-service/`](./helm/http-service/).
+Service-specific values live next to each service, for example in
 [`../../services/main-service/k8s/`](../../services/main-service/k8s/).
