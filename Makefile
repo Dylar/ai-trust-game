@@ -12,8 +12,14 @@ K8S_RELEASE ?= $(K8S_SERVICE)
 K8S_CHART ?= ./infrastructure/k8s/helm/http-service
 K8S_VALUES ?= ./services/$(K8S_SERVICE)/k8s/values-$(TARGET_ENV).yaml
 K8S_ENVS ?= dev test prod
+K8S_IMAGE_TAG ?=
+MANUAL_DEPLOY_WORKFLOW ?= deploy.yml
+K8S_SET_ARGS :=
+ifneq ($(strip $(K8S_IMAGE_TAG)),)
+K8S_SET_ARGS += --set image.tag=$(K8S_IMAGE_TAG)
+endif
 
-.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-lint k8s-template k8s-apply k8s-delete k8s-status
+.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-lint k8s-template k8s-apply k8s-delete k8s-status manual-deploy manuel-deploy
 
 help:
 	@echo "Commands:"
@@ -33,10 +39,11 @@ help:
 	@echo "  make compose-logs"
 	@echo "  make compose-ps"
 	@echo "  make k8s-lint [K8S_SERVICE=main-service] [K8S_ENVS='dev test prod']"
-	@echo "  make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
-	@echo "  make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
+	@echo "  make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]"
+	@echo "  make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
 	@echo "  make k8s-status"
+	@echo "  make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev K8S_IMAGE_TAG=<tag>"
 	@echo "  make test"
 	@echo "  make lint"
 
@@ -120,16 +127,29 @@ k8s-lint:
 	done
 
 k8s-template:
-	helm template $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES)
+	helm template $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES) $(K8S_SET_ARGS)
 
 k8s-apply:
-	helm upgrade --install $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES) --namespace ai-trust-game-$(TARGET_ENV) --create-namespace
+	helm upgrade --install $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES) $(K8S_SET_ARGS) --namespace ai-trust-game-$(TARGET_ENV) --create-namespace
 
 k8s-delete:
 	helm uninstall $(K8S_RELEASE) --namespace ai-trust-game-$(TARGET_ENV)
 
 k8s-status:
 	kubectl get deploy,svc,pods -A -l app.kubernetes.io/part-of=ai-trust-game
+
+manual-deploy:
+	@if [ -z "$(K8S_IMAGE_TAG)" ]; then \
+		echo "Error: K8S_IMAGE_TAG missing"; \
+		echo "Example: make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev K8S_IMAGE_TAG=manual-deploy-2026-05-02-11-21"; \
+		exit 1; \
+	fi
+	gh workflow run $(MANUAL_DEPLOY_WORKFLOW) \
+		-f service=$(K8S_SERVICE) \
+		-f environment=$(TARGET_ENV) \
+		-f image-tag=$(K8S_IMAGE_TAG)
+
+manuel-deploy: manual-deploy
 
 test:
 	go test ./...

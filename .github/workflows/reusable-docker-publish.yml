@@ -16,6 +16,10 @@ on:
         required: false
         type: string
         default: ""
+      extra-tags:
+        required: false
+        type: string
+        default: ""
 
 jobs:
   publish-image:
@@ -46,8 +50,9 @@ jobs:
         with:
           images: ghcr.io/${{ steps.owner.outputs.value }}/${{ inputs.image-name }}
           tags: |
-            type=sha,prefix=sha-
+            type=sha,prefix=
             type=raw,value=latest
+            type=raw,value=${{ inputs.extra-tags }},enable=${{ inputs.extra-tags != '' }}
 
       - name: Build and push image
         uses: docker/build-push-action@v6

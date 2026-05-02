@@ -35,6 +35,8 @@ services/main-service/k8s/
 
 The chart is the shared deployment shape.
 The service values define identity, image, namespace, replicas, resources, ports, probes, and runtime configuration.
+The chart also includes `values.schema.json`, which Helm uses to validate values during `helm lint`, `helm template`,
+and installs.
 
 ## Commands
 
@@ -44,6 +46,12 @@ Render an environment without applying it:
 
 ```sh
 make k8s-template TARGET_ENV=dev
+```
+
+`make k8s-template` writes rendered Kubernetes YAML to stdout. Redirect it when you want a local review artifact:
+
+```sh
+make k8s-template TARGET_ENV=dev > /tmp/main-service-dev.yaml
 ```
 
 Lint and render all prepared environments:
@@ -56,6 +64,13 @@ Apply an environment:
 
 ```sh
 make k8s-apply TARGET_ENV=dev
+```
+
+Override only the image tag at render or deploy time:
+
+```sh
+make k8s-template TARGET_ENV=prod K8S_IMAGE_TAG=<commit-sha>
+make k8s-apply TARGET_ENV=prod K8S_IMAGE_TAG=manual-deploy-2026-05-02-11-21
 ```
 
 Remove an environment:
@@ -74,6 +89,21 @@ The status command searches all namespaces for resources labeled as part of `ai-
 
 CI runs the same type of Helm validation through `.github/workflows/reusable-helm.yml`.
 It lints the shared chart and renders the `main-service` `dev`, `test`, and `prod` values files.
+
+The publish workflow tags images with the source commit SHA and `latest`.
+It can also be started manually with an extra tag such as `manual-deploy-2026-05-02-11-21`.
+
+Manual deployments are prepared through `.github/workflows/deploy.yml`.
+The local `manual-deploy` Make target only triggers that GitHub Actions workflow; it does not run `helm upgrade` against
+the current local Kubernetes context.
+
+```sh
+make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev K8S_IMAGE_TAG=manual-deploy-2026-05-02-11-21
+```
+
+The deploy workflow requires a GitHub environment secret named `KUBE_CONFIG_B64`.
+That secret should contain a base64-encoded kubeconfig for the target cluster.
+Until that secret points to a project-owned cluster, the workflow is expected to fail before deploying.
 
 ## Adding A New Service
 
@@ -117,6 +147,7 @@ Review these settings for every new service:
 
 - `image`
   Local image names are useful for `dev`; registry images should be used for remote environments.
+  CI-published images get a commit-SHA tag, and manual workflow runs can add a human-readable manual deploy tag.
 
 - `imagePullPolicy`
   `IfNotPresent` is convenient for local development. Remote environments may need `Always` depending on image tagging.

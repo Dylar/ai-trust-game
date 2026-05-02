@@ -58,10 +58,10 @@
 - `make k8s-lint [K8S_SERVICE=main-service] [K8S_ENVS='dev test prod']`
   lints the Helm chart and renders each selected environment without applying it
 
-- `make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
+- `make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]`
   renders the Kubernetes manifests for the selected service and environment through Helm
 
-- `make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
+- `make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]`
   installs or upgrades the selected service and environment through Helm
 
 - `make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
@@ -69,6 +69,9 @@
 
 - `make k8s-status`
   shows the deployed Kubernetes workloads and services labeled as part of `ai-trust-game` across all namespaces
+
+- `make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev K8S_IMAGE_TAG=<tag>`
+  triggers the GitHub Actions deploy workflow for the selected service, environment, and image tag
 
 ## Service Scripts
 

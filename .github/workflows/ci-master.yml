@@ -8,6 +8,13 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: "Optional extra image tag, for example manual-deploy-2026-05-02-11-21"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   go-checks:
@@ -57,6 +64,7 @@ jobs:
       job-name: Publish Main Service To GHCR
       image-name: ai-trust-game-main-service
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         SERVICE=main-service
 
@@ -73,6 +81,7 @@ jobs:
       job-name: Publish Frontend Web To GHCR
       image-name: ai-trust-game-frontend-web
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=prod
         API_BASE_URL=https://api.example.com
