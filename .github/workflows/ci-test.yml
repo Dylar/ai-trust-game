@@ -14,6 +14,15 @@ jobs:
     with:
       flutter-version: "3.41.2"
 
+  helm-checks:
+    uses: ./.github/workflows/reusable-helm.yml
+    with:
+      chart-path: ./infrastructure/k8s/helm/http-service
+      values-files: |
+        ./services/main-service/k8s/values-dev.yaml
+        ./services/main-service/k8s/values-test.yaml
+        ./services/main-service/k8s/values-prod.yaml
+
   docker-build-main-service:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
