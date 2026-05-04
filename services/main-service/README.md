@@ -22,6 +22,9 @@ The service keeps transport concerns in `service/` and composes core workflow de
 - [`scripts/`](./scripts/)
   small development helpers for calling the HTTP endpoints manually
 
+- [`k8s/`](./k8s/)
+  Helm values for deploying this service
+
 ## Runtime Wiring
 
 [`cmd/main.go`](./cmd/main.go) is the composition root.
@@ -161,3 +164,11 @@ When the Flutter web app runs locally with `API_BASE_URL=http://localhost:8080`,
 backend through the published host port.
 
 For a local full-stack container run together with the Flutter web app, use the repository root `compose.yml`.
+
+## Kubernetes
+
+Service-owned Kubernetes values live in [`k8s/`](./k8s/).
+
+They define the `main-service` values for `dev`, `test`, and `prod`.
+The shared chart that renders the `Deployment`, `Service`, `ConfigMap`, and namespace lives under
+[`infrastructure/k8s/helm/http-service`](../../infrastructure/k8s/helm/http-service/).

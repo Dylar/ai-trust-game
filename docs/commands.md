@@ -53,6 +53,36 @@
 - `make compose-ps`
   shows the current compose containers and their status, including health state when available
 
+## Kubernetes
+
+- `make k8s-lint [K8S_SERVICE=main-service] [K8S_ENVS='dev test prod']`
+  lints the Helm chart and renders each selected environment without applying it
+
+- `make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]`
+  renders the Kubernetes manifests for the selected service and environment through Helm
+
+- `make k8s-context [K8S_KUBECONFIG=~/.kube/ai-trust-game-pi.yaml]`
+  shows the Kubernetes context and nodes from the project kubeconfig
+
+- `make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]`
+  installs or upgrades the selected service and environment through Helm.
+  If `K8S_IMAGE_TAG` is omitted, the current Git commit SHA is used as the image tag
+
+- `make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
+  uninstalls the selected Helm release from the selected environment namespace
+
+- `make k8s-status`
+  shows the deployed Kubernetes workloads and services labeled as part of `ai-trust-game` across all namespaces
+
+- `make manual-deploy-tag`
+  prints the automatic manual deploy tag format without triggering a workflow
+
+- `make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev [K8S_IMAGE_TAG=<tag>]`
+  triggers the GitHub Actions deploy workflow for the selected service and environment.
+  If `K8S_IMAGE_TAG` is omitted, the target generates `manual-deploy-<short-sha>-<yyyy-mm-dd-hh-mm>`
+
+Manual image publishing is available through the `Publish Images` GitHub Actions workflow.
+
 ## Service Scripts
 
 - `go run ./services/main-service/scripts/start-session`

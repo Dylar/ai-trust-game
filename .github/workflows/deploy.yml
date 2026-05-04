@@ -1,0 +1,69 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service to deploy"
+        required: true
+        type: choice
+        options:
+          - main-service
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+      image-tag:
+        description: "Image tag to deploy, for example a commit SHA or manual-deploy-2026-05-02-11-21"
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.service }} To ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v4.1.4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        shell: bash
+        env:
+          KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_B64 }}
+        run: |
+          if [ -z "$KUBE_CONFIG_B64" ]; then
+            echo "KUBE_CONFIG_B64 secret is required for deployment." >&2
+            exit 1
+          fi
+
+          mkdir -p "$HOME/.kube"
+          echo "$KUBE_CONFIG_B64" | base64 --decode > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Render manifests
+        run: |
+          helm template "${{ inputs.service }}" ./infrastructure/k8s/helm/http-service \
+            -f "./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" \
+            --set image.tag="${{ inputs.image-tag }}"
+
+      - name: Deploy release
+        run: |
+          helm upgrade --install "${{ inputs.service }}" ./infrastructure/k8s/helm/http-service \
+            -f "./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" \
+            --set image.tag="${{ inputs.image-tag }}" \
+            --namespace "atg-${{ inputs.environment }}" \
+            --create-namespace

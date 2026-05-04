@@ -21,19 +21,18 @@ It is intentionally separate from `tooling/`:
 - [`.github/workflows/`](../.github/workflows/)
   reusable GitHub Actions building blocks plus small caller workflows for `PR -> test` and `push -> master`
 
-The `env/` directory is the intentionally lightweight Phase 11 starting point.
-Right now it keeps environment selection simple while the project still runs as one main service plus one frontend
-stack.
+- [`k8s/`](./k8s/)
+  shared Kubernetes Helm charts and deployment assets
+
+The `env/` and `k8s/` directories are intentionally lightweight Phase 11 starting points.
+Right now they keep environment selection and shared Kubernetes charting simple while the project still runs as one main
+service plus one frontend stack.
 Later, once multiple services and Kubernetes-specific environment differences become concrete, this may evolve into a
 more environment-centered structure such as dedicated `dev/`, `test/`, and `prod/` deployment areas.
 
 ## Planned Structure
 
-- `k8s/`
-  shared Kubernetes manifests, overlays, or base building blocks
-
 - `terraform/`
   infrastructure provisioning setup when the project reaches that stage
 
-Service-specific deployment assets may still live closer to a service later when that ownership becomes concrete, for
-example under `services/<service-name>/k8s/`.
+Service-specific deployment values live close to the owning module, for example under `services/<service-name>/k8s/`.
