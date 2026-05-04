@@ -21,6 +21,12 @@ spec:
         app.kubernetes.io/component: {{ .Values.component }}
         app.kubernetes.io/part-of: {{ .Values.partOf }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.imagePullSecrets }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Values.serviceName }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

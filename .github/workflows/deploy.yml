@@ -65,5 +65,5 @@ jobs:
           helm upgrade --install "${{ inputs.service }}" ./infrastructure/k8s/helm/http-service \
             -f "./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" \
             --set image.tag="${{ inputs.image-tag }}" \
-            --namespace "ai-trust-game-${{ inputs.environment }}" \
+            --namespace "atg-${{ inputs.environment }}" \
             --create-namespace

@@ -20,6 +20,10 @@ on:
         required: false
         type: string
         default: ""
+      platforms:
+        required: false
+        type: string
+        default: linux/amd64,linux/arm64
 
 jobs:
   publish-image:
@@ -37,6 +41,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -50,7 +57,7 @@ jobs:
         with:
           images: ghcr.io/${{ steps.owner.outputs.value }}/${{ inputs.image-name }}
           tags: |
-            type=sha,prefix=
+            type=sha,prefix=,format=long
             type=raw,value=latest
             type=raw,value=${{ inputs.extra-tags }},enable=${{ inputs.extra-tags != '' }}
 
@@ -60,6 +67,7 @@ jobs:
           context: .
           file: ${{ inputs.dockerfile }}
           build-args: ${{ inputs.build-args }}
+          platforms: ${{ inputs.platforms }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

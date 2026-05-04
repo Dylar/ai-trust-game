@@ -1,4 +1,4 @@
-name: CI Master And Publish
+name: Publish Images
 
 permissions:
   contents: read

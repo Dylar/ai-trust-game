@@ -1,5 +1,5 @@
 serviceName: main-service
-namespace: ai-trust-game-prod
+namespace: atg-prod
 environment: prod
 component: backend
 partOf: ai-trust-game
@@ -10,6 +10,8 @@ image:
   repository: ghcr.io/dylar/ai-trust-game-main-service
   tag: latest
   pullPolicy: IfNotPresent
+
+imagePullSecrets: []
 
 containerPort: 8080
 servicePort: 8080

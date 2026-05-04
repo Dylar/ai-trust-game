@@ -1,5 +1,5 @@
 serviceName: http-service
-namespace: ai-trust-game-dev
+namespace: atg-dev
 environment: dev
 component: backend
 partOf: ai-trust-game
@@ -10,6 +10,8 @@ image:
   repository: http-service
   tag: local
   pullPolicy: IfNotPresent
+
+imagePullSecrets: []
 
 containerPort: 8080
 servicePort: 8080

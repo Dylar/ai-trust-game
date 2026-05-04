@@ -1,5 +1,5 @@
 serviceName: main-service
-namespace: ai-trust-game-test
+namespace: atg-test
 environment: test
 component: backend
 partOf: ai-trust-game
@@ -7,9 +7,11 @@ partOf: ai-trust-game
 replicas: 1
 
 image:
-  repository: main-service
+  repository: ghcr.io/dylar/ai-trust-game-main-service
   tag: test
   pullPolicy: IfNotPresent
+
+imagePullSecrets: []
 
 containerPort: 8080
 servicePort: 8080
