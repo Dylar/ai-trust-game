@@ -1,6 +1,8 @@
 FROM golang:1.24-alpine AS builder
 
 ARG SERVICE
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /src
 
@@ -12,7 +14,7 @@ COPY pkg ./pkg
 COPY services ./services
 
 RUN test -n "${SERVICE}"
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/service ./services/${SERVICE}/cmd
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64} go build -o /out/service ./services/${SERVICE}/cmd
 
 FROM alpine:3.22
 
