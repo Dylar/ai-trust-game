@@ -29,7 +29,6 @@ Also, you can find the development roadmap and commands reference here.
 - [Request metadata, transport helpers, and JSON response utilities](../pkg/network/README.md)
 - [Structured logging abstraction and HTTP request logging](../pkg/logging/README.md)
 
-
 - [Core domain types and trust-sensitive business vocabulary](../internal/domain/README.md)
 - [Authoritative session repository boundary and in-memory storage](../internal/session/README.md)
 - [LLM provider abstraction and runtime configuration](../internal/llm/README.md)
@@ -42,9 +41,14 @@ Also, you can find the development roadmap and commands reference here.
 ### Frontend
 - [Flutter web app bootstrap and frontend entrypoint](../app/README.md)
 
+### Infrastructure
+- [Shared Docker, Compose, Kubernetes, and Make infrastructure](../infrastructure/README.md)
+- [Kubernetes chart and deployment structure](../infrastructure/k8s/README.md)
+
 ## Development
 
 - [Development Phases](dev-roadmap.md)
 - [Commands](commands.md)
 - [Kubernetes deployment guide](k8s.md)
+- [Frontend flow diagrams](frontend-uml.md)
 - [AGENT working notes](AGENT-notes.md)
