@@ -1,10 +1,12 @@
 K8S_SERVICE ?= main-service
 K8S_RELEASE ?= $(K8S_SERVICE)
-K8S_CHART ?= ./infrastructure/k8s/chart
+K8S_CHART ?= ./infrastructure/k8s/service-chart
 K8S_CONFIG_DIR ?= $(if $(filter frontend-web,$(K8S_SERVICE)),./app/k8s,./services/$(K8S_SERVICE)/k8s)
 K8S_VALUES ?= $(K8S_CONFIG_DIR)/values-$(TARGET_ENV).yaml
 K8S_NAMESPACE ?= atg-$(TARGET_ENV)
-K8S_ENTRY ?= ./app/k8s/entry-$(TARGET_ENV).yaml
+K8S_ENTRY_RELEASE ?= app-entry
+K8S_ENTRY_CHART ?= ./infrastructure/k8s/entry-chart
+K8S_ENTRY_VALUES ?= ./app/k8s/entry-values-$(TARGET_ENV).yaml
 K8S_ENVS ?= dev test prod
 K8S_SERVICES ?= main-service frontend-web
 K8S_IMAGE_TAG ?=
@@ -92,28 +94,24 @@ k8s-deploy: k8s-check-kubeconfig
 	for service in $(K8S_SERVICES); do \
 		$(MAKE) k8s-apply K8S_SERVICE=$$service TARGET_ENV=$(TARGET_ENV) K8S_IMAGE_TAG=$$image_tag || exit $$?; \
 	done; \
-	if [ -f "$(K8S_ENTRY)" ]; then \
+	if [ -f "$(K8S_ENTRY_VALUES)" ]; then \
 		$(MAKE) k8s-apply-entry TARGET_ENV=$(TARGET_ENV); \
 	else \
-		echo "No app entry manifest for $(TARGET_ENV), skipping app entry."; \
+		echo "No app entry values for $(TARGET_ENV), skipping app entry."; \
 	fi
 
 k8s-delete: k8s-check-kubeconfig
 	$(K8S_HELM) uninstall $(K8S_RELEASE) --namespace $(K8S_NAMESPACE)
 
 k8s-apply-entry: k8s-check-kubeconfig
-	@if [ ! -f "$(K8S_ENTRY)" ]; then \
-		echo "Error: K8S_ENTRY not found: $(K8S_ENTRY)"; \
+	@if [ ! -f "$(K8S_ENTRY_VALUES)" ]; then \
+		echo "Error: K8S_ENTRY_VALUES not found: $(K8S_ENTRY_VALUES)"; \
 		exit 1; \
 	fi
-	$(K8S_KUBECTL) apply -f $(K8S_ENTRY)
+	$(K8S_HELM) upgrade --install $(K8S_ENTRY_RELEASE) $(K8S_ENTRY_CHART) -f $(K8S_ENTRY_VALUES) --namespace $(K8S_NAMESPACE) --create-namespace
 
 k8s-delete-entry: k8s-check-kubeconfig
-	@if [ ! -f "$(K8S_ENTRY)" ]; then \
-		echo "Error: K8S_ENTRY not found: $(K8S_ENTRY)"; \
-		exit 1; \
-	fi
-	$(K8S_KUBECTL) delete -f $(K8S_ENTRY) --ignore-not-found
+	$(K8S_HELM) uninstall $(K8S_ENTRY_RELEASE) --namespace $(K8S_NAMESPACE) --ignore-not-found
 
 k8s-status: k8s-check-kubeconfig
 	$(K8S_KUBECTL) get deploy,svc,pods -A -l app.kubernetes.io/part-of=ai-trust-game

@@ -5,10 +5,23 @@ Services provide environment-specific values next to their code.
 
 ## Layout
 
-Shared chart:
+Shared service chart:
 
 ```text
-infrastructure/k8s/chart/
+infrastructure/k8s/service-chart/
+  Chart.yaml
+  values.yaml
+  values.schema.json
+  templates/
+    config-map.yaml
+    deployment.yaml
+    service.yaml
+```
+
+Shared app entry chart:
+
+```text
+infrastructure/k8s/entry-chart/
   Chart.yaml
   values.yaml
   values.schema.json
@@ -27,20 +40,20 @@ services/main-service/k8s/
   values-prod.yaml
 ```
 
-Frontend values and explicit app entry manifests:
+Frontend values and app entry chart:
 
 ```text
 app/k8s/
   values-dev.yaml
   values-test.yaml
   values-prod.yaml
-  entry-dev.yaml
-  entry-test.yaml
-  entry-prod.yaml
+  entry-values-dev.yaml
+  entry-values-test.yaml
+  entry-values-prod.yaml
 ```
 
 The shared chart renders the common `Deployment`, `Service`, and `ConfigMap`.
-Namespaces and app entry resources are intentionally outside the shared chart.
+The app entry chart renders the Nginx entrypoint that routes frontend and backend traffic through one NodePort service.
 
 ## Namespaces
 
@@ -127,7 +140,7 @@ Remove a release:
 make k8s-delete TARGET_ENV=dev
 ```
 
-Apply or remove the explicit app entry:
+Apply or remove the app entry Helm release:
 
 ```sh
 make k8s-apply-entry TARGET_ENV=dev

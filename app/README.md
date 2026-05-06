@@ -114,7 +114,7 @@ flutter run --flavor prod -d android --dart-define=APP_ENV=prod --dart-define=AP
 ```
 
 If `APP_ENV` is not provided, the app defaults to `dev`.
-If `API_BASE_URL` is not provided, the app defaults to `http://raspberrypi.tail164eef.ts.net:30080`.
+If `API_BASE_URL` is not provided, the app defaults to `http://localhost:8080`.
 
 Current test structure:
 

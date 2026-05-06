@@ -97,18 +97,18 @@ Model provider values are read from `COMPOSE_ENV_FILE`, which defaults to
   installs or upgrades the Flutter web frontend using values from `app/k8s`
 
 - `make k8s-deploy [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]`
-  deploys the prepared services for the selected environment and applies the environment app entry when a matching
-  manifest exists.
+  deploys the prepared services for the selected environment and applies the environment app entry when matching
+  values exist.
   If `K8S_IMAGE_TAG` is omitted, the current Git commit SHA is used as the image tag
 
 - `make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
   uninstalls the selected Helm release from the selected environment namespace
 
 - `make k8s-apply-entry [TARGET_ENV=dev|test|prod]`
-  applies the explicit app entry manifest for the selected environment when one exists
+  installs or upgrades the app entry Helm release for the selected environment
 
 - `make k8s-delete-entry [TARGET_ENV=dev|test|prod]`
-  deletes the explicit app entry manifest for the selected environment when one exists
+  uninstalls the app entry Helm release for the selected environment
 
 - `make k8s-status`
   shows the deployed Kubernetes workloads and services labeled as part of `ai-trust-game` across all namespaces

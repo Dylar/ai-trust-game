@@ -4,16 +4,13 @@ class AppConfig {
   const AppConfig({required this.apiBaseUri, required this.flavor});
 
   factory AppConfig.fromEnvironment() {
-    const envName = String.fromEnvironment(
-      'APP_ENV',
-      defaultValue: 'dev',
-    );
+    const envName = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
 
     return AppConfig(
       apiBaseUri: Uri.parse(
         const String.fromEnvironment(
           'API_BASE_URL',
-          defaultValue: 'http://raspberrypi.tail164eef.ts.net:30080',
+          defaultValue: 'http://localhost:8080',
         ),
       ),
       flavor: AppFlavor.fromName(envName),

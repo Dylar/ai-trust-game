@@ -170,5 +170,5 @@ For a local full-stack container run together with the Flutter web app, use the 
 Service-owned Kubernetes values live in [`k8s/`](./k8s/).
 
 They define the `main-service` values for `dev`, `test`, and `prod`.
-The shared chart that renders the `Deployment`, `Service`, `ConfigMap`, and namespace lives under
-[`infrastructure/k8s/chart`](../../infrastructure/k8s/chart/).
+The shared service chart that renders the `Deployment`, `Service`, and `ConfigMap` lives under
+[`infrastructure/k8s/service-chart`](../../infrastructure/k8s/service-chart/).

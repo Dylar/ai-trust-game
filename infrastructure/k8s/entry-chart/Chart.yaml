@@ -1,0 +1,6 @@
+apiVersion: v2
+name: app-entry
+description: Kubernetes entrypoint chart for routing the app frontend and backend through one service.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
