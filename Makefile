@@ -15,18 +15,19 @@ K8S_VALUES ?= $(K8S_CONFIG_DIR)/values-$(TARGET_ENV).yaml
 K8S_NAMESPACE ?= atg-$(TARGET_ENV)
 K8S_INGRESS ?= $(K8S_CONFIG_DIR)/ingress-$(TARGET_ENV).yaml
 K8S_ENVS ?= dev test prod
+K8S_SERVICES ?= main-service frontend-web
 K8S_IMAGE_TAG ?=
 K8S_MANUAL_TAG_PREFIX ?= manual-deploy
 K8S_KUBECONFIG ?= $(HOME)/.kube/ai-trust-game-pi.yaml
 K8S_KUBECTL ?= kubectl --kubeconfig $(K8S_KUBECONFIG)
 K8S_HELM ?= helm --kubeconfig $(K8S_KUBECONFIG)
-MANUAL_DEPLOY_WORKFLOW ?= deploy.yml
+K8S_DOCKER_PLATFORM ?= linux/arm64
 K8S_SET_ARGS :=
 ifneq ($(strip $(K8S_IMAGE_TAG)),)
 K8S_SET_ARGS += --set image.tag=$(K8S_IMAGE_TAG)
 endif
 
-.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-lint k8s-template k8s-check-kubeconfig k8s-context k8s-apply k8s-delete k8s-apply-ingress k8s-delete-ingress k8s-status manual-deploy-tag manual-deploy manuel-deploy
+.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-lint k8s-template k8s-check-kubeconfig k8s-context k8s-build-push k8s-apply k8s-deploy k8s-delete k8s-apply-ingress k8s-delete-ingress k8s-status manual-deploy-tag manual-deploy manuel-deploy
 
 help:
 	@echo "Commands:"
@@ -48,13 +49,15 @@ help:
 	@echo "  make k8s-lint [K8S_SERVICE=main-service] [K8S_ENVS='dev test prod']"
 	@echo "  make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make k8s-context [K8S_KUBECONFIG=~/.kube/ai-trust-game-pi.yaml]"
+	@echo "  make k8s-build-push K8S_SERVICE=main-service TARGET_ENV=dev K8S_IMAGE_TAG=<tag>"
 	@echo "  make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make k8s-apply K8S_SERVICE=frontend-web TARGET_ENV=dev [K8S_IMAGE_TAG=<tag>]"
+	@echo "  make k8s-deploy [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
-	@echo "  make k8s-apply-ingress [K8S_SERVICE=main-service] [TARGET_ENV=dev]"
-	@echo "  make k8s-delete-ingress [K8S_SERVICE=main-service] [TARGET_ENV=dev]"
+	@echo "  make k8s-apply-ingress K8S_SERVICE=frontend-web [TARGET_ENV=dev]"
+	@echo "  make k8s-delete-ingress K8S_SERVICE=frontend-web [TARGET_ENV=dev]"
 	@echo "  make k8s-status"
-	@echo "  make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev [K8S_IMAGE_TAG=<tag>]"
+	@echo "  make manual-deploy TARGET_ENV=dev [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make manual-deploy-tag"
 	@echo "  make test"
 	@echo "  make lint"
@@ -153,6 +156,38 @@ k8s-context: k8s-check-kubeconfig
 	@$(K8S_KUBECTL) config current-context
 	@$(K8S_KUBECTL) get nodes
 
+k8s-build-push:
+	@if [ -z "$(K8S_IMAGE_TAG)" ]; then \
+		echo "Error: K8S_IMAGE_TAG missing"; \
+		exit 1; \
+	fi
+	@image_repo=$$(yq eval -r '.image.repository' "$(K8S_VALUES)"); \
+	if [ -z "$$image_repo" ] || [ "$$image_repo" = "null" ]; then \
+		echo "Error: image.repository missing in $(K8S_VALUES)"; \
+		exit 1; \
+	fi; \
+	echo "Building and pushing $(K8S_SERVICE) for $(TARGET_ENV) as $$image_repo:$(K8S_IMAGE_TAG)"; \
+	case "$(K8S_SERVICE)" in \
+		main-service) \
+			docker buildx build \
+				--platform $(K8S_DOCKER_PLATFORM) \
+				--build-arg SERVICE=main-service \
+				-f ./infrastructure/docker/go-service.Dockerfile \
+				-t "$$image_repo:$(K8S_IMAGE_TAG)" \
+				--push . ;; \
+		frontend-web) \
+			docker buildx build \
+				--platform $(K8S_DOCKER_PLATFORM) \
+				--build-arg APP_ENV=$(TARGET_ENV) \
+				--build-arg API_BASE_URL="$(API_BASE_URL)" \
+				-f ./infrastructure/docker/flutter-web.Dockerfile \
+				-t "$$image_repo:$(K8S_IMAGE_TAG)" \
+				--push . ;; \
+		*) \
+			echo "Error: unsupported K8S_SERVICE for k8s-build-push: $(K8S_SERVICE)"; \
+			exit 1 ;; \
+	esac
+
 k8s-apply: k8s-check-kubeconfig
 	@image_tag="$(K8S_IMAGE_TAG)"; \
 	if [ -z "$$image_tag" ]; then \
@@ -160,6 +195,20 @@ k8s-apply: k8s-check-kubeconfig
 	fi; \
 	echo "Deploying $(K8S_RELEASE) to $(K8S_NAMESPACE) with image tag $$image_tag"; \
 	$(K8S_HELM) upgrade --install $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES) --set image.tag=$$image_tag --namespace $(K8S_NAMESPACE) --create-namespace
+
+k8s-deploy: k8s-check-kubeconfig
+	@image_tag="$(K8S_IMAGE_TAG)"; \
+	if [ -z "$$image_tag" ]; then \
+		image_tag=$$(git rev-parse HEAD); \
+	fi; \
+	for service in $(K8S_SERVICES); do \
+		$(MAKE) k8s-apply K8S_SERVICE=$$service TARGET_ENV=$(TARGET_ENV) K8S_IMAGE_TAG=$$image_tag || exit $$?; \
+	done; \
+	if [ -f "./app/k8s/ingress-$(TARGET_ENV).yaml" ]; then \
+		$(MAKE) k8s-apply-ingress K8S_SERVICE=frontend-web TARGET_ENV=$(TARGET_ENV); \
+	else \
+		echo "No ingress manifest for $(TARGET_ENV), skipping ingress."; \
+	fi
 
 k8s-delete: k8s-check-kubeconfig
 	$(K8S_HELM) uninstall $(K8S_RELEASE) --namespace $(K8S_NAMESPACE)
@@ -183,21 +232,28 @@ k8s-status: k8s-check-kubeconfig
 
 manual-deploy-tag:
 	@commit_sha=$$(git rev-parse --short=12 HEAD); \
+	dirty_suffix=""; \
+	if ! git diff --quiet || ! git diff --cached --quiet; then \
+		dirty_suffix="-dirty"; \
+	fi; \
 	timestamp=$$(date +%Y-%m-%d-%H-%M); \
-	echo "$(K8S_MANUAL_TAG_PREFIX)-$$commit_sha-$$timestamp"
+	echo "$(K8S_MANUAL_TAG_PREFIX)-$$commit_sha$$dirty_suffix-$$timestamp"
 
 manual-deploy:
 	@image_tag="$(K8S_IMAGE_TAG)"; \
 	if [ -z "$$image_tag" ]; then \
 		commit_sha=$$(git rev-parse --short=12 HEAD); \
+		dirty_suffix=""; \
+		if ! git diff --quiet || ! git diff --cached --quiet; then \
+			dirty_suffix="-dirty"; \
+		fi; \
 		timestamp=$$(date +%Y-%m-%d-%H-%M); \
-		image_tag="$(K8S_MANUAL_TAG_PREFIX)-$$commit_sha-$$timestamp"; \
+		image_tag="$(K8S_MANUAL_TAG_PREFIX)-$$commit_sha$$dirty_suffix-$$timestamp"; \
 	fi; \
-	echo "Triggering $(MANUAL_DEPLOY_WORKFLOW) for $(K8S_SERVICE) $(TARGET_ENV) with image tag $$image_tag"; \
-	gh workflow run $(MANUAL_DEPLOY_WORKFLOW) \
-		-f service=$(K8S_SERVICE) \
-		-f environment=$(TARGET_ENV) \
-		-f image-tag=$$image_tag
+	for service in $(K8S_SERVICES); do \
+		$(MAKE) k8s-build-push K8S_SERVICE=$$service TARGET_ENV=$(TARGET_ENV) K8S_IMAGE_TAG=$$image_tag API_BASE_URL="$(API_BASE_URL)" || exit $$?; \
+	done; \
+	$(MAKE) k8s-deploy TARGET_ENV=$(TARGET_ENV) K8S_IMAGE_TAG=$$image_tag
 
 manuel-deploy: manual-deploy
 

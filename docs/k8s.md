@@ -101,8 +101,7 @@ make k8s-lint
 Deploy an environment:
 
 ```sh
-make k8s-apply TARGET_ENV=dev
-make k8s-apply K8S_SERVICE=frontend-web TARGET_ENV=dev
+make k8s-deploy TARGET_ENV=dev
 ```
 
 If `K8S_IMAGE_TAG` is omitted, the current Git commit SHA is used as the image tag.
@@ -111,7 +110,13 @@ That tag must already exist in GHCR.
 Override the image tag:
 
 ```sh
-make k8s-apply TARGET_ENV=dev K8S_IMAGE_TAG=<tag>
+make k8s-deploy TARGET_ENV=dev K8S_IMAGE_TAG=<tag>
+```
+
+Build the current local working tree, push images, and deploy them:
+
+```sh
+make manual-deploy TARGET_ENV=dev
 ```
 
 Remove a release:
@@ -123,8 +128,8 @@ make k8s-delete TARGET_ENV=dev
 Apply or remove the explicit dev Ingress:
 
 ```sh
-make k8s-apply-ingress TARGET_ENV=dev
-make k8s-delete-ingress TARGET_ENV=dev
+make k8s-apply-ingress K8S_SERVICE=frontend-web TARGET_ENV=dev
+make k8s-delete-ingress K8S_SERVICE=frontend-web TARGET_ENV=dev
 ```
 
 Check deployed resources:
