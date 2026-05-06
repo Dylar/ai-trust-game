@@ -36,7 +36,9 @@ The repository root `Makefile` is a small entrypoint that includes focused files
 
 The compose stack is optional local development tooling. It is not part of the Kubernetes deployment path.
 
-Compose values are read from `COMPOSE_ENV_FILE`, which defaults to `infrastructure/env/<TARGET_ENV>.env`.
+Compose uses `COMPOSE_FILE`, which defaults to `infrastructure/docker/compose/compose.yml`.
+Compose values are read from `COMPOSE_ENV_FILE`, which defaults to
+`infrastructure/docker/compose/env/<TARGET_ENV>.env`.
 The compose file intentionally does not define fallback defaults for required runtime values; missing values are reported
 by `make compose-check-env` before Docker Compose starts.
 
@@ -44,7 +46,8 @@ by `make compose-check-env` before Docker Compose starts.
   builds the current compose stack images without starting the containers
 
 - `make compose-up [TARGET_ENV=dev|test]`
-  builds and starts the local stack from `compose.yml` using the selected env file under `infrastructure/env/`
+  builds and starts the local stack from the Docker Compose file using the selected env file under
+  `infrastructure/docker/compose/env/`
   (e.g., `make compose-up TARGET_ENV=test`)
 
 - `make compose-up-detached [TARGET_ENV=dev|test]`
@@ -60,7 +63,7 @@ by `make compose-check-env` before Docker Compose starts.
   restarts the current compose containers without rebuilding the images
 
 - `make compose-down`
-  stops and removes the local stack started through `compose.yml`
+  stops and removes the local stack started through the Docker Compose file
 
 - `make compose-logs`
   follows the combined logs of the current compose stack

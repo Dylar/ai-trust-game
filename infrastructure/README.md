@@ -12,14 +12,11 @@ It is intentionally separate from `tooling/`:
 - [`docker/`](./docker/)
   shared Docker build definitions for services
 
-- [`../compose.yml`](../compose.yml)
-  optional local multi-container stack definition for running backend and web containers outside Kubernetes
-
-- [`env/`](./env/)
-  environment variable files for local compose stack variants such as `dev` and `test`
-
 - [`make/`](./make/)
   focused Makefile fragments included by the repository root `Makefile`
+
+- [`docker/compose/`](./docker/compose/)
+  optional local Docker Compose stack and environment files for running backend and web containers outside Kubernetes
 
 - [`.github/workflows/`](../.github/workflows/)
   reusable GitHub Actions building blocks plus small caller workflows for `PR -> test` and `push -> master`
@@ -27,7 +24,7 @@ It is intentionally separate from `tooling/`:
 - [`k8s/`](./k8s/)
   shared Kubernetes Helm charts and deployment assets
 
-The `env/` and `k8s/` directories are intentionally lightweight Phase 11 starting points.
+The Docker Compose and Kubernetes directories are intentionally lightweight Phase 11 starting points.
 Right now they keep environment selection and shared Kubernetes charting simple while the project still runs as one main
 service plus one frontend stack.
 Later, once multiple services and Kubernetes-specific environment differences become concrete, this may evolve into a
