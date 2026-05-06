@@ -54,6 +54,8 @@ jobs:
           mkdir -p "$HOME/.kube"
           echo "$KUBE_CONFIG_B64" | base64 --decode > "$HOME/.kube/config"
           chmod 600 "$HOME/.kube/config"
+          kubectl config current-context
+          kubectl get nodes
 
       - name: Resolve Kubernetes values
         id: k8s
@@ -78,3 +80,7 @@ jobs:
             --set image.tag="${{ inputs.image-tag }}" \
             --namespace "atg-${{ inputs.environment }}" \
             --create-namespace
+
+      - name: Apply dev entry ingress
+        if: ${{ inputs.environment == 'dev' }}
+        run: kubectl apply -f ./app/k8s/ingress-dev.yaml

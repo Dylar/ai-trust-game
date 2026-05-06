@@ -188,12 +188,16 @@ It routes backend paths such as `/session`, `/interaction`, `/analysis`, and `/h
 It routes `/` to `frontend-web:80`.
 The long-term public entry point should move to a future `gateway-service`.
 
+## GitHub Actions Deploy
+
+The deploy workflow runs on GitHub-hosted runners and expects `KUBE_CONFIG_B64` to contain a kubeconfig
+for a securely reachable Kubernetes API.
+
+Do not use a self-hosted GitHub Actions runner for this public repository unless the repository becomes private
+or the runner is explicitly hardened for public-repository risk.
+For the current Raspberry Pi dev cluster, prefer workstation-local deploys with `make k8s-apply`.
+
 ## Secrets
-
-GitHub Actions deployment expects:
-
-- `KUBE_CONFIG_B64`
-  base64-encoded kubeconfig for the target environment
 
 The chart optionally references:
 

@@ -52,6 +52,12 @@ Your goal is to:
 Documentation is always written in English.
 You MUST update documentation if ANY of the following changes:
 
+### Working notes
+
+* Use [AGENT-notes.md](./AGENT-notes.md) for temporary notes, discussed decisions, open questions, and follow-up items from repository work.
+* Keep stable documentation in the focused docs such as `k8s.md`, `commands.md`, and architecture docs.
+* Move durable decisions from the notes file into the focused documentation once they become part of the project baseline.
+
 ### Update architecture docs if:
 
 * data flow changes

@@ -1,7 +1,9 @@
-# Phase 11 Notes
+# AGENT Notes
 
-This file holds temporary notes, setup steps, and follow-up items for the Phase 11 Kubernetes rollout.
+This file holds temporary notes, discussed decisions, open questions, and follow-up items from repository work.
 Keep stable project documentation in the focused docs such as `k8s.md` and `commands.md`.
+
+## Phase 11 Notes
 
 ## Current Cluster State
 
@@ -123,6 +125,23 @@ Do not expose the Kubernetes API through the tunnel.
 
 - Decide whether the dev Ingress should stay hostless or use the final Cloudflare hostname.
 - Move the public cluster entry point from `main-service` to `gateway-service` in Phase 12.
-- Decide whether deployments should continue from the workstation or move to a self-hosted GitHub runner inside the
-  home network.
+- Choose a safe GitHub Actions deploy strategy for the Raspberry Pi k3s cluster.
 - Review and simplify documentation after Phase 11 is finished.
+
+## GitHub Actions Deploy Strategy
+
+Do not use a self-hosted GitHub Actions runner on the Raspberry Pi while the repository is public.
+GitHub warns that forks of public repositories can potentially run dangerous code on self-hosted runners through pull requests.
+That makes a home-network runner too risky as the default Phase 11 solution.
+
+Current safe baseline:
+
+- deploy from the workstation with `make k8s-apply`
+- keep GitHub Actions deploy on GitHub-hosted runners
+- require a securely reachable Kubernetes API and `KUBE_CONFIG_B64` before using the GitHub Actions deploy workflow
+
+Possible later options:
+
+- make the repository private and revisit a locked-down self-hosted runner
+- expose only the Kubernetes API through a hardened private network path
+- use a deployment pull agent such as Argo CD or Flux inside the cluster

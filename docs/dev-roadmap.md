@@ -140,6 +140,7 @@ Goal: validate system behavior through real user interaction
 - deployment automation
 - Docker and Kubernetes setup
 - production-like local and remote runtime setup
+- safe deploy automation for the Raspberry Pi k3s cluster without using an unsafe public-repository self-hosted runner
 
 Goal: run the system in a production-like environment
 
