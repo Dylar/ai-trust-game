@@ -193,5 +193,5 @@ Rebuild and recreate the stack in the background after code changes:
 make compose-rebuild-detached
 ```
 
-The compose setup reads `APP_ENV`, `API_BASE_URL`, and port mappings from the selected env file under
-`infrastructure/docker/compose/env/`. Missing required values are reported before Docker Compose starts.
+The compose setup keeps local ports and `API_BASE_URL` in the Compose file. The selected env file under
+`infrastructure/docker/compose/env/` only configures the model provider used by the backend.

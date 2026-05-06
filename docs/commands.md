@@ -37,29 +37,29 @@ The repository root `Makefile` is a small entrypoint that includes focused files
 The compose stack is optional local development tooling. It is not part of the Kubernetes deployment path.
 
 Compose uses `COMPOSE_FILE`, which defaults to `infrastructure/docker/compose/compose.yml`.
-Compose values are read from `COMPOSE_ENV_FILE`, which defaults to
-`infrastructure/docker/compose/env/<TARGET_ENV>.env`.
-The compose file intentionally does not define fallback defaults for required runtime values; missing values are reported
-by `make compose-check-env` before Docker Compose starts.
+Container-to-container and browser-to-backend communication is local in that file.
+The root compose file includes the backend and web compose files from the same directory.
+Model provider values are read from `COMPOSE_ENV_FILE`, which defaults to
+`infrastructure/docker/compose/env/<COMPOSE_MODEL_ENV>.env`.
 
-- `make compose-build [TARGET_ENV=dev|test]`
+- `make compose-build [COMPOSE_MODEL_ENV=static]`
   builds the current compose stack images without starting the containers
 
-- `make compose-up [TARGET_ENV=dev|test]`
+- `make compose-up [COMPOSE_MODEL_ENV=static]`
   builds and starts the local stack from the Docker Compose file using the selected env file under
   `infrastructure/docker/compose/env/`
-  (e.g., `make compose-up TARGET_ENV=test`)
+  (e.g., copy `groq.env.example` to `groq.env`, fill it, then run `make compose-up COMPOSE_MODEL_ENV=groq`)
 
-- `make compose-up-detached [TARGET_ENV=dev|test]`
+- `make compose-up-detached [COMPOSE_MODEL_ENV=static]`
   builds and starts the local stack in the background
 
-- `make compose-rebuild [TARGET_ENV=dev|test]`
+- `make compose-rebuild [COMPOSE_MODEL_ENV=static]`
   rebuilds and recreates the current compose stack in one step
 
-- `make compose-rebuild-detached [TARGET_ENV=dev|test]`
+- `make compose-rebuild-detached [COMPOSE_MODEL_ENV=static]`
   rebuilds and recreates the current compose stack in the background
 
-- `make compose-restart [TARGET_ENV=dev|test]`
+- `make compose-restart [COMPOSE_MODEL_ENV=static]`
   restarts the current compose containers without rebuilding the images
 
 - `make compose-down`
@@ -71,7 +71,7 @@ by `make compose-check-env` before Docker Compose starts.
 - `make compose-ps`
   shows the current compose containers and their status, including health state when available
 
-- `make compose-check-env [TARGET_ENV=dev|test]`
+- `make compose-check-env [COMPOSE_MODEL_ENV=static]`
   validates that the selected compose env file exists and contains the required compose variables
 
 ## Kubernetes

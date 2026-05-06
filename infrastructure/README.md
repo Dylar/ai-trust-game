@@ -16,7 +16,7 @@ It is intentionally separate from `tooling/`:
   focused Makefile fragments included by the repository root `Makefile`
 
 - [`docker/compose/`](./docker/compose/)
-  optional local Docker Compose stack and environment files for running backend and web containers outside Kubernetes
+  optional local Docker Compose stack split into a root include file plus backend, web, and model environment files
 
 - [`.github/workflows/`](../.github/workflows/)
   reusable GitHub Actions building blocks plus small caller workflows for `PR -> test` and `push -> master`

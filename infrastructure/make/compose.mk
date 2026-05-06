@@ -1,6 +1,7 @@
 COMPOSE_FILE ?= ./infrastructure/docker/compose/compose.yml
-COMPOSE_ENV_FILE ?= ./infrastructure/docker/compose/env/$(TARGET_ENV).env
-COMPOSE_REQUIRED_VARS ?= APP_ENV API_BASE_URL BACKEND_PORT FRONTEND_PORT LLM_PROVIDER
+COMPOSE_MODEL_ENV ?= static
+COMPOSE_ENV_FILE ?= ./infrastructure/docker/compose/env/$(COMPOSE_MODEL_ENV).env
+COMPOSE_REQUIRED_VARS ?= LLM_PROVIDER
 COMPOSE := docker compose --file $(COMPOSE_FILE) --env-file $(COMPOSE_ENV_FILE)
 
 .PHONY: compose-check-env compose-build compose-up-run compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart
@@ -13,7 +14,7 @@ compose-check-env:
 	fi; \
 	if [ ! -f "$(COMPOSE_ENV_FILE)" ]; then \
 		echo "Warning: COMPOSE_ENV_FILE not found: $(COMPOSE_ENV_FILE)"; \
-		echo "Set TARGET_ENV to an existing env file or pass COMPOSE_ENV_FILE=<path>."; \
+		echo "Set COMPOSE_MODEL_ENV to an existing model env file or pass COMPOSE_ENV_FILE=<path>."; \
 		exit 1; \
 	fi; \
 	missing=0; \
