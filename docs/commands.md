@@ -1,5 +1,14 @@
 # Development Commands
 
+The repository root `Makefile` is a small entrypoint that includes focused files under
+[`../infrastructure/make`](../infrastructure/make/):
+
+- `common.mk` for shared defaults
+- `go.mk` for local Go commands
+- `docker.mk` for single-service Docker commands
+- `compose.mk` for the optional local compose stack
+- `k8s.mk` for Kubernetes deployment commands
+
 ## Local Service Run
 
 - `make run SERVICE=<service-name>`
@@ -24,6 +33,12 @@
   (e.g., `make docker-logs SERVICE=main-service`)
 
 ## Compose Stack
+
+The compose stack is optional local development tooling. It is not part of the Kubernetes deployment path.
+
+Compose values are read from `COMPOSE_ENV_FILE`, which defaults to `infrastructure/env/<TARGET_ENV>.env`.
+The compose file intentionally does not define fallback defaults for required runtime values; missing values are reported
+by `make compose-check-env` before Docker Compose starts.
 
 - `make compose-build [TARGET_ENV=dev|test]`
   builds the current compose stack images without starting the containers
@@ -52,6 +67,9 @@
 
 - `make compose-ps`
   shows the current compose containers and their status, including health state when available
+
+- `make compose-check-env [TARGET_ENV=dev|test]`
+  validates that the selected compose env file exists and contains the required compose variables
 
 ## Kubernetes
 

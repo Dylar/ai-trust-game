@@ -13,10 +13,13 @@ It is intentionally separate from `tooling/`:
   shared Docker build definitions for services
 
 - [`../compose.yml`](../compose.yml)
-  local multi-container stack definition for the current development setup
+  optional local multi-container stack definition for running backend and web containers outside Kubernetes
 
 - [`env/`](./env/)
-  shared environment variable files for local stack variants such as `dev` and `test`
+  environment variable files for local compose stack variants such as `dev` and `test`
+
+- [`make/`](./make/)
+  focused Makefile fragments included by the repository root `Makefile`
 
 - [`.github/workflows/`](../.github/workflows/)
   reusable GitHub Actions building blocks plus small caller workflows for `PR -> test` and `push -> master`

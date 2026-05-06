@@ -146,7 +146,7 @@ For a manual local run:
 
 ## Containerized Local Stack
 
-The repository root `compose.yml` can build and run the current local stack:
+The repository root `compose.yml` can build and run an optional local container stack:
 
 - `main-service` on `http://localhost:8080`
 - Flutter web app on `http://localhost:3000`
@@ -193,5 +193,5 @@ Rebuild and recreate the stack in the background after code changes:
 make compose-rebuild-detached
 ```
 
-The compose setup currently builds the web app with `APP_ENV=dev` and the `API_BASE_URL` from `infrastructure/env/dev.env`.
-Prepared env files currently live under `infrastructure/env/`.
+The compose setup reads `APP_ENV`, `API_BASE_URL`, and port mappings from the selected env file under
+`infrastructure/env/`. Missing required values are reported before Docker Compose starts.
