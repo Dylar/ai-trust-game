@@ -41,4 +41,4 @@ jobs:
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       build-args: |
         APP_ENV=dev
-        API_BASE_URL=http://raspberrypi.tail164eef.ts.net
+        API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080

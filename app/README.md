@@ -89,7 +89,7 @@ The API base URL is read from `API_BASE_URL` via `--dart-define`.
 For local web runs:
 
 ```bash
-flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net
+flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080
 ```
 
 For Android emulator runs against the local workstation backend, use the host bridge address instead of `localhost`:
@@ -101,7 +101,7 @@ flutter run --flavor dev -d android --dart-define=APP_ENV=dev --dart-define=API_
 For Android runs against the Raspberry Pi dev cluster, use the Tailscale MagicDNS origin:
 
 ```bash
-flutter run --flavor dev -d android --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net
+flutter run --flavor dev -d android --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080
 ```
 
 For test and prod Android builds, switch the native flavor and matching Dart define.
@@ -114,7 +114,7 @@ flutter run --flavor prod -d android --dart-define=APP_ENV=prod --dart-define=AP
 ```
 
 If `APP_ENV` is not provided, the app defaults to `dev`.
-If `API_BASE_URL` is not provided, the app defaults to `http://raspberrypi.tail164eef.ts.net`.
+If `API_BASE_URL` is not provided, the app defaults to `http://raspberrypi.tail164eef.ts.net:30080`.
 
 Current test structure:
 
@@ -138,7 +138,7 @@ For a manual local run:
 2. Start the Flutter web client from `app/`:
 
    ```bash
-   flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net
+   flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080
    ```
 
 3. Create a session, send one or more messages, then use the session and interaction analysis links from the

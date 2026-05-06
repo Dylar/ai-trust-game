@@ -81,6 +81,12 @@ jobs:
             --namespace "atg-${{ inputs.environment }}" \
             --create-namespace
 
-      - name: Apply dev entry ingress
-        if: ${{ inputs.environment == 'dev' }}
-        run: kubectl apply -f ./app/k8s/ingress-dev.yaml
+      - name: Apply app entry
+        shell: bash
+        run: |
+          entry_file="./app/k8s/entry-${{ inputs.environment }}.yaml"
+          if [ -f "$entry_file" ]; then
+            kubectl apply -f "$entry_file"
+          else
+            echo "No app entry manifest found for ${{ inputs.environment }}."
+          fi

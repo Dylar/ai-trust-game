@@ -76,18 +76,18 @@
   installs or upgrades the Flutter web frontend using values from `app/k8s`
 
 - `make k8s-deploy [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]`
-  deploys the prepared services for the selected environment and applies the environment Ingress when a matching
+  deploys the prepared services for the selected environment and applies the environment app entry when a matching
   manifest exists.
   If `K8S_IMAGE_TAG` is omitted, the current Git commit SHA is used as the image tag
 
 - `make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
   uninstalls the selected Helm release from the selected environment namespace
 
-- `make k8s-apply-ingress K8S_SERVICE=frontend-web [TARGET_ENV=dev]`
-  applies the explicit service-owned Ingress manifest when one exists
+- `make k8s-apply-entry [TARGET_ENV=dev|test|prod]`
+  applies the explicit app entry manifest for the selected environment when one exists
 
-- `make k8s-delete-ingress K8S_SERVICE=frontend-web [TARGET_ENV=dev]`
-  deletes the explicit service-owned Ingress manifest when one exists
+- `make k8s-delete-entry [TARGET_ENV=dev|test|prod]`
+  deletes the explicit app entry manifest for the selected environment when one exists
 
 - `make k8s-status`
   shows the deployed Kubernetes workloads and services labeled as part of `ai-trust-game` across all namespaces

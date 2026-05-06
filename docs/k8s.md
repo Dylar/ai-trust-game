@@ -27,18 +27,20 @@ services/main-service/k8s/
   values-prod.yaml
 ```
 
-Frontend values and the temporary dev entry Ingress:
+Frontend values and explicit app entry manifests:
 
 ```text
 app/k8s/
   values-dev.yaml
   values-test.yaml
   values-prod.yaml
-  ingress-dev.yaml
+  entry-dev.yaml
+  entry-test.yaml
+  entry-prod.yaml
 ```
 
 The shared chart renders the common `Deployment`, `Service`, and `ConfigMap`.
-Namespaces and Ingress resources are intentionally outside the shared chart.
+Namespaces and app entry resources are intentionally outside the shared chart.
 
 ## Namespaces
 
@@ -125,18 +127,18 @@ Remove a release:
 make k8s-delete TARGET_ENV=dev
 ```
 
-Apply or remove the explicit dev Ingress:
+Apply or remove the explicit app entry:
 
 ```sh
-make k8s-apply-ingress K8S_SERVICE=frontend-web TARGET_ENV=dev
-make k8s-delete-ingress K8S_SERVICE=frontend-web TARGET_ENV=dev
+make k8s-apply-entry TARGET_ENV=dev
+make k8s-delete-entry TARGET_ENV=dev
 ```
 
 Check deployed resources:
 
 ```sh
 make k8s-status
-KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get ingress -n atg-dev
+KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get svc app-entry -n atg-dev
 ```
 
 ## Images
@@ -175,20 +177,23 @@ Set these GitHub repository variables before publishing frontend images for real
 For Tailscale dev, `DEV_API_BASE_URL` should point to the MagicDNS HTTP origin:
 
 ```text
-http://raspberrypi.tail164eef.ts.net
+http://raspberrypi.tail164eef.ts.net:30080
 ```
 
-## Ingress
-
-The shared Helm chart does not create generic Ingress resources.
-Ingress resources are explicit service-owned manifests.
-
-The current temporary dev entry point is:
+For the current Tailscale setup, the environment ports are:
 
 ```text
-app/k8s/ingress-dev.yaml
+dev   http://raspberrypi.tail164eef.ts.net:30080
+test  http://raspberrypi.tail164eef.ts.net:30081
+prod  http://raspberrypi.tail164eef.ts.net:30082
 ```
 
+## App Entry
+
+The shared Helm chart does not create generic public entry points.
+The current Tailscale entry points are explicit app-owned manifests under `app/k8s/entry-<env>.yaml`.
+
+Each app entry creates a small Nginx reverse proxy and exposes it as a `NodePort`.
 It routes backend paths such as `/session`, `/interaction`, `/analysis`, and `/healthz` to `main-service:8080`.
 It routes `/` to `frontend-web:80`.
 The long-term public entry point should move to a future `gateway-service`.
@@ -200,7 +205,7 @@ for a securely reachable Kubernetes API.
 
 Do not use a self-hosted GitHub Actions runner for this public repository unless the repository becomes private
 or the runner is explicitly hardened for public-repository risk.
-For the current Raspberry Pi dev cluster, prefer workstation-local deploys with `make k8s-apply`.
+For the current Raspberry Pi dev cluster, prefer workstation-local deploys with `make k8s-deploy`.
 
 ## Secrets
 

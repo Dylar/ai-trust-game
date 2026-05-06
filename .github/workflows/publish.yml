@@ -52,7 +52,7 @@ jobs:
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       build-args: |
         APP_ENV=dev
-        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net' }}
+        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30080' }}
 
   publish-main-service:
     needs:
@@ -87,7 +87,7 @@ jobs:
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=dev
-        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net' }}
+        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30080' }}
 
   publish-frontend-web-test:
     needs:
@@ -105,7 +105,7 @@ jobs:
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=test
-        API_BASE_URL=${{ vars.TEST_API_BASE_URL || 'http://localhost:8080' }}
+        API_BASE_URL=${{ vars.TEST_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30081' }}
 
   publish-frontend-web-prod:
     needs:
@@ -123,4 +123,4 @@ jobs:
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=prod
-        API_BASE_URL=${{ vars.PROD_API_BASE_URL || 'https://api.example.com' }}
+        API_BASE_URL=${{ vars.PROD_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30082' }}

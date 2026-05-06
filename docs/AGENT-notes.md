@@ -11,7 +11,7 @@ Keep stable project documentation in the focused docs such as `k8s.md` and `comm
 - Workstation uses a dedicated kubeconfig at `~/.kube/ai-trust-game-pi.yaml`.
 - First namespace: `atg-dev`.
 - `main-service` deploys through Helm.
-- `app-entry` is the temporary explicit dev Ingress at `app/k8s/ingress-dev.yaml`.
+- `app-entry` is the temporary explicit per-environment NodePort entry under `app/k8s/entry-<env>.yaml`.
 - Long-term ingress ownership should move to a future `gateway-service`.
 
 ## Cloudflare Tunnel Setup
@@ -47,11 +47,11 @@ KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get ingressclass
 
 The expected Ingress class is `traefik`.
 
-Create the explicit dev Ingress:
+Create the explicit dev app entry:
 
 ```sh
-make k8s-apply-ingress TARGET_ENV=dev
-KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get ingress -n atg-dev
+make k8s-apply-entry TARGET_ENV=dev
+KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get svc app-entry -n atg-dev
 ```
 
 Choose a public hostname, for example:
@@ -89,16 +89,16 @@ Then test from outside the Tailnet:
 curl https://atg-dev.example.com/healthz
 ```
 
-If the request does not route, check:
+If the request does not route, check the future Ingress or gateway resources plus the tunnel service:
 
 ```sh
-KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get ingress -n atg-dev
-KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl describe ingress app-entry -n atg-dev
+KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get svc app-entry -n atg-dev
+KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get pods -n atg-dev -l app.kubernetes.io/name=app-entry
 sudo systemctl status cloudflared
 sudo journalctl -u cloudflared -n 100 --no-pager
 ```
 
-For a stricter setup, set the public hostname explicitly on the Ingress rule:
+For a later Ingress-based setup, set the public hostname explicitly on the Ingress rule:
 
 ```yaml
 rules:
@@ -114,8 +114,8 @@ rules:
                 number: 8080
 ```
 
-Keeping the Ingress hostless is convenient for early dev testing.
-Using an explicit host is clearer once the hostname is stable.
+The current Tailscale setup uses NodePorts instead of Ingress host rules.
+Using an explicit host is clearer once the public hostname is stable.
 
 To protect the dev application, add a Cloudflare Access self-hosted application for the same hostname and allow only
 trusted users.

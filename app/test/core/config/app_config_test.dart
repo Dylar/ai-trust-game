@@ -7,7 +7,7 @@ void main() {
     final config = AppConfig.fromEnvironment();
 
     expect(config.flavor, AppFlavor.dev);
-    expect(config.apiBaseUri, Uri.parse('http://raspberrypi.tail164eef.ts.net'));
+    expect(config.apiBaseUri, Uri.parse('http://raspberrypi.tail164eef.ts.net:30080'));
   });
 
   test('parses known flavor names', () {
