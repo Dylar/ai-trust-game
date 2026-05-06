@@ -123,9 +123,8 @@ Do not expose the Kubernetes API through the tunnel.
 
 ## Follow-Ups
 
-- Decide whether the dev Ingress should stay hostless or use the final Cloudflare hostname.
 - Move the public cluster entry point from `main-service` to `gateway-service` in Phase 12.
-- Choose a safe GitHub Actions deploy strategy for the Raspberry Pi k3s cluster.
+- Revisit public hosting with real hostnames, TLS, and access protection after the Tailscale-only setup.
 - Review and simplify documentation after Phase 11 is finished.
 
 ## GitHub Actions Deploy Strategy
@@ -136,7 +135,7 @@ That makes a home-network runner too risky as the default Phase 11 solution.
 
 Current safe baseline:
 
-- deploy from the workstation with `make k8s-apply`
+- deploy from the workstation with `make k8s-deploy`
 - keep GitHub Actions deploy on GitHub-hosted runners
 - require a securely reachable Kubernetes API and `KUBE_CONFIG_B64` before using the GitHub Actions deploy workflow
 
