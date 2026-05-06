@@ -1,29 +1,24 @@
-# Kubernetes Deployment Guide
+# Kubernetes
 
-The project uses Helm for Kubernetes manifests.
+The project uses Helm for shared Kubernetes structure.
+Services provide environment-specific values next to their code.
 
-Helm keeps shared Kubernetes structure in one chart while services provide environment-specific values.
+## Layout
 
-The chart templates are intentionally close to regular Kubernetes YAML. They only use placeholders for values that vary
-between services or environments.
-
-This avoids copying the same deployment shape for each service while still keeping `dev`, `test`, and `prod` separate.
-
-## Current Layout
-
-The shared chart lives under infrastructure:
+Shared chart:
 
 ```text
-infrastructure/k8s/helm/http-service/
+infrastructure/k8s/chart/
   Chart.yaml
   values.yaml
+  values.schema.json
   templates/
     config-map.yaml
     deployment.yaml
     service.yaml
 ```
 
-Service values live next to the service:
+Main-service values and explicit manifests:
 
 ```text
 services/main-service/k8s/
@@ -32,26 +27,69 @@ services/main-service/k8s/
   values-prod.yaml
 ```
 
-The chart is the shared deployment shape.
-The service values define identity, image, target namespace, replicas, resources, ports, probes, and runtime configuration.
-The chart also includes `values.schema.json`, which Helm uses to validate values during `helm lint`, `helm template`,
-and installs.
-Namespaces are managed outside the chart. This avoids Helm ownership conflicts when a namespace already exists.
+Frontend values and the temporary dev entry Ingress:
+
+```text
+app/k8s/
+  values-dev.yaml
+  values-test.yaml
+  values-prod.yaml
+  ingress-dev.yaml
+```
+
+The shared chart renders the common `Deployment`, `Service`, and `ConfigMap`.
+Namespaces and Ingress resources are intentionally outside the shared chart.
+
+## Namespaces
+
+Environment namespaces use the short `atg-<env>` form:
+
+```text
+atg-dev
+atg-test
+atg-prod
+```
+
+Create the dev namespace:
+
+```sh
+KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl create namespace atg-dev
+KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl label namespace atg-dev \
+  app.kubernetes.io/part-of=ai-trust-game \
+  app.kubernetes.io/environment=dev
+```
+
+## Kubeconfig
+
+Project Kubernetes commands use a dedicated kubeconfig:
+
+```text
+~/.kube/ai-trust-game-pi.yaml
+```
+
+This avoids accidentally using another workstation cluster context.
+
+Fetch the k3s kubeconfig from the Raspberry Pi:
+
+```sh
+mkdir -p ~/.kube
+ssh <pi-user>@<pi-lan-ip> 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/ai-trust-game-pi.yaml
+chmod 600 ~/.kube/ai-trust-game-pi.yaml
+perl -pi -e 's#https://127.0.0.1:6443#https://<pi-lan-ip>:6443#' ~/.kube/ai-trust-game-pi.yaml
+```
+
+Check the selected cluster:
+
+```sh
+make k8s-context
+```
 
 ## Commands
 
-These commands require the Helm CLI to be installed locally.
-
-Render an environment without applying it:
+Render without applying:
 
 ```sh
 make k8s-template TARGET_ENV=dev
-```
-
-`make k8s-template` writes rendered Kubernetes YAML to stdout. Redirect it when you want a local review artifact:
-
-```sh
-make k8s-template TARGET_ENV=dev > /tmp/main-service-dev.yaml
 ```
 
 Lint and render all prepared environments:
@@ -60,173 +98,109 @@ Lint and render all prepared environments:
 make k8s-lint
 ```
 
-Apply an environment:
+Deploy an environment:
 
 ```sh
 make k8s-apply TARGET_ENV=dev
+make k8s-apply K8S_SERVICE=frontend-web TARGET_ENV=dev
 ```
 
-If `K8S_IMAGE_TAG` is omitted, `make k8s-apply` deploys the image tagged with the current Git commit SHA.
-That commit must already have been published to GHCR.
+If `K8S_IMAGE_TAG` is omitted, the current Git commit SHA is used as the image tag.
+That tag must already exist in GHCR.
 
-Override only the image tag at render or deploy time:
+Override the image tag:
 
 ```sh
-make k8s-template TARGET_ENV=prod K8S_IMAGE_TAG=<commit-sha>
-make k8s-apply TARGET_ENV=prod K8S_IMAGE_TAG=manual-deploy-2026-05-02-11-21
+make k8s-apply TARGET_ENV=dev K8S_IMAGE_TAG=<tag>
 ```
 
-Remove an environment:
+Remove a release:
 
 ```sh
 make k8s-delete TARGET_ENV=dev
+```
+
+Apply or remove the explicit dev Ingress:
+
+```sh
+make k8s-apply-ingress TARGET_ENV=dev
+make k8s-delete-ingress TARGET_ENV=dev
 ```
 
 Check deployed resources:
 
 ```sh
 make k8s-status
+KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get ingress -n atg-dev
 ```
 
-The status command searches all namespaces for resources labeled as part of `ai-trust-game`.
-Cluster-mutating Make targets use a project kubeconfig instead of the default global Kubernetes context.
-The default path is `~/.kube/ai-trust-game-pi.yaml`.
-Override it with `K8S_KUBECONFIG=<path>` when needed.
+## Images
 
-Check which cluster the project commands will use:
+The main-service image repository is:
 
-```sh
-make k8s-context
+```text
+ghcr.io/dylar/ai-trust-game-main-service
 ```
 
-CI runs the same type of Helm validation through `.github/workflows/reusable-helm.yml`.
-It lints the shared chart and renders the `main-service` `dev`, `test`, and `prod` values files.
+Frontend images are environment-specific because their Flutter build uses environment-specific `--dart-define` values:
 
-The publish workflow tags images with the full source commit SHA and `latest`.
-It can also be started manually with an extra tag such as `manual-deploy-<short-sha>-2026-05-02-11-21`.
-Published images are built for `linux/amd64` and `linux/arm64` so the Raspberry Pi can pull the same GHCR image.
-
-Normal publish runs tag images with the Git commit SHA and `latest`.
-Manual publish runs can add one extra human-readable tag through the `image-tag` workflow input.
-Use that input for tags such as `manual-deploy-<short-sha>-2026-05-02-11-21`.
-
-Manual deployments are prepared through `.github/workflows/deploy.yml`.
-The local `manual-deploy` Make target only triggers that GitHub Actions workflow; it does not run `helm upgrade` against
-the current local Kubernetes context.
-If `K8S_IMAGE_TAG` is omitted, the Make target generates `manual-deploy-<short-sha>-<yyyy-mm-dd-hh-mm>`.
-Use `make manual-deploy-tag` to preview the automatic tag without triggering a workflow.
-The selected tag must already exist in the registry before the deploy workflow can roll it out.
-
-```sh
-make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev
-make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev K8S_IMAGE_TAG=manual-deploy-<short-sha>-2026-05-02-11-21
+```text
+ghcr.io/dylar/ai-trust-game-frontend-web-dev
+ghcr.io/dylar/ai-trust-game-frontend-web-test
+ghcr.io/dylar/ai-trust-game-frontend-web-prod
 ```
 
-The deploy workflow requires a GitHub environment secret named `KUBE_CONFIG_B64`.
-That secret should contain a base64-encoded kubeconfig for the target cluster.
-Until that secret points to a project-owned cluster, the workflow is expected to fail before deploying.
+The publish workflow creates:
 
-## Raspberry Pi k3s Plan
+- a full commit-SHA tag
+- `latest`
+- an optional manual tag from the workflow input
 
-The intended first real cluster target is a project-owned Raspberry Pi running k3s.
-Do not deploy from a workstation that is connected to an unrelated work cluster.
+Published images are built for:
 
-Suggested setup steps:
+- `linux/amd64`
+- `linux/arm64`
 
-1. Install or reset Raspberry Pi OS Lite 64-bit.
-2. Enable SSH and set a strong user password or SSH key.
-3. Update packages:
+Set these GitHub repository variables before publishing frontend images for real environments:
 
-   ```sh
-   sudo apt update
-   sudo apt upgrade -y
-   ```
+- `DEV_API_BASE_URL`
+- `TEST_API_BASE_URL`
+- `PROD_API_BASE_URL`
 
-4. Install k3s:
+For Tailscale dev, `DEV_API_BASE_URL` should point to the MagicDNS HTTP origin:
 
-   ```sh
-   curl -sfL https://get.k3s.io | sh -
-   ```
+```text
+http://raspberrypi.tail164eef.ts.net
+```
 
-5. Check the cluster locally on the Pi:
+## Ingress
 
-   ```sh
-   sudo k3s kubectl get nodes
-   ```
+The shared Helm chart does not create generic Ingress resources.
+Ingress resources are explicit service-owned manifests.
 
-6. Copy the kubeconfig to the workstation without merging it into the global default kubeconfig:
+The current temporary dev entry point is:
 
-   ```sh
-   mkdir -p ~/.kube
-   ssh <pi-user>@<pi-lan-ip> 'sudo cat /etc/rancher/k3s/k3s.yaml' > ~/.kube/ai-trust-game-pi.yaml
-   chmod 600 ~/.kube/ai-trust-game-pi.yaml
-   ```
+```text
+app/k8s/ingress-dev.yaml
+```
 
-7. Replace the local server address in that kubeconfig with the Pi LAN address:
-
-   ```sh
-   perl -pi -e 's#https://127.0.0.1:6443#https://<pi-lan-ip>:6443#' ~/.kube/ai-trust-game-pi.yaml
-   ```
-
-8. Verify the project kubeconfig from the workstation:
-
-   ```sh
-   make k8s-context
-   ```
-
-9. Create the first namespace:
-
-   ```sh
-   KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl create namespace atg-dev
-   KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl label namespace atg-dev \
-     app.kubernetes.io/part-of=ai-trust-game \
-     app.kubernetes.io/environment=dev
-   ```
-
-10. Base64-encode the final kubeconfig and store it as the GitHub environment secret `KUBE_CONFIG_B64`.
-
-   ```sh
-   base64 -i ~/.kube/ai-trust-game-pi.yaml | pbcopy
-   ```
-
-## External Access
-
-For application traffic, a Cloudflare Tunnel is a good free starting point.
-It avoids opening inbound router ports and can put Cloudflare Access in front of private routes.
-
-The rough shape is:
-
-- run `cloudflared` on the Raspberry Pi
-- route a hostname to the in-cluster service or ingress
-- protect sensitive routes with Cloudflare Access
-- keep the Kubernetes API private unless there is a strong reason to expose it
-
-For GitHub Actions deployment access, prefer one of these approaches:
-
-- GitHub Actions reaches the Kubernetes API through a tightly scoped, protected endpoint.
-- A later self-hosted GitHub runner runs inside the home network and deploys locally.
-
-The second option avoids exposing the Kubernetes API publicly and is likely the safer long-term setup.
+It routes backend paths such as `/session`, `/interaction`, `/analysis`, and `/healthz` to `main-service:8080`.
+It routes `/` to `frontend-web:80`.
+The long-term public entry point should move to a future `gateway-service`.
 
 ## Secrets
 
-Expected GitHub secrets:
+GitHub Actions deployment expects:
 
 - `KUBE_CONFIG_B64`
   base64-encoded kubeconfig for the target environment
 
-Expected Kubernetes secrets:
+The chart optionally references:
 
 - `main-service-secret`
-  optional secret referenced by the chart
+  runtime secrets for the main service
 
-Potential future keys:
-
-- `GROQ_API_KEY`
-- Cloudflare Tunnel token
-- TLS or issuer-related secrets if ingress moves beyond Cloudflare-managed TLS
-
-If the GHCR package is private, create a Kubernetes image pull secret in each environment namespace:
+If GHCR is private, create an image pull secret in each namespace:
 
 ```sh
 KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl create secret docker-registry ghcr-pull-secret \
@@ -236,99 +210,20 @@ KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl create secret docker-registry g
   --docker-password=<github-token-with-read-packages>
 ```
 
-Then add it to the service values:
+Then reference it from the service values:
 
 ```yaml
 imagePullSecrets:
   - ghcr-pull-secret
 ```
 
-If the GHCR package is public, no image pull secret is needed.
+## Adding A Service
 
-## Adding A New Service
+For a new backend service:
 
-When adding a new backend service, create a service-owned values directory:
-
-```text
-services/<service-name>/k8s/
-  values-dev.yaml
-  values-test.yaml
-  values-prod.yaml
-```
-
-The easiest starting point is to copy the `main-service` values files and then rename the service-specific values.
-
-## Values To Rename
-
-Replace these values everywhere they appear:
-
-- `main-service`
-  Helm release name, Kubernetes resource name, container name, image name, and `app.kubernetes.io/name`
-
-- `ai-trust-game-<env>`
-  namespace names if the service should use a different namespace strategy
-
-- `ghcr.io/dylar/ai-trust-game-main-service`
-  GHCR image repository
-
-The chart derives ConfigMap and Secret names from `serviceName`:
-
-- `<serviceName>-config-map`
-- `<serviceName>-secret`
-
-The Secret reference is optional, so static-provider local deployments do not need a Secret.
-
-## Service Settings To Review
-
-Review these settings for every new service:
-
-- `replicas`
-  How many Pods should run in each environment.
-
-- `image`
-  Registry images should be used for remote environments.
-  CI-published images get a commit-SHA tag, and manual workflow runs can add a human-readable manual deploy tag.
-
-- `imagePullSecrets`
-  Optional Kubernetes Secret names used when pulling private registry images.
-
-- `imagePullPolicy`
-  `IfNotPresent` is convenient for local development. Remote environments may need `Always` depending on image tagging.
-
-- `containerPort`
-  The port the container listens on.
-
-- `Service.spec.ports`
-  The cluster-internal service port and target port.
-
-- `readinessProbe`
-  The endpoint Kubernetes uses to decide whether the Pod can receive traffic.
-
-- `livenessProbe`
-  The endpoint Kubernetes uses to decide whether the Pod should be restarted.
-
-- `resources.requests`
-  CPU and memory Kubernetes should reserve for the container.
-
-- `resources.limits`
-  CPU and memory the container is allowed to use.
-
-- `config`
-  Non-secret runtime environment variables.
-
-- `Secret`
-  Secret values such as API keys. Keep only examples in Git.
-
-## Environment Values
-
-Use values files for values that differ between environments:
-
-- `APP_ENV`
-- replicas
-- image repository and tag
-- CPU and memory
-- provider settings such as `LLM_PROVIDER` and `GROQ_MODEL`
-- namespace
-
-Avoid changing the chart for service-specific values.
-If one service needs a different deployment shape, first consider whether that service needs a separate chart.
+1. Copy the `main-service` values files.
+2. Replace `serviceName`.
+3. Set the namespace.
+4. Set the image repository.
+5. Review replicas, resources, ports, probes, config, and secrets.
+6. Add explicit Ingress only when the service is meant to be an entry point.

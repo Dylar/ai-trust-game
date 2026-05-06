@@ -3,11 +3,11 @@ import 'package:app/core/config/app_flavor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('defaults to dev flavor and localhost backend', () {
+  test('defaults to dev flavor and Tailscale backend', () {
     final config = AppConfig.fromEnvironment();
 
     expect(config.flavor, AppFlavor.dev);
-    expect(config.apiBaseUri, Uri.parse('http://localhost:8080'));
+    expect(config.apiBaseUri, Uri.parse('http://raspberrypi.tail164eef.ts.net'));
   });
 
   test('parses known flavor names', () {

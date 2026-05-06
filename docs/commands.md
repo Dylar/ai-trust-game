@@ -68,8 +68,17 @@
   installs or upgrades the selected service and environment through Helm.
   If `K8S_IMAGE_TAG` is omitted, the current Git commit SHA is used as the image tag
 
+- `make k8s-apply K8S_SERVICE=frontend-web TARGET_ENV=dev [K8S_IMAGE_TAG=<tag>]`
+  installs or upgrades the Flutter web frontend using values from `app/k8s`
+
 - `make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]`
   uninstalls the selected Helm release from the selected environment namespace
+
+- `make k8s-apply-ingress [K8S_SERVICE=main-service] [TARGET_ENV=dev]`
+  applies the explicit service-owned Ingress manifest when one exists
+
+- `make k8s-delete-ingress [K8S_SERVICE=main-service] [TARGET_ENV=dev]`
+  deletes the explicit service-owned Ingress manifest when one exists
 
 - `make k8s-status`
   shows the deployed Kubernetes workloads and services labeled as part of `ai-trust-game` across all namespaces

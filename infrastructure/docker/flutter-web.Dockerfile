@@ -1,7 +1,7 @@
-FROM ghcr.io/cirruslabs/flutter:3.41.2 AS builder
+FROM --platform=$BUILDPLATFORM ghcr.io/cirruslabs/flutter:3.41.2 AS builder
 
 ARG APP_ENV=dev
-ARG API_BASE_URL=http://localhost:8080
+ARG API_BASE_URL=http://raspberrypi.tail164eef.ts.net
 
 WORKDIR /src/app
 

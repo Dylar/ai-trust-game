@@ -28,11 +28,14 @@ jobs:
   helm-checks:
     uses: ./.github/workflows/reusable-helm.yml
     with:
-      chart-path: ./infrastructure/k8s/helm/http-service
+      chart-path: ./infrastructure/k8s/chart
       values-files: |
         ./services/main-service/k8s/values-dev.yaml
         ./services/main-service/k8s/values-test.yaml
         ./services/main-service/k8s/values-prod.yaml
+        ./app/k8s/values-dev.yaml
+        ./app/k8s/values-test.yaml
+        ./app/k8s/values-prod.yaml
 
   docker-build-main-service:
     uses: ./.github/workflows/reusable-docker-build.yml
@@ -49,7 +52,7 @@ jobs:
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       build-args: |
         APP_ENV=dev
-        API_BASE_URL=http://localhost:8080
+        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net' }}
 
   publish-main-service:
     needs:
@@ -68,7 +71,7 @@ jobs:
       build-args: |
         SERVICE=main-service
 
-  publish-frontend-web:
+  publish-frontend-web-dev:
     needs:
       - go-checks
       - flutter-checks
@@ -78,10 +81,46 @@ jobs:
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
     with:
-      job-name: Publish Frontend Web To GHCR
-      image-name: ai-trust-game-frontend-web
+      job-name: Publish Frontend Web Dev To GHCR
+      image-name: ai-trust-game-frontend-web-dev
+      dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
+      build-args: |
+        APP_ENV=dev
+        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net' }}
+
+  publish-frontend-web-test:
+    needs:
+      - go-checks
+      - flutter-checks
+      - helm-checks
+      - docker-build-main-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Frontend Web Test To GHCR
+      image-name: ai-trust-game-frontend-web-test
+      dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
+      build-args: |
+        APP_ENV=test
+        API_BASE_URL=${{ vars.TEST_API_BASE_URL || 'http://localhost:8080' }}
+
+  publish-frontend-web-prod:
+    needs:
+      - go-checks
+      - flutter-checks
+      - helm-checks
+      - docker-build-main-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Frontend Web Prod To GHCR
+      image-name: ai-trust-game-frontend-web-prod
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=prod
-        API_BASE_URL=https://api.example.com
+        API_BASE_URL=${{ vars.PROD_API_BASE_URL || 'https://api.example.com' }}

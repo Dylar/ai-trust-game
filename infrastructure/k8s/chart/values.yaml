@@ -1,4 +1,4 @@
-serviceName: http-service
+serviceName: app-workload
 namespace: atg-dev
 environment: dev
 component: backend
@@ -7,7 +7,7 @@ partOf: ai-trust-game
 replicas: 1
 
 image:
-  repository: http-service
+  repository: app-workload
   tag: local
   pullPolicy: IfNotPresent
 

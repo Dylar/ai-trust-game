@@ -4,14 +4,16 @@ PORT ?= 8080
 BACKEND_PORT ?= 8080
 FRONTEND_PORT ?= 3000
 APP_ENV ?= $(TARGET_ENV)
-API_BASE_URL ?= http://localhost:8080
+API_BASE_URL ?= http://raspberrypi.tail164eef.ts.net
 COMPOSE_ENV_FILE ?= ./infrastructure/env/$(TARGET_ENV).env
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint
 K8S_SERVICE ?= main-service
 K8S_RELEASE ?= $(K8S_SERVICE)
-K8S_CHART ?= ./infrastructure/k8s/helm/http-service
-K8S_VALUES ?= ./services/$(K8S_SERVICE)/k8s/values-$(TARGET_ENV).yaml
+K8S_CHART ?= ./infrastructure/k8s/chart
+K8S_CONFIG_DIR ?= $(if $(filter frontend-web,$(K8S_SERVICE)),./app/k8s,./services/$(K8S_SERVICE)/k8s)
+K8S_VALUES ?= $(K8S_CONFIG_DIR)/values-$(TARGET_ENV).yaml
 K8S_NAMESPACE ?= atg-$(TARGET_ENV)
+K8S_INGRESS ?= $(K8S_CONFIG_DIR)/ingress-$(TARGET_ENV).yaml
 K8S_ENVS ?= dev test prod
 K8S_IMAGE_TAG ?=
 K8S_MANUAL_TAG_PREFIX ?= manual-deploy
@@ -24,7 +26,7 @@ ifneq ($(strip $(K8S_IMAGE_TAG)),)
 K8S_SET_ARGS += --set image.tag=$(K8S_IMAGE_TAG)
 endif
 
-.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-lint k8s-template k8s-check-kubeconfig k8s-context k8s-apply k8s-delete k8s-status manual-deploy-tag manual-deploy manuel-deploy
+.PHONY: help run build test lint docker-build docker-run docker-build-run docker-logs compose-build compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart k8s-lint k8s-template k8s-check-kubeconfig k8s-context k8s-apply k8s-delete k8s-apply-ingress k8s-delete-ingress k8s-status manual-deploy-tag manual-deploy manuel-deploy
 
 help:
 	@echo "Commands:"
@@ -47,7 +49,10 @@ help:
 	@echo "  make k8s-template [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make k8s-context [K8S_KUBECONFIG=~/.kube/ai-trust-game-pi.yaml]"
 	@echo "  make k8s-apply [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod] [K8S_IMAGE_TAG=<tag>]"
+	@echo "  make k8s-apply K8S_SERVICE=frontend-web TARGET_ENV=dev [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make k8s-delete [K8S_SERVICE=main-service] [TARGET_ENV=dev|test|prod]"
+	@echo "  make k8s-apply-ingress [K8S_SERVICE=main-service] [TARGET_ENV=dev]"
+	@echo "  make k8s-delete-ingress [K8S_SERVICE=main-service] [TARGET_ENV=dev]"
 	@echo "  make k8s-status"
 	@echo "  make manual-deploy K8S_SERVICE=main-service TARGET_ENV=dev [K8S_IMAGE_TAG=<tag>]"
 	@echo "  make manual-deploy-tag"
@@ -126,7 +131,7 @@ compose-ps:
 
 k8s-lint:
 	@for env in $(K8S_ENVS); do \
-		values_file=./services/$(K8S_SERVICE)/k8s/values-$$env.yaml; \
+		values_file=$(K8S_CONFIG_DIR)/values-$$env.yaml; \
 		echo "Linting $(K8S_SERVICE) $$env"; \
 		helm lint $(K8S_CHART) -f $$values_file; \
 		echo "Rendering $(K8S_SERVICE) $$env"; \
@@ -158,6 +163,20 @@ k8s-apply: k8s-check-kubeconfig
 
 k8s-delete: k8s-check-kubeconfig
 	$(K8S_HELM) uninstall $(K8S_RELEASE) --namespace $(K8S_NAMESPACE)
+
+k8s-apply-ingress: k8s-check-kubeconfig
+	@if [ ! -f "$(K8S_INGRESS)" ]; then \
+		echo "Error: K8S_INGRESS not found: $(K8S_INGRESS)"; \
+		exit 1; \
+	fi
+	$(K8S_KUBECTL) apply -f $(K8S_INGRESS)
+
+k8s-delete-ingress: k8s-check-kubeconfig
+	@if [ ! -f "$(K8S_INGRESS)" ]; then \
+		echo "Error: K8S_INGRESS not found: $(K8S_INGRESS)"; \
+		exit 1; \
+	fi
+	$(K8S_KUBECTL) delete -f $(K8S_INGRESS) --ignore-not-found
 
 k8s-status: k8s-check-kubeconfig
 	$(K8S_KUBECTL) get deploy,svc,pods -A -l app.kubernetes.io/part-of=ai-trust-game

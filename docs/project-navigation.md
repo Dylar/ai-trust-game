@@ -47,3 +47,4 @@ Also, you can find the development roadmap and commands reference here.
 - [Development Phases](dev-roadmap.md)
 - [Commands](commands.md)
 - [Kubernetes deployment guide](k8s.md)
+- [Phase 11 temporary notes](phase11-notes.md)

@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - main-service
+          - frontend-web
       environment:
         description: "Target environment"
         required: true
@@ -54,16 +55,26 @@ jobs:
           echo "$KUBE_CONFIG_B64" | base64 --decode > "$HOME/.kube/config"
           chmod 600 "$HOME/.kube/config"
 
+      - name: Resolve Kubernetes values
+        id: k8s
+        shell: bash
+        run: |
+          if [ "${{ inputs.service }}" = "frontend-web" ]; then
+            echo "values-file=./app/k8s/values-${{ inputs.environment }}.yaml" >> "$GITHUB_OUTPUT"
+          else
+            echo "values-file=./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Render manifests
         run: |
-          helm template "${{ inputs.service }}" ./infrastructure/k8s/helm/http-service \
-            -f "./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" \
+          helm template "${{ inputs.service }}" ./infrastructure/k8s/chart \
+            -f "${{ steps.k8s.outputs.values-file }}" \
             --set image.tag="${{ inputs.image-tag }}"
 
       - name: Deploy release
         run: |
-          helm upgrade --install "${{ inputs.service }}" ./infrastructure/k8s/helm/http-service \
-            -f "./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" \
+          helm upgrade --install "${{ inputs.service }}" ./infrastructure/k8s/chart \
+            -f "${{ steps.k8s.outputs.values-file }}" \
             --set image.tag="${{ inputs.image-tag }}" \
             --namespace "atg-${{ inputs.environment }}" \
             --create-namespace

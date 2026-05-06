@@ -160,8 +160,7 @@ The service also reads `APP_ENV` for environment tagging in logs.
 
 It exposes `GET /healthz` for local runtime checks and container health checks.
 
-When the Flutter web app runs locally with `API_BASE_URL=http://localhost:8080`, it can talk to the containerized
-backend through the published host port.
+When the Flutter web app runs locally against the compose backend, use `API_BASE_URL=http://localhost:8080`.
 
 For a local full-stack container run together with the Flutter web app, use the repository root `compose.yml`.
 
@@ -171,4 +170,4 @@ Service-owned Kubernetes values live in [`k8s/`](./k8s/).
 
 They define the `main-service` values for `dev`, `test`, and `prod`.
 The shared chart that renders the `Deployment`, `Service`, `ConfigMap`, and namespace lives under
-[`infrastructure/k8s/helm/http-service`](../../infrastructure/k8s/helm/http-service/).
+[`infrastructure/k8s/chart`](../../infrastructure/k8s/chart/).

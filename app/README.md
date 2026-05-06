@@ -89,13 +89,19 @@ The API base URL is read from `API_BASE_URL` via `--dart-define`.
 For local web runs:
 
 ```bash
-flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://localhost:8080
+flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net
 ```
 
-For Android emulator runs, use the host bridge address instead of `localhost`:
+For Android emulator runs against the local workstation backend, use the host bridge address instead of `localhost`:
 
 ```bash
 flutter run --flavor dev -d android --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://10.0.2.2:8080
+```
+
+For Android runs against the Raspberry Pi dev cluster, use the Tailscale MagicDNS origin:
+
+```bash
+flutter run --flavor dev -d android --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net
 ```
 
 For test and prod Android builds, switch the native flavor and matching Dart define.
@@ -108,7 +114,7 @@ flutter run --flavor prod -d android --dart-define=APP_ENV=prod --dart-define=AP
 ```
 
 If `APP_ENV` is not provided, the app defaults to `dev`.
-If `API_BASE_URL` is not provided, the app defaults to `http://localhost:8080`.
+If `API_BASE_URL` is not provided, the app defaults to `http://raspberrypi.tail164eef.ts.net`.
 
 Current test structure:
 
@@ -132,7 +138,7 @@ For a manual local run:
 2. Start the Flutter web client from `app/`:
 
    ```bash
-   flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://localhost:8080
+   flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net
    ```
 
 3. Create a session, send one or more messages, then use the session and interaction analysis links from the
@@ -187,5 +193,5 @@ Rebuild and recreate the stack in the background after code changes:
 make compose-rebuild-detached
 ```
 
-The compose setup currently builds the web app with `APP_ENV=dev` and `API_BASE_URL=http://localhost:8080`.
+The compose setup currently builds the web app with `APP_ENV=dev` and the `API_BASE_URL` from `infrastructure/env/dev.env`.
 Prepared env files currently live under `infrastructure/env/`.

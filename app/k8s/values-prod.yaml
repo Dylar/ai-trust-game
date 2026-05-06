@@ -1,0 +1,42 @@
+serviceName: frontend-web
+namespace: atg-prod
+environment: prod
+component: frontend
+partOf: ai-trust-game
+
+replicas: 2
+
+image:
+  repository: ghcr.io/dylar/ai-trust-game-frontend-web-prod
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+containerPort: 80
+servicePort: 80
+
+probes:
+  readiness:
+    path: /
+    initialDelaySeconds: 3
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  liveness:
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 20
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+config:
+  APP_ENV: prod

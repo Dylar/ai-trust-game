@@ -13,7 +13,7 @@ class AppConfig {
       apiBaseUri: Uri.parse(
         const String.fromEnvironment(
           'API_BASE_URL',
-          defaultValue: 'http://localhost:8080',
+          defaultValue: 'http://raspberrypi.tail164eef.ts.net',
         ),
       ),
       flavor: AppFlavor.fromName(envName),
