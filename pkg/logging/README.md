@@ -42,13 +42,13 @@ This keeps logging:
 
 [`WithField`](./logger.go) and [`WithError`](./logger.go) make stable log context explicit.
 
-[`WithFields`](./logger.go) wraps a logger with shared fields, which is useful for process-wide context such as:
+[`NewFieldLogger`](./logger.go) wraps any logger with shared fields, which is useful for process-wide context such as:
 
 - service name
 - environment
 - provider configuration
 
-The main service uses that pattern in its composition root before wiring handlers and processors.
+[`WithFields`](./logger.go) is the equivalent helper for adding shared fields to an existing logger.
 
 ## HTTP Logging
 

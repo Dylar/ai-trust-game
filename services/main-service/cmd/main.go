@@ -14,8 +14,8 @@ import (
 func main() {
 	appEnv := infra.GetEnv("APP_ENV", "dev")
 
-	var logger logging.Logger = logging.NewConsoleLogger()
-	logger = logging.WithFields(logger,
+	logger := logging.NewFieldLogger(
+		logging.NewConsoleLogger(),
 		logging.WithField("service", "main-service"),
 		logging.WithField("env", appEnv),
 	)

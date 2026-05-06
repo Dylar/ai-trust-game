@@ -48,25 +48,40 @@ type fieldLogger struct {
 	fields []Field
 }
 
-func WithFields(base Logger, fields ...Field) Logger {
+func NewFieldLogger(base Logger, fields ...Field) Logger {
+	loggerFields := make([]Field, len(fields))
+	copy(loggerFields, fields)
+
 	return &fieldLogger{
 		base:   base,
-		fields: fields,
+		fields: loggerFields,
 	}
 }
 
+func WithFields(base Logger, fields ...Field) Logger {
+	return NewFieldLogger(base, fields...)
+}
+
 func (l *fieldLogger) Debug(ctx context.Context, msg string, fields ...Field) {
-	l.base.Debug(ctx, msg, append(l.fields, fields...)...)
+	l.base.Debug(ctx, msg, l.withFields(fields)...)
 }
 
 func (l *fieldLogger) Info(ctx context.Context, msg string, fields ...Field) {
-	l.base.Info(ctx, msg, append(l.fields, fields...)...)
+	l.base.Info(ctx, msg, l.withFields(fields)...)
 }
 
 func (l *fieldLogger) Warn(ctx context.Context, msg string, fields ...Field) {
-	l.base.Warn(ctx, msg, append(l.fields, fields...)...)
+	l.base.Warn(ctx, msg, l.withFields(fields)...)
 }
 
 func (l *fieldLogger) Error(ctx context.Context, msg string, fields ...Field) {
-	l.base.Error(ctx, msg, append(l.fields, fields...)...)
+	l.base.Error(ctx, msg, l.withFields(fields)...)
+}
+
+func (l *fieldLogger) withFields(fields []Field) []Field {
+	allFields := make([]Field, 0, len(l.fields)+len(fields))
+	allFields = append(allFields, l.fields...)
+	allFields = append(allFields, fields...)
+
+	return allFields
 }
