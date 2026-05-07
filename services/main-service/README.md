@@ -129,29 +129,8 @@ The repository currently uses one shared Go service image definition in
 This keeps the default container setup consistent across multiple Go services while still letting individual services
 add their own deployment files later, for example under `k8s/`.
 
-Build the local image from the repository root:
-
-```bash
-make docker-build SERVICE=main-service
-```
-
-Rebuild and start the container in one step after local code changes:
-
-```bash
-make docker-build-run SERVICE=main-service
-```
-
-Run the container locally:
-
-```bash
-make docker-run SERVICE=main-service
-```
-
-Follow the container logs:
-
-```bash
-make docker-logs SERVICE=main-service
-```
+For local container runs, use the repository Docker Compose setup. For deployment images, use the Kubernetes or manual
+deploy Make targets from the repository root.
 
 Provide `LLM_PROVIDER`, `GROQ_API_KEY`, and `GROQ_MODEL` as container environment variables when testing model-backed
 runtime behavior.

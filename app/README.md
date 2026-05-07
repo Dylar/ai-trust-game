@@ -132,7 +132,7 @@ For a manual local run:
 1. Start the backend from the repository root:
 
    ```bash
-   make run SERVICE=main-service
+   make compose-up
    ```
 
 2. Start the Flutter web client from `app/`:
@@ -157,16 +157,10 @@ Start it from the repository root:
 make compose-up
 ```
 
-Start it in the background:
+Select another prepared model environment file when needed:
 
 ```bash
-make compose-up-detached
-```
-
-Select another prepared environment file when needed:
-
-```bash
-make compose-up TARGET_ENV=test
+make compose-up COMPOSE_MODEL_ENV=groq
 ```
 
 Stop it again:
@@ -181,16 +175,10 @@ Follow the combined stack logs:
 make compose-logs
 ```
 
-Inspect the current compose containers and their state:
+Restart the running containers without rebuilding:
 
 ```bash
-make compose-ps
-```
-
-Rebuild and recreate the stack in the background after code changes:
-
-```bash
-make compose-rebuild-detached
+make compose-restart
 ```
 
 The compose setup keeps local ports and `API_BASE_URL` in the Compose file. The selected env file under

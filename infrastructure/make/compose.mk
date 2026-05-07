@@ -4,7 +4,7 @@ COMPOSE_ENV_FILE ?= ./infrastructure/docker/compose/env/$(COMPOSE_MODEL_ENV).env
 COMPOSE_REQUIRED_VARS ?= LLM_PROVIDER
 COMPOSE := docker compose --file $(COMPOSE_FILE) --env-file $(COMPOSE_ENV_FILE)
 
-.PHONY: compose-check-env compose-build compose-up-run compose-up compose-up-detached compose-down compose-logs compose-ps compose-rebuild compose-rebuild-detached compose-restart
+.PHONY: compose-check-env compose-up compose-down compose-logs compose-restart
 
 compose-check-env:
 	@if [ ! -f "$(COMPOSE_FILE)" ]; then \
@@ -26,23 +26,8 @@ compose-check-env:
 	done; \
 	exit $$missing
 
-compose-up-run: compose-check-env
-	$(COMPOSE) up $(COMPOSE_UP_ARGS)
-
-compose-up: COMPOSE_UP_ARGS = --build
-compose-up: compose-up-run
-
-compose-up-detached: COMPOSE_UP_ARGS = --build -d
-compose-up-detached: compose-up-run
-
-compose-rebuild: COMPOSE_UP_ARGS = --build --force-recreate
-compose-rebuild: compose-up-run
-
-compose-rebuild-detached: COMPOSE_UP_ARGS = --build --force-recreate -d
-compose-rebuild-detached: compose-up-run
-
-compose-build: compose-check-env
-	$(COMPOSE) build
+compose-up: compose-check-env
+	$(COMPOSE) up --build
 
 compose-restart: compose-check-env
 	$(COMPOSE) restart
@@ -52,6 +37,3 @@ compose-down: compose-check-env
 
 compose-logs: compose-check-env
 	$(COMPOSE) logs -f
-
-compose-ps: compose-check-env
-	$(COMPOSE) ps

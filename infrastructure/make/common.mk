@@ -1,5 +1,4 @@
 TARGET_ENV ?= dev
-SERVICE ?=
 TAILSCALE_HOST ?= raspberrypi.tail164eef.ts.net
 
 ifeq ($(TARGET_ENV),dev)
@@ -11,5 +10,3 @@ API_BASE_URL ?= http://$(TAILSCALE_HOST):30082
 else
 API_BASE_URL ?= http://$(TAILSCALE_HOST)
 endif
-
-GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint

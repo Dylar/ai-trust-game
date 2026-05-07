@@ -31,9 +31,9 @@ The idea is to make those differences visible in a small and understandable setu
 
 ## Quick Start
 
-Run the main service:
+Run the local container stack:
 
-`make run SERVICE=main-service`
+`make compose-up`
 
 - [Development commands and example scripts](./docs/commands.md)
 
