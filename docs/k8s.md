@@ -104,7 +104,7 @@ make k8s-context
 Render without applying:
 
 ```sh
-make k8s-template TARGET_ENV=dev
+make k8s-template ENV=dev
 ```
 
 Lint and render all prepared environments:
@@ -116,35 +116,42 @@ make k8s-lint
 Deploy an environment:
 
 ```sh
-make k8s-deploy TARGET_ENV=dev
+make k8s-deploy ENV=dev
 ```
 
-If `K8S_IMAGE_TAG` is omitted, the current Git commit SHA is used as the image tag.
+This deploys all prepared services using the current Git commit SHA as the image tag.
 That tag must already exist in GHCR.
 
-Override the image tag:
+Deploy one service from an already published commit-SHA image:
 
 ```sh
-make k8s-deploy TARGET_ENV=dev K8S_IMAGE_TAG=<tag>
+make k8s-deploy SERVICE=main-service ENV=dev
 ```
 
-Build the current local working tree, push images, and deploy them:
+Build the current local working tree, push images with a generated `manual-deploy-<sha>-<date>-<time>` tag, and deploy
+them:
 
 ```sh
-make manual-deploy TARGET_ENV=dev
+make manual-deploy ENV=dev
+```
+
+Build and deploy only one service from the local working tree:
+
+```sh
+make manual-deploy SERVICE=main-service ENV=dev
 ```
 
 Remove a release:
 
 ```sh
-make k8s-delete TARGET_ENV=dev
+make k8s-delete SERVICE=main-service ENV=dev
 ```
 
 Apply or remove the app entry Helm release:
 
 ```sh
-make k8s-apply-entry TARGET_ENV=dev
-make k8s-delete-entry TARGET_ENV=dev
+make k8s-apply-entry ENV=dev
+make k8s-delete-entry ENV=dev
 ```
 
 Check deployed resources:
@@ -204,7 +211,8 @@ prod  http://raspberrypi.tail164eef.ts.net:30082
 ## App Entry
 
 The shared Helm chart does not create generic public entry points.
-The current Tailscale entry points are explicit app-owned manifests under `app/k8s/entry-<env>.yaml`.
+The current Tailscale entry points are rendered from `infrastructure/k8s/entry-chart` with values from
+`app/k8s/entry-values-<env>.yaml`.
 
 Each app entry creates a small Nginx reverse proxy and exposes it as a `NodePort`.
 It routes backend paths such as `/session`, `/interaction`, `/analysis`, and `/healthz` to `main-service:8080`.
@@ -218,7 +226,7 @@ for a securely reachable Kubernetes API.
 
 Do not use a self-hosted GitHub Actions runner for this public repository unless the repository becomes private
 or the runner is explicitly hardened for public-repository risk.
-For the current Raspberry Pi dev cluster, prefer workstation-local deploys with `make k8s-deploy`.
+For the current Raspberry Pi dev cluster, prefer workstation-local deploys with `make k8s-deploy ENV=dev`.
 
 ## Secrets
 

@@ -18,9 +18,7 @@ In another, it becomes stricter and keeps control in server-side logic.
 
 ## Why this project?
 
-A lot of AI demos focus on what a model can do.
-
-This project is more interested in what goes wrong when the system around the model is designed poorly:
+This project is interested in what goes wrong when the system around the model is designed poorly:
 
 - user claims are treated as truth
 - model output is treated as authority
@@ -33,12 +31,20 @@ The idea is to make those differences visible in a small and understandable setu
 
 Run the local container stack:
 
-`make compose-up`
+```bash
+make compose-up
+```
+
+Use localhost:3000 in your browser to access the frontend.<br>
+The backend is available at localhost:8080.
+
+For more commands and development scripts, see the documentation:<br>
 
 - [Development commands and example scripts](./docs/commands.md)
 
 ## Project Navigation
 
-Look into this table of contents for more details. There is everything from architecture to development roadmap.
+Look into this table of contents for more details.<br>
+There is everything from architecture to development roadmap.
 
 - [Navigation links](./docs/project-navigation.md)

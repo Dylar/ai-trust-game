@@ -50,7 +50,7 @@ The expected Ingress class is `traefik`.
 Create the explicit dev app entry:
 
 ```sh
-make k8s-apply-entry TARGET_ENV=dev
+make k8s-apply-entry ENV=dev
 KUBECONFIG=~/.kube/ai-trust-game-pi.yaml kubectl get svc app-entry -n atg-dev
 ```
 
