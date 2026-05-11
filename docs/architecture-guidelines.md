@@ -18,6 +18,7 @@ Use the more specific playbooks when applying these rules in one part of the sys
 - behavior should stay testable
 - reusable application building blocks should stay separate from feature behavior
 - shared contracts should be intentional
+- simple solutions are preferred when additional structure would not clarify ownership
 
 ## Architectural Roles
 
@@ -50,6 +51,9 @@ Examples:
 
 Flows should own the steps of one coherent workflow without becoming unbounded god objects.
 
+Small workflows do not need a separate flow object when doing so would only add ceremony.
+The important part is that the responsibility stays clear and can be separated later without large rewrites.
+
 ### Application Core
 
 Application core defines reusable building blocks and conventions for an app or service.
@@ -80,6 +84,9 @@ Examples:
 
 Boundaries should keep external concerns and technical choices from leaking into the rest of the system.
 Changing a database, transport, provider, or platform should usually require changes at the boundary, not everywhere.
+
+Do not introduce a boundary only because a pattern exists.
+Introduce one when an external dependency, technical choice, or ownership seam would otherwise spread through the code.
 
 ### Infrastructure
 
@@ -117,6 +124,7 @@ Prefer:
 - explicit responsibilities
 - intentional boundaries
 - replaceable infrastructure behind boundaries
+- pragmatic structure that solves the current problem without blocking future separation
 
 ## Anti-Patterns
 
@@ -126,6 +134,7 @@ Avoid:
 - hidden boundary crossing
 - duplicated logic across unrelated parts of the system
 - product-specific behavior inside application core
+- abstractions that only exist to satisfy a pattern
 - dumping code into generic helper folders without ownership
 - large components with mixed responsibilities
 
@@ -150,6 +159,11 @@ When adding a new feature:
 3. introduce or reuse boundaries where needed
 4. keep the entrypoint thin
 5. update tests and documentation accordingly
+
+If the full structure would be overkill, choose the smaller structure deliberately.
+The smaller structure is acceptable when the responsibility remains clear, tests can still describe the behavior, and
+there is an obvious path to split it later if the feature grows.
+If this introduces a deliberate architectural trade-off, document the trade-off in the feature README.
 
 ## Notes
 
