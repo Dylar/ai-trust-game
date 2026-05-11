@@ -36,6 +36,7 @@ Your goal is to:
 * Respect layer boundaries (see [architecture docs](./project-navigation.md#architecture))
 * Do not mix responsibilities across layers
 * Keep functions small and focused
+* Do not repeat logic that can be reused through existing modules or helpers
 
 ---
 
@@ -49,7 +50,8 @@ Your goal is to:
 
 ## Documentation Rules (STRICT)
 
-Documentation is always written in English.
+Documentation is always written in English.<br>
+Each README should be available from the [ROOT-Readme.md](../README.md), not directly, but through sub-links.
 You MUST update documentation if ANY of the following changes:
 
 ### Working notes
@@ -73,6 +75,7 @@ You MUST update documentation if ANY of the following changes:
 ### Update README links if:
 
 * files are moved or renamed
+* New README files are added
 
 ---
 

@@ -27,6 +27,9 @@ This project is interested in what goes wrong when the system around the model i
 
 The idea is to make those differences visible in a small and understandable setup.
 
+For more details on the project design and architecture, see the documentation:<br>
+[Project description](./docs/project-description.md).
+
 ## Quick Start
 
 Run the local container stack:
