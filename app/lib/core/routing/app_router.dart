@@ -15,7 +15,7 @@ import 'package:app/screens/session_start/session_start_view_model.dart';
 class AppRouter {
   const AppRouter({required this.dependencies});
 
-  final AppDependenciesData dependencies;
+  final AppDependencies dependencies;
 
   Route<dynamic> onGenerateRoute(RouteSettings settings) {
     return switch (settings.name) {

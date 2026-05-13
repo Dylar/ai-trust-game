@@ -14,7 +14,7 @@ class AppBot {
   Future<void> startApp({
     Widget? home,
     Widget Function(AppRouter router)? homeBuilder,
-    AppDependenciesData? dependencies,
+    AppDependencies? dependencies,
   }) async {
     final resolvedDependencies = dependencies ?? buildTestDependencies();
     final router = AppRouter(dependencies: resolvedDependencies);

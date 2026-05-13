@@ -2,14 +2,14 @@
 
 ## Purpose
 
-This document describes how frontend code should be structured in projects of this style.
+This document describes the preferred frontend structure for projects of this style.
 
-It is meant as a reusable frontend playbook:
+It is a frontend playbook for:
 
-- how frontend code should be organized
-- how screens and view models should work together
-- where logic should live
-- how routing, logging, and testing should stay explicit and understandable
+- organizing frontend code
+- keeping screens and view models understandable
+- deciding where UI-facing behavior belongs
+- keeping routing, logging, and testing explicit
 
 For general architecture rules, see [architecture-guidelines.md](./architecture-guidelines.md).
 
@@ -23,83 +23,139 @@ The preferred structure is:
 - `screens/`
 - `services/`
 - `usecases/`
+- `models/`
 - `data/`
-- shared testing helpers where useful
+
+Always use package imports for app code.
+Test-only helper files may use relative imports because Dart package imports only expose files under `lib/`.
 
 ### `core/`
 
-`core/` contains app-wide foundational code that helps hold the frontend together.
+`core/` is the frontend application core.
+It contains app-wide building blocks and conventions that are not owned by one feature.
 
-Good candidates for `core/` are:
+Good candidates:
 
 - app bootstrap or shell concerns
 - shared dependency setup
-- logging
+- routing
+- logging abstractions
 - error handling basics
-- configuration
-- other truly app-wide support code
+- runtime configuration
+- app-wide theme or design primitives
+
+App bootstrap creates `AppDependencies` and passes them into `AppRouter`.
+The router composes screens and view models explicitly.
 
 `core/` is not a fallback folder for code without a home.
-
 Avoid putting feature-specific UI, screen behavior, or business logic into `core/`.
-
-Logging is reused across multiple screens or flows, keep it under `core/logging/`.
-Concrete logging adapters that talk to external systems should live under `data/`, for example a backend log sink under
-`data/logging/`.
-
-Routing is app-wide and shared across screens, keep it under `core/routing/`.
-
-App-wide dependency access should live in `core/app/` through a small `InheritedWidget`-based facade.
-That facade should expose the dependencies the UI needs while keeping concrete wiring details behind a stable access
-point.
-
-Runtime configuration should live under `core/config/`.
-Use `--dart-define` for simple environment values such as the API base URL before introducing heavier configuration
-mechanisms.
 
 ### `screens/`
 
+`screens/` contains user-facing flow modules.
 Each screen should live in its own feature folder, for example:
 
 - `screens/login/`
 - `screens/session_start/`
 - `screens/interaction/`
 
-A screen folder should usually keep the main screen and its view model together, for example:
+A screen folder may contain:
 
-- `LoginScreen`
-- `LoginViewModel`
+- the screen widget
+- the screen view model
+- the screen state
+- screen-specific keys
+- small screen-specific widgets
+- screen-specific logging helpers
 
-This keeps user-facing UI composition and screen-specific behavior easy to find in one place.
+Keep small private widgets in the screen file when that is still readable.
+Move them into nearby files when the main screen becomes hard to scan.
 
-Small private widgets that only belong to one screen may stay in the same file as that screen.
+### `services/`
 
-### `services/`, `usecases/`, and `data/`
+`services/` contains feature- or domain-specific application behavior that should not live in widgets.
 
-`services/` and `usecases/` contain frontend-side application logic that should not live in widgets or view models.
+Services group operations for one area and may use repositories, data clients, and reusable use cases.
+Use a service when behavior is shared, meaningful on its own, or would make a view model too broad.
 
-`data/` contains communication with the outside world, such as:
+Small screen-specific behavior may stay in the view model when extracting it would only add ceremony.
+
+### `usecases/`
+
+`usecases/` contains more general reusable application behavior.
+
+Use cases may be called by view models or services.
+Domain-specific use cases should stay near the owning service or feature instead of being moved into global
+`usecases/` by default.
+
+### `models/`
+
+`models/` contains shared data shapes and vocabulary.
+
+Good candidates:
+
+- app-facing domain models
+- enums and value objects
+
+Models should describe data and meaning.
+They should not own loading, storing, caching, or updating behavior.
+
+### `data/`
+
+`data/` contains communication with external systems and platform integrations.
+It is the concrete implementation side of frontend boundaries.
+
+Examples:
 
 - API clients
-- persistence
+- repositories for stored app state
+- persistence adapters
 - platform bridges
-- adapters for external interfaces
-- concrete logging adapters that send events to backend or platform integrations
+- DTOs and transport mapping
+- concrete logging adapters that send events outside the app
 
-Feature-facing repositories may also live under `data/` when they abstract local persistence or app-runtime state, for
-example an in-memory repository used before a real backend or proto-backed implementation exists.
+Repositories are concrete boundary implementations and should usually live under `data/`.
 
-Repository APIs should stay as simple as the current feature needs.
-For normal-sized lists, prefer loading the list items directly.
-Only introduce ID-first loading, item-level lazy loading, or explicit caches when lists are expected to become very
-large, item details are expensive to load, or scrolling would otherwise trigger repeated unnecessary data fetches.
+## Where Logic Lives
 
-Shared frontend-facing contract or app model objects may live in a small common area such as `models/` when multiple
-screens depend on the same business vocabulary.
+### Widgets And Screens
 
-Use package imports for app code, for example `package:app/screens/home/home_screen.dart`.
-This keeps imports stable when files move during refactors.
-Test-only helper files may still use relative imports because Dart package imports only expose files under `lib/`.
+Widgets should focus on layout, rendering, and local ephemeral UI behavior.
+
+Good widget-owned behavior:
+
+- animation toggles
+- controller lifecycle
+- focus handling
+- local expansion or selection state that does not matter outside the widget
+
+Screen widgets are frontend entry points.
+They own UI composition and lifecycle for one user-facing flow.
+They bind UI to screen state, forward user actions to the view model, and dispose the screen-local view model when they
+own it.
+
+Widgets and screens should not contain:
+
+- business rules
+- API calls
+- orchestration logic
+- trust-sensitive decisions
+
+### View Models
+
+View models coordinate UI-facing behavior for one screen.
+
+They should:
+
+- expose one `ScreenState`
+- react to user actions
+- call services or use cases when needed
+- map results into screen state updates
+- stay free of widget APIs
+
+A view model is the flow for one screen.
+If behavior becomes reusable across screens, move it into a service or use case.
+Do not turn one screen view model into a multi-screen object.
 
 ## Screen Pattern
 
@@ -107,168 +163,83 @@ The frontend should prefer explicit and lightweight structure over heavy abstrac
 
 The default screen pattern is:
 
-- a screen owns UI composition for one user-facing flow
-- a screen may be a `StatefulWidget` when it needs lifecycle handling
-- routing creates the screen-local view model during screen composition
+- routing composes the screen and its screen-local view model
+- dependencies come from the app-wide dependency boundary
 - the screen receives its view model through the constructor
-- dependencies are resolved from the app-wide dependency boundary during screen composition
 - the view model exposes one `ScreenState`
 - screen state is held in `ValueNotifier<ScreenState>`
 - the UI rebuilds with `ValueListenableBuilder`
-- small `StatelessWidget`s render parts of the screen state
+- small widgets render parts of the screen state
 
-This keeps the UI tree understandable and keeps business behavior out of widgets.
-
-### Small UI Parts
-
-Prefer small `StatelessWidget`s for rendering.
-
-These widgets should:
-
-- receive the data they need
-- receive callbacks they can trigger
-- stay focused on presentation
-
-If a widget is only used by one screen, it is fine to keep it private in the same screen file.
-
-### ScreenState
-
-Each screen view model should expose one `ScreenState` object that represents the current UI state for that screen.
-
-That state should contain the information the screen needs to render, for example:
-
-- loading state
-- error state
-- current data to display
-- enabled or disabled actions
-
-The screen and its child widgets should render from that `ScreenState`.
-
-### Streams
+This keeps UI composition understandable and keeps behavior out of widgets.
 
 Do not use `StreamBuilder` as the default for normal screen state.
+If a feature depends on a real stream, keep the stream inside the view model and translate incoming events into
+`ScreenState` updates.
 
-If a feature depends on a real stream, keep the stream inside the view model and translate incoming events into updates
-on the `ValueNotifier<ScreenState>`.
-
-## Where Logic Lives
-
-### Widgets
-
-Widgets should focus on:
-
-- layout
-- rendering
-- local ephemeral UI behavior
-
-Examples of local widget behavior:
-
-- animation toggles
-- controller lifecycle
-- focus handling
-- local expansion or selection state that does not matter outside the widget
-
-Widgets should not contain:
-
-- business rules
-- API calls
-- orchestration logic
-- trust-sensitive decisions
-
-### Screens
-
-Screens own UI composition and lifecycle for one user-facing flow.
-
-They should:
-
-- bind UI to screen state
-- forward user actions to the view model
-- dispose the injected screen-local view model when they own its lifecycle
-
-### View Models
-
-View models should coordinate UI-facing behavior for one screen.
-
-They should:
-
-- expose one `ScreenState`
-- react to user actions
-- call use cases and services
-- map results into screen state updates
-
-They should not:
-
-- render widgets
-- depend on widget APIs
-- contain low-level transport or persistence code
-
-Dependencies should be resolved from the app-wide dependency boundary and then passed into the screen-local view model.
-In this repository, that screen-local composition is typically done in the app router, which receives app-wide
-dependencies and constructs the screen plus its view model together.
-This keeps the view model framework-light while avoiding direct transport access from widgets.
-
-### Services, Use Cases, And Data
-
-Services and use cases hold frontend-side application behavior that should not sit in widgets or view models.
-
-The data layer communicates with external systems and platform integrations.
-
-Prefer a small sequence like this:
-
-- app bootstrap exposes dependencies through the app-wide dependency boundary
-- routing composes the screen-local view model
-- view model calls a service or use case
-- service delegates to repositories or `data/`
-- repositories coordinate stored app state when needed
-- `data/` performs transport or platform work
-
-Avoid letting the screen or view model talk directly to API clients.
-
-### Boundaries
+## Boundaries
 
 Use explicit boundaries where the frontend communicates with the outside world.
+In this playbook, `data/` usually contains the concrete boundary implementations.
 
 Typical examples:
 
 - API clients
 - platform bridges
 - persistence adapters
-- shared contract models such as proto definitions
 
-Frontend code should consume these boundaries through clear services, use cases, or adapters instead of letting widgets
-talk to them directly.
+Widgets, screens, and view models should not call API clients directly.
+Use services, use cases, or repositories between UI-facing code and `data/`.
 
-API clients should receive their transport dependencies explicitly, such as an `http.Client` and a base `Uri`.
+API clients should receive transport dependencies explicitly, such as an `http.Client` and a base `Uri`.
 Do not hardcode backend URLs inside individual API methods.
 
-## Routing, Logging, And Testing
+## State Ownership
+
+Choose the smallest state owner that matches the lifetime of the state:
+
+- screen-local state belongs in a screen view model and `ScreenState`
+- temporary multi-screen flow state belongs in a flow-local `FlowController` and `FlowState`
+- app-wide long-lived state belongs in an app dependency, service, or repository
+
+For real multi-screen flows, create one flow-local `FlowController` per flow instance.
+It owns the immutable `FlowState`, exposes flow-specific mutation methods, and may extend or wrap
+`ValueNotifier<FlowState>`.
+Pass it through the involved routes or screen constructors.
+The creator owns disposal when the flow ends.
+
+## Dependency Direction
+
+Prefer this direction for feature behavior:
+
+```text
+screen -> view model -> service/usecase -> repository -> data -> external system
+```
+
+For multi-screen flows, screen view models may also use the flow-local controller:
+
+```text
+screen -> view model -> FlowController
+```
+
+## Routing And Logging
 
 ### Routing
 
 Keep routing simple and explicit by default.
 
-Central routing setup should usually live under `core/routing/`.
-
 Prefer:
 
-- a small central routing setup
+- central routing under `core/routing/`
 - screen-oriented routes
 - route arguments only for navigation-relevant input
-- the screen's own navigation entrypoint as a static function on the screen widget, that improves discoverability
+- static screen entrypoints to improve discoverability
 
 Avoid:
 
 - hiding business state inside routes
 - spreading route definitions across unrelated files too early
 - adopting complex router setups before there is a real need
-
-Routing should help users move between screens.
-It should not become a second state-management system.
-
-When practical, keep the actual screen invocation close to the screen itself, for example as a static function on the
-screen widget.
-
-This makes it easy to see from the screen definition itself how that screen is intended to be opened.
 
 ### Logging
 
@@ -288,114 +259,92 @@ Avoid:
 - duplicating backend logs in the UI without adding useful context
 - logging sensitive user or session data carelessly
 
-### Testing
+## Testing
 
-Frontend tests should follow the same behavior-first approach as the backend, but expressed through UI-facing flows.
+Frontend tests should describe user-visible behavior and business-relevant user journeys.
 
-Prefer:
+Prefer screen tests for user-facing flows.
+Keep the real screen, view model, and internal feature flow together when practical, and mock the transport boundary or
+test dependency instead of mocking the whole screen flow.
 
-- tests that describe user-visible behavior
-- screen tests over tests for every small widget
-- readable setup and interaction flow
-- minimal boilerplate inside the test body
+Use smaller unit tests for isolated logic when it is stable and meaningful on its own, such as:
 
-Screen tests should be as close to integration tests as practical.
-
-Prefer:
-
-- keeping the real screen, view model, and internal feature flow together
-- mocking transport boundaries instead of whole services
-- testing the behavior of the feature, not the implementation of one layer in isolation
-
-Mock deeper layers only when a test would otherwise become unnecessarily hard to control or no longer useful for the
-scenario being tested.
-
-If a piece of logic is isolated, stable, and meaningful on its own, write a unit test for it.
-
-Good candidates:
-
-- view model helper logic
-- state mapping
-- small pure transformations
+- pure state mapping
 - validation rules
+- reusable service behavior
+- API client request and error handling
 
-Keep frontend interaction tests readable by structuring them around clear scenario steps.
+### Interaction Test Architecture
 
-Prefer:
+Interaction tests should be separated into four test-side layers:
 
-- `Given / When / Then` comments or an equivalent clear test-phase structure
-- stable selectors such as `Key`s for interaction and structural assertions
-- using visible text assertions only where the text itself is meaningful user-facing behavior
+1. `ScreenBot`s for UI interaction and screen assertions
+2. `Process` objects for business flows and user journeys
+3. test cases for short, readable scenarios
+4. `TestContext` objects for test dependency setup and composition
 
-Avoid:
+### Screen Bots
 
-- relying on large numbers of fragile text finders for routine interaction
-- hiding the scenario structure inside low-level test helpers
-- mixing setup, actions, and assertions into one unstructured block
+Screen bots encapsulate UI interactions for one screen or a closely related set of screens.
 
-### Robot Pattern
+They may:
 
-Use the Robot Pattern as the preferred style for frontend interaction tests.
+- locate UI elements
+- perform screen actions
+- expose screen-state assertions
+- use stable `Key` selectors for routine interaction and structural assertions
+- use visible text assertions when the text itself is meaningful behavior
 
-Robots should:
+Each screen bot should build on shared bot mechanics such as tapping, entering text, scrolling, pumping, and finder
+resolution.
 
-- perform user actions
-- expose high-level assertions
-- keep test code focused on behavior
+Screen bots should not contain business flow decisions.
+They should stay focused on what the user can do and see on a screen.
 
-Robots should not:
+### Processes
 
-- hide architecture problems
-- contain business logic
-- become a second implementation of the screen
+Processes represent business flows or user journeys.
 
-Shared robots and other frontend test helpers should live in one shared testing area when they are reused across
-multiple screens or flows.
+They are reusable across test cases and should use screen bots, base bots, app bots, and other processes to perform the
+steps needed by a scenario.
 
-The preferred test structure in this repository is:
+Processes should contain:
 
-- `AppBot`
-- `BaseScreenBot`
-- feature-specific `ScreenBot`
-- feature-specific `Process` when a flow needs orchestration across multiple actions
-- feature-specific test `Context` as a small composition root
+- macro steps for significant user journey actions
+- micro steps for smaller reusable actions that support macro steps
+- waiting or pumping needed to move through loading or transition states
 
-Responsibilities:
+Process names and method names should describe the business intent of the action, not low-level UI mechanics.
 
-- `AppBot`
-  starts the app and owns app-wide test setup concerns
+### Test Cases
 
-- `BaseScreenBot`
-  contains reusable low-level UI test mechanics such as finder resolution, taps, scrolling, and pumping
+Test cases are the scenario entrypoint.
 
-- `ScreenBot`
-  exposes screen-specific actions and assertions
-  it should stay focused on what the user can do and see on one screen
+They should:
 
-- `Process`
-  combines multiple screen actions into a meaningful flow step
-  it may wait for transient states to complete, but it should not become a second implementation of the feature
+- stay short and readable
+- use a `Given / When / Then` mindset or an equivalent clear phase structure
+- call the process layer for scenario actions and verification steps
+- avoid direct UI interaction through bots unless commenting a deliberate trade-off
 
-- `Context`
-  wires together the bots and processes needed for one feature's tests
-  it acts as a small test-side composition root and should not hide substantial logic
+Tests should mostly use macro steps from processes.
+They may use micro steps when a scenario needs specific setup or verification.
 
-Prefer introducing a `Process` as soon as it helps keep the `ScreenBot` limited to "do" and "expect" behavior.
-Do not wait until a flow spans many screens if a process already improves clarity.
+### Test Context
 
-## Project-Specific Notes
+A `TestContext` is the test-side composition root for one feature's tests.
 
-In this repository, frontend architecture currently also follows these additional defaults:
+It should:
 
-- Flutter is the chosen frontend stack
-- `InheritedWidget` is the default dependency injection mechanism
-- `AppDependencies` is the current app-wide dependency facade
-- `ValueNotifier<ScreenState>` is the default screen-state mechanism
-- screen-level tests with the Robot Pattern are preferred
-- feature tests should prefer `AppBot` + `BaseScreenBot` + `ScreenBot` + optional `Process` + feature `Context`
-- screen bots should stay on the level of screen actions and screen assertions
-- processes should hold test-flow orchestration such as waiting through loading transitions
-- `Key`-based selectors are the default for test interaction points
-- shared frontend models may live under `models/` before later proto-based contracts exist
-- the current frontend boundary style is `AppDependencies` -> `services/` -> `data/`
-- backend state remains authoritative for trust-sensitive behavior
+- create and expose the needed bots
+- create and expose the needed processes
+- hold test dependency setup for the scenario
+- keep setup details out of test cases
+
+It should not hide substantial scenario logic.
+
+The normal interaction test call direction is:
+
+```text
+test case -> process -> screen bot -> base bot / Flutter tester
+```

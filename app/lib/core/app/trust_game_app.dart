@@ -8,32 +8,29 @@ import 'package:app/l10n/app_localizations.dart';
 import 'package:app/core/theme/app_theme.dart';
 
 class TrustGameApp extends StatelessWidget {
-  TrustGameApp({super.key, this.home, AppDependenciesData? dependencies})
-    : dependencies = dependencies ?? AppDependenciesData.defaults();
+  TrustGameApp({super.key, this.home, AppDependencies? dependencies})
+    : dependencies = dependencies ?? AppDependencies.defaults();
 
   final Widget? home;
-  final AppDependenciesData dependencies;
+  final AppDependencies dependencies;
 
   @override
   Widget build(BuildContext context) {
     final router = AppRouter(dependencies: dependencies);
 
-    return AppDependencies(
-      dependencies: dependencies,
-      child: MaterialApp(
-        onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-        theme: buildAppTheme(),
-        color: AppColors.background,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        onGenerateRoute: router.onGenerateRoute,
-        home: home ?? router.buildHomeScreen(),
-      ),
+    return MaterialApp(
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      theme: buildAppTheme(),
+      color: AppColors.background,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      onGenerateRoute: router.onGenerateRoute,
+      home: home ?? router.buildHomeScreen(),
     );
   }
 }

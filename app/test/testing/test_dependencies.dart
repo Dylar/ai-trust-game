@@ -16,7 +16,7 @@ import 'package:http/http.dart' as http;
 
 import 'mocks/backend_mock_client.dart';
 
-AppDependenciesData buildTestDependencies({
+AppDependencies buildTestDependencies({
   AnalysisRepository? analysisRepository,
   AnalysisService? analysisService,
   AppLogger? appLogger,
@@ -39,7 +39,7 @@ AppDependenciesData buildTestDependencies({
   final resolvedSessionRepository =
       sessionRepository ?? InMemorySessionRepository();
 
-  return AppDependenciesData(
+  return AppDependencies(
     analysisService:
         analysisService ??
         AnalysisServiceImpl(

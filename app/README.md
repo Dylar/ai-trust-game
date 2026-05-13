@@ -20,7 +20,7 @@ The app currently has:
 - an `Interaction` screen that sends messages to the backend
 - a `SessionDetail` screen that loads aggregated session analysis
 - an `InteractionDetail` screen that loads request-level analysis
-- app-wide dependency access through `AppDependencies`
+- app-wide dependency setup through `AppDependencies`
 - app-wide configuration through `AppConfig`
 - app-wide logging through `core/logging/` and `AppLogger`
 - Dev, Test, and Prod flavor configuration
@@ -57,7 +57,7 @@ Current `lib/` structure:
 
 Current frontend architecture choices:
 
-- `TrustGameApp` wraps the app with `AppDependencies`
+- `TrustGameApp` creates `AppDependencies` and passes them into `AppRouter`
 - `AppConfig.fromEnvironment()` reads `APP_ENV` and `API_BASE_URL`
 - `AppLogger` is the frontend logging boundary under `core/logging/`
 - backend log shipping is implemented as a concrete adapter under `data/logging/`
@@ -67,9 +67,9 @@ Current frontend architecture choices:
 - view models stay screen-local and are composed in the router before being passed into screens
 - shared business vocabulary currently lives in `lib/models/`
 - Home-specific list summaries are screen state objects, not shared domain models
-- session flow currently follows `screen -> service -> repository/data`
-- interaction flow currently follows `screen -> service -> repository/data`
-- analysis detail flows currently follow `screen -> service -> data`
+- session flow currently follows `screen -> view model -> service -> repository/data`
+- interaction flow currently follows `screen -> view model -> service -> repository/data`
+- analysis detail flows currently follow `screen -> view model -> service -> data`
 - recent sessions are intentionally in-memory only for now and reset when the app restarts
 - interactions are intentionally in-memory only for now and reset when the app restarts
 - current routing paths are `Home -> SessionStart -> Interaction`, `Home -> Interaction`, `Interaction -> SessionDetail`,

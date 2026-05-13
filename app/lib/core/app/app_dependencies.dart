@@ -13,11 +13,10 @@ import 'package:app/data/session/session_repository.dart';
 import 'package:app/services/analysis_service.dart';
 import 'package:app/services/interaction_service.dart';
 import 'package:app/services/session_service.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
-class AppDependenciesData {
-  const AppDependenciesData({
+class AppDependencies {
+  const AppDependencies({
     required this.analysisService,
     required this.appLogger,
     required this.config,
@@ -29,7 +28,7 @@ class AppDependenciesData {
     required this.userIdentity,
   });
 
-  factory AppDependenciesData.defaults() {
+  factory AppDependencies.defaults() {
     final config = AppConfig.fromEnvironment();
     final httpClient = http.Client();
     final userIdentity = UserIdentity.newRuntimeIdentity();
@@ -48,7 +47,7 @@ class AppDependenciesData {
     );
     final sessionRepository = InMemorySessionRepository();
 
-    return AppDependenciesData(
+    return AppDependencies(
       analysisService: AnalysisServiceImpl(
         analysisRepository: analysisRepository,
         apiClient: AnalysisApiClient(
@@ -91,37 +90,4 @@ class AppDependenciesData {
   final SessionRepository sessionRepository;
   final SessionService sessionService;
   final UserIdentity userIdentity;
-}
-
-class AppDependencies extends InheritedWidget {
-  const AppDependencies({
-    super.key,
-    required this.dependencies,
-    required super.child,
-  });
-
-  final AppDependenciesData dependencies;
-
-  AnalysisService get analysisService => dependencies.analysisService;
-  AppLogger get appLogger => dependencies.appLogger;
-  AppConfig get config => dependencies.config;
-  http.Client get httpClient => dependencies.httpClient;
-  InteractionRepository get interactionRepository =>
-      dependencies.interactionRepository;
-  InteractionService get interactionService => dependencies.interactionService;
-  SessionRepository get sessionRepository => dependencies.sessionRepository;
-  SessionService get sessionService => dependencies.sessionService;
-  UserIdentity get userIdentity => dependencies.userIdentity;
-
-  static AppDependencies of(BuildContext context) {
-    final widget = context
-        .dependOnInheritedWidgetOfExactType<AppDependencies>();
-    assert(widget != null, 'AppDependencies is missing above this context.');
-    return widget!;
-  }
-
-  @override
-  bool updateShouldNotify(AppDependencies oldWidget) {
-    return oldWidget.dependencies != dependencies;
-  }
 }
