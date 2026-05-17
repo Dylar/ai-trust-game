@@ -348,3 +348,7 @@ The normal interaction test call direction is:
 ```text
 test case -> process -> screen bot -> base bot / Flutter tester
 ```
+
+## Project-Specific Notes
+
+For repository-specific frontend details, continue with the [code-near documentation](./project-navigation.md#frontend).

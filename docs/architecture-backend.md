@@ -2,194 +2,289 @@
 
 ## Purpose
 
-This document describes how backend code should be structured in projects of this style.
+This document describes the preferred backend structure for projects of this style.
 
-It is meant as a reusable backend playbook:
+It is a backend playbook for:
 
-- how services should be organized
-- how backend flows should be modeled
-- where logic should live
-- how boundaries should be defined
-- how testing and logging should be approached
+- organizing backend services
+- keeping entry points and flows understandable
+- deciding where backend behavior belongs
+- keeping boundaries, logging, and testing explicit
 
 For general architecture rules, see [architecture-guidelines.md](./architecture-guidelines.md).
 
-## Service Structure
+## Backend Structure
+
+Backend code should be organized around services and backend-facing flows.
 
 Each backend service should live under `services/<service-name>/`.
 
-The preferred structure is:
+The preferred service structure is:
 
 - `cmd/`
-- `scripts/`
 - `service/`
+- `scripts/`
 - `proto/` when the service exposes gRPC or service-specific contracts
-- `k8s/` when the service owns service-specific Kubernetes deployment files
+- `k8s/` when the service owns service-specific Kubernetes values or deployment configuration
 
-Shared supporting areas may also exist outside the individual service:
+Shared supporting areas may exist outside individual services:
 
-- `tooling/` for shared helpers used by tests and scripts
-- `infrastructure/` for shared delivery and deployment assets such as Docker, Kubernetes, or later Terraform setup
-- `pkg/k8s/` for shared Kubernetes building blocks reused by multiple services
-
-When multiple Go services share the same container build pattern, keep the default Docker build definition in a shared
-location under `infrastructure/`, for example `infrastructure/docker/`.
-Service-specific deployment files such as Kubernetes manifests may still move near the owning service later under
-`services/<service-name>/k8s/` when service boundaries become concrete.
+- `internal/`
+- `pkg/`
+- `tooling/`
+- `infrastructure/`
 
 ### `cmd/`
 
 `cmd/` contains the service entrypoint and runtime wiring.
 
-This is where:
+Good candidates:
 
-- the service starts
-- concrete dependencies are created
-- factories and flow wiring live
-- runtime configuration is applied
+- service startup
+- runtime configuration
+- concrete dependency creation
+- factories and flow wiring
+- server setup
 
-### `scripts/`
+`cmd/` is the composition root.
+It may know concrete implementations because it assembles the running service.
 
-`scripts/` contains development scripts that call the service interfaces directly.
-
-Prefer one script per service interface when practical.
-
-These scripts are especially useful:
-
-- before a frontend exists
-- while developing a new endpoint
-- for manual debugging of one service flow
+Do not put request handling, business rules, or reusable workflow logic into `cmd/`.
 
 ### `service/`
 
-`service/` contains the service-facing code.
+`service/` contains the service transport shell.
 
-This usually means:
+Good candidates:
 
-- DTOs
-- handlers
-- transport mapping
-- small service-local logic
+- HTTP or gRPC handlers
+- request and response DTOs
+- transport validation
+- transport-to-domain mapping
+- status code and error mapping
+- small service-local behavior tied to one endpoint
+
+Handlers are backend entry points.
+They should keep transport details close and delegate meaningful behavior to a backend flow.
+
+Small endpoint-specific behavior may stay in `service/` when extracting it would only add ceremony.
+
+### `scripts/`
+
+`scripts/` contains development scripts that call service interfaces directly.
+
+Good candidates:
+
+- manual endpoint checks
+- local request examples
+- scripts for developing a new service flow
+- debugging helpers before or beside a frontend
+
+Scripts should exercise the service from the outside.
+They should not become a second implementation path for service behavior.
 
 ### `proto/`
 
-If a service defines gRPC or service-specific contracts, keep them in `services/<service-name>/proto/`.
+`proto/` contains service-specific gRPC or contract files when the service owns them.
 
-This keeps service boundary contracts close to the service that owns them.
+Proto files are an intentional contract choice.
+Use them when a stable cross-language or service boundary contract is useful.
+
+Do not add proto only because transport objects exist.
+If normal service-local DTOs are enough, keep the structure smaller.
 
 ### `k8s/`
 
-If a service owns service-specific deployment configuration, keep it in `services/<service-name>/k8s/`.
+`k8s/` contains service-specific deployment values or configuration.
 
-This usually contains the concrete Kubernetes configuration for that service and is often an application of shared
-patterns or building blocks from `pkg/k8s/`.
+Good candidates:
 
-## Flow Objects
+- environment-specific values for the service
+- service-owned deployment overrides
+- configuration consumed by shared Helm charts
 
-When backend behavior involves a meaningful workflow, prefer one explicit flow object behind the service entrypoint.
+Shared Kubernetes chart logic belongs under `infrastructure/k8s/`.
+Service folders should keep only the values or deployment details owned by that service.
 
-Possible names include:
+### `internal/`
 
-- `processor`
-- `use case`
-- `application service`
-- `orchestrator`
+`internal/` contains backend behavior that is not transport-specific.
 
-The important part is the responsibility, not the label, but keep it consistent within the project.
+Good candidates:
 
-A flow object usually owns one coherent backend workflow.
+- backend flows
+- processors
+- domain services
+- policy or decision logic
+- state transition logic
+- provider-independent orchestration
 
-Introduce one when:
+Use `internal/` when behavior is meaningful beyond one handler, needs focused tests, or should stay independent from
+HTTP, gRPC, CLI, or queue delivery.
 
-- a request does more than simple data mapping
-- multiple meaningful steps need coordination
-- state must be loaded and updated
-- business decisions need to stay explicit
-- provider or infrastructure calls should not leak into handlers
+### `internal/domain/`
 
-If a workflow grows further, split distinct steps into separate collaborators when they have:
+`internal/domain/` contains shared backend domain language.
 
-- different rules
-- different tests
-- different boundary concerns
-- different replacement needs
-
-## Service Entry Points
-
-Entry points such as HTTP handlers, CLI commands, job runners, or queue consumers should stay thin.
-
-They should:
-
-- parse and validate transport input
-- load request-scoped metadata if needed
-- delegate to one backend flow
-- map the result back to the transport response
-
-They should not:
-
-- own larger business workflows
-- decide policy deep inside transport code
-- coordinate many unrelated dependencies
-- become the main home of stateful logic
-
-For HTTP handlers, `ServeHTTP` should typically be the entrypoint, while local `handleX` methods may keep small
-service-bound logic close by.
-
-If a `handleX` method grows into a meaningful workflow, move it into a dedicated flow object.
-
-## Where Logic Lives
-
-Not all business logic must automatically live in `internal/`.
-
-Use `service/` for logic that is:
-
-- clearly tied to one service interface
-- still small enough to stay understandable near the handler
-- not yet a reusable backend workflow
-
-Use `internal/` for logic that is:
-
-- transport-independent
-- reused across entrypoints
-- large enough to deserve its own backend workflow
-- important enough to model as a separate core concept
-
-This means:
-
-- `service/` owns the service-facing shell and may keep small service-local logic
-- `internal/` owns larger or more reusable backend workflows and core concepts
-
-### Domain Types
-
-Domain types should express business meaning clearly.
-
-Prefer them for:
+Good candidates:
 
 - trusted state
 - enums and fixed categories
 - actions, decisions, and plans
 - claims that must stay distinct from verified state
 
-Avoid letting transport DTOs or provider payloads become the main business model by accident.
+Domain types should express business meaning clearly.
+Avoid letting transport DTOs, persistence records, or provider payloads become the main business model by accident.
 
-### Contracts And Proto
+### `pkg/`
 
-Proto may be used as a shared cross-language contract model when consistency between Go and Flutter is an explicit goal.
+`pkg/` contains reusable backend application core and technical support.
 
-In this style, that is an intentional architectural decision.
+Good candidates:
 
-Prefer:
+- logging abstractions
+- service bootstrap helpers
+- shared HTTP helpers
+- shared audit or observability primitives
+- reusable error, request, or runtime helpers
 
-- using proto objects as the shared contract when the same objects should remain stable across languages
-- avoiding parallel internal models unless there is a clear reason for separation
-- separating service-specific proto contracts from broader shared contracts when their concerns diverge
+`pkg/` is not a fallback folder for code without a home.
+Avoid putting service-specific workflows or product-specific business rules into `pkg/`.
 
-Proto is therefore not treated as "just transport" here.
-It may also act as a stable shared object model across languages.
+### `tooling/`
+
+`tooling/` contains shared support for tests and scripts.
+
+Good candidates:
+
+- reusable test helpers
+- shared fake setup
+- script support code
+- local verification helpers
+
+Avoid placing business logic in `tooling/`.
+
+### `infrastructure/`
+
+`infrastructure/` contains delivery and operational support.
+
+Good candidates:
+
+- Dockerfiles
+- Docker Compose files
+- Helm charts
+- Kubernetes chart templates
+- Makefile fragments
+- future Terraform or deployment automation
+
+Infrastructure should support running and deploying the system.
+It should not own backend business behavior.
+
+## Where Logic Lives
+
+### Service Entry Points
+
+Service entry points receive input and return output.
+
+Examples:
+
+- HTTP handlers
+- gRPC handlers
+- CLI commands
+- job runners
+- queue consumers
+
+They should:
+
+- parse and validate transport input
+- load request-scoped metadata if needed
+- map transport DTOs into backend inputs
+- call one focused backend flow when behavior is meaningful
+- map backend results into transport responses
+- translate backend errors into transport errors
+
+They should not:
+
+- own larger business workflows
+- call providers directly for business behavior
+- hide policy decisions inside transport code
+- coordinate many unrelated dependencies
+- become the main home of stateful logic
+
+For HTTP handlers, `ServeHTTP` should usually be the transport entrypoint.
+Private helper methods may keep small endpoint-specific behavior close by.
+
+### Backend Flows
+
+Backend flows coordinate meaningful behavior.
+
+Possible names include:
+
+- processor
+- use case
+- application service
+- orchestrator
+- flow
+
+Use one consistent name within a feature or service.
+The responsibility matters more than the label.
+
+A flow should own one coherent backend workflow.
+Introduce one when:
+
+- a request does more than simple mapping
+- multiple meaningful steps need coordination
+- state must be loaded and updated
+- business decisions need to stay explicit
+- provider, repository, or infrastructure calls should not leak into handlers
+
+Small workflows do not need a separate flow object when the responsibility stays clear and tests can still describe the
+behavior.
+If this is a deliberate architectural trade-off, document it in the owning feature README.
+
+### Domain Types
+
+Domain types describe backend meaning.
+
+Prefer them for:
+
+- trusted state
+- business inputs and outputs
+- decisions and outcomes
+- fixed categories and enums
+- distinctions that must remain explicit
+
+Keep user claims separate from verified state.
+Keep provider payloads and persistence records separate from domain types unless sharing the model is an intentional
+contract decision.
+
+## Flow Pattern
+
+The backend should prefer explicit and lightweight flow objects over hidden orchestration.
+
+The default flow pattern is:
+
+- the entry point handles transport concerns
+- the flow receives explicit input
+- the flow coordinates domain steps and boundaries
+- repositories own stored state access
+- provider clients own external provider calls
+- the flow returns a result the entry point can map to transport output
+
+Split a flow into collaborators when the steps have:
+
+- different rules
+- different tests
+- different boundary concerns
+- different replacement needs
+
+Do not split a flow only because a pattern says every step needs its own type.
+Keep the structure as small as possible while preserving clear ownership.
+If this introduces a deliberate architectural trade-off, document the trade-off in the owning feature README.
 
 ## Boundaries
 
-Use boundaries where the backend communicates with the outside world or crosses a meaningful technical seam.
+Use explicit boundaries where the backend communicates with the outside world or crosses a meaningful technical seam.
 
 Typical examples:
 
@@ -197,17 +292,64 @@ Typical examples:
 - provider clients
 - audit sinks
 - external service adapters
+- persistence adapters
 
-Interfaces are the default for these kinds of boundaries.
+Interfaces are useful for real boundaries or intentional variation points.
+Prefer placing an interface near the package that consumes the behavior.
 
 Concrete types are the default for:
 
 - flow objects
 - internal helpers
 - domain services without an external boundary
+- implementations that do not need replacement
 
-The goal is not “everything behind an interface”.
-The goal is “interfaces where replacement, testing, or separation actually matters”.
+The goal is not "everything behind an interface".
+The goal is "interfaces where replacement, testing, or separation actually matters".
+
+## State Ownership
+
+Choose the smallest state owner that matches the lifetime of the state:
+
+- request-local state belongs in request input, handler-local variables, or flow input
+- workflow state belongs in the backend flow that coordinates the workflow
+- persisted state belongs behind a repository boundary
+- trusted business state belongs in domain types
+- runtime configuration belongs in the composition root or reusable service core
+
+Avoid passing raw transport DTOs deep into backend flows.
+Avoid letting external provider payloads become authoritative state.
+
+## Dependency Direction
+
+Prefer this direction for service behavior:
+
+```text
+cmd -> service entry point -> flow/usecase -> repository/provider client -> external system
+                                      -> domain
+```
+
+Shared application core may be used by entry points, flows, and boundary implementations:
+
+```text
+service/flow/boundary -> pkg
+```
+
+Do not let domain logic depend on transport packages, concrete deployment infrastructure, or runtime entrypoints.
+
+## Contracts
+
+Use shared contracts intentionally.
+
+Proto, OpenAPI, or shared DTO packages may be useful when:
+
+- multiple clients or services need the same stable contract
+- Go and Flutter models should remain aligned
+- generated code reduces duplicate manual mapping
+- the contract is owned and versioned deliberately
+
+Avoid introducing shared contracts when service-local DTOs are enough.
+Avoid treating a provider payload as the project contract unless that dependency is intentionally part of the boundary.
 
 ## Logging And Testing
 
@@ -267,37 +409,6 @@ Use mocks or fakes at real boundaries such as:
 
 Avoid mocking internal details that are not true architectural boundaries.
 
-### Shared Helpers
-
-Tests and scripts may share reusable support through `tooling/`.
-
-Prefer:
-
-- reusing existing helpers from `tooling/`
-- extending those helpers when that reduces duplication
-- keeping `tooling/` focused on shared support code
-
-Avoid placing business logic in `tooling/`.
-
-## Heuristics
-
-When adding new backend code, ask:
-
-- Is this service-local logic or a reusable backend workflow?
-- Does this deserve a dedicated flow object?
-- Is this a real boundary or just an internal detail?
-- Would another developer immediately know where this code belongs?
-- Does this structure make later growth easier without overengineering today?
-
-If the answer is unclear, prefer the simpler structure first and split later once the boundary is real.
-
 ## Project-Specific Notes
-
-In this repository, backend architecture also follows these additional rules:
-
-- verified state and user claims must stay distinct
-- trust-sensitive decisions should remain explicit
-- policy, execution, state changes, and guarded data exposure should stay deterministic
-- model providers may help with interpretation or phrasing, but should not silently become the authority
 
 For repository-specific backend details, continue with the [code-near documentation](./project-navigation.md#backend).
