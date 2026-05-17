@@ -8,14 +8,14 @@ Also, you can find the development roadmap and commands reference here.
 
 ## Project
 
-- [Project Description and Goals](project-description.md)
+- [Project Description and Goals](project/description.md)
 - [Agent working contract and documentation map for AI-assisted development](AGENT.md)
 
 ## Architecture
 
-- [Architecture Guidelines](architecture-guidelines.md)
-- [Backend Architecture](architecture-backend.md)
-- [Frontend Architecture](architecture-frontend.md)
+- [Architecture Guidelines](architecture/guidelines.md)
+- [Backend Architecture](architecture/backend.md)
+- [Frontend Architecture](architecture/frontend.md)
 
 ## Code-Near Documentation
 
@@ -47,8 +47,8 @@ Also, you can find the development roadmap and commands reference here.
 
 ## Development
 
-- [Development Phases](dev-roadmap.md)
-- [Commands](commands.md)
-- [Kubernetes deployment guide](k8s.md)
-- [Frontend flow diagrams](frontend-uml.md)
+- [Development Phases](development/roadmap.md)
+- [Commands](development/commands.md)
+- [Kubernetes deployment guide](deployment/k8s.md)
+- [Frontend flow diagrams](diagrams/frontend-uml.md)
 - [AGENT working notes](AGENT-notes.md)

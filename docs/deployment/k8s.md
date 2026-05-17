@@ -1,11 +1,14 @@
 # Kubernetes
 
 The project uses Helm for shared Kubernetes structure.
-Services provide environment-specific values next to their code.
+Applications and services provide environment-specific values next to the code they deploy.
+
+Architecture playbooks mention `k8s/` folders only as ownership markers.
+This document owns the deployment details.
 
 ## Layout
 
-Shared service chart:
+Shared service chart for backend-style services:
 
 ```text
 infrastructure/k8s/service-chart/
@@ -18,7 +21,7 @@ infrastructure/k8s/service-chart/
     service.yaml
 ```
 
-Shared app entry chart:
+Shared app entry chart for public HTTP entrypoints:
 
 ```text
 infrastructure/k8s/entry-chart/
@@ -31,7 +34,7 @@ infrastructure/k8s/entry-chart/
     service.yaml
 ```
 
-Main-service values and explicit manifests:
+Service-owned values:
 
 ```text
 services/main-service/k8s/
@@ -40,7 +43,7 @@ services/main-service/k8s/
   values-prod.yaml
 ```
 
-Frontend values and app entry chart:
+App-owned values:
 
 ```text
 app/k8s/
@@ -52,8 +55,17 @@ app/k8s/
   entry-values-prod.yaml
 ```
 
-The shared chart renders the common `Deployment`, `Service`, and `ConfigMap`.
-The app entry chart renders the Nginx entrypoint that routes frontend and backend traffic through one NodePort service.
+The service chart renders the common backend-style `Deployment`, `Service`, and `ConfigMap`.
+The app values configure the deployed frontend container.
+The app entry values configure the Nginx entrypoint that routes frontend and backend traffic through one NodePort
+service.
+
+Ownership rules:
+
+- `infrastructure/k8s/service-chart/` owns shared service Kubernetes templates
+- `infrastructure/k8s/entry-chart/` owns shared entrypoint Kubernetes templates
+- `services/<service-name>/k8s/` owns values for one backend service
+- `app/k8s/` owns values for the frontend app and app entrypoint
 
 ## Namespaces
 

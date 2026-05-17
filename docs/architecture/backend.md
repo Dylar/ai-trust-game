@@ -11,7 +11,7 @@ It is a backend playbook for:
 - deciding where backend behavior belongs
 - keeping boundaries, logging, and testing explicit
 
-For general architecture rules, see [architecture-guidelines.md](./architecture-guidelines.md).
+For general architecture rules, see [guidelines.md](./guidelines.md).
 
 ## Backend Structure
 
@@ -105,6 +105,7 @@ Good candidates:
 
 Shared Kubernetes chart logic belongs under `infrastructure/k8s/`.
 Service folders should keep only the values or deployment details owned by that service.
+For Kubernetes details, see [k8s.md](../deployment/k8s.md).
 
 ### `internal/`
 
@@ -411,4 +412,4 @@ Avoid mocking internal details that are not true architectural boundaries.
 
 ## Project-Specific Notes
 
-For repository-specific backend details, continue with the [code-near documentation](./project-navigation.md#backend).
+For repository-specific backend details, continue with the [code-near documentation](../project-navigation.md#backend).

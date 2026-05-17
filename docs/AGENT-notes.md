@@ -1,7 +1,7 @@
 # AGENT Notes
 
 This file holds temporary notes, discussed decisions, open questions, and follow-up items from repository work.
-Keep stable project documentation in the focused docs such as `k8s.md` and `commands.md`.
+Keep stable project documentation in the focused docs such as `deployment/k8s.md` and `development/commands.md`.
 
 ## Phase 11 Notes
 

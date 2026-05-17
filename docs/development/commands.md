@@ -1,7 +1,7 @@
 # Development Commands
 
 The repository root `Makefile` is a small entrypoint that includes focused files under
-[`../infrastructure/make`](../infrastructure/make/):
+[`../../infrastructure/make`](../../infrastructure/make/):
 
 - `common.mk` for shared defaults
 - `quality.mk` for Go and Flutter quality checks

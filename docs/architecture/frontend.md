@@ -11,7 +11,7 @@ It is a frontend playbook for:
 - deciding where UI-facing behavior belongs
 - keeping routing, logging, and testing explicit
 
-For general architecture rules, see [architecture-guidelines.md](./architecture-guidelines.md).
+For general architecture rules, see [guidelines.md](./guidelines.md).
 
 ## Frontend Structure
 
@@ -351,4 +351,4 @@ test case -> process -> screen bot -> base bot / Flutter tester
 
 ## Project-Specific Notes
 
-For repository-specific frontend details, continue with the [code-near documentation](./project-navigation.md#frontend).
+For repository-specific frontend details, continue with the [code-near documentation](../project-navigation.md#frontend).

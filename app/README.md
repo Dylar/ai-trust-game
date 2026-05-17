@@ -123,7 +123,7 @@ Current test structure:
 - `test/screens/<feature>/` for feature-local screen bots, processes, contexts, and screen tests
 
 Later phases of the frontend work should follow the structure described in
-[`docs/architecture-frontend.md`](../docs/architecture-frontend.md).
+[`docs/architecture/frontend.md`](../docs/architecture/frontend.md).
 
 ## Development Flow
 

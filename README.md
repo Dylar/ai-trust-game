@@ -28,7 +28,7 @@ This project is interested in what goes wrong when the system around the model i
 The idea is to make those differences visible in a small and understandable setup.
 
 For more details on the project design and architecture, see the documentation:<br>
-[Project description](./docs/project-description.md).
+[Project description](./docs/project/description.md).
 
 ## Quick Start
 
@@ -43,7 +43,7 @@ The backend is available at localhost:8080.
 
 For more commands and development scripts, see the documentation:<br>
 
-- [Development commands and example scripts](./docs/commands.md)
+- [Development commands and example scripts](./docs/development/commands.md)
 
 ## Project Navigation
 

@@ -6,8 +6,8 @@ Define the structural rules of the system.<br>
 This document is the source of truth for general architectural decisions.<br>
 Use the more specific playbooks when applying these rules in one part of the system:
 
-- [Backend Architecture](./architecture-backend.md)
-- [Frontend Architecture](./architecture-frontend.md)
+- [Backend Architecture](./backend.md)
+- [Frontend Architecture](./frontend.md)
 
 ## Core Ideas
 
