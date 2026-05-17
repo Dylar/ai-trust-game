@@ -23,6 +23,7 @@ Also, you can find the development roadmap and commands reference here.
 
 #### Services
 - [Main HTTP service, routes, metadata headers, and runtime wiring](../services/main-service/README.md)
+- [Main service Kubernetes deployment values](../services/main-service/k8s/README.md)
 
 #### Core / Foundation
 - [Shared service bootstrap, HTTP server lifecycle, and runtime config](../pkg/infra/README.md)
@@ -40,15 +41,17 @@ Also, you can find the development roadmap and commands reference here.
 
 ### Frontend
 - [Flutter web app bootstrap and frontend entrypoint](../app/README.md)
+- [Frontend workload and app entrypoint Kubernetes values](../app/k8s/README.md)
 
 ### Infrastructure
 - [Shared Docker, Compose, Kubernetes, and Make infrastructure](../infrastructure/README.md)
 - [Kubernetes chart and deployment structure](../infrastructure/k8s/README.md)
+- [GitHub Actions CI, image publishing, and deploy workflows](../.github/workflows/README.md)
 
 ## Development
 
 - [Development Phases](development/roadmap.md)
 - [Commands](development/commands.md)
-- [Kubernetes deployment guide](deployment/k8s.md)
+- [Kubernetes deployment overview](deployment/k8s.md)
 - [Frontend flow diagrams](diagrams/frontend-uml.md)
 - [AGENT working notes](AGENT-notes.md)

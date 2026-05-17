@@ -17,7 +17,7 @@ jobs:
   helm-checks:
     uses: ./.github/workflows/reusable-helm.yml
     with:
-      chart-path: ./infrastructure/k8s/chart
+      chart-path: ./infrastructure/k8s/service-chart
       values-files: |
         ./services/main-service/k8s/values-dev.yaml
         ./services/main-service/k8s/values-test.yaml
@@ -25,6 +25,15 @@ jobs:
         ./app/k8s/values-dev.yaml
         ./app/k8s/values-test.yaml
         ./app/k8s/values-prod.yaml
+
+  helm-entry-checks:
+    uses: ./.github/workflows/reusable-helm.yml
+    with:
+      chart-path: ./infrastructure/k8s/entry-chart
+      values-files: |
+        ./app/k8s/entry-values-dev.yaml
+        ./app/k8s/entry-values-test.yaml
+        ./app/k8s/entry-values-prod.yaml
 
   docker-build-main-service:
     uses: ./.github/workflows/reusable-docker-build.yml

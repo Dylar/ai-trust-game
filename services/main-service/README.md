@@ -48,6 +48,9 @@ Route registration lives in [`service/service.go`](./service/service.go).
 
 Current routes:
 
+- `GET /healthz`
+  returns service health for local checks, container health checks, and Kubernetes probes
+
 - `POST /chat`
   accepts a message and writes a suspicious-input audit event for a few basic patterns
 
@@ -149,5 +152,6 @@ For a local full-stack container run together with the Flutter web app, use the 
 Service-owned Kubernetes values live in [`k8s/`](./k8s/).
 
 They define the `main-service` values for `dev`, `test`, and `prod`.
-The shared service chart that renders the `Deployment`, `Service`, and `ConfigMap` lives under
-[`infrastructure/k8s/service-chart`](../../infrastructure/k8s/service-chart/).
+
+For service-specific deployment values, image repository, config, and secrets, see [`k8s/README.md`](./k8s/README.md).
+For the general Kubernetes layout, see [`docs/deployment/k8s.md`](../../docs/deployment/k8s.md).

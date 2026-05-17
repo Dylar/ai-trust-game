@@ -10,8 +10,8 @@ Keep stable project documentation in the focused docs such as `deployment/k8s.md
 - First real target cluster: Raspberry Pi running k3s.
 - Workstation uses a dedicated kubeconfig at `~/.kube/ai-trust-game-pi.yaml`.
 - First namespace: `atg-dev`.
-- `main-service` deploys through Helm.
-- `app-entry` is the temporary explicit per-environment NodePort entry under `app/k8s/entry-<env>.yaml`.
+- `main-service` and `frontend-web` deploy through the shared service Helm chart.
+- `app-entry` deploys through the shared entry Helm chart with values from `app/k8s/entry-values-<env>.yaml`.
 - Long-term ingress ownership should move to a future `gateway-service`.
 
 ## Cloudflare Tunnel Setup
@@ -125,7 +125,6 @@ Do not expose the Kubernetes API through the tunnel.
 
 - Move the public cluster entry point from `main-service` to `gateway-service` in Phase 12.
 - Revisit public hosting with real hostnames, TLS, and access protection after the Tailscale-only setup.
-- Review and simplify documentation after Phase 11 is finished.
 
 ## GitHub Actions Deploy Strategy
 

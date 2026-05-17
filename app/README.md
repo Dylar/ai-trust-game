@@ -89,7 +89,7 @@ The API base URL is read from `API_BASE_URL` via `--dart-define`.
 For local web runs:
 
 ```bash
-flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080
+flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
 For Android emulator runs against the local workstation backend, use the host bridge address instead of `localhost`:
@@ -129,7 +129,7 @@ Later phases of the frontend work should follow the structure described in
 
 For a manual local run:
 
-1. Start the backend from the repository root:
+1. Start the local compose stack from the repository root:
 
    ```bash
    make compose-up
@@ -138,7 +138,7 @@ For a manual local run:
 2. Start the Flutter web client from `app/`:
 
    ```bash
-   flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080
+   flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://localhost:8080
    ```
 
 3. Create a session, send one or more messages, then use the session and interaction analysis links from the
@@ -183,3 +183,12 @@ make compose-restart
 
 The compose setup keeps local ports and `API_BASE_URL` in the Compose file. The selected env file under
 `infrastructure/docker/compose/env/` only configures the model provider used by the backend.
+
+## Kubernetes
+
+App-owned Kubernetes values live in [`k8s/`](./k8s/).
+
+They deploy the `frontend-web` workload and the current `app-entry` Nginx entrypoint.
+
+For app-specific deployment values, image repositories, and entrypoint ports, see [`k8s/README.md`](./k8s/README.md).
+For the general Kubernetes layout, see [`docs/deployment/k8s.md`](../docs/deployment/k8s.md).

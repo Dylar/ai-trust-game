@@ -69,13 +69,13 @@ jobs:
 
       - name: Render manifests
         run: |
-          helm template "${{ inputs.service }}" ./infrastructure/k8s/chart \
+          helm template "${{ inputs.service }}" ./infrastructure/k8s/service-chart \
             -f "${{ steps.k8s.outputs.values-file }}" \
             --set image.tag="${{ inputs.image-tag }}"
 
       - name: Deploy release
         run: |
-          helm upgrade --install "${{ inputs.service }}" ./infrastructure/k8s/chart \
+          helm upgrade --install "${{ inputs.service }}" ./infrastructure/k8s/service-chart \
             -f "${{ steps.k8s.outputs.values-file }}" \
             --set image.tag="${{ inputs.image-tag }}" \
             --namespace "atg-${{ inputs.environment }}" \
@@ -84,9 +84,12 @@ jobs:
       - name: Apply app entry
         shell: bash
         run: |
-          entry_file="./app/k8s/entry-${{ inputs.environment }}.yaml"
+          entry_file="./app/k8s/entry-values-${{ inputs.environment }}.yaml"
           if [ -f "$entry_file" ]; then
-            kubectl apply -f "$entry_file"
+            helm upgrade --install app-entry ./infrastructure/k8s/entry-chart \
+              -f "$entry_file" \
+              --namespace "atg-${{ inputs.environment }}" \
+              --create-namespace
           else
-            echo "No app entry manifest found for ${{ inputs.environment }}."
+            echo "No app entry values found for ${{ inputs.environment }}."
           fi
