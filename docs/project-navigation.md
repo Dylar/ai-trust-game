@@ -54,4 +54,4 @@ Also, you can find the development roadmap and commands reference here.
 - [Commands](development/commands.md)
 - [Kubernetes deployment overview](deployment/k8s.md)
 - [Frontend flow diagrams](diagrams/frontend-uml.md)
-- [AGENT working notes](AGENT-notes.md)
+- [AGENT phase planning notes](development/AGENT-notes.md)

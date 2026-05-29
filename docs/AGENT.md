@@ -56,9 +56,11 @@ You MUST update documentation if ANY of the following changes:
 
 ### Working notes
 
-* Use [AGENT-notes.md](./AGENT-notes.md) for temporary notes, discussed decisions, open questions, and follow-up items from repository work.
-* Keep stable documentation in the focused docs such as `deployment/k8s.md`, `development/commands.md`, and architecture docs.
-* Move durable decisions from the notes file into the focused documentation once they become part of the project baseline.
+* Use [AGENT-notes.md](./development/AGENT-notes.md) to turn the broad roadmap into a concrete phase definition before implementation starts.
+* The AGENT-notes file is a temporary planning area for discussed decisions, open questions, and follow-up items during the current phase.
+* The AGENT-notes file is NOT the project source of truth. Nothing there is final until it is implemented and reflected in the focused documentation.
+* When a phase is complete, move durable decisions from AGENT-notes into the stable docs and remove obsolete working notes.
+* You can remind contributors to check AGENT-notes if they are planning or continuing a phase, but you should not refer to it as stable project documentation.
 
 ### Update architecture docs if:
 
