@@ -1,4 +1,10 @@
-# Development Roadmap
+# Development Plan
+
+This document is a broad development plan.
+It describes the intended direction and phase order, but it is not a detailed implementation roadmap.
+
+Use [AGENT-notes.md](./AGENT-notes.md) to turn the current phase into an actionable working plan before implementation
+starts.
 
 ## Tech Stack
 
@@ -10,9 +16,6 @@ The project starts small, but is planned with a broader service-oriented setup i
 - `HTTP`  
   Used first to keep the interaction loop simple while shaping the system behavior.
 
-- `gRPC / Protobuf`  
-  Planned for later service boundaries and possibly for the client-server contract once the client is introduced.
-
 - `Groq`  
   Planned as the first LLM provider because it is easy to start with and relatively inexpensive for experimentation.
 
@@ -23,8 +26,9 @@ The project starts small, but is planned with a broader service-oriented setup i
   Planned for persistent session and audit storage. A practical choice for structured backend state and easy
   self-hosting later.
 
-- `RabbitMQ`  
-  Optional later step for async communication between components if the architecture grows in that direction.
+- `Async messaging`
+  Planned for service-to-service log and audit delivery once services are decomposed.
+  The concrete technology is chosen during the relevant phase instead of being fixed upfront.
 
 - `Docker`  
   Planned for packaging and reproducible runtime setup.
@@ -145,10 +149,10 @@ Goal: run the system in a production-like environment
 
 ### Phase 12 - Service Decomposition
 
-- split into services where useful
-- introduce gRPC / Proto contracts
-- define clear service boundaries
-- separate responsibilities so later persistence, telemetry, and model routing can evolve independently
+- split backend responsibilities into explicit services
+- introduce `gateway-service` as the public backend entry point
+- separate logging and audit responsibilities into dedicated services
+- introduce async messaging for log and audit delivery
 
 Goal: move towards scalable architecture
 

@@ -56,7 +56,7 @@ You MUST update documentation if ANY of the following changes:
 
 ### Working notes
 
-* Use [AGENT-notes.md](./development/AGENT-notes.md) to turn the broad roadmap into a concrete phase definition before implementation starts.
+* Use [AGENT-notes.md](./development/AGENT-notes.md) to turn the broad development plan into a concrete phase definition before implementation starts.
 * The AGENT-notes file is a temporary planning area for discussed decisions, open questions, and follow-up items during the current phase.
 * The AGENT-notes file is NOT the project source of truth. Nothing there is final until it is implemented and reflected in the focused documentation.
 * When a phase is complete, move durable decisions from AGENT-notes into the stable docs and remove obsolete working notes.

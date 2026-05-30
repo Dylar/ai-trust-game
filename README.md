@@ -48,6 +48,6 @@ For more commands and development scripts, see the documentation:<br>
 ## Project Navigation
 
 Look into this table of contents for more details.<br>
-There is everything from architecture to development roadmap.
+There is everything from architecture to the broad development plan.
 
 - [Navigation links](./docs/project-navigation.md)

@@ -4,7 +4,7 @@ This document works as a table of contents.
 
 Use it to find your way around the project documentation, from high-level architecture to code-near explanations.
 
-Also, you can find the development roadmap and commands reference here.
+Also, you can find the broad development plan and commands reference here.
 
 ## Project
 
@@ -50,7 +50,7 @@ Also, you can find the development roadmap and commands reference here.
 
 ## Development
 
-- [Development Phases](development/roadmap.md)
+- [Development Plan](development/roadmap.md)
 - [Commands](development/commands.md)
 - [Kubernetes deployment overview](deployment/k8s.md)
 - [Frontend flow diagrams](diagrams/frontend-uml.md)
