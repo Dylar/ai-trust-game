@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests/assert"
 )
 
 func TestInMemoryRequestAnalysisRepositoryListBySession(t *testing.T) {

@@ -133,10 +133,10 @@ By the end of Phase 12:
    - The existing audit module moved from root-level `pkg/audit` to `services/game-service/service/audit` because it
      currently owns game-service audit events, analysis, read models, and intent summarization.
    - Root-level `internal/` was removed.
-   - The shared Go service Dockerfile now builds from `pkg/` and `services/` without copying a root-level `internal/`.
+   - The shared Go service Dockerfile now builds from `services/` without copying root-level backend code.
    - Code-near documentation links now point to the new service-owned package locations.
 
-5. Create the shared service code areas.
+5. Create the shared service code areas. (Done)
    - Create `services/shared/project/` for project-specific shared code.
    - Create `services/shared/foundation/` for generic service foundations such as logging, HTTP/network helpers, and
      runtime bootstrap if they are needed by multiple services.
@@ -146,6 +146,15 @@ By the end of Phase 12:
      is project-specific or generic foundation code.
    - Move existing root-level backend `tooling/` code into `services/shared/tooling/` when it supports services rather
      than repository-wide orchestration.
+
+   Completion notes:
+
+   - `services/shared/project/` now exists for future project-specific shared contracts and vocabulary.
+   - Root-level `pkg/infra`, `pkg/logging`, and `pkg/network` moved to `services/shared/foundation/`.
+   - Root-level backend `tooling/scripts` and `tooling/tests` moved to `services/shared/tooling/`.
+   - Root-level `pkg/` and `tooling/` were removed.
+   - The shared Go service Dockerfile now builds from `services/` only.
+   - Shared-code documentation lives under `services/shared/`.
 
 6. Add `gateway-service`.
    - Create the service structure under `services/gateway-service/`.

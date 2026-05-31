@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Dylar/ai-trust-game/pkg/logging"
-	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 var ErrEmptyMessage = errors.New("message cannot be empty")

@@ -1,7 +1,6 @@
 package interaction
 
 import (
-	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
 	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/execution"
 	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/planning"
@@ -9,6 +8,7 @@ import (
 	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
 	interactionstate "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/state"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/llm"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 )
 
 func NewStaticProcessor(auditSink audit.Sink, logger logging.Logger) Processor {

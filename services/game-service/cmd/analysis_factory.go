@@ -4,10 +4,10 @@ import (
 	"context"
 	"log"
 
-	"github.com/Dylar/ai-trust-game/pkg/infra"
-	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/llm"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 )
 
 func newConfiguredIntentSummarizer(logger logging.Logger) audit.IntentSummarizer {

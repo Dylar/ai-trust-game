@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service/llm"
-	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests/assert"
 )
 
 func TestLLMIntentSummarizerSummarizeRequest(t *testing.T) {

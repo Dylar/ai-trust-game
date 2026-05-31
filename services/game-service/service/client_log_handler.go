@@ -6,8 +6,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/pkg/logging"
-	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 var ErrInvalidClientLogLevel = errors.New("client log level is invalid")

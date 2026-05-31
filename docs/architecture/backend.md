@@ -29,8 +29,9 @@ The preferred service structure is:
 
 Shared supporting areas may exist outside individual services when they are not owned by one service:
 
-- `pkg/`
-- `tooling/`
+- `services/shared/project/`
+- `services/shared/foundation/`
+- `services/shared/tooling/`
 - `infrastructure/`
 
 ### `cmd/`
@@ -127,24 +128,36 @@ Good candidates:
 Domain types should express business meaning clearly.
 Avoid letting transport DTOs, persistence records, or provider payloads become the main business model by accident.
 
-### `pkg/`
+### `services/shared/project/`
 
-`pkg/` contains reusable backend application core and technical support.
+`services/shared/project/` contains project-specific shared backend code used by multiple services.
+
+Good candidates:
+
+- shared project contracts
+- shared event envelopes
+- shared project vocabulary that intentionally crosses service boundaries
+
+Do not put service-private behavior here.
+If one service owns the concept, keep it under that service until another service truly needs the shared contract.
+
+### `services/shared/foundation/`
+
+`services/shared/foundation/` contains reusable backend application core and technical support.
 
 Good candidates:
 
 - logging abstractions
 - service bootstrap helpers
 - shared HTTP helpers
-- shared audit or observability primitives
 - reusable error, request, or runtime helpers
 
-`pkg/` is not a fallback folder for code without a home.
-Avoid putting service-specific workflows or product-specific business rules into `pkg/`.
+Foundation packages should stay generic and project-independent where practical.
+Avoid putting service-specific workflows or product-specific business rules into `services/shared/foundation/`.
 
-### `tooling/`
+### `services/shared/tooling/`
 
-`tooling/` contains shared support for tests and scripts.
+`services/shared/tooling/` contains shared support for backend service tests and scripts.
 
 Good candidates:
 
@@ -153,7 +166,7 @@ Good candidates:
 - script support code
 - local verification helpers
 
-Avoid placing business logic in `tooling/`.
+Avoid placing business logic in `services/shared/tooling/`.
 
 ### `infrastructure/`
 
@@ -323,7 +336,7 @@ cmd -> service entry point -> flow/usecase -> repository/provider client -> exte
 Shared application core may be used by entry points, flows, and boundary implementations:
 
 ```text
-service/flow/boundary -> pkg
+service/flow/boundary -> services/shared/foundation
 ```
 
 Do not let domain logic depend on transport packages, concrete deployment infrastructure, or runtime entrypoints.

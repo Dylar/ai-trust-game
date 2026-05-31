@@ -14,7 +14,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy only the Go source trees required to build service binaries.
-COPY pkg ./pkg
 COPY services ./services
 
 # Fail early when the caller forgot to pass --build-arg SERVICE=<name>.

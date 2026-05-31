@@ -26,9 +26,9 @@ Also, you can find the broad development plan and commands reference here.
 - [Game service Kubernetes deployment values](../services/game-service/k8s/README.md)
 
 #### Core / Foundation
-- [Shared service bootstrap, HTTP server lifecycle, and runtime config](../pkg/infra/README.md)
-- [Request metadata, transport helpers, and JSON response utilities](../pkg/network/README.md)
-- [Structured logging abstraction and HTTP request logging](../pkg/logging/README.md)
+- [Shared service bootstrap, HTTP server lifecycle, and runtime config](../services/shared/foundation/infra/README.md)
+- [Request metadata, transport helpers, and JSON response utilities](../services/shared/foundation/network/README.md)
+- [Structured logging abstraction and HTTP request logging](../services/shared/foundation/logging/README.md)
 
 - [Core domain types and trust-sensitive business vocabulary](../services/game-service/service/domain/README.md)
 - [Authoritative session repository boundary and in-memory storage](../services/game-service/service/session/README.md)

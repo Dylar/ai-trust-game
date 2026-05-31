@@ -10,9 +10,9 @@ import (
 	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/pkg/logging"
-	"github.com/Dylar/ai-trust-game/pkg/network"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 var ErrNoSessionFound = errors.New("no session found")

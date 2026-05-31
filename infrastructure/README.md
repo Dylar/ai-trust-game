@@ -2,10 +2,10 @@
 
 This directory contains shared infrastructure assets for building, packaging, and deploying the system.
 
-It is intentionally separate from `tooling/`:
+It is intentionally separate from service-focused shared tooling:
 
-- `tooling/` contains development helpers such as scripts and test support
 - `infrastructure/` contains runtime and deployment assets such as Docker and Kubernetes definitions
+- `services/shared/tooling/` contains backend service test helpers, script support, mocks, and assertions
 
 ## Current Structure
 

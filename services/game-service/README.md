@@ -71,7 +71,7 @@ Current routes:
 
 ## Request Metadata
 
-[`pkg/network/request.go`](../../pkg/network/request.go) adds request metadata for all service routes.
+[`services/shared/foundation/network/request.go`](../../services/shared/foundation/network/request.go) adds request metadata for all service routes.
 
 Important headers:
 
@@ -109,7 +109,7 @@ It trusts the request metadata header and loads the authoritative session from t
 Current runtime configuration is read in the service composition root:
 
 - `PORT`
-  HTTP port, defaults through [`pkg/infra`](../../pkg/infra/)
+  HTTP port, defaults through [`services/shared/foundation/infra`](../../services/shared/foundation/infra/)
 
 - `LLM_PROVIDER`
   `static`, `groq`, or `openai`

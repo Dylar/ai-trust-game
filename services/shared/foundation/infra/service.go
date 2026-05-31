@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Dylar/ai-trust-game/pkg/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 )
 
 type Server struct {

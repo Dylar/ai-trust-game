@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	scripts2 "github.com/Dylar/ai-trust-game/tooling/scripts"
+	scripts2 "github.com/Dylar/ai-trust-game/services/shared/tooling/scripts"
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service"

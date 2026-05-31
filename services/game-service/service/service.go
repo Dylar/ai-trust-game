@@ -3,8 +3,8 @@ package service
 import (
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/pkg/logging"
-	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 func SetupRoutes(

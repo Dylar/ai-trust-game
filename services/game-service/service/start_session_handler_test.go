@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
-	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
+	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests/assert"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 )
 
 func TestHandleStartSession(t *testing.T) {

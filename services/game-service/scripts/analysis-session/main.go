@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	scripts "github.com/Dylar/ai-trust-game/tooling/scripts"
+	scripts "github.com/Dylar/ai-trust-game/services/shared/tooling/scripts"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service"
 )

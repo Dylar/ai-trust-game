@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/Dylar/ai-trust-game/pkg/network"
-	scripts2 "github.com/Dylar/ai-trust-game/tooling/scripts"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
+	scripts2 "github.com/Dylar/ai-trust-game/services/shared/tooling/scripts"
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service"

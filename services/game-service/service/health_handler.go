@@ -3,7 +3,7 @@ package service
 import (
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 type HealthResponse struct {
