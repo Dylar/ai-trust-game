@@ -8,11 +8,11 @@ ARG API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080
 WORKDIR /src/app
 
 # Copy pubspec files first so dependency downloads stay cached when app source changes.
-COPY app/pubspec.yaml app/pubspec.lock ./
+COPY apps/trust-game-app/pubspec.yaml apps/trust-game-app/pubspec.lock ./
 RUN flutter pub get
 
 # Copy the full Flutter app after dependencies are restored.
-COPY app ./
+COPY apps/trust-game-app ./
 
 # Flutter web produces static HTML, JavaScript, CSS, and assets.
 RUN flutter build web \

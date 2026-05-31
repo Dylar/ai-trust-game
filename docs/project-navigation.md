@@ -40,8 +40,8 @@ Also, you can find the broad development plan and commands reference here.
 - [Capability calculation across easy, medium, and hard modes](../internal/interaction/capability/README.md)
 
 ### Frontend
-- [Flutter web app bootstrap and frontend entrypoint](../app/README.md)
-- [Frontend workload and app entrypoint Kubernetes values](../app/k8s/README.md)
+- [Flutter web app bootstrap and frontend entrypoint](../apps/trust-game-app/README.md)
+- [Frontend workload and app entrypoint Kubernetes values](../apps/trust-game-app/k8s/README.md)
 
 ### Infrastructure
 - [Shared Docker, Compose, Kubernetes, and Make infrastructure](../infrastructure/README.md)

@@ -6,7 +6,7 @@ This project contains the web-first Flutter client and Android platform scaffold
 
 ## Purpose
 
-- provide a Flutter web app under `app/`
+- provide a Flutter web app under `apps/trust-game-app/`
 - prepare Android alongside web so most future work can stay in `lib/`
 - validate that the frontend can run independently
 - let users start backend sessions, send interaction messages, and inspect analysis results
@@ -123,7 +123,7 @@ Current test structure:
 - `test/screens/<feature>/` for feature-local screen bots, processes, contexts, and screen tests
 
 Later phases of the frontend work should follow the structure described in
-[`docs/architecture/frontend.md`](../docs/architecture/frontend.md).
+[`docs/architecture/frontend.md`](../../docs/architecture/frontend.md).
 
 ## Development Flow
 
@@ -135,7 +135,7 @@ For a manual local run:
    make compose-up
    ```
 
-2. Start the Flutter web client from `app/`:
+2. Start the Flutter web client from `apps/trust-game-app/`:
 
    ```bash
    flutter run -d chrome --dart-define=APP_ENV=dev --dart-define=API_BASE_URL=http://localhost:8080
@@ -191,4 +191,4 @@ App-owned Kubernetes values live in [`k8s/`](./k8s/).
 They deploy the `frontend-web` workload and the current `app-entry` Nginx entrypoint.
 
 For app-specific deployment values, image repositories, and entrypoint ports, see [`k8s/README.md`](./k8s/README.md).
-For the general Kubernetes layout, see [`docs/deployment/k8s.md`](../docs/deployment/k8s.md).
+For the general Kubernetes layout, see [`docs/deployment/k8s.md`](../../docs/deployment/k8s.md).

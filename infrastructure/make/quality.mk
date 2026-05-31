@@ -8,7 +8,7 @@ test-go:
 	go test ./...
 
 test-flutter:
-	cd app && flutter test
+	cd apps/trust-game-app && flutter test
 
 lint: lint-go lint-flutter
 
@@ -16,4 +16,4 @@ lint-go:
 	$(GOLANGCI_LINT) run ./...
 
 lint-flutter:
-	cd app && flutter analyze
+	cd apps/trust-game-app && flutter analyze

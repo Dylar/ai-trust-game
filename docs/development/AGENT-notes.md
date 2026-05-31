@@ -94,10 +94,19 @@ By the end of Phase 12:
    - Generic service runtime helpers belong under `services/shared/foundation/`.
    - Backend test and script helpers belong under `services/shared/tooling/`.
 
-2. Move the app into the new app hierarchy.
+2. Move the app into the new app hierarchy. (Done)
    - Move `app/` to `apps/trust-game-app/`.
    - Update Make targets, Dockerfiles, Compose files, Kubernetes values, and documentation links that reference `app/`.
    - Verify Flutter tests and build commands still work from the new path.
+
+   Completion notes:
+
+   - The Flutter app now lives under `apps/trust-game-app/`.
+   - Make quality targets run Flutter checks from the new app path.
+   - The Flutter web Dockerfile copies the app from the new app path.
+   - GitHub Actions Flutter, Helm, deploy, and publish workflows reference the new app path.
+   - Frontend Kubernetes values and app-entry values are read from `apps/trust-game-app/k8s/`.
+   - App and deployment documentation links point to the new app path.
 
 3. Rename `main-service` to `game-service`.
    - Move `services/main-service/` to `services/game-service/`.

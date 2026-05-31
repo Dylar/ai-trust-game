@@ -53,4 +53,4 @@ main-service-secret
 `main-service` is not exposed directly outside the cluster.
 External app traffic reaches it through `app-entry`.
 
-[App entry values](../../../app/k8s/README.md#app-entry)
+[App entry values](../../../apps/trust-game-app/k8s/README.md#app-entry)

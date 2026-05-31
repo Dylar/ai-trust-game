@@ -36,4 +36,4 @@ Kubernetes shared chart logic lives under [`k8s/`](./k8s/), while workload value
   infrastructure provisioning setup when the project reaches that stage
 
 Service-specific deployment values live close to the owning module, for example under `services/<service-name>/k8s/`.
-Frontend workload and app entrypoint values live under `app/k8s/`.
+Frontend workload and app entrypoint values live under `apps/trust-game-app/k8s/`.

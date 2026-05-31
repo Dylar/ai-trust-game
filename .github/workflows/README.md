@@ -46,7 +46,7 @@ TEST_API_BASE_URL
 PROD_API_BASE_URL
 ```
 
-[App Kubernetes values](../../app/k8s/README.md#frontend-workload)
+[App Kubernetes values](../../apps/trust-game-app/k8s/README.md#frontend-workload)
 
 ## Deploy
 

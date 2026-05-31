@@ -22,10 +22,10 @@ shape.
 
 Workload values live next to the thing they deploy.
 Backend service values stay under `services/<service-name>/k8s/`.
-Frontend and current app-entry values stay under `app/k8s/`.
+Frontend and current app-entry values stay under `apps/trust-game-app/k8s/`.
 
 [Main service Kubernetes values](../../services/main-service/k8s/README.md)<br>
-[App Kubernetes values](../../app/k8s/README.md)
+[App Kubernetes values](../../apps/trust-game-app/k8s/README.md)
 
 ## Environments
 
@@ -61,7 +61,7 @@ The preferred direction is one image repository per deployable workload, with en
 times.
 If a workload is built differently per environment, that exception belongs in the workload-owned README.
 
-[App image setup](../../app/k8s/README.md#frontend-workload)<br>
+[App image setup](../../apps/trust-game-app/k8s/README.md#frontend-workload)<br>
 [Main service image setup](../../services/main-service/k8s/README.md#workload)
 
 ## Local, Deploy, And Check
@@ -76,7 +76,7 @@ The command reference is split into `Local`, `Deploy`, `Lint / Check`, and `Clea
 ## Current Entry Point
 
 `app-entry` is the current temporary entrypoint for the deployed app environment.
-It belongs to `app/k8s/` for now.
+It belongs to `apps/trust-game-app/k8s/` for now.
 If a dedicated `gateway-service` is added later, public traffic configuration should move there.
 
-[App entry values](../../app/k8s/README.md#app-entry)
+[App entry values](../../apps/trust-game-app/k8s/README.md#app-entry)

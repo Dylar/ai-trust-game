@@ -2,8 +2,8 @@
 
 This directory owns Kubernetes values for the Flutter web workload and the current app entrypoint.
 
-[General Kubernetes layout](../../docs/deployment/k8s.md)<br>
-[Shared Helm charts](../../infrastructure/k8s/README.md)
+[General Kubernetes layout](../../../docs/deployment/k8s.md)<br>
+[Shared Helm charts](../../../infrastructure/k8s/README.md)
 
 ## Files
 

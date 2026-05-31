@@ -6,7 +6,7 @@ The charts describe reusable Kubernetes shapes.
 Workload-specific values live lower in the tree:
 
 [Main service values](../../services/main-service/k8s/README.md)<br>
-[App values](../../app/k8s/README.md)<br>
+[App values](../../apps/trust-game-app/k8s/README.md)<br>
 [General Kubernetes layout](../../docs/deployment/k8s.md)
 
 ## Service Chart
@@ -43,7 +43,7 @@ It renders an Nginx reverse proxy as a `Deployment`, `Service`, and `ConfigMap`.
 The chart routes backend path prefixes to `main-service` and all other traffic to `frontend-web`.
 The app owns the current environment-specific entry values.
 
-[App entry values](../../app/k8s/README.md#app-entry)
+[App entry values](../../apps/trust-game-app/k8s/README.md#app-entry)
 
 ## Check Changes
 
@@ -57,6 +57,6 @@ make k8s-lint SERVICE=frontend-web K8S_ENVS='dev test prod'
 For entry-chart changes, use Helm directly:
 
 ```sh
-helm lint ./infrastructure/k8s/entry-chart -f ./app/k8s/entry-values-dev.yaml
-helm template app-entry ./infrastructure/k8s/entry-chart -f ./app/k8s/entry-values-dev.yaml
+helm lint ./infrastructure/k8s/entry-chart -f ./apps/trust-game-app/k8s/entry-values-dev.yaml
+helm template app-entry ./infrastructure/k8s/entry-chart -f ./apps/trust-game-app/k8s/entry-values-dev.yaml
 ```

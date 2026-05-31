@@ -62,7 +62,7 @@ jobs:
         shell: bash
         run: |
           if [ "${{ inputs.service }}" = "frontend-web" ]; then
-            echo "values-file=./app/k8s/values-${{ inputs.environment }}.yaml" >> "$GITHUB_OUTPUT"
+            echo "values-file=./apps/trust-game-app/k8s/values-${{ inputs.environment }}.yaml" >> "$GITHUB_OUTPUT"
           else
             echo "values-file=./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" >> "$GITHUB_OUTPUT"
           fi
@@ -84,7 +84,7 @@ jobs:
       - name: Apply app entry
         shell: bash
         run: |
-          entry_file="./app/k8s/entry-values-${{ inputs.environment }}.yaml"
+          entry_file="./apps/trust-game-app/k8s/entry-values-${{ inputs.environment }}.yaml"
           if [ -f "$entry_file" ]; then
             helm upgrade --install app-entry ./infrastructure/k8s/entry-chart \
               -f "$entry_file" \

@@ -116,7 +116,7 @@ Use this when the image already exists and you only want to update one Helm rele
 make k8s-apply SERVICE=main-service ENV=dev IMAGE_TAG=dev-local
 ```
 
-Installs or upgrades the Flutter web frontend using values from `app/k8s`.
+Installs or upgrades the Flutter web frontend using values from `apps/trust-game-app/k8s`.
 
 ```bash
 make k8s-apply SERVICE=frontend-web ENV=dev IMAGE_TAG=dev-local
@@ -200,7 +200,7 @@ Runs the full Go test suite.
 make test-go
 ```
 
-Runs the Flutter test suite from `app/`.
+Runs the Flutter test suite from `apps/trust-game-app/`.
 
 ```bash
 make test-flutter
@@ -233,25 +233,25 @@ make lint-flutter
 Starts a session against the running service.
 
 ```bash
-go run ./services/main-service/scripts/start-session
+go run../services/main-service/scripts/start-session
 ```
 
 Sends one interaction request against the running service.
 
 ```bash
-go run ./services/main-service/scripts/interaction --session "$SESSION_ID" --message "Hello"
+go run../services/main-service/scripts/interaction --session "$SESSION_ID" --message "Hello"
 ```
 
 Fetches the stored request analysis for one completed request, including structured signals and an optional
 request-level intent summary.
 
 ```bash
-go run ./services/main-service/scripts/analysis-request --request "$REQUEST_ID"
+go run../services/main-service/scripts/analysis-request --request "$REQUEST_ID"
 ```
 
 Fetches the stored analyses for all completed requests in one session, plus the aggregated session view and an optional
 session-level intent summary.
 
 ```bash
-go run ./services/main-service/scripts/analysis-session --session "$SESSION_ID"
+go run../services/main-service/scripts/analysis-session --session "$SESSION_ID"
 ```
