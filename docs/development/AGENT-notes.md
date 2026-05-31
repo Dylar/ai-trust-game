@@ -46,7 +46,7 @@ By the end of Phase 12:
 
 ### Work Plan
 
-1. Define the final service boundaries.
+1. Define the final service boundaries. (Done)
    - `gateway-service` owns the public backend entry point for external access into the cluster.
    - `gateway-service` can later own cross-cutting public-edge concerns such as auth, CORS, rate limiting, request
      shaping, and routing.
@@ -54,6 +54,45 @@ By the end of Phase 12:
      flow.
    - `logging-service` owns log ingestion from the app through the gateway and, later, service or cluster-internal logs.
    - `audit-service` owns audit event ingestion, audit analysis, audit read models, and later audit persistence.
+
+   Boundary details:
+
+   - `gateway-service`
+     - Owns public HTTP routing for backend API paths.
+     - Receives external app/client requests.
+     - Preserves and forwards request metadata such as request ID, session ID, and user ID where needed.
+     - Routes synchronous public requests to the owning internal service.
+     - Does not own game rules, session state, audit analysis, log storage, or persistence.
+     - Can later add auth, CORS, rate limiting, public request shaping, and routing policies.
+
+   - `game-service`
+     - Owns trust-game domain behavior.
+     - Owns session start, authoritative session state, interaction processing, modes, policies, planning, execution,
+       response building, and LLM-backed game flow behavior.
+     - Emits log and audit events to the appropriate service boundary instead of storing or analyzing them directly once
+       those services exist.
+     - Does not own public edge routing, client log ingestion, audit read models, or cross-service log collection.
+
+   - `logging-service`
+     - Owns log ingestion APIs for app/client logs routed through the gateway.
+     - Owns service log event ingestion once internal delivery is introduced.
+     - Owns log normalization and log-oriented read models when needed.
+     - Does not own audit semantics, game rules, session state, or public API routing.
+
+   - `audit-service`
+     - Owns audit event ingestion and audit-specific event semantics.
+     - Owns request analysis, session analysis, audit read models, and intent summaries.
+     - Receives audit events from `game-service` and possibly public-edge audit events from `gateway-service`.
+     - Does not own generic logging, game state transitions, public routing, or persistence setup before Phase 13.
+
+   Cross-service ownership rules:
+
+   - A service may expose HTTP endpoints or async event subjects/queues as its boundary.
+   - Other services call or publish to those boundaries instead of importing the service's code directly.
+   - Shared event envelopes, DTOs, and project concepts used by multiple services belong under
+     `services/shared/project/`.
+   - Generic service runtime helpers belong under `services/shared/foundation/`.
+   - Backend test and script helpers belong under `services/shared/tooling/`.
 
 2. Move the app into the new app hierarchy.
    - Move `app/` to `apps/trust-game-app/`.
