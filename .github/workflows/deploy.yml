@@ -8,7 +8,7 @@ on:
         required: true
         type: choice
         options:
-          - main-service
+          - game-service
           - frontend-web
       environment:
         description: "Target environment"

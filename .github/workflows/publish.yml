@@ -30,9 +30,9 @@ jobs:
     with:
       chart-path: ./infrastructure/k8s/service-chart
       values-files: |
-        ./services/main-service/k8s/values-dev.yaml
-        ./services/main-service/k8s/values-test.yaml
-        ./services/main-service/k8s/values-prod.yaml
+        ./services/game-service/k8s/values-dev.yaml
+        ./services/game-service/k8s/values-test.yaml
+        ./services/game-service/k8s/values-prod.yaml
         ./apps/trust-game-app/k8s/values-dev.yaml
         ./apps/trust-game-app/k8s/values-test.yaml
         ./apps/trust-game-app/k8s/values-prod.yaml
@@ -46,13 +46,13 @@ jobs:
         ./apps/trust-game-app/k8s/entry-values-test.yaml
         ./apps/trust-game-app/k8s/entry-values-prod.yaml
 
-  docker-build-main-service:
+  docker-build-game-service:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      job-name: Docker Build Main Service
+      job-name: Docker Build Game Service
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
       build-args: |
-        SERVICE=main-service
+        SERVICE=game-service
 
   docker-build-frontend-web:
     uses: ./.github/workflows/reusable-docker-build.yml
@@ -63,23 +63,23 @@ jobs:
         APP_ENV=dev
         API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30080' }}
 
-  publish-main-service:
+  publish-game-service:
     needs:
       - go-checks
       - flutter-checks
       - helm-checks
       - helm-entry-checks
-      - docker-build-main-service
+      - docker-build-game-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
     with:
-      job-name: Publish Main Service To GHCR
-      image-name: ai-trust-game-main-service
+      job-name: Publish Game Service To GHCR
+      image-name: ai-trust-game-game-service
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
-        SERVICE=main-service
+        SERVICE=game-service
 
   publish-frontend-web-dev:
     needs:
@@ -87,7 +87,7 @@ jobs:
       - flutter-checks
       - helm-checks
       - helm-entry-checks
-      - docker-build-main-service
+      - docker-build-game-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
@@ -106,7 +106,7 @@ jobs:
       - flutter-checks
       - helm-checks
       - helm-entry-checks
-      - docker-build-main-service
+      - docker-build-game-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
@@ -125,7 +125,7 @@ jobs:
       - flutter-checks
       - helm-checks
       - helm-entry-checks
-      - docker-build-main-service
+      - docker-build-game-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit

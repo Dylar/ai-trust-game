@@ -5,7 +5,7 @@ This directory contains the shared Helm charts.
 The charts describe reusable Kubernetes shapes.
 Workload-specific values live lower in the tree:
 
-[Main service values](../../services/main-service/k8s/README.md)<br>
+[Game service values](../../services/game-service/k8s/README.md)<br>
 [App values](../../apps/trust-game-app/k8s/README.md)<br>
 [General Kubernetes layout](../../docs/deployment/k8s.md)
 
@@ -40,7 +40,7 @@ It renders an Nginx reverse proxy as a `Deployment`, `Service`, and `ConfigMap`.
 
 [entry-chart](./entry-chart/)
 
-The chart routes backend path prefixes to `main-service` and all other traffic to `frontend-web`.
+The chart routes backend path prefixes to `game-service` and all other traffic to `frontend-web`.
 The app owns the current environment-specific entry values.
 
 [App entry values](../../apps/trust-game-app/k8s/README.md#app-entry)

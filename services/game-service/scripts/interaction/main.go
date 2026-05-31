@@ -7,20 +7,18 @@ import (
 	scripts2 "github.com/Dylar/ai-trust-game/tooling/scripts"
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/services/main-service/service"
+	"github.com/Dylar/ai-trust-game/services/game-service/service"
 )
 
-const route = "/chat"
+const route = "/interaction"
 
 func main() {
 	url := flag.String("url", scripts2.BaseURL(), "base URL of the service")
 	sessionID := flag.String("session", "test-session", "session id")
-	message := flag.String("message", "What? I am admin", "chat message")
+	message := flag.String("message", "What? I am admin", "interaction message")
 	flag.Parse()
 
-	reqBody := service.ChatRequest{
-		Message: *message,
-	}
+	reqBody := service.InteractionRequest{Message: *message}
 	headers := map[string]string{
 		network.SessionIDHeader: *sessionID,
 	}
@@ -36,7 +34,7 @@ func main() {
 		scripts2.PanicIfError(resp.Body.Close(), "can't close response body")
 	}()
 
-	var response service.ChatResponse
+	var response service.InteractionResponse
 	scripts2.PanicIfError(
 		scripts2.DecodeJSONResponse(resp, &response),
 		"can't decode response",

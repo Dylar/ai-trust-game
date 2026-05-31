@@ -50,7 +50,7 @@ prod   30082
 ```
 
 `app-entry` is an Nginx reverse proxy.
-It routes backend paths to `main-service` and all other traffic to `frontend-web`.
+It routes backend paths to `game-service` and all other traffic to `frontend-web`.
 
 This ownership is temporary.
 If a dedicated `gateway-service` is added later, public traffic configuration should move there.

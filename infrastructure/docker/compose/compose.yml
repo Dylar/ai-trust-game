@@ -1,5 +1,5 @@
 name: ai-trust-game
 
 include:
-  - compose.main-service.yml
+  - compose.game-service.yml
   - compose.frontend-web.yml

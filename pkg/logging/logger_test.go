@@ -32,7 +32,7 @@ func TestFieldLoggerLogsConstructorFields(t *testing.T) {
 				"THEN writes logger fields before log fields",
 			given: Given{
 				loggerFields: []Field{
-					WithField("service", "main-service"),
+					WithField("service", "game-service"),
 					WithField("env", "test"),
 				},
 				logFields: []Field{
@@ -43,7 +43,7 @@ func TestFieldLoggerLogsConstructorFields(t *testing.T) {
 				expectedLevel:   Info,
 				expectedMessage: "message",
 				expectedFields: []Field{
-					WithField("service", "main-service"),
+					WithField("service", "game-service"),
 					WithField("env", "test"),
 					WithField("request", "value"),
 				},

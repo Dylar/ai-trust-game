@@ -1,4 +1,4 @@
-# Main Service
+# Game Service
 
 This service is the current HTTP entrypoint of the project.
 
@@ -128,7 +128,7 @@ both interaction processing and audit intent summarization.
 The repository currently uses one shared Go service image definition in
 [`infrastructure/docker/go-service.Dockerfile`](../../infrastructure/docker/go-service.Dockerfile).
 
-`main-service` is built through that shared Dockerfile by passing the service name as a build argument.
+`game-service` is built through that shared Dockerfile by passing the service name as a build argument.
 This keeps the default container setup consistent across multiple Go services while still letting individual services
 add their own deployment files later, for example under `k8s/`.
 
@@ -151,7 +151,7 @@ For a local full-stack container run together with the Flutter web app, use the 
 
 Service-owned Kubernetes values live in [`k8s/`](./k8s/).
 
-They define the `main-service` values for `dev`, `test`, and `prod`.
+They define the `game-service` values for `dev`, `test`, and `prod`.
 
 For service-specific deployment values, image repository, config, and secrets, see [`k8s/README.md`](./k8s/README.md).
 For the general Kubernetes layout, see [`docs/deployment/k8s.md`](../../docs/deployment/k8s.md).

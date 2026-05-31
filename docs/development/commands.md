@@ -75,7 +75,7 @@ make manual-deploy ENV=dev
 Builds, pushes, and deploys only one service.
 
 ```bash
-make manual-deploy SERVICE=main-service ENV=dev
+make manual-deploy SERVICE=game-service ENV=dev
 ```
 
 Prints the automatic manual deploy tag format without triggering a workflow.
@@ -89,7 +89,7 @@ Kubernetes values file.
 Use this only when you intentionally want to separate image publishing from deployment.
 
 ```bash
-make k8s-build-push SERVICE=main-service ENV=dev IMAGE_TAG=dev-local
+make k8s-build-push SERVICE=game-service ENV=dev IMAGE_TAG=dev-local
 ```
 
 ### Deploy
@@ -105,7 +105,7 @@ make k8s-deploy ENV=dev
 Deploys an already published image for one service using the current Git commit SHA as the image tag.
 
 ```bash
-make k8s-deploy SERVICE=main-service ENV=dev
+make k8s-deploy SERVICE=game-service ENV=dev
 ```
 
 Installs or upgrades the selected service and environment through Helm. If `IMAGE_TAG` is omitted, the current Git
@@ -113,7 +113,7 @@ commit SHA is used as the image tag.
 Use this when the image already exists and you only want to update one Helm release.
 
 ```bash
-make k8s-apply SERVICE=main-service ENV=dev IMAGE_TAG=dev-local
+make k8s-apply SERVICE=game-service ENV=dev IMAGE_TAG=dev-local
 ```
 
 Installs or upgrades the Flutter web frontend using values from `apps/trust-game-app/k8s`.
@@ -152,7 +152,7 @@ Renders the Kubernetes manifests for the selected service and environment throug
 This prints what Helm would send to the cluster, without applying it.
 
 ```bash
-make k8s-template SERVICE=main-service ENV=dev
+make k8s-template SERVICE=game-service ENV=dev
 ```
 
 Shows the Kubernetes context and nodes from the project kubeconfig.
@@ -173,7 +173,7 @@ make k8s-status
 Uninstalls the selected Helm release from the selected environment namespace.
 
 ```bash
-make k8s-delete SERVICE=main-service ENV=dev
+make k8s-delete SERVICE=game-service ENV=dev
 ```
 
 Uninstalls the app entry Helm release for the selected environment.
@@ -233,25 +233,25 @@ make lint-flutter
 Starts a session against the running service.
 
 ```bash
-go run../services/main-service/scripts/start-session
+go run ./services/game-service/scripts/start-session
 ```
 
 Sends one interaction request against the running service.
 
 ```bash
-go run../services/main-service/scripts/interaction --session "$SESSION_ID" --message "Hello"
+go run ./services/game-service/scripts/interaction --session "$SESSION_ID" --message "Hello"
 ```
 
 Fetches the stored request analysis for one completed request, including structured signals and an optional
 request-level intent summary.
 
 ```bash
-go run../services/main-service/scripts/analysis-request --request "$REQUEST_ID"
+go run ./services/game-service/scripts/analysis-request --request "$REQUEST_ID"
 ```
 
 Fetches the stored analyses for all completed requests in one session, plus the aggregated session view and an optional
 session-level intent summary.
 
 ```bash
-go run../services/main-service/scripts/analysis-session --session "$SESSION_ID"
+go run ./services/game-service/scripts/analysis-session --session "$SESSION_ID"
 ```

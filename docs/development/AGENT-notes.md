@@ -21,7 +21,7 @@ overhead without a clear project need yet.
 By the end of Phase 12:
 
 - Public cluster traffic enters through `gateway-service`.
-- The current `main-service` is renamed to `game-service`.
+- The former `main-service` has been renamed to `game-service`.
 - `game-service`, `logging-service`, and `audit-service` have explicit service ownership and runtime structure.
 - The Flutter app lives under `apps/trust-game-app/`.
 - Service-owned backend code is no longer mixed into root-level `internal/` or `pkg/` folders.
@@ -108,11 +108,18 @@ By the end of Phase 12:
    - Frontend Kubernetes values and app-entry values are read from `apps/trust-game-app/k8s/`.
    - App and deployment documentation links point to the new app path.
 
-3. Rename `main-service` to `game-service`.
+3. Rename `main-service` to `game-service`. (Done)
    - Move `services/main-service/` to `services/game-service/`.
    - Update Go package paths, scripts, Compose services, image names, Kubernetes values, Make targets, and docs.
    - Keep behavior unchanged during the rename.
    - Verify Go tests still pass after the rename.
+
+   Completion notes:
+
+   - The backend service folder now lives under `services/game-service/`.
+   - Service runtime name, logs, Compose service, Kubernetes service name, and image repository use `game-service`.
+   - Go imports and service scripts reference `services/game-service/...`.
+   - Documentation and workflow references point to `game-service`.
 
 4. Move service-owned backend code into the owning service.
    - Move game-specific domain, session, interaction, LLM, and audit usage code into `services/game-service/service/`

@@ -1,4 +1,4 @@
-serviceName: main-service
+serviceName: game-service
 namespace: atg-test
 environment: test
 component: backend
@@ -7,7 +7,7 @@ partOf: ai-trust-game
 replicas: 1
 
 image:
-  repository: ghcr.io/dylar/ai-trust-game-main-service
+  repository: ghcr.io/dylar/ai-trust-game-game-service
   tag: test
   pullPolicy: IfNotPresent
 

@@ -1,11 +1,11 @@
 services:
-  main-service:
+  game-service:
     build:
       context: ../../..
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
       args:
-        SERVICE: main-service
-    image: main-service:local
+        SERVICE: game-service
+    image: game-service:local
     environment:
       APP_ENV: dev
       PORT: 8080

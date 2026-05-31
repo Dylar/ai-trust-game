@@ -73,10 +73,10 @@ That means:
 
 ## Where It Is Used
 
-The main service uses this boundary in:
+The game service uses this boundary in:
 
-- [`start_session_handler.go`](../../services/main-service/service/start_session_handler.go)
+- [`start_session_handler.go`](../../services/game-service/service/start_session_handler.go)
   to save newly created sessions
 
-- [`interaction_handler.go`](../../services/main-service/service/interaction_handler.go)
+- [`interaction_handler.go`](../../services/game-service/service/interaction_handler.go)
   to load the authoritative session before processing and to persist session updates afterward

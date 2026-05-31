@@ -55,10 +55,10 @@ deterministic on purpose.
 
 ## Runtime Provider Selection
 
-Runtime provider selection currently happens in the main service composition root:
+Runtime provider selection currently happens in the game service composition root:
 
-- [`main.go`](../../services/main-service/cmd/main.go)
-- [`processor_factory.go`](../../services/main-service/cmd/processor_factory.go)
+- [`main.go`](../../services/game-service/cmd/main.go)
+- [`processor_factory.go`](../../services/game-service/cmd/processor_factory.go)
 
 The current environment variable is:
 

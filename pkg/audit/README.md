@@ -85,7 +85,7 @@ interaction decisions.
 
 ## API Read Model
 
-The main service exposes the stored analyses through:
+The game service exposes the stored analyses through:
 
 - `GET /analysis/request/{requestId}`
 - `GET /analysis/session/{sessionId}`

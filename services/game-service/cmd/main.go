@@ -8,7 +8,7 @@ import (
 	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/infra"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
-	"github.com/Dylar/ai-trust-game/services/main-service/service"
+	"github.com/Dylar/ai-trust-game/services/game-service/service"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 
 	logger := logging.NewFieldLogger(
 		logging.NewConsoleLogger(),
-		logging.WithField("service", "main-service"),
+		logging.WithField("service", "game-service"),
 		logging.WithField("env", appEnv),
 	)
 
@@ -39,7 +39,7 @@ func main() {
 		infra.Config{
 			HTTP: []infra.HTTPConfig{
 				{
-					Name: "main-service",
+					Name: "game-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
 						service.SetupRoutes(mux, logger, healthHandler, chatHandler, startSessionHandler, interactionHandler, clientLogHandler, requestAnalysisHandler)

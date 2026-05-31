@@ -22,8 +22,8 @@ Also, you can find the broad development plan and commands reference here.
 ### Backend
 
 #### Services
-- [Main HTTP service, routes, metadata headers, and runtime wiring](../services/main-service/README.md)
-- [Main service Kubernetes deployment values](../services/main-service/k8s/README.md)
+- [Game HTTP service, routes, metadata headers, and runtime wiring](../services/game-service/README.md)
+- [Game service Kubernetes deployment values](../services/game-service/k8s/README.md)
 
 #### Core / Foundation
 - [Shared service bootstrap, HTTP server lifecycle, and runtime config](../pkg/infra/README.md)
