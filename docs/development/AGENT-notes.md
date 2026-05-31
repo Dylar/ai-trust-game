@@ -121,11 +121,20 @@ By the end of Phase 12:
    - Go imports and service scripts reference `services/game-service/...`.
    - Documentation and workflow references point to `game-service`.
 
-4. Move service-owned backend code into the owning service.
+4. Move service-owned backend code into the owning service. (Done)
    - Move game-specific domain, session, interaction, LLM, and audit usage code into `services/game-service/service/`
      where ownership belongs.
    - Move reusable code only when there is a clear owner or shared need.
    - Avoid behavior changes while moving code.
+
+   Completion notes:
+
+   - Game-owned domain, session, interaction, and LLM packages now live under `services/game-service/service/`.
+   - The existing audit module moved from root-level `pkg/audit` to `services/game-service/service/audit` because it
+     currently owns game-service audit events, analysis, read models, and intent summarization.
+   - Root-level `internal/` was removed.
+   - The shared Go service Dockerfile now builds from `pkg/` and `services/` without copying a root-level `internal/`.
+   - Code-near documentation links now point to the new service-owned package locations.
 
 5. Create the shared service code areas.
    - Create `services/shared/project/` for project-specific shared code.

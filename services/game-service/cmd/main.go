@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/internal/session"
-	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/infra"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/services/game-service/service"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 )
 
 func main() {

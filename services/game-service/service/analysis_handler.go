@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
 )
 
 var ErrNoAnalysisRequestID = errors.New("no analysis request id provided")

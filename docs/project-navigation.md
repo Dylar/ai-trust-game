@@ -30,14 +30,14 @@ Also, you can find the broad development plan and commands reference here.
 - [Request metadata, transport helpers, and JSON response utilities](../pkg/network/README.md)
 - [Structured logging abstraction and HTTP request logging](../pkg/logging/README.md)
 
-- [Core domain types and trust-sensitive business vocabulary](../internal/domain/README.md)
-- [Authoritative session repository boundary and in-memory storage](../internal/session/README.md)
-- [LLM provider abstraction and runtime configuration](../internal/llm/README.md)
-- [Audit events, sinks, request analysis, session aggregation, and intent summaries](../pkg/audit/README.md)
+- [Core domain types and trust-sensitive business vocabulary](../services/game-service/service/domain/README.md)
+- [Authoritative session repository boundary and in-memory storage](../services/game-service/service/session/README.md)
+- [LLM provider abstraction and runtime configuration](../services/game-service/service/llm/README.md)
+- [Audit events, sinks, request analysis, session aggregation, and intent summaries](../services/game-service/service/audit/README.md)
 
 #### Features
-- [Interaction pipeline and processor architecture](../internal/interaction/README.md)
-- [Capability calculation across easy, medium, and hard modes](../internal/interaction/capability/README.md)
+- [Interaction pipeline and processor architecture](../services/game-service/service/interaction/README.md)
+- [Capability calculation across easy, medium, and hard modes](../services/game-service/service/interaction/capability/README.md)
 
 ### Frontend
 - [Flutter web app bootstrap and frontend entrypoint](../apps/trust-game-app/README.md)

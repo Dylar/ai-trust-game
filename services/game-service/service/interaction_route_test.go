@@ -2,15 +2,15 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/Dylar/ai-trust-game/internal/interaction"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction"
 	"net/http"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/session"
-	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )

@@ -27,9 +27,8 @@ The preferred service structure is:
 - `proto/` when the service exposes gRPC or service-specific contracts
 - `k8s/` when the service owns service-specific Kubernetes values or deployment configuration
 
-Shared supporting areas may exist outside individual services:
+Shared supporting areas may exist outside individual services when they are not owned by one service:
 
-- `internal/`
 - `pkg/`
 - `tooling/`
 - `infrastructure/`
@@ -53,7 +52,7 @@ Do not put request handling, business rules, or reusable workflow logic into `cm
 
 ### `service/`
 
-`service/` contains the service transport shell.
+`service/` contains the service-owned implementation.
 
 Good candidates:
 
@@ -63,11 +62,18 @@ Good candidates:
 - transport-to-domain mapping
 - status code and error mapping
 - small service-local behavior tied to one endpoint
+- service-owned domain types and workflow packages
+- service-local repository boundaries and storage adapters
+- service-owned provider or model integration code
 
 Handlers are backend entry points.
 They should keep transport details close and delegate meaningful behavior to a backend flow.
 
 Small endpoint-specific behavior may stay in `service/` when extracting it would only add ceremony.
+
+Service-owned behavior should stay under the owning service instead of a broad root-level backend folder.
+Use focused subpackages under `services/<service-name>/service/` for meaningful internal areas such as `domain/`,
+`session/`, `interaction/`, `audit/`, or `llm/`.
 
 ### `scripts/`
 
@@ -107,25 +113,9 @@ Shared Kubernetes chart logic belongs under `infrastructure/k8s/`.
 Service folders should keep only the values or deployment details owned by that service.
 For Kubernetes details, see [k8s.md](../deployment/k8s.md).
 
-### `internal/`
+### Service-Owned Domain Packages
 
-`internal/` contains backend behavior that is not transport-specific.
-
-Good candidates:
-
-- backend flows
-- processors
-- domain services
-- policy or decision logic
-- state transition logic
-- provider-independent orchestration
-
-Use `internal/` when behavior is meaningful beyond one handler, needs focused tests, or should stay independent from
-HTTP, gRPC, CLI, or queue delivery.
-
-### `internal/domain/`
-
-`internal/domain/` contains shared backend domain language.
+Service-owned domain packages contain the domain language owned by one service.
 
 Good candidates:
 

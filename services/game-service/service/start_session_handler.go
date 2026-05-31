@@ -8,10 +8,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/session"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 )
 
 var ErrInvalidRole = errors.New("role is invalid")

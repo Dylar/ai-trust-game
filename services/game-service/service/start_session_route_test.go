@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/internal/session"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 	"github.com/Dylar/ai-trust-game/tooling/tests"
 	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 )

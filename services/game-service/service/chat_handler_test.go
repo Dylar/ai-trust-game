@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/pkg/audit"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
 	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 	"github.com/Dylar/ai-trust-game/tooling/tests/mocks"
 )

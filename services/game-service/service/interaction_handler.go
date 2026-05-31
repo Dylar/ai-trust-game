@@ -4,15 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/Dylar/ai-trust-game/internal/domain"
-	"github.com/Dylar/ai-trust-game/internal/interaction"
-	interactionplanning "github.com/Dylar/ai-trust-game/internal/interaction/planning"
-	interactionresponse "github.com/Dylar/ai-trust-game/internal/interaction/response"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction"
+	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/planning"
+	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/internal/session"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
 	"github.com/Dylar/ai-trust-game/pkg/network"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 )
 
 var ErrNoSessionFound = errors.New("no session found")

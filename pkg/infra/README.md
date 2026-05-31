@@ -73,6 +73,6 @@ Each `HTTPConfig` contains:
 
 The game service uses this package in:
 
-- [`services/game-service/cmd/main.go`](../../services/game-service/cmd/main.go)
+- [`services/game-service/cmd/main.go`](../../../../services/game-service/cmd/main.go)
 
 That composition root builds handlers and processors first, then hands route registration to `pkg/infra`.

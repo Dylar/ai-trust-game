@@ -14,7 +14,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy only the Go source trees required to build service binaries.
-COPY internal ./internal
 COPY pkg ./pkg
 COPY services ./services
 

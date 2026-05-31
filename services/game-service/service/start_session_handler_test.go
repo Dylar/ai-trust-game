@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/Dylar/ai-trust-game/internal/domain"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
 	"github.com/Dylar/ai-trust-game/tooling/tests/assert"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/internal/session"
 	"github.com/Dylar/ai-trust-game/pkg/logging"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 )
 
 func TestHandleStartSession(t *testing.T) {

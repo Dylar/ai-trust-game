@@ -5,7 +5,7 @@ This directory contains the shared Helm charts.
 The charts describe reusable Kubernetes shapes.
 Workload-specific values live lower in the tree:
 
-[Game service values](../../services/game-service/k8s/README.md)<br>
+[Game service values](../../../../services/game-service/k8s/README.md)<br>
 [App values](../../apps/trust-game-app/k8s/README.md)<br>
 [General Kubernetes layout](../../docs/deployment/k8s.md)
 
