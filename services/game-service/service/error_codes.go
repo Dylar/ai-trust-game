@@ -1,10 +1,6 @@
 package service
 
 const (
-	// Logging
-	errorCodeInvalidClientLogLevel    = "invalid_client_log_level"
-	errorCodeMissingClientLogMessage  = "missing_client_log_message"
-	errorCodeMissingClientLogCategory = "missing_client_log_category"
 	// Domain
 	errorCodeInvalidRole     = "invalid_role"
 	errorCodeInvalidMode     = "invalid_mode"

@@ -19,7 +19,13 @@ func main() {
 	)
 
 	gameServiceURL := infra.GetEnv("GAME_SERVICE_URL", "http://game-service:8080")
-	proxyHandler, err := service.NewProxyHandler(gameServiceURL)
+	gameProxyHandler, err := service.NewProxyHandler(gameServiceURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	loggingServiceURL := infra.GetEnv("LOGGING_SERVICE_URL", "http://logging-service:8080")
+	loggingProxyHandler, err := service.NewProxyHandler(loggingServiceURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,7 +39,7 @@ func main() {
 					Name: "gateway-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, healthHandler, proxyHandler)
+						service.SetupRoutes(mux, logger, healthHandler, gameProxyHandler, loggingProxyHandler)
 					},
 				},
 			},

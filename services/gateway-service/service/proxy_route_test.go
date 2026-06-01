@@ -27,7 +27,8 @@ type receivedRequest struct {
 
 func TestProxyRoutes(t *testing.T) {
 	received := make(chan receivedRequest, 1)
-	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+	unexpectedLoggingRequest := make(chan struct{}, 1)
+	gameUpstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			t.Fatalf("failed to read upstream request body: %v", err)
@@ -46,11 +47,23 @@ func TestProxyRoutes(t *testing.T) {
 
 		network.WriteJSON(w, http.StatusCreated, map[string]string{"status": "proxied"})
 	}))
-	defer upstream.Close()
+	defer gameUpstream.Close()
+
+	loggingUpstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		unexpectedLoggingRequest <- struct{}{}
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer loggingUpstream.Close()
 
 	mux := http.NewServeMux()
 	logger := logging.NewNoopLogger()
-	SetupRoutes(mux, logger, NewHealthHandler(), newTestProxyHandler(t, upstream.URL))
+	SetupRoutes(
+		mux,
+		logger,
+		NewHealthHandler(),
+		newTestProxyHandler(t, gameUpstream.URL),
+		newTestProxyHandler(t, loggingUpstream.URL),
+	)
 
 	rec := tests.ExecuteRequest(
 		mux,
@@ -84,6 +97,59 @@ func TestProxyRoutes(t *testing.T) {
 		t.Fatal("expected upstream request id")
 	}
 	assert.Equal(t, rec.Header().Get(network.RequestIDHeader), upstreamRequest.RequestID, "response and upstream request id should match")
+	assertNoRequest(t, unexpectedLoggingRequest, "expected game request to skip logging service")
+}
+
+func TestLogProxyRoutesToLoggingService(t *testing.T) {
+	received := make(chan receivedRequest, 1)
+	unexpectedGameRequest := make(chan struct{}, 1)
+	loggingUpstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			t.Fatalf("failed to read upstream request body: %v", err)
+		}
+
+		received <- receivedRequest{
+			Method: req.Method,
+			Path:   req.URL.Path,
+			Body:   string(body),
+		}
+
+		w.WriteHeader(http.StatusAccepted)
+	}))
+	defer loggingUpstream.Close()
+
+	gameUpstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		unexpectedGameRequest <- struct{}{}
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer gameUpstream.Close()
+
+	mux := http.NewServeMux()
+	logger := logging.NewNoopLogger()
+	SetupRoutes(
+		mux,
+		logger,
+		NewHealthHandler(),
+		newTestProxyHandler(t, gameUpstream.URL),
+		newTestProxyHandler(t, loggingUpstream.URL),
+	)
+
+	rec := tests.ExecuteRequest(
+		mux,
+		http.MethodPost,
+		"/logs/client",
+		map[string]string{"Content-Type": "application/json"},
+		`{"level":"INFO","category":"interaction","message":"message sent"}`,
+	)
+
+	assert.Equal(t, rec.Code, http.StatusAccepted, "unexpected proxy response status")
+
+	upstreamRequest := receiveUpstreamRequest(t, received)
+	assert.Equal(t, upstreamRequest.Method, http.MethodPost, "unexpected upstream method")
+	assert.Equal(t, upstreamRequest.Path, "/logs/client", "unexpected upstream path")
+	assert.Equal(t, upstreamRequest.Body, `{"level":"INFO","category":"interaction","message":"message sent"}`, "unexpected upstream body")
+	assertNoRequest(t, unexpectedGameRequest, "expected log request to skip game service")
 }
 
 func receiveUpstreamRequest(t *testing.T, received <-chan receivedRequest) receivedRequest {
@@ -98,10 +164,27 @@ func receiveUpstreamRequest(t *testing.T, received <-chan receivedRequest) recei
 	}
 }
 
+func assertNoRequest(t *testing.T, received <-chan struct{}, message string) {
+	t.Helper()
+
+	select {
+	case <-received:
+		t.Fatal(message)
+	case <-time.After(25 * time.Millisecond):
+		return
+	}
+}
+
 func TestProxyRouteUnknownPath(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewNoopLogger()
-	SetupRoutes(mux, logger, NewHealthHandler(), newTestProxyHandler(t, "http://127.0.0.1:1"))
+	SetupRoutes(
+		mux,
+		logger,
+		NewHealthHandler(),
+		newTestProxyHandler(t, "http://127.0.0.1:1"),
+		newTestProxyHandler(t, "http://127.0.0.1:1"),
+	)
 
 	rec := tests.ExecuteRequest(
 		mux,

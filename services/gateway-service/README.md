@@ -7,6 +7,7 @@ It currently owns:
 - local gateway health checks
 - public HTTP routing for backend API paths
 - reverse proxying to the internal `game-service`
+- reverse proxying app log ingestion to the internal `logging-service`
 - request metadata forwarding for request, session, and user identifiers
 
 The gateway does not own game rules, session state, audit analysis, log storage, or persistence.
@@ -30,7 +31,7 @@ It creates:
 
 - a gateway logger
 - the local health handler
-- the reverse proxy handler for `game-service`
+- reverse proxy handlers for `game-service` and `logging-service`
 - the HTTP server and route registration
 
 ## HTTP Surface
@@ -52,7 +53,7 @@ Current routes:
   proxies interaction requests to `game-service`
 
 - `/logs/*`
-  proxies log requests to `game-service` until logging ownership moves to `logging-service`
+  proxies log requests to `logging-service`
 
 - `/session/*`
   proxies session requests to `game-service`
@@ -91,6 +92,9 @@ Header meaning:
 
 - `GAME_SERVICE_URL`
   internal URL for the game service, defaults to `http://game-service:8080`
+
+- `LOGGING_SERVICE_URL`
+  internal URL for the logging service, defaults to `http://logging-service:8080`
 
 ## Kubernetes
 

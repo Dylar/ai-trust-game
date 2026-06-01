@@ -41,5 +41,3 @@ resources:
 config:
   APP_ENV: dev
   PORT: "8080"
-  LLM_PROVIDER: static
-  GROQ_MODEL: ""

@@ -172,10 +172,19 @@ By the end of Phase 12:
    - Kubernetes service values and GitHub workflows include the gateway image and Helm checks.
    - `app-entry` now routes public backend paths to `gateway-service`.
 
-7. Add `logging-service`.
+7. Add `logging-service`. (Done)
    - Create the service structure under `services/logging-service/`.
    - Move client log ingestion responsibility out of the game service.
    - Update gateway routing and app/backend clients as needed.
+
+   Completion notes:
+
+   - `services/logging-service/` now owns `POST /logs/client`.
+   - The client log handler, DTO, validation errors, route tests, and handler tests moved out of `game-service`.
+   - `game-service` no longer registers `/logs/client` or creates a client log handler.
+   - `gateway-service` now uses separate proxies for game routes and log routes.
+   - `/logs/*` routes through the gateway to `logging-service`.
+   - Docker Compose, Kubernetes values, Make deploy lists, and GitHub workflows include `logging-service`.
 
 8. Add `audit-service`.
    - Create the service structure under `services/audit-service/`.

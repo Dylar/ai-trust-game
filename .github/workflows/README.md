@@ -33,6 +33,7 @@ Backend service images:
 ```text
 atg-gateway-service
 atg-game-service
+atg-logging-service
 ```
 
 Published image tags:

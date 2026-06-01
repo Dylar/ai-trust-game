@@ -16,7 +16,7 @@ It is intentionally separate from service-focused shared tooling:
   focused Makefile fragments included by the repository root `Makefile`
 
 - [`docker/compose/`](./docker/compose/)
-  optional local Docker Compose stack split into a root include file plus backend, web, and model environment files
+  optional local Docker Compose stack split into a root include file plus service, web, and model environment files
 
 - [`.github/workflows/`](../.github/workflows/)
   reusable GitHub Actions building blocks plus caller workflows for CI, image publishing, and deploys

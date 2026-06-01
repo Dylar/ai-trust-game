@@ -1,0 +1,17 @@
+services:
+  logging-service:
+    build:
+      context: ../../..
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      args:
+        SERVICE: logging-service
+    image: logging-service:local
+    environment:
+      APP_ENV: dev
+      PORT: 8080
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s

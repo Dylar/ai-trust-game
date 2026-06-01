@@ -1,4 +1,4 @@
-serviceName: gateway-service
+serviceName: logging-service
 namespace: atg-prod
 environment: prod
 component: backend
@@ -7,8 +7,8 @@ partOf: ai-trust-game
 replicas: 2
 
 image:
-  repository: ghcr.io/dylar/atg-gateway-service
-  tag: latest
+  repository: ghcr.io/dylar/atg-logging-service
+  tag: local
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -18,14 +18,12 @@ servicePort: 8080
 
 resources:
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 25m
+    memory: 32Mi
   limits:
-    cpu: 500m
-    memory: 256Mi
+    cpu: 250m
+    memory: 128Mi
 
 config:
   APP_ENV: prod
   PORT: "8080"
-  GAME_SERVICE_URL: http://game-service:8080
-  LOGGING_SERVICE_URL: http://logging-service:8080

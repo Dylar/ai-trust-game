@@ -11,10 +11,11 @@ func SetupRoutes(
 	mux *http.ServeMux,
 	logger logging.Logger,
 	healthHandler *HealthHandler,
-	proxyHandler *ProxyHandler,
+	gameProxyHandler *ProxyHandler,
+	loggingProxyHandler *ProxyHandler,
 ) {
 	setupHealthRoute(mux, logger, healthHandler)
-	setupProxyRoutes(mux, logger, proxyHandler)
+	setupProxyRoutes(mux, logger, gameProxyHandler, loggingProxyHandler)
 }
 
 func setupHealthRoute(mux *http.ServeMux, logger logging.Logger, healthHandler *HealthHandler) {
@@ -25,15 +26,26 @@ func setupHealthRoute(mux *http.ServeMux, logger logging.Logger, healthHandler *
 	mux.Handle("/healthz", handleHealth)
 }
 
-func setupProxyRoutes(mux *http.ServeMux, logger logging.Logger, proxyHandler *ProxyHandler) {
+func setupProxyRoutes(
+	mux *http.ServeMux,
+	logger logging.Logger,
+	gameProxyHandler *ProxyHandler,
+	loggingProxyHandler *ProxyHandler,
+) {
+	handleGameProxy := wrapProxy(logger, gameProxyHandler)
+	handleLoggingProxy := wrapProxy(logger, loggingProxyHandler)
+
+	mux.Handle("/analysis/", handleGameProxy)
+	mux.Handle("/chat", handleGameProxy)
+	mux.Handle("/interaction", handleGameProxy)
+	mux.Handle("/logs/", handleLoggingProxy)
+	mux.Handle("/session/", handleGameProxy)
+}
+
+func wrapProxy(logger logging.Logger, proxyHandler *ProxyHandler) http.Handler {
 	handleProxy := http.Handler(proxyHandler)
 	handleProxy = logging.HttpLogging(logger)(handleProxy)
 	handleProxy = network.RequestMiddleware(handleProxy)
 	handleProxy = network.CORSMiddleware(handleProxy)
-
-	mux.Handle("/analysis/", handleProxy)
-	mux.Handle("/chat", handleProxy)
-	mux.Handle("/interaction", handleProxy)
-	mux.Handle("/logs/", handleProxy)
-	mux.Handle("/session/", handleProxy)
+	return handleProxy
 }

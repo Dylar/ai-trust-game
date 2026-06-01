@@ -30,9 +30,10 @@ ghcr.io/dylar/atg-gateway-service
 Current ConfigMap keys:
 
 ```text
-APP_ENV           environment label used by logs and runtime behavior
-PORT              HTTP listen port inside the container
-GAME_SERVICE_URL  internal URL for routing public backend requests to game-service
+APP_ENV              environment label used by logs and runtime behavior
+PORT                 HTTP listen port inside the container
+GAME_SERVICE_URL     internal URL for routing public game requests to game-service
+LOGGING_SERVICE_URL  internal URL for routing public log requests to logging-service
 ```
 
 ## Traffic
