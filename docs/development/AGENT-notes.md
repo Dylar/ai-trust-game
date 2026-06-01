@@ -156,11 +156,21 @@ By the end of Phase 12:
    - The shared Go service Dockerfile now builds from `services/` only.
    - Shared-code documentation lives under `services/shared/`.
 
-6. Add `gateway-service`.
+6. Add `gateway-service`. (Done)
    - Create the service structure under `services/gateway-service/`.
    - Add health checks and minimal HTTP routing/proxy behavior.
    - Route public API paths through the gateway to the appropriate internal service.
    - Update local Compose and Kubernetes so external backend traffic targets the gateway.
+
+   Completion notes:
+
+   - `services/gateway-service/` now owns the public backend edge for the current HTTP API.
+   - The gateway exposes `GET /healthz` and proxies `/analysis/*`, `/chat`, `/interaction`, `/logs/*`, and
+     `/session/*` to `game-service`.
+   - Request metadata forwarding covers `X-Request-Id`, `X-Session-Id`, `X-User-Id`, and `X-Forwarded-Proto`.
+   - Docker Compose exposes only `gateway-service` on local port `8080`; `game-service` stays internal behind it.
+   - Kubernetes service values and GitHub workflows include the gateway image and Helm checks.
+   - `app-entry` now routes public backend paths to `gateway-service`.
 
 7. Add `logging-service`.
    - Create the service structure under `services/logging-service/`.

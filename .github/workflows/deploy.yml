@@ -8,6 +8,8 @@ on:
         required: true
         type: choice
         options:
+          - all
+          - gateway-service
           - game-service
           - frontend-web
       environment:
@@ -57,29 +59,63 @@ jobs:
           kubectl config current-context
           kubectl get nodes
 
-      - name: Resolve Kubernetes values
-        id: k8s
+      - name: Resolve deployment services
+        id: services
         shell: bash
         run: |
-          if [ "${{ inputs.service }}" = "frontend-web" ]; then
-            echo "values-file=./apps/trust-game-app/k8s/values-${{ inputs.environment }}.yaml" >> "$GITHUB_OUTPUT"
+          if [ "${{ inputs.service }}" = "all" ]; then
+            echo "names=gateway-service game-service frontend-web" >> "$GITHUB_OUTPUT"
           else
-            echo "values-file=./services/${{ inputs.service }}/k8s/values-${{ inputs.environment }}.yaml" >> "$GITHUB_OUTPUT"
+            echo "names=${{ inputs.service }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Render manifests
+      - name: Check Kubernetes values
+        shell: bash
         run: |
-          helm template "${{ inputs.service }}" ./infrastructure/k8s/service-chart \
-            -f "${{ steps.k8s.outputs.values-file }}" \
-            --set image.tag="${{ inputs.image-tag }}"
+          for service in ${{ steps.services.outputs.names }}; do
+            if [ "$service" = "frontend-web" ]; then
+              values_file="./apps/trust-game-app/k8s/values-${{ inputs.environment }}.yaml"
+            else
+              values_file="./services/$service/k8s/values-${{ inputs.environment }}.yaml"
+            fi
+
+            if [ ! -f "$values_file" ]; then
+              echo "Values file missing for $service: $values_file" >&2
+              exit 1
+            fi
+          done
+
+      - name: Render manifests
+        shell: bash
+        run: |
+          for service in ${{ steps.services.outputs.names }}; do
+            if [ "$service" = "frontend-web" ]; then
+              values_file="./apps/trust-game-app/k8s/values-${{ inputs.environment }}.yaml"
+            else
+              values_file="./services/$service/k8s/values-${{ inputs.environment }}.yaml"
+            fi
+
+            helm template "$service" ./infrastructure/k8s/service-chart \
+              -f "$values_file" \
+              --set image.tag="${{ inputs.image-tag }}"
+          done
 
       - name: Deploy release
+        shell: bash
         run: |
-          helm upgrade --install "${{ inputs.service }}" ./infrastructure/k8s/service-chart \
-            -f "${{ steps.k8s.outputs.values-file }}" \
-            --set image.tag="${{ inputs.image-tag }}" \
-            --namespace "atg-${{ inputs.environment }}" \
-            --create-namespace
+          for service in ${{ steps.services.outputs.names }}; do
+            if [ "$service" = "frontend-web" ]; then
+              values_file="./apps/trust-game-app/k8s/values-${{ inputs.environment }}.yaml"
+            else
+              values_file="./services/$service/k8s/values-${{ inputs.environment }}.yaml"
+            fi
+
+            helm upgrade --install "$service" ./infrastructure/k8s/service-chart \
+              -f "$values_file" \
+              --set image.tag="${{ inputs.image-tag }}" \
+              --namespace "atg-${{ inputs.environment }}" \
+              --create-namespace
+          done
 
       - name: Apply app entry
         shell: bash

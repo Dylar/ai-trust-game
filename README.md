@@ -39,7 +39,7 @@ make compose-up
 ```
 
 Use localhost:3000 in your browser to access the frontend.<br>
-The backend is available at localhost:8080.
+The public backend gateway is available at localhost:8080.
 
 For more commands and development scripts, see the documentation:<br>
 

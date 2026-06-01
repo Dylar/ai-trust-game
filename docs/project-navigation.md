@@ -22,6 +22,8 @@ Also, you can find the broad development plan and commands reference here.
 ### Backend
 
 #### Services
+- [Gateway HTTP service, public backend routing, and request forwarding](../services/gateway-service/README.md)
+- [Gateway service Kubernetes deployment values](../services/gateway-service/k8s/README.md)
 - [Game HTTP service, routes, metadata headers, and runtime wiring](../services/game-service/README.md)
 - [Game service Kubernetes deployment values](../services/game-service/k8s/README.md)
 

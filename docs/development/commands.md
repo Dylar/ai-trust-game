@@ -59,7 +59,8 @@ The Kubernetes commands are for the cluster deployment path, not for local devel
 For local work, use the [compose stack](#compose-stack) above.
 
 `ENV` selects the target environment, for example `dev`, `test`, or `prod`.
-`SERVICE` is optional. If omitted, deploy commands target all prepared services. If set, only that service is handled.
+`SERVICE` is optional. If omitted, deploy commands target all prepared services and the app entrypoint.
+If set, only that service is handled.
 
 ### Local
 
@@ -75,7 +76,7 @@ make manual-deploy ENV=dev
 Builds, pushes, and deploys only one service.
 
 ```bash
-make manual-deploy SERVICE=game-service ENV=dev
+make manual-deploy SERVICE=gateway-service ENV=dev
 ```
 
 Prints the automatic manual deploy tag format without triggering a workflow.
@@ -89,7 +90,7 @@ Kubernetes values file.
 Use this only when you intentionally want to separate image publishing from deployment.
 
 ```bash
-make k8s-build-push SERVICE=game-service ENV=dev IMAGE_TAG=dev-local
+make k8s-build-push SERVICE=gateway-service ENV=dev IMAGE_TAG=dev-local
 ```
 
 ### Deploy
@@ -105,7 +106,7 @@ make k8s-deploy ENV=dev
 Deploys an already published image for one service using the current Git commit SHA as the image tag.
 
 ```bash
-make k8s-deploy SERVICE=game-service ENV=dev
+make k8s-deploy SERVICE=gateway-service ENV=dev
 ```
 
 Installs or upgrades the selected service and environment through Helm. If `IMAGE_TAG` is omitted, the current Git
@@ -113,7 +114,7 @@ commit SHA is used as the image tag.
 Use this when the image already exists and you only want to update one Helm release.
 
 ```bash
-make k8s-apply SERVICE=game-service ENV=dev IMAGE_TAG=dev-local
+make k8s-apply SERVICE=gateway-service ENV=dev IMAGE_TAG=dev-local
 ```
 
 Installs or upgrades the Flutter web frontend using values from `apps/trust-game-app/k8s`.
@@ -135,14 +136,14 @@ Manual image publishing is also available through the `Publish Images` GitHub Ac
 
 Use these commands when you want to inspect, validate, or diagnose without rolling out a new release.
 
-Lints the Helm chart and renders each selected environment without applying it.
+Lints the Helm chart and renders each selected environment for all prepared services without applying it.
 Use this before deploying when you changed charts or values.
 
 ```bash
 make k8s-lint
 ```
 
-Runs the same Kubernetes validation for another prepared service.
+Runs the same Kubernetes validation for one prepared service.
 
 ```bash
 make k8s-lint SERVICE=frontend-web K8S_ENVS='dev test prod'
@@ -152,7 +153,7 @@ Renders the Kubernetes manifests for the selected service and environment throug
 This prints what Helm would send to the cluster, without applying it.
 
 ```bash
-make k8s-template SERVICE=game-service ENV=dev
+make k8s-template SERVICE=gateway-service ENV=dev
 ```
 
 Shows the Kubernetes context and nodes from the project kubeconfig.
@@ -173,7 +174,7 @@ make k8s-status
 Uninstalls the selected Helm release from the selected environment namespace.
 
 ```bash
-make k8s-delete SERVICE=game-service ENV=dev
+make k8s-delete SERVICE=gateway-service ENV=dev
 ```
 
 Uninstalls the app entry Helm release for the selected environment.
@@ -230,13 +231,13 @@ make lint-flutter
 
 ### Commands
 
-Starts a session against the running service.
+Starts a session against the running backend gateway.
 
 ```bash
 go run ./services/game-service/scripts/start-session
 ```
 
-Sends one interaction request against the running service.
+Sends one interaction request against the running backend gateway.
 
 ```bash
 go run ./services/game-service/scripts/interaction --session "$SESSION_ID" --message "Hello"

@@ -26,9 +26,9 @@ It sets the image, namespace, `APP_ENV`, port `80`, probes, replicas, and resour
 Current image repositories:
 
 ```text
-dev    ghcr.io/dylar/ai-trust-game-frontend-web-dev
-test   ghcr.io/dylar/ai-trust-game-frontend-web-test
-prod   ghcr.io/dylar/ai-trust-game-frontend-web-prod
+dev    ghcr.io/dylar/atg-frontend-web-dev
+test   ghcr.io/dylar/atg-frontend-web-test
+prod   ghcr.io/dylar/atg-frontend-web-prod
 ```
 
 These repositories are environment-specific because the Flutter web image is currently built with `APP_ENV` and
@@ -50,7 +50,4 @@ prod   30082
 ```
 
 `app-entry` is an Nginx reverse proxy.
-It routes backend paths to `game-service` and all other traffic to `frontend-web`.
-
-This ownership is temporary.
-If a dedicated `gateway-service` is added later, public traffic configuration should move there.
+It routes backend paths to `gateway-service` and all other traffic to `frontend-web`.

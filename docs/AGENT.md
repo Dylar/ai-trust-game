@@ -52,6 +52,14 @@ Your goal is to:
 
 Documentation is always written in English.<br>
 Each README should be available from the [ROOT-Readme.md](../README.md), not directly, but through sub-links.
+
+### Architecture playbooks
+
+The files under `docs/architecture/` are architecture playbooks, not project-specific implementation notes.
+Use them for reusable structural guidance and patterns.
+Keep concrete project decisions, current service boundaries, runtime wiring, and phase-specific plans in the focused
+project docs, service READMEs, deployment docs, or AGENT notes.
+
 You MUST update documentation if ANY of the following changes:
 
 ### Working notes

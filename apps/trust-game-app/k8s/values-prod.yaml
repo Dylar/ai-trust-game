@@ -7,7 +7,7 @@ partOf: ai-trust-game
 replicas: 2
 
 image:
-  repository: ghcr.io/dylar/ai-trust-game-frontend-web-prod
+  repository: ghcr.io/dylar/atg-frontend-web-prod
   tag: latest
   pullPolicy: IfNotPresent
 

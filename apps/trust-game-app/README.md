@@ -148,7 +148,8 @@ For a manual local run:
 
 The Docker Compose file under `infrastructure/docker/compose/` can build and run an optional local container stack:
 
-- `game-service` on `http://localhost:8080`
+- `gateway-service` on `http://localhost:8080`
+- `game-service` as an internal backend service behind the gateway
 - Flutter web app on `http://localhost:3000`
 
 Start it from the repository root:

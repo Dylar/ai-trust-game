@@ -1,14 +1,14 @@
-serviceName: game-service
-namespace: atg-test
-environment: test
+serviceName: gateway-service
+namespace: atg-prod
+environment: prod
 component: backend
 partOf: ai-trust-game
 
-replicas: 1
+replicas: 2
 
 image:
-  repository: ghcr.io/dylar/atg-game-service
-  tag: test
+  repository: ghcr.io/dylar/atg-gateway-service
+  tag: latest
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -25,7 +25,6 @@ resources:
     memory: 256Mi
 
 config:
-  APP_ENV: test
+  APP_ENV: prod
   PORT: "8080"
-  LLM_PROVIDER: static
-  GROQ_MODEL: ""
+  GAME_SERVICE_URL: http://game-service:8080

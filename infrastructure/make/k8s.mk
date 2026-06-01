@@ -1,6 +1,6 @@
 SERVICE ?=
-SERVICES ?= game-service frontend-web
-K8S_SELECTED_SERVICE := $(if $(strip $(SERVICE)),$(SERVICE),game-service)
+SERVICES ?= gateway-service game-service frontend-web
+K8S_SELECTED_SERVICE := $(if $(strip $(SERVICE)),$(SERVICE),gateway-service)
 K8S_DEPLOY_SERVICES := $(if $(strip $(SERVICE)),$(SERVICE),$(SERVICES))
 K8S_RELEASE ?= $(K8S_SELECTED_SERVICE)
 K8S_CHART ?= ./infrastructure/k8s/service-chart
@@ -26,12 +26,18 @@ endif
 .PHONY: k8s-lint k8s-template k8s-check-kubeconfig k8s-context k8s-build-push k8s-apply k8s-deploy k8s-delete k8s-apply-entry k8s-delete-entry k8s-status manual-deploy-tag manual-deploy
 
 k8s-lint:
-	@for env in $(K8S_ENVS); do \
-		values_file=$(K8S_CONFIG_DIR)/values-$$env.yaml; \
-		echo "Linting $(K8S_SELECTED_SERVICE) $$env"; \
-		helm lint $(K8S_CHART) -f $$values_file; \
-		echo "Rendering $(K8S_SELECTED_SERVICE) $$env"; \
-		helm template $(K8S_RELEASE) $(K8S_CHART) -f $$values_file >/dev/null; \
+	@for service in $(K8S_DEPLOY_SERVICES); do \
+		for env in $(K8S_ENVS); do \
+			if [ "$$service" = "frontend-web" ]; then \
+				values_file=./apps/trust-game-app/k8s/values-$$env.yaml; \
+			else \
+				values_file=./services/$$service/k8s/values-$$env.yaml; \
+			fi; \
+			echo "Linting $$service $$env"; \
+			helm lint $(K8S_CHART) -f $$values_file; \
+			echo "Rendering $$service $$env"; \
+			helm template $$service $(K8S_CHART) -f $$values_file >/dev/null; \
+		done; \
 	done
 
 k8s-template:
@@ -61,10 +67,10 @@ k8s-build-push:
 	fi; \
 	echo "Building and pushing $(K8S_SELECTED_SERVICE) for $(ENV) as $$image_repo:$(IMAGE_TAG)"; \
 	case "$(K8S_SELECTED_SERVICE)" in \
-		game-service) \
+		gateway-service|game-service) \
 			docker buildx build \
 				--platform $(K8S_DOCKER_PLATFORM) \
-				--build-arg SERVICE=game-service \
+				--build-arg SERVICE=$(K8S_SELECTED_SERVICE) \
 				-f ./infrastructure/docker/go-service.Dockerfile \
 				-t "$$image_repo:$(IMAGE_TAG)" \
 				--push . ;; \

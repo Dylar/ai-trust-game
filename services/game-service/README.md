@@ -143,6 +143,7 @@ The service also reads `APP_ENV` for environment tagging in logs.
 It exposes `GET /healthz` for local runtime checks and container health checks.
 
 When the Flutter web app runs locally against the compose backend, use `API_BASE_URL=http://localhost:8080`.
+That local port belongs to `gateway-service`; `game-service` stays internal behind it.
 
 For a local full-stack container run together with the Flutter web app, use the Docker Compose setup under
 `infrastructure/docker/compose/`.

@@ -23,7 +23,7 @@ The shared service chart supplies the default `/healthz` probes.
 Current image repository:
 
 ```text
-ghcr.io/dylar/ai-trust-game-game-service
+ghcr.io/dylar/atg-game-service
 ```
 
 `game-service` is currently environment-neutral as a container image.

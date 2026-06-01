@@ -24,7 +24,8 @@ Workload values live next to the thing they deploy.
 Backend service values stay under `services/<service-name>/k8s/`.
 Frontend and current app-entry values stay under `apps/trust-game-app/k8s/`.
 
-[Game service Kubernetes values](../../../../services/game-service/k8s/README.md)<br>
+[Gateway service Kubernetes values](../../services/gateway-service/k8s/README.md)<br>
+[Game service Kubernetes values](../../services/game-service/k8s/README.md)<br>
 [App Kubernetes values](../../apps/trust-game-app/k8s/README.md)
 
 ## Environments
@@ -50,7 +51,8 @@ The shared service chart uses this naming convention:
 Each service owns the meaning of its own secret keys.
 For concrete keys, read the service-owned Kubernetes README.
 
-[Game service Kubernetes values](../../../../services/game-service/k8s/README.md#runtime-config)
+[Gateway service Kubernetes values](../../services/gateway-service/k8s/README.md#runtime-config)<br>
+[Game service Kubernetes values](../../services/game-service/k8s/README.md#runtime-config)
 
 ## Images
 
@@ -62,7 +64,8 @@ times.
 If a workload is built differently per environment, that exception belongs in the workload-owned README.
 
 [App image setup](../../apps/trust-game-app/k8s/README.md#frontend-workload)<br>
-[Game service image setup](../../../../services/game-service/k8s/README.md#workload)
+[Gateway service image setup](../../services/gateway-service/k8s/README.md#workload)<br>
+[Game service image setup](../../services/game-service/k8s/README.md#workload)
 
 ## Local, Deploy, And Check
 
@@ -77,6 +80,6 @@ The command reference is split into `Local`, `Deploy`, `Lint / Check`, and `Clea
 
 `app-entry` is the current temporary entrypoint for the deployed app environment.
 It belongs to `apps/trust-game-app/k8s/` for now.
-If a dedicated `gateway-service` is added later, public traffic configuration should move there.
+It routes public backend traffic to `gateway-service` and frontend traffic to `frontend-web`.
 
 [App entry values](../../apps/trust-game-app/k8s/README.md#app-entry)

@@ -19,6 +19,9 @@ jobs:
     with:
       chart-path: ./infrastructure/k8s/service-chart
       values-files: |
+        ./services/gateway-service/k8s/values-dev.yaml
+        ./services/gateway-service/k8s/values-test.yaml
+        ./services/gateway-service/k8s/values-prod.yaml
         ./services/game-service/k8s/values-dev.yaml
         ./services/game-service/k8s/values-test.yaml
         ./services/game-service/k8s/values-prod.yaml
@@ -34,6 +37,14 @@ jobs:
         ./apps/trust-game-app/k8s/entry-values-dev.yaml
         ./apps/trust-game-app/k8s/entry-values-test.yaml
         ./apps/trust-game-app/k8s/entry-values-prod.yaml
+
+  docker-build-gateway-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Gateway Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=gateway-service
 
   docker-build-game-service:
     uses: ./.github/workflows/reusable-docker-build.yml

@@ -28,6 +28,13 @@ infrastructure/k8s/entry-chart
 
 `publish.yml` builds and pushes images to GHCR.
 
+Backend service images:
+
+```text
+atg-gateway-service
+atg-game-service
+```
+
 Published image tags:
 
 ```text
@@ -51,7 +58,7 @@ PROD_API_BASE_URL
 ## Deploy
 
 `deploy.yml` does not build images.
-It deploys an already published `image-tag` to one selected service and environment.
+It deploys an already published `image-tag` to one selected service, or to all prepared services, for one environment.
 
 It needs `KUBE_CONFIG_B64` for a securely reachable Kubernetes API.
 For the current Raspberry Pi dev cluster, prefer workstation-local deploys through Make.
