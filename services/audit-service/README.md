@@ -5,7 +5,8 @@ This service owns audit event ingestion, audit analysis, and audit read models.
 It currently owns:
 
 - local audit-service health checks
-- `POST /audit/events` for internal audit event ingestion
+- RabbitMQ audit event consumption
+- `POST /audit/events` as an internal HTTP fallback/debug ingestion endpoint
 - request-level analysis reads at `GET /analysis/request/{requestId}`
 - session-level analysis reads at `GET /analysis/session/{sessionId}`
 - in-memory request analysis storage until persistence is introduced later
@@ -34,7 +35,7 @@ Current routes:
   returns local audit-service health for container and Kubernetes probes
 
 - `POST /audit/events`
-  accepts audit events from internal services
+  accepts audit events from internal services as a fallback/debug path
 
 - `GET /analysis/request/{requestId}`
   returns one stored request analysis
@@ -44,7 +45,9 @@ Current routes:
 
 ## Runtime Behavior
 
-`game-service` emits audit events to `audit-service`.
+`game-service` publishes audit events to RabbitMQ.
+`audit-service` consumes the audit event queue and processes events through the same analyzing sink used by the HTTP
+fallback endpoint.
 The audit service keeps request events in memory until the request is complete, then creates a request analysis.
 
 Persistence is intentionally out of scope until Phase 13.

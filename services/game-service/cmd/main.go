@@ -20,11 +20,17 @@ func main() {
 		logging.WithField("env", appEnv),
 	)
 
-	auditServiceURL := infra.GetEnv("AUDIT_SERVICE_URL", "http://audit-service:8080")
-	auditSink, err := audit.NewHTTPSink(http.DefaultClient, auditServiceURL)
+	auditSink, err := audit.NewRabbitMQSink(audit.RabbitMQConfig{
+		URL:        infra.GetEnv("RABBITMQ_URL", audit.DefaultRabbitMQURL),
+		Exchange:   infra.GetEnv("AUDIT_EVENTS_EXCHANGE", audit.DefaultRabbitMQExchange),
+		RoutingKey: infra.GetEnv("AUDIT_EVENTS_ROUTING_KEY", audit.DefaultRabbitMQRoutingKey),
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer func() {
+		_ = auditSink.Close()
+	}()
 
 	healthHandler := service.NewHealthHandler()
 	chatHandler := service.NewChatHandler(logger, auditSink)

@@ -7,7 +7,7 @@ It wires together:
 - session start
 - interaction processing
 - basic chat input auditing
-- audit event delivery to `audit-service`
+- async audit event publishing through RabbitMQ
 
 The service keeps transport concerns in `service/` and composes core workflow dependencies in `cmd/`.
 
@@ -32,7 +32,7 @@ The service keeps transport concerns in `service/` and composes core workflow de
 It currently creates:
 
 - an in-memory session repository
-- an HTTP audit sink that sends audit events to `audit-service`
+- a RabbitMQ audit sink that publishes audit events for `audit-service`
 - the configured interaction processor
 - the HTTP server and route registration
 
@@ -109,8 +109,14 @@ Current runtime configuration is read in the service composition root:
 - `GROQ_MODEL`
   optional when `LLM_PROVIDER=groq`
 
-- `AUDIT_SERVICE_URL`
-  internal URL used to send audit events to `audit-service`
+- `RABBITMQ_URL`
+  RabbitMQ endpoint used for async audit event publishing
+
+- `AUDIT_EVENTS_EXCHANGE`
+  exchange used for audit event publishing
+
+- `AUDIT_EVENTS_ROUTING_KEY`
+  routing key used for audit event publishing
 
 `openai` is already accepted as a configured provider value, but the service currently falls back to static behavior for
 interaction processing.

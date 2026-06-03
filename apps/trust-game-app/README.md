@@ -152,6 +152,7 @@ The Docker Compose file under `infrastructure/docker/compose/` can build and run
 - `game-service` as an internal backend service behind the gateway
 - `logging-service` as an internal log ingestion service behind the gateway
 - `audit-service` as an internal audit and analysis service behind the gateway
+- RabbitMQ as the local async broker for audit events, with Management UI on `http://localhost:15672`
 - Flutter web app on `http://localhost:3000`
 
 Start it from the repository root:

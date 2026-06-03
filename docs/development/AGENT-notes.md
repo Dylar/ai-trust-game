@@ -198,7 +198,8 @@ By the end of Phase 12:
    - `services/audit-service/` now owns `POST /audit/events`, `GET /analysis/request/{requestId}`, and
      `GET /analysis/session/{sessionId}`.
    - Audit analysis, in-memory read models, and intent summarization moved out of `game-service`.
-   - `game-service` now sends audit events to `audit-service` through `AUDIT_SERVICE_URL`.
+   - `game-service` initially sent audit events to `audit-service` through `AUDIT_SERVICE_URL`; Point 9 replaces that
+     with RabbitMQ-based async delivery.
    - `gateway-service` routes `/analysis/*` to `audit-service`.
    - Shared audit event producer contracts live under `services/shared/project/audit/`.
    - Compose, Kubernetes values, Make service lists, and GitHub workflows include `audit-service`.
@@ -210,6 +211,17 @@ By the end of Phase 12:
    - Define shared event envelope conventions under `services/shared/project/` when events are project-specific.
    - Route log and audit events asynchronously where that is the intended service boundary.
    - Keep public client communication synchronous through `gateway-service`.
+
+   Completion notes:
+
+   - RabbitMQ was selected as the Phase 12 async broker because it provides a real queue model with a free local and
+     self-hostable path.
+   - Docker Compose starts `rabbitmq:3-management`; the Management UI is exposed on `http://localhost:15672`.
+   - `game-service` publishes audit events to the durable `audit.events` exchange using routing key `audit.event`.
+   - `audit-service` consumes the durable `audit-service.audit-events` queue and acknowledges messages after analysis
+     processing succeeds.
+   - `POST /audit/events` remains available as a fallback/debug HTTP ingestion path, but the normal service boundary is
+     RabbitMQ.
 
 10. Update runtime and deployment wiring.
    - Ensure Docker Compose starts the app, gateway, game, logging, and audit services.

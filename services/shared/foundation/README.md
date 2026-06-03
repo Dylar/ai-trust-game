@@ -10,6 +10,12 @@ Current packages:
 - [`logging/`](./logging/)
   structured logging abstraction and HTTP request logging
 
+- [`messaging/`](./messaging/)
+  provider-neutral messaging contracts
+
+- [`messaging/rabbitmq/`](./messaging/rabbitmq/)
+  generic RabbitMQ publisher and consumer helpers
+
 - [`network/`](./network/)
   request metadata, transport helpers, CORS, and JSON response utilities
 

@@ -1,6 +1,7 @@
 name: ai-trust-game
 
 include:
+  - compose.rabbitmq.yml
   - compose.game-service.yml
   - compose.logging-service.yml
   - compose.audit-service.yml

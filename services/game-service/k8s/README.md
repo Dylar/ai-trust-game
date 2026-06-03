@@ -40,7 +40,9 @@ APP_ENV       environment label used by logs and runtime behavior
 PORT          HTTP listen port inside the container
 LLM_PROVIDER  model provider selection, for example static or groq
 GROQ_MODEL    optional Groq model name when Groq is used
-AUDIT_SERVICE_URL  internal URL for audit event ingestion
+RABBITMQ_URL              RabbitMQ endpoint for async audit events
+AUDIT_EVENTS_EXCHANGE     exchange used for audit event publishing
+AUDIT_EVENTS_ROUTING_KEY  routing key used for audit event publishing
 ```
 
 The shared service chart also references this optional runtime secret:

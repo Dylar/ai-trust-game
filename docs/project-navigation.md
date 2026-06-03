@@ -28,7 +28,7 @@ Also, you can find the broad development plan and commands reference here.
 - [Game service Kubernetes deployment values](../services/game-service/k8s/README.md)
 - [Logging HTTP service, client log ingestion, and log validation](../services/logging-service/README.md)
 - [Logging service Kubernetes deployment values](../services/logging-service/k8s/README.md)
-- [Audit HTTP service, event ingestion, analysis, and read models](../services/audit-service/README.md)
+- [Audit service, async event ingestion, analysis, and read models](../services/audit-service/README.md)
 - [Audit service Kubernetes deployment values](../services/audit-service/k8s/README.md)
 
 #### Core / Foundation
