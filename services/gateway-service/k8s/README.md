@@ -8,6 +8,7 @@ This directory owns Kubernetes values for `gateway-service`.
 ## Files
 
 ```text
+values.yaml        shared gateway-service defaults across environments
 values-dev.yaml    gateway-service in atg-dev
 values-test.yaml   gateway-service in atg-test
 values-prod.yaml   gateway-service in atg-prod
@@ -17,7 +18,8 @@ values-prod.yaml   gateway-service in atg-prod
 
 The values deploy `gateway-service` with the shared service chart.
 
-They set the image, namespace, `APP_ENV`, `GAME_SERVICE_URL`, port `8080`, replicas, resources, and probes.
+`values.yaml` sets service-stable workload values such as image defaults, ports, upstream URLs, and shared config.
+The environment files set namespace, `APP_ENV`, replicas, image tag, and resources.
 
 Current image repository:
 

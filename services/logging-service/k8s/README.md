@@ -8,6 +8,7 @@ This directory owns Kubernetes values for `logging-service`.
 ## Files
 
 ```text
+values.yaml        shared logging-service defaults across environments
 values-dev.yaml    logging-service in atg-dev
 values-test.yaml   logging-service in atg-test
 values-prod.yaml   logging-service in atg-prod
@@ -17,7 +18,8 @@ values-prod.yaml   logging-service in atg-prod
 
 The values deploy `logging-service` with the shared service chart.
 
-They set the image, namespace, `APP_ENV`, port `8080`, replicas, resources, and probes.
+`values.yaml` sets service-stable workload values such as image defaults, ports, resources, and shared config.
+The environment files set namespace, `APP_ENV`, and replicas.
 
 Current image repository:
 

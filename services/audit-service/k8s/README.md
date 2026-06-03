@@ -8,6 +8,7 @@ This directory owns Kubernetes values for `audit-service`.
 ## Files
 
 ```text
+values.yaml        shared audit-service defaults across environments
 values-dev.yaml    audit-service in atg-dev
 values-test.yaml   audit-service in atg-test
 values-prod.yaml   audit-service in atg-prod
@@ -16,6 +17,9 @@ values-prod.yaml   audit-service in atg-prod
 ## Workload
 
 The values deploy `audit-service` with the shared service chart.
+
+`values.yaml` sets service-stable workload values such as image defaults, ports, resources, and shared config.
+The environment files set namespace, `APP_ENV`, and replicas.
 
 Current image repository:
 

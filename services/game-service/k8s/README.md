@@ -8,6 +8,7 @@ This directory owns Kubernetes values for `game-service`.
 ## Files
 
 ```text
+values.yaml        shared game-service defaults across environments
 values-dev.yaml    game-service in atg-dev
 values-test.yaml   game-service in atg-test
 values-prod.yaml   game-service in atg-prod
@@ -17,7 +18,8 @@ values-prod.yaml   game-service in atg-prod
 
 The values deploy `game-service` with the shared service chart.
 
-They set the image, namespace, `APP_ENV`, port `8080`, replicas, resources, and runtime config.
+`values.yaml` sets service-stable workload values such as image defaults, ports, internal URLs, and shared config.
+The environment files set namespace, `APP_ENV`, replicas, image tag, and resources.
 The shared service chart supplies the default `/healthz` probes.
 
 Current image repository:

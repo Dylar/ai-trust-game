@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service"
-	auditclient "github.com/Dylar/ai-trust-game/services/game-service/service/audit_client"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/project/audit"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	)
 
 	auditServiceURL := infra.GetEnv("AUDIT_SERVICE_URL", "http://audit-service:8080")
-	auditSink, err := auditclient.NewHTTPSink(http.DefaultClient, auditServiceURL)
+	auditSink, err := audit.NewHTTPSink(http.DefaultClient, auditServiceURL)
 	if err != nil {
 		log.Fatal(err)
 	}

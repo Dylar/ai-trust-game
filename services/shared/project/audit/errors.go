@@ -1,4 +1,4 @@
-package auditclient
+package audit
 
 import "errors"
 

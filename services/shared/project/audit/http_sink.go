@@ -1,4 +1,4 @@
-package auditclient
+package audit
 
 import (
 	"bytes"
@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/Dylar/ai-trust-game/services/shared/project/audit"
 )
 
 type HTTPSink struct {
@@ -32,7 +30,7 @@ func NewHTTPSink(client *http.Client, baseURL string) (*HTTPSink, error) {
 	}, nil
 }
 
-func (sink *HTTPSink) WriteEvent(ctx context.Context, event audit.Event) error {
+func (sink *HTTPSink) WriteEvent(ctx context.Context, event Event) error {
 	var body bytes.Buffer
 	if err := json.NewEncoder(&body).Encode(event); err != nil {
 		return err

@@ -5,7 +5,9 @@ K8S_DEPLOY_SERVICES := $(if $(strip $(SERVICE)),$(SERVICE),$(SERVICES))
 K8S_RELEASE ?= $(K8S_SELECTED_SERVICE)
 K8S_CHART ?= ./infrastructure/k8s/service-chart
 K8S_CONFIG_DIR ?= $(if $(filter frontend-web,$(K8S_SELECTED_SERVICE)),./apps/trust-game-app/k8s,./services/$(K8S_SELECTED_SERVICE)/k8s)
+K8S_BASE_VALUES ?= $(K8S_CONFIG_DIR)/values.yaml
 K8S_VALUES ?= $(K8S_CONFIG_DIR)/values-$(ENV).yaml
+K8S_VALUES_ARGS := $(if $(wildcard $(K8S_BASE_VALUES)),-f $(K8S_BASE_VALUES),) -f $(K8S_VALUES)
 K8S_NAMESPACE ?= atg-$(ENV)
 K8S_ENTRY_RELEASE ?= app-entry
 K8S_ENTRY_CHART ?= ./infrastructure/k8s/entry-chart
@@ -29,19 +31,25 @@ k8s-lint:
 	@for service in $(K8S_DEPLOY_SERVICES); do \
 		for env in $(K8S_ENVS); do \
 			if [ "$$service" = "frontend-web" ]; then \
+				base_values_file=./apps/trust-game-app/k8s/values.yaml; \
 				values_file=./apps/trust-game-app/k8s/values-$$env.yaml; \
 			else \
+				base_values_file=./services/$$service/k8s/values.yaml; \
 				values_file=./services/$$service/k8s/values-$$env.yaml; \
 			fi; \
+			values_args="-f $$values_file"; \
+			if [ -f "$$base_values_file" ]; then \
+				values_args="-f $$base_values_file -f $$values_file"; \
+			fi; \
 			echo "Linting $$service $$env"; \
-			helm lint $(K8S_CHART) -f $$values_file; \
+			helm lint $(K8S_CHART) $$values_args; \
 			echo "Rendering $$service $$env"; \
-			helm template $$service $(K8S_CHART) -f $$values_file >/dev/null; \
+			helm template $$service $(K8S_CHART) $$values_args >/dev/null; \
 		done; \
 	done
 
 k8s-template:
-	helm template $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES) $(K8S_SET_ARGS)
+	helm template $(K8S_RELEASE) $(K8S_CHART) $(K8S_VALUES_ARGS) $(K8S_SET_ARGS)
 
 k8s-check-kubeconfig:
 	@if [ ! -f "$(K8S_KUBECONFIG)" ]; then \
@@ -93,7 +101,7 @@ k8s-apply: k8s-check-kubeconfig
 		image_tag=$$(git rev-parse HEAD); \
 	fi; \
 	echo "Deploying $(K8S_RELEASE) to $(K8S_NAMESPACE) with image tag $$image_tag"; \
-	$(K8S_HELM) upgrade --install $(K8S_RELEASE) $(K8S_CHART) -f $(K8S_VALUES) --set image.tag=$$image_tag --namespace $(K8S_NAMESPACE) --create-namespace
+	$(K8S_HELM) upgrade --install $(K8S_RELEASE) $(K8S_CHART) $(K8S_VALUES_ARGS) --set image.tag=$$image_tag --namespace $(K8S_NAMESPACE) --create-namespace
 
 k8s-deploy:
 	@if [ -n "$(IMAGE_TAG)" ]; then \

@@ -36,6 +36,9 @@ The project uses `dev`, `test`, and `prod`.
 Namespaces use the matching `atg-<env>` shape, for example `atg-dev`.
 Values files use the same suffix: `values-dev.yaml` and `entry-values-dev.yaml`.
 
+If a workload has service-stable defaults, they live in `values.yaml` next to the environment files.
+Make targets and workflow Helm checks render `values.yaml` first when present, then the selected environment file.
+
 This keeps Make targets, Helm values, and cluster resources easy to line up.
 
 ## Config And Secrets

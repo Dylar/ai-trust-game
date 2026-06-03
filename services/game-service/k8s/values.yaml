@@ -1,0 +1,18 @@
+serviceName: game-service
+component: backend
+partOf: ai-trust-game
+
+image:
+  repository: ghcr.io/dylar/atg-game-service
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+containerPort: 8080
+servicePort: 8080
+
+config:
+  PORT: "8080"
+  LLM_PROVIDER: static
+  GROQ_MODEL: ""
+  AUDIT_SERVICE_URL: http://audit-service:8080
