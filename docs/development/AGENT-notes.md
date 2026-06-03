@@ -130,8 +130,8 @@ By the end of Phase 12:
    Completion notes:
 
    - Game-owned domain, session, interaction, and LLM packages now live under `services/game-service/service/`.
-   - The existing audit module moved from root-level `pkg/audit` to `services/game-service/service/audit` because it
-     currently owns game-service audit events, analysis, read models, and intent summarization.
+   - Audit was kept service-owned first, then split again in Point 8 once `audit-service` became the owner of
+     audit ingestion, analysis, read models, and intent summarization.
    - Root-level `internal/` was removed.
    - The shared Go service Dockerfile now builds from `services/` without copying root-level backend code.
    - Code-near documentation links now point to the new service-owned package locations.
@@ -165,8 +165,9 @@ By the end of Phase 12:
    Completion notes:
 
    - `services/gateway-service/` now owns the public backend edge for the current HTTP API.
-   - The gateway exposes `GET /healthz` and proxies `/analysis/*`, `/chat`, `/interaction`, `/logs/*`, and
-     `/session/*` to `game-service`.
+   - The gateway exposes `GET /healthz` and proxies public backend routes to the current owning service.
+   - `/chat`, `/interaction`, and `/session/*` route to `game-service`.
+   - Later points route `/logs/*` to `logging-service` and `/analysis/*` to `audit-service`.
    - Request metadata forwarding covers `X-Request-Id`, `X-Session-Id`, `X-User-Id`, and `X-Forwarded-Proto`.
    - Docker Compose exposes only `gateway-service` on local port `8080`; `game-service` stays internal behind it.
    - Kubernetes service values and GitHub workflows include the gateway image and Helm checks.
@@ -191,6 +192,16 @@ By the end of Phase 12:
    - Move audit event ingestion, analysis, read models, and intent summaries out of the game service.
    - Keep persistence out of scope until Phase 13.
    - Update game service calls and gateway routing as needed.
+
+   Completion notes:
+
+   - `services/audit-service/` now owns `POST /audit/events`, `GET /analysis/request/{requestId}`, and
+     `GET /analysis/session/{sessionId}`.
+   - Audit analysis, in-memory read models, and intent summarization moved out of `game-service`.
+   - `game-service` now sends audit events to `audit-service` through `AUDIT_SERVICE_URL`.
+   - `gateway-service` routes `/analysis/*` to `audit-service`.
+   - Shared audit event producer contracts live under `services/shared/project/audit/`.
+   - Compose, Kubernetes values, Make service lists, and GitHub workflows include `audit-service`.
 
 9. Choose and implement async messaging.
    - Choose the async messaging technology for service-to-service log and audit delivery.

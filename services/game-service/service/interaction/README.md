@@ -77,7 +77,7 @@ returning the error. This keeps model-step failures observable without moving au
 The planning audit step also emits early detection signals such as a claimed role exceeding the currently trusted role
 or invalid planner output.
 
-For analysis work, `services/game-service/service/audit` also provides:
+For analysis work, `audit-service` provides:
 
 - request-level aggregation that classifies completed requests as `clean`, `suspicious`, or `failed_model_step`
 - session-level aggregation over stored request analyses

@@ -12,6 +12,7 @@ on:
           - gateway-service
           - game-service
           - logging-service
+          - audit-service
           - frontend-web
       environment:
         description: "Target environment"
@@ -65,7 +66,7 @@ jobs:
         shell: bash
         run: |
           if [ "${{ inputs.service }}" = "all" ]; then
-            echo "names=gateway-service game-service logging-service frontend-web" >> "$GITHUB_OUTPUT"
+            echo "names=gateway-service game-service logging-service audit-service frontend-web" >> "$GITHUB_OUTPUT"
           else
             echo "names=${{ inputs.service }}" >> "$GITHUB_OUTPUT"
           fi

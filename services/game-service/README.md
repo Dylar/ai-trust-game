@@ -1,13 +1,13 @@
 # Game Service
 
-This service is the current HTTP entrypoint of the project.
+This service owns the game workflow behind the public gateway.
 
 It wires together:
 
 - session start
 - interaction processing
 - basic chat input auditing
-- request and session analysis reads
+- audit event delivery to `audit-service`
 
 The service keeps transport concerns in `service/` and composes core workflow dependencies in `cmd/`.
 
@@ -32,15 +32,13 @@ The service keeps transport concerns in `service/` and composes core workflow de
 It currently creates:
 
 - an in-memory session repository
-- an in-memory request-analysis repository
-- an analyzing audit sink with optional intent summarization
+- an HTTP audit sink that sends audit events to `audit-service`
 - the configured interaction processor
 - the HTTP server and route registration
 
 LLM-backed behavior is selected in:
 
 - [`cmd/processor_factory.go`](./cmd/processor_factory.go)
-- [`cmd/analysis_factory.go`](./cmd/analysis_factory.go)
 
 ## HTTP Surface
 
@@ -61,10 +59,10 @@ Current routes:
   loads the authoritative session and runs the interaction pipeline
 
 - `GET /analysis/request/{requestId}`
-  returns one stored request analysis
+  moved to `audit-service`
 
 - `GET /analysis/session/{sessionId}`
-  returns the aggregated session analysis plus ordered request analyses
+  moved to `audit-service`
 
 ## Request Metadata
 
@@ -95,9 +93,6 @@ It trusts the request metadata header and loads the authoritative session from t
 - [`interaction_handler.go`](./service/interaction_handler.go)
   validates request metadata, loads the session, delegates to `interaction.Processor`, and saves updated session state
 
-- [`analysis_handler.go`](./service/analysis_handler.go)
-  maps stored request analyses into request and session read models and optionally adds session intent summaries
-
 ## Environment Variables
 
 Current runtime configuration is read in the service composition root:
@@ -114,8 +109,11 @@ Current runtime configuration is read in the service composition root:
 - `GROQ_MODEL`
   optional when `LLM_PROVIDER=groq`
 
+- `AUDIT_SERVICE_URL`
+  internal URL used to send audit events to `audit-service`
+
 `openai` is already accepted as a configured provider value, but the service currently falls back to static behavior for
-both interaction processing and audit intent summarization.
+interaction processing.
 
 ## Container Build
 

@@ -39,6 +39,9 @@ jobs:
         ./services/logging-service/k8s/values-dev.yaml
         ./services/logging-service/k8s/values-test.yaml
         ./services/logging-service/k8s/values-prod.yaml
+        ./services/audit-service/k8s/values-dev.yaml
+        ./services/audit-service/k8s/values-test.yaml
+        ./services/audit-service/k8s/values-prod.yaml
         ./apps/trust-game-app/k8s/values-dev.yaml
         ./apps/trust-game-app/k8s/values-test.yaml
         ./apps/trust-game-app/k8s/values-prod.yaml
@@ -76,6 +79,14 @@ jobs:
       build-args: |
         SERVICE=logging-service
 
+  docker-build-audit-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Audit Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=audit-service
+
   docker-build-frontend-web:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
@@ -94,6 +105,7 @@ jobs:
       - docker-build-gateway-service
       - docker-build-game-service
       - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
@@ -114,6 +126,7 @@ jobs:
       - docker-build-gateway-service
       - docker-build-game-service
       - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
@@ -134,6 +147,7 @@ jobs:
       - docker-build-gateway-service
       - docker-build-game-service
       - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
@@ -145,6 +159,27 @@ jobs:
       build-args: |
         SERVICE=logging-service
 
+  publish-audit-service:
+    needs:
+      - go-checks
+      - flutter-checks
+      - helm-checks
+      - helm-entry-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Audit Service To GHCR
+      image-name: atg-audit-service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
+      build-args: |
+        SERVICE=audit-service
+
   publish-frontend-web-dev:
     needs:
       - go-checks
@@ -154,6 +189,7 @@ jobs:
       - docker-build-gateway-service
       - docker-build-game-service
       - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
@@ -175,6 +211,7 @@ jobs:
       - docker-build-gateway-service
       - docker-build-game-service
       - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
@@ -196,6 +233,7 @@ jobs:
       - docker-build-gateway-service
       - docker-build-game-service
       - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit

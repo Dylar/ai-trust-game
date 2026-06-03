@@ -61,7 +61,7 @@ For local work, use the [compose stack](#compose-stack) above.
 `ENV` selects the target environment, for example `dev`, `test`, or `prod`.
 `SERVICE` is optional. If omitted, deploy commands target all prepared services and the app entrypoint.
 If set, only that service is handled.
-Prepared services are `gateway-service`, `game-service`, `logging-service`, and `frontend-web`.
+Prepared services are `gateway-service`, `game-service`, `logging-service`, `audit-service`, and `frontend-web`.
 
 ### Local
 

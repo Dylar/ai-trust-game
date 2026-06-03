@@ -28,16 +28,18 @@ Also, you can find the broad development plan and commands reference here.
 - [Game service Kubernetes deployment values](../services/game-service/k8s/README.md)
 - [Logging HTTP service, client log ingestion, and log validation](../services/logging-service/README.md)
 - [Logging service Kubernetes deployment values](../services/logging-service/k8s/README.md)
+- [Audit HTTP service, event ingestion, analysis, and read models](../services/audit-service/README.md)
+- [Audit service Kubernetes deployment values](../services/audit-service/k8s/README.md)
 
 #### Core / Foundation
 - [Shared service bootstrap, HTTP server lifecycle, and runtime config](../services/shared/foundation/infra/README.md)
 - [Request metadata, transport helpers, and JSON response utilities](../services/shared/foundation/network/README.md)
 - [Structured logging abstraction and HTTP request logging](../services/shared/foundation/logging/README.md)
 
-- [Core domain types and trust-sensitive business vocabulary](../services/game-service/service/domain/README.md)
+- [Core domain types and trust-sensitive business vocabulary](../services/shared/project/domain/README.md)
 - [Authoritative session repository boundary and in-memory storage](../services/game-service/service/session/README.md)
-- [LLM provider abstraction and runtime configuration](../services/game-service/service/llm/README.md)
-- [Audit events, sinks, request analysis, session aggregation, and intent summaries](../services/game-service/service/audit/README.md)
+- [LLM provider abstraction and runtime configuration](../services/shared/project/llm/README.md)
+- [Shared audit event contracts](../services/shared/project/audit/README.md)
 
 #### Features
 - [Interaction pipeline and processor architecture](../services/game-service/service/interaction/README.md)

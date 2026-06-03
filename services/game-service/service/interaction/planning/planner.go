@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
-	"github.com/Dylar/ai-trust-game/services/game-service/service/llm"
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
+	"github.com/Dylar/ai-trust-game/services/shared/project/llm"
 )
 
 type Planner struct {

@@ -12,6 +12,10 @@ services:
       LLM_PROVIDER: ${LLM_PROVIDER}
       GROQ_API_KEY: ${GROQ_API_KEY}
       GROQ_MODEL: ${GROQ_MODEL}
+      AUDIT_SERVICE_URL: http://audit-service:8080
+    depends_on:
+      audit-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
       interval: 10s

@@ -7,7 +7,7 @@ import (
 
 	scripts "github.com/Dylar/ai-trust-game/services/shared/tooling/scripts"
 
-	"github.com/Dylar/ai-trust-game/services/game-service/service"
+	"github.com/Dylar/ai-trust-game/services/audit-service/service"
 )
 
 const routePrefix = "/analysis/request/"

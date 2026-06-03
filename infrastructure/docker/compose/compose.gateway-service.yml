@@ -11,10 +11,13 @@ services:
       PORT: 8080
       GAME_SERVICE_URL: http://game-service:8080
       LOGGING_SERVICE_URL: http://logging-service:8080
+      AUDIT_SERVICE_URL: http://audit-service:8080
     depends_on:
       game-service:
         condition: service_healthy
       logging-service:
+        condition: service_healthy
+      audit-service:
         condition: service_healthy
     ports:
       - "8080:8080"

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service"
-	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
+	auditclient "github.com/Dylar/ai-trust-game/services/game-service/service/audit_client"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
@@ -20,12 +20,14 @@ func main() {
 		logging.WithField("env", appEnv),
 	)
 
-	requestAnalysisRepo := audit.NewInMemoryRequestAnalysisRepository()
-	intentSummarizer := newConfiguredIntentSummarizer(logger)
-	auditSink := audit.NewAnalyzingSinkWithSummarizer(audit.NewConsoleSink(), requestAnalysisRepo, intentSummarizer)
+	auditServiceURL := infra.GetEnv("AUDIT_SERVICE_URL", "http://audit-service:8080")
+	auditSink, err := auditclient.NewHTTPSink(http.DefaultClient, auditServiceURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	healthHandler := service.NewHealthHandler()
 	chatHandler := service.NewChatHandler(logger, auditSink)
-	requestAnalysisHandler := service.NewRequestAnalysisHandlerWithSummarizer(requestAnalysisRepo, intentSummarizer)
 
 	sessionRepo := session.NewInMemoryRepository()
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
@@ -41,13 +43,13 @@ func main() {
 					Name: "game-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, healthHandler, chatHandler, startSessionHandler, interactionHandler, requestAnalysisHandler)
+						service.SetupRoutes(mux, logger, healthHandler, chatHandler, startSessionHandler, interactionHandler)
 					},
 				},
 			},
 		})
 
-	err := srv.Run()
+	err = srv.Run()
 	if err != nil {
 		log.Fatal(err)
 	}

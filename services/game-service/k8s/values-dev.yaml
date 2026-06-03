@@ -29,3 +29,4 @@ config:
   PORT: "8080"
   LLM_PROVIDER: static
   GROQ_MODEL: ""
+  AUDIT_SERVICE_URL: http://audit-service:8080

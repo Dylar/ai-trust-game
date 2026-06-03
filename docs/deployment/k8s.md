@@ -27,6 +27,7 @@ Frontend and current app-entry values stay under `apps/trust-game-app/k8s/`.
 [Gateway service Kubernetes values](../../services/gateway-service/k8s/README.md)<br>
 [Game service Kubernetes values](../../services/game-service/k8s/README.md)<br>
 [Logging service Kubernetes values](../../services/logging-service/k8s/README.md)<br>
+[Audit service Kubernetes values](../../services/audit-service/k8s/README.md)<br>
 [App Kubernetes values](../../apps/trust-game-app/k8s/README.md)
 
 ## Environments
@@ -54,7 +55,8 @@ For concrete keys, read the service-owned Kubernetes README.
 
 [Gateway service Kubernetes values](../../services/gateway-service/k8s/README.md#runtime-config)<br>
 [Game service Kubernetes values](../../services/game-service/k8s/README.md#runtime-config)<br>
-[Logging service Kubernetes values](../../services/logging-service/k8s/README.md#runtime-config)
+[Logging service Kubernetes values](../../services/logging-service/k8s/README.md#runtime-config)<br>
+[Audit service Kubernetes values](../../services/audit-service/k8s/README.md#runtime-config)
 
 ## Images
 
@@ -68,7 +70,8 @@ If a workload is built differently per environment, that exception belongs in th
 [App image setup](../../apps/trust-game-app/k8s/README.md#frontend-workload)<br>
 [Gateway service image setup](../../services/gateway-service/k8s/README.md#workload)<br>
 [Game service image setup](../../services/game-service/k8s/README.md#workload)<br>
-[Logging service image setup](../../services/logging-service/k8s/README.md#workload)
+[Logging service image setup](../../services/logging-service/k8s/README.md#workload)<br>
+[Audit service image setup](../../services/audit-service/k8s/README.md#workload)
 
 ## Local, Deploy, And Check
 

@@ -8,6 +8,7 @@ It currently owns:
 - public HTTP routing for backend API paths
 - reverse proxying to the internal `game-service`
 - reverse proxying app log ingestion to the internal `logging-service`
+- reverse proxying analysis reads to the internal `audit-service`
 - request metadata forwarding for request, session, and user identifiers
 
 The gateway does not own game rules, session state, audit analysis, log storage, or persistence.
@@ -44,7 +45,7 @@ Current routes:
   returns local gateway health for container and Kubernetes probes
 
 - `/analysis/*`
-  proxies analysis requests to `game-service`
+  proxies analysis requests to `audit-service`
 
 - `/chat`
   proxies chat requests to `game-service`
@@ -95,6 +96,9 @@ Header meaning:
 
 - `LOGGING_SERVICE_URL`
   internal URL for the logging service, defaults to `http://logging-service:8080`
+
+- `AUDIT_SERVICE_URL`
+  internal URL for the audit service, defaults to `http://audit-service:8080`
 
 ## Kubernetes
 

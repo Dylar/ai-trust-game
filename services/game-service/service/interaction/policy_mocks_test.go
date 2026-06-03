@@ -1,8 +1,8 @@
 package interaction
 
 import (
-	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
 	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/policy"
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 )
 
 type stubPolicy struct {

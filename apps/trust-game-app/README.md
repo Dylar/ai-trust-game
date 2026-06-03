@@ -151,6 +151,7 @@ The Docker Compose file under `infrastructure/docker/compose/` can build and run
 - `gateway-service` on `http://localhost:8080`
 - `game-service` as an internal backend service behind the gateway
 - `logging-service` as an internal log ingestion service behind the gateway
+- `audit-service` as an internal audit and analysis service behind the gateway
 - Flutter web app on `http://localhost:3000`
 
 Start it from the repository root:

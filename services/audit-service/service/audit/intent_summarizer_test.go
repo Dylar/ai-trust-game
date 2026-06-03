@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Dylar/ai-trust-game/services/game-service/service/llm"
+	"github.com/Dylar/ai-trust-game/services/shared/project/llm"
 	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests/assert"
 )
 

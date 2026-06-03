@@ -1,6 +1,6 @@
 package capability
 
-import "github.com/Dylar/ai-trust-game/services/game-service/service/domain"
+import "github.com/Dylar/ai-trust-game/services/shared/project/domain"
 
 type Input struct {
 	Session domain.Session

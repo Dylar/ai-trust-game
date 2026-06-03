@@ -29,3 +29,4 @@ config:
   PORT: "8080"
   GAME_SERVICE_URL: http://game-service:8080
   LOGGING_SERVICE_URL: http://logging-service:8080
+  AUDIT_SERVICE_URL: http://audit-service:8080

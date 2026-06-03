@@ -1,8 +1,8 @@
 package interaction
 
 import (
-	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
 	interactionstate "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/state"
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 )
 
 type stubStateUpdater struct {

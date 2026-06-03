@@ -1,5 +1,5 @@
 SERVICE ?=
-SERVICES ?= gateway-service game-service logging-service frontend-web
+SERVICES ?= gateway-service game-service logging-service audit-service frontend-web
 K8S_SELECTED_SERVICE := $(if $(strip $(SERVICE)),$(SERVICE),gateway-service)
 K8S_DEPLOY_SERVICES := $(if $(strip $(SERVICE)),$(SERVICE),$(SERVICES))
 K8S_RELEASE ?= $(K8S_SELECTED_SERVICE)
@@ -67,7 +67,7 @@ k8s-build-push:
 	fi; \
 	echo "Building and pushing $(K8S_SELECTED_SERVICE) for $(ENV) as $$image_repo:$(IMAGE_TAG)"; \
 	case "$(K8S_SELECTED_SERVICE)" in \
-		gateway-service|game-service|logging-service) \
+		gateway-service|game-service|logging-service|audit-service) \
 			docker buildx build \
 				--platform $(K8S_DOCKER_PLATFORM) \
 				--build-arg SERVICE=$(K8S_SELECTED_SERVICE) \

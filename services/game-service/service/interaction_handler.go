@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction"
 	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/planning"
 	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"

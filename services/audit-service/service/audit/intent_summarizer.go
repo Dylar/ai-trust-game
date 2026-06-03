@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/Dylar/ai-trust-game/services/game-service/service/llm"
+	"github.com/Dylar/ai-trust-game/services/shared/project/llm"
 )
 
 type IntentSummarizer interface {

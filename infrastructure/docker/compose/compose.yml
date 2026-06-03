@@ -3,5 +3,6 @@ name: ai-trust-game
 include:
   - compose.game-service.yml
   - compose.logging-service.yml
+  - compose.audit-service.yml
   - compose.gateway-service.yml
   - compose.frontend-web.yml

@@ -1,7 +1,7 @@
 package state
 
 import (
-	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 )
 
 type Updater struct{}

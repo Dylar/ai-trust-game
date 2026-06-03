@@ -34,6 +34,7 @@ Backend service images:
 atg-gateway-service
 atg-game-service
 atg-logging-service
+atg-audit-service
 ```
 
 Published image tags:

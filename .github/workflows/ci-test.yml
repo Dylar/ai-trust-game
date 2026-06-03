@@ -28,6 +28,9 @@ jobs:
         ./services/logging-service/k8s/values-dev.yaml
         ./services/logging-service/k8s/values-test.yaml
         ./services/logging-service/k8s/values-prod.yaml
+        ./services/audit-service/k8s/values-dev.yaml
+        ./services/audit-service/k8s/values-test.yaml
+        ./services/audit-service/k8s/values-prod.yaml
         ./apps/trust-game-app/k8s/values-dev.yaml
         ./apps/trust-game-app/k8s/values-test.yaml
         ./apps/trust-game-app/k8s/values-prod.yaml
@@ -64,6 +67,14 @@ jobs:
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
       build-args: |
         SERVICE=logging-service
+
+  docker-build-audit-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Audit Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=audit-service
 
   docker-build-frontend-web:
     uses: ./.github/workflows/reusable-docker-build.yml

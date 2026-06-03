@@ -1,18 +1,36 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
 	"time"
 
-	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
+	"github.com/Dylar/ai-trust-game/services/audit-service/service/audit"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests"
 	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests/assert"
-	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests/mocks"
 )
+
+type fakeIntentSummarizer struct {
+	RequestSummary string
+	SessionSummary string
+	Err            error
+	RequestCalls   int
+	SessionCalls   int
+}
+
+func (f *fakeIntentSummarizer) SummarizeRequest(context.Context, audit.RequestAnalysis, []audit.Event) (string, error) {
+	f.RequestCalls++
+	return f.RequestSummary, f.Err
+}
+
+func (f *fakeIntentSummarizer) SummarizeSession(context.Context, audit.SessionAnalysis) (string, error) {
+	f.SessionCalls++
+	return f.SessionSummary, f.Err
+}
 
 func TestRequestAnalysisRoute(t *testing.T) {
 	mux := http.NewServeMux()
@@ -170,7 +188,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 		SuspicionCount: 1,
 		ModelFailCount: 1,
 	})
-	handler := NewRequestAnalysisHandlerWithSummarizer(repo, &mocks.FakeIntentSummarizer{
+	handler := NewRequestAnalysisHandlerWithSummarizer(repo, &fakeIntentSummarizer{
 		SessionSummary: "Across the session, the user appears to have moved from elevated trust claims toward attempts to access protected information.",
 	})
 

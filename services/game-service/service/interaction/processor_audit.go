@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Dylar/ai-trust-game/services/game-service/service/audit"
-	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
 	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/execution"
 	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/planning"
 	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/policy"
 	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
-	"github.com/Dylar/ai-trust-game/services/game-service/service/llm"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/project/audit"
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
+	"github.com/Dylar/ai-trust-game/services/shared/project/llm"
 )
 
 func (processor Processor) writeAuditEvent(ctx context.Context, event audit.Event) {

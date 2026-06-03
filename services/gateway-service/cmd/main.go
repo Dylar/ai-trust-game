@@ -30,6 +30,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	auditServiceURL := infra.GetEnv("AUDIT_SERVICE_URL", "http://audit-service:8080")
+	auditProxyHandler, err := service.NewProxyHandler(auditServiceURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	healthHandler := service.NewHealthHandler()
 	srv := infra.NewServer(
 		logger,
@@ -39,7 +45,7 @@ func main() {
 					Name: "gateway-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, healthHandler, gameProxyHandler, loggingProxyHandler)
+						service.SetupRoutes(mux, logger, healthHandler, gameProxyHandler, loggingProxyHandler, auditProxyHandler)
 					},
 				},
 			},

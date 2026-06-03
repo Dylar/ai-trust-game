@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/Dylar/ai-trust-game/services/game-service/service/domain"
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 	"github.com/Dylar/ai-trust-game/services/shared/tooling/tests/assert"
 	"testing"
 

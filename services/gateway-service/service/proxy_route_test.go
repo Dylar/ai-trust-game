@@ -63,6 +63,7 @@ func TestProxyRoutes(t *testing.T) {
 		NewHealthHandler(),
 		newTestProxyHandler(t, gameUpstream.URL),
 		newTestProxyHandler(t, loggingUpstream.URL),
+		newTestProxyHandler(t, gameUpstream.URL),
 	)
 
 	rec := tests.ExecuteRequest(
@@ -133,6 +134,7 @@ func TestLogProxyRoutesToLoggingService(t *testing.T) {
 		NewHealthHandler(),
 		newTestProxyHandler(t, gameUpstream.URL),
 		newTestProxyHandler(t, loggingUpstream.URL),
+		newTestProxyHandler(t, loggingUpstream.URL),
 	)
 
 	rec := tests.ExecuteRequest(
@@ -150,6 +152,54 @@ func TestLogProxyRoutesToLoggingService(t *testing.T) {
 	assert.Equal(t, upstreamRequest.Path, "/logs/client", "unexpected upstream path")
 	assert.Equal(t, upstreamRequest.Body, `{"level":"INFO","category":"interaction","message":"message sent"}`, "unexpected upstream body")
 	assertNoRequest(t, unexpectedGameRequest, "expected log request to skip game service")
+}
+
+func TestAnalysisProxyRoutesToAuditService(t *testing.T) {
+	received := make(chan receivedRequest, 1)
+	unexpectedGameRequest := make(chan struct{}, 1)
+	auditUpstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		received <- receivedRequest{
+			Method: req.Method,
+			Path:   req.URL.Path,
+			Query:  req.URL.RawQuery,
+		}
+
+		network.WriteJSON(w, http.StatusOK, map[string]string{"status": "analysis"})
+	}))
+	defer auditUpstream.Close()
+
+	gameUpstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		unexpectedGameRequest <- struct{}{}
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer gameUpstream.Close()
+
+	mux := http.NewServeMux()
+	logger := logging.NewNoopLogger()
+	SetupRoutes(
+		mux,
+		logger,
+		NewHealthHandler(),
+		newTestProxyHandler(t, gameUpstream.URL),
+		newTestProxyHandler(t, gameUpstream.URL),
+		newTestProxyHandler(t, auditUpstream.URL),
+	)
+
+	rec := tests.ExecuteRequest(
+		mux,
+		http.MethodGet,
+		"/analysis/session/session-123?include=summary",
+		nil,
+		"",
+	)
+
+	assert.Equal(t, rec.Code, http.StatusOK, "unexpected proxy response status")
+
+	upstreamRequest := receiveUpstreamRequest(t, received)
+	assert.Equal(t, upstreamRequest.Method, http.MethodGet, "unexpected upstream method")
+	assert.Equal(t, upstreamRequest.Path, "/analysis/session/session-123", "unexpected upstream path")
+	assert.Equal(t, upstreamRequest.Query, "include=summary", "unexpected upstream query")
+	assertNoRequest(t, unexpectedGameRequest, "expected analysis request to skip game service")
 }
 
 func receiveUpstreamRequest(t *testing.T, received <-chan receivedRequest) receivedRequest {
@@ -182,6 +232,7 @@ func TestProxyRouteUnknownPath(t *testing.T) {
 		mux,
 		logger,
 		NewHealthHandler(),
+		newTestProxyHandler(t, "http://127.0.0.1:1"),
 		newTestProxyHandler(t, "http://127.0.0.1:1"),
 		newTestProxyHandler(t, "http://127.0.0.1:1"),
 	)
