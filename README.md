@@ -39,7 +39,8 @@ make compose-up
 ```
 
 Use localhost:3000 in your browser to access the frontend.<br>
-The public backend gateway is available at localhost:8080.
+The public backend gateway is available at localhost:8080.<br>
+RabbitMQ Management UI is available at localhost:15672 during the local compose run.
 
 For more commands and development scripts, see the documentation:<br>
 
@@ -48,6 +49,6 @@ For more commands and development scripts, see the documentation:<br>
 ## Project Navigation
 
 Look into this table of contents for more details.<br>
-There is everything from architecture to the broad development plan.
+There is everything from architecture to the broad project plan.
 
-- [Navigation links](./docs/project-navigation.md)
+- [Navigation links](./docs/project/navigation.md)

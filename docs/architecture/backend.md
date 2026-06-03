@@ -415,4 +415,4 @@ Avoid mocking internal details that are not true architectural boundaries.
 
 ## Project-Specific Notes
 
-For repository-specific backend details, continue with the [code-near documentation](../project-navigation.md#backend).
+For repository-specific backend details, continue with the [project navigation](../project/navigation.md#backend).

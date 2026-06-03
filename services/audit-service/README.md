@@ -9,7 +9,7 @@ It currently owns:
 - `POST /audit/events` as an internal HTTP fallback/debug ingestion endpoint
 - request-level analysis reads at `GET /analysis/request/{requestId}`
 - session-level analysis reads at `GET /analysis/session/{sessionId}`
-- in-memory request analysis storage until persistence is introduced later
+- in-memory request analysis storage
 
 The audit service does not own game state transitions, public routing, generic app logging, or persistence setup.
 
@@ -49,5 +49,4 @@ Current routes:
 `audit-service` consumes the audit event queue and processes events through the same analyzing sink used by the HTTP
 fallback endpoint.
 The audit service keeps request events in memory until the request is complete, then creates a request analysis.
-
-Persistence is intentionally out of scope until Phase 13.
+Stored analyses reset when the service restarts.

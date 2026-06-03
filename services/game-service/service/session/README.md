@@ -8,24 +8,18 @@ Its responsibility is intentionally small:
 - load session state by session ID
 - keep the storage boundary explicit for the service layer and interaction flow
 
-## Why This Boundary Matters
-
-The project is about showing what the system should trust.
-
-For that reason, the current session must be loaded from trusted server-side state instead of being reconstructed from
-user input on each request.
+## Session Flow
 
 The current flow is:
 
 1. `POST /session/start` creates the initial session
 2. the service stores it through [`Repository`](./repository.go)
-3. later `POST /interaction` reads `X-Session-Id` from request metadata
+3. `POST /interaction` reads `X-Session-Id` from request metadata
 4. the service loads the authoritative session from the repository
 5. the interaction pipeline makes decisions against that authoritative state
 
-The important point is:
-
-> the request may identify a session, but it does not define the trusted session state
+The request identifies the session.
+The trusted session state comes from the repository.
 
 ## What Lives Here
 
@@ -37,7 +31,7 @@ The important point is:
 
 ## Stored Object Shape
 
-The repository stores [`domain.Session`](../domain/session.go), which currently contains:
+The repository stores [`domain.Session`](../../../shared/project/domain/session.go), which currently contains:
 
 - `ID`
   the session identifier
@@ -54,22 +48,15 @@ This split is important:
   is the role chosen at session start
 
 - `State.TrustedRole`
-  is the server-side role state the system currently trusts during later decisions
+  is the server-side role state the system trusts during policy decisions
 
 - `State.SecretUnlocked`
   is authoritative state that can enable secret access in stricter modes
 
-## Current Implementation
+## Implementation
 
-[`InMemoryRepository`](./in_memory_repository.go) is the first implementation on purpose.
-
-At the current project stage, it keeps the feedback loop small while preserving a clean replacement point for later
-persistent storage.
-
-That means:
-
-- the service and interaction flow already depend on a repository boundary
-- persistence can change later without rewriting handler or processor logic
+[`InMemoryRepository`](./in_memory_repository.go) stores sessions in process memory.
+Stored sessions reset when the service restarts.
 
 ## Where It Is Used
 

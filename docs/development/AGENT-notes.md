@@ -3,7 +3,7 @@
 This file holds temporary phase planning notes, discussed decisions, open questions, and follow-up items from repository
 work.
 
-Use this file to turn the broad development plan into a concrete phase definition before implementation starts.
+Use this file to turn the broad project plan into a concrete phase definition before implementation starts.
 Once a phase is implemented, move durable decisions into the focused project documentation and remove obsolete working
 notes.
 
@@ -248,11 +248,18 @@ By the end of Phase 12:
    - The Phase 12 RabbitMQ deployment is intentionally ephemeral; RabbitMQ persistence, broker credentials through
      Secrets, dead-letter handling, and retry policy hardening belong to Phase 13.
 
-11. Update stable documentation.
+11. Update stable documentation. (Done)
     - Update backend architecture documentation for the new service boundaries.
     - Update service READMEs for each new or renamed service.
     - Update app, infrastructure, deployment, and command documentation for the new paths.
     - Update project navigation and root README links where needed.
+
+   Completion notes:
+
+   - Stable docs now describe the current service stack, gateway entry, async audit path, shared messaging packages,
+     RabbitMQ broker values, and Kubernetes deploy behavior.
+   - Architecture playbooks under `docs/architecture/` remain project-agnostic by design; concrete Phase 12 decisions
+     live in project, service, shared-code, infrastructure, deployment, and command docs.
 
 12. Verify the phase.
     - Run Go tests.

@@ -33,15 +33,6 @@ complexity, but would not yet help much with the main goal of the project.
 
 Persistent storage is planned later.
 
-### HTTP before service decomposition
-
-The current setup starts as a simple HTTP service.
-
-This keeps the feedback loop small and makes it easier to shape the core behavior before adding more infrastructure
-concerns such as gRPC contracts, multiple services, or async communication.
-
-Those topics are still relevant, but they come later on purpose.
-
 ### Security modes are part of the architecture
 
 Easy, medium, and hard are not just different behaviors.

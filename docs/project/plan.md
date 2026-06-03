@@ -1,9 +1,9 @@
-# Development Plan
+# Project Plan
 
-This document is a broad development plan.
+This document is a broad project plan.
 It describes the intended direction and phase order, but it is not a detailed implementation roadmap.
 
-Use [AGENT-notes.md](./AGENT-notes.md) to turn the current phase into an actionable working plan before implementation
+Use [AGENT-notes.md](../development/AGENT-notes.md) to turn the current phase into an actionable working plan before implementation
 starts.
 
 ## Tech Stack

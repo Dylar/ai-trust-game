@@ -35,8 +35,6 @@ These repositories are environment-specific because the Flutter web image is cur
 `API_BASE_URL` as Docker build arguments.
 The same Git SHA can therefore produce different frontend artifacts for different environments.
 
-If API URL configuration becomes runtime config later, this can move toward one image repository for `frontend-web`.
-
 ## App Entry
 
 `entry-values-<env>.yaml` deploys `app-entry` with the shared entry chart.

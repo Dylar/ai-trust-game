@@ -77,7 +77,7 @@ Important headers:
   read from the incoming request and required for `POST /interaction`
 
 - `X-User-Id`
-  read from the incoming request and stored in request metadata for future use
+  read from the incoming request and stored in request metadata
 
 The interaction endpoint does not take the session ID in the JSON body.
 It trusts the request metadata header and loads the authoritative session from the repository.
@@ -92,6 +92,14 @@ It trusts the request metadata header and loads the authoritative session from t
 
 - [`interaction_handler.go`](./service/interaction_handler.go)
   validates request metadata, loads the session, delegates to `interaction.Processor`, and saves updated session state
+
+## Service Documentation
+
+- [`service/session/`](./service/session/)
+  authoritative session repository boundary and in-memory storage
+
+- [`service/interaction/`](./service/interaction/)
+  interaction pipeline, policy, execution, state update, and response flow
 
 ## Environment Variables
 
@@ -127,8 +135,7 @@ The repository currently uses one shared Go service image definition in
 [`infrastructure/docker/go-service.Dockerfile`](../../infrastructure/docker/go-service.Dockerfile).
 
 `game-service` is built through that shared Dockerfile by passing the service name as a build argument.
-This keeps the default container setup consistent across multiple Go services while still letting individual services
-add their own deployment files later, for example under `k8s/`.
+This keeps the default container setup consistent across multiple Go services.
 
 For local container runs, use the repository Docker Compose setup. For deployment images, use the Kubernetes or manual
 deploy Make targets from the repository root.

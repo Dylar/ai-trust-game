@@ -351,4 +351,4 @@ test case -> process -> screen bot -> base bot / Flutter tester
 
 ## Project-Specific Notes
 
-For repository-specific frontend details, continue with the [code-near documentation](../project-navigation.md#frontend).
+For repository-specific frontend details, continue with the [project navigation](../project/navigation.md#apps).

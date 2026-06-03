@@ -41,7 +41,7 @@ It renders a RabbitMQ `Deployment`, `Service`, and broker config.
 
 [rabbitmq-chart](./rabbitmq-chart/)
 
-RabbitMQ values live under `rabbitmq/` because the broker is infrastructure, not a project-built service image.
+RabbitMQ values live under `rabbitmq/`.
 
 [RabbitMQ values](./rabbitmq/)
 

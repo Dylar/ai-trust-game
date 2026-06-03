@@ -66,6 +66,5 @@ It deploys an already published `image-tag` to one selected service, or to all p
 When deploying all prepared services, it installs or upgrades RabbitMQ before the service releases.
 
 It needs `KUBE_CONFIG_B64` for a securely reachable Kubernetes API.
-For the current Raspberry Pi dev cluster, prefer workstation-local deploys through Make.
 
 [Kubernetes commands](../../docs/development/commands.md#kubernetes)

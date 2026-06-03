@@ -25,15 +25,14 @@ It is intentionally separate from service-focused shared tooling:
 - [`k8s/`](./k8s/)
   shared Kubernetes Helm charts and deployment assets
 
+- [`k8s/rabbitmq/`](./k8s/rabbitmq/)
+  Kubernetes values for the RabbitMQ broker used by async service messaging
+
 The Docker Compose and Kubernetes directories intentionally keep shared infrastructure separate from service-owned
 configuration.
 Compose owns the optional local container stack.
 Kubernetes shared chart logic lives under [`k8s/`](./k8s/), while workload values live close to the owning module.
 
-## Planned Structure
-
-- `terraform/`
-  infrastructure provisioning setup when the project reaches that stage
-
 Service-specific deployment values live close to the owning module, for example under `services/<service-name>/k8s/`.
 Frontend workload and app entrypoint values live under `apps/trust-game-app/k8s/`.
+Infrastructure workload values live under `infrastructure/k8s/<workload>/`.

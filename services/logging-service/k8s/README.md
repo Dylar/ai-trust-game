@@ -39,4 +39,3 @@ PORT     HTTP listen port inside the container
 ## Traffic
 
 `logging-service` is reached through `gateway-service` for public app log ingestion.
-Cluster-internal service log delivery will be added when async messaging is introduced in Phase 12.

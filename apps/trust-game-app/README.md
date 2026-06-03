@@ -7,7 +7,7 @@ This project contains the web-first Flutter client and Android platform scaffold
 ## Purpose
 
 - provide a Flutter web app under `apps/trust-game-app/`
-- prepare Android alongside web so most future work can stay in `lib/`
+- keep Android platform scaffolding alongside the web target
 - validate that the frontend can run independently
 - let users start backend sessions, send interaction messages, and inspect analysis results
 
@@ -70,8 +70,8 @@ Current frontend architecture choices:
 - session flow currently follows `screen -> view model -> service -> repository/data`
 - interaction flow currently follows `screen -> view model -> service -> repository/data`
 - analysis detail flows currently follow `screen -> view model -> service -> data`
-- recent sessions are intentionally in-memory only for now and reset when the app restarts
-- interactions are intentionally in-memory only for now and reset when the app restarts
+- recent sessions are in-memory and reset when the app restarts
+- interactions are in-memory and reset when the app restarts
 - current routing paths are `Home -> SessionStart -> Interaction`, `Home -> Interaction`, `Interaction -> SessionDetail`,
   and `Interaction -> InteractionDetail`
 
@@ -121,9 +121,6 @@ Current test structure:
 - `test/testing/` for shared test bots such as `AppBot` and `BaseScreenBot`
 - `test/testing/mocks/` for reusable transport and unit-test doubles
 - `test/screens/<feature>/` for feature-local screen bots, processes, contexts, and screen tests
-
-Later phases of the frontend work should follow the structure described in
-[`docs/architecture/frontend.md`](../../docs/architecture/frontend.md).
 
 ## Development Flow
 

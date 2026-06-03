@@ -36,7 +36,7 @@ This keeps logging:
 
 - easy to stub in tests
 - consistent across packages
-- replaceable if the project adopts another backend later
+- replaceable behind the shared interface
 
 ## Structured Fields
 

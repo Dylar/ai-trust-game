@@ -130,6 +130,7 @@ make k8s-apply SERVICE=gateway-service ENV=dev IMAGE_TAG=dev-local
 ```
 
 Installs or upgrades RabbitMQ for the selected environment.
+The Phase 12 broker deployment is intentionally ephemeral; broker persistence is planned for Phase 13.
 
 ```bash
 make k8s-apply-rabbitmq ENV=dev
@@ -174,6 +175,12 @@ This prints what Helm would send to the cluster, without applying it.
 make k8s-template SERVICE=gateway-service ENV=dev
 ```
 
+Renders the RabbitMQ broker manifests for the selected environment.
+
+```bash
+make k8s-template-rabbitmq ENV=dev
+```
+
 Shows the Kubernetes context and nodes from the project kubeconfig.
 
 ```bash
@@ -199,6 +206,12 @@ Uninstalls the app entry Helm release for the selected environment.
 
 ```bash
 make k8s-delete-entry ENV=dev
+```
+
+Uninstalls the RabbitMQ broker Helm release for the selected environment.
+
+```bash
+make k8s-delete-rabbitmq ENV=dev
 ```
 
 ## Quality Checks

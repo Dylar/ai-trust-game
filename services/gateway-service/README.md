@@ -32,7 +32,7 @@ It creates:
 
 - a gateway logger
 - the local health handler
-- reverse proxy handlers for `game-service` and `logging-service`
+- reverse proxy handlers for `game-service`, `logging-service`, and `audit-service`
 - the HTTP server and route registration
 
 ## HTTP Surface
