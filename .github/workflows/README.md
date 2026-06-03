@@ -16,10 +16,12 @@ Reusable workflow files provide the shared Go, Flutter, Helm, and Docker steps.
 
 The service chart is checked with backend and frontend values.
 The entry chart is checked separately with app-owned entry values.
+The RabbitMQ chart is checked separately with broker-owned values.
 
 ```text
 infrastructure/k8s/service-chart
 infrastructure/k8s/entry-chart
+infrastructure/k8s/rabbitmq-chart
 ```
 
 [Shared Kubernetes charts](../../infrastructure/k8s/README.md)
@@ -61,6 +63,7 @@ PROD_API_BASE_URL
 
 `deploy.yml` does not build images.
 It deploys an already published `image-tag` to one selected service, or to all prepared services, for one environment.
+When deploying all prepared services, it installs or upgrades RabbitMQ before the service releases.
 
 It needs `KUBE_CONFIG_B64` for a securely reachable Kubernetes API.
 For the current Raspberry Pi dev cluster, prefer workstation-local deploys through Make.

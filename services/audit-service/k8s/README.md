@@ -50,6 +50,9 @@ audit-service-secret
 
 `GROQ_API_KEY` is required when `LLM_PROVIDER=groq`.
 
+`RABBITMQ_URL` points at the in-cluster RabbitMQ broker deployed from
+`infrastructure/k8s/rabbitmq/`.
+
 ## Traffic
 
 `audit-service` receives audit events from `game-service` and serves analysis reads through `gateway-service`.

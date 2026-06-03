@@ -24,7 +24,7 @@ config:
   PORT: "8080"
   LLM_PROVIDER: static
   GROQ_MODEL: ""
-  RABBITMQ_URL: amqp://rabbitmq:5672/
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
   AUDIT_EVENTS_EXCHANGE: audit.events
   AUDIT_EVENTS_QUEUE: audit-service.audit-events
   AUDIT_EVENTS_ROUTING_KEY: audit.event

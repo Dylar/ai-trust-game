@@ -34,6 +34,17 @@ secrets     optional <serviceName>-secret reference
 The chart references `<serviceName>-secret` as optional.
 The workload README owns the expected secret keys.
 
+## RabbitMQ Chart
+
+`rabbitmq-chart/` is the dedicated chart for the current async messaging broker.
+It renders a RabbitMQ `Deployment`, `Service`, and broker config.
+
+[rabbitmq-chart](./rabbitmq-chart/)
+
+RabbitMQ values live under `rabbitmq/` because the broker is infrastructure, not a project-built service image.
+
+[RabbitMQ values](./rabbitmq/)
+
 ## Entry Chart
 
 `entry-chart/` is the shared chart for the current app entrypoint.
@@ -60,4 +71,11 @@ For entry-chart changes, use Helm directly:
 ```sh
 helm lint ./infrastructure/k8s/entry-chart -f ./apps/trust-game-app/k8s/entry-values-dev.yaml
 helm template app-entry ./infrastructure/k8s/entry-chart -f ./apps/trust-game-app/k8s/entry-values-dev.yaml
+```
+
+For RabbitMQ chart changes, use the Make wrapper or Helm directly:
+
+```sh
+make k8s-template-rabbitmq ENV=dev
+helm lint ./infrastructure/k8s/rabbitmq-chart -f ./infrastructure/k8s/rabbitmq/values.yaml -f ./infrastructure/k8s/rabbitmq/values-dev.yaml
 ```

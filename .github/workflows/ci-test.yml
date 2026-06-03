@@ -44,6 +44,15 @@ jobs:
         ./apps/trust-game-app/k8s/entry-values-test.yaml
         ./apps/trust-game-app/k8s/entry-values-prod.yaml
 
+  helm-rabbitmq-checks:
+    uses: ./.github/workflows/reusable-helm.yml
+    with:
+      chart-path: ./infrastructure/k8s/rabbitmq-chart
+      values-files: |
+        ./infrastructure/k8s/rabbitmq/values-dev.yaml
+        ./infrastructure/k8s/rabbitmq/values-test.yaml
+        ./infrastructure/k8s/rabbitmq/values-prod.yaml
+
   docker-build-gateway-service:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:

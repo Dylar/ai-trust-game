@@ -163,6 +163,9 @@ Goal: move towards scalable architecture
 - persistent backend sessions and interactions
 - local app persistence and restore flows
 - audit/event storage
+- RabbitMQ persistence for queued async messages, including broker volume setup
+- broker credential handling through Kubernetes Secrets
+- dead-letter and retry policy for async messages
 - define how app-side persisted state and backend authoritative state stay aligned
 - define migration strategy for persisted frontend and backend schemas
 

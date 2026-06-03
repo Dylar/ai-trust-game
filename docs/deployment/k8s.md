@@ -18,6 +18,18 @@ shape.
 
 [Shared Kubernetes charts](../../infrastructure/k8s/README.md)
 
+## Infrastructure Workloads
+
+Infrastructure workloads that are not built from this repository use dedicated Helm charts instead of the shared service
+chart.
+
+RabbitMQ is deployed as the async messaging broker for service-to-service events.
+Its values live under `infrastructure/k8s/rabbitmq/`, and full Kubernetes deploys install it before the app services.
+The current broker deployment is intentionally ephemeral for Phase 12.
+RabbitMQ persistence, broker credentials through Secrets, dead-letter handling, and retry hardening belong to Phase 13.
+
+[RabbitMQ Kubernetes values](../../infrastructure/k8s/rabbitmq/README.md)
+
 ## Workload Values
 
 Workload values live next to the thing they deploy.
@@ -28,7 +40,8 @@ Frontend and current app-entry values stay under `apps/trust-game-app/k8s/`.
 [Game service Kubernetes values](../../services/game-service/k8s/README.md)<br>
 [Logging service Kubernetes values](../../services/logging-service/k8s/README.md)<br>
 [Audit service Kubernetes values](../../services/audit-service/k8s/README.md)<br>
-[App Kubernetes values](../../apps/trust-game-app/k8s/README.md)
+[App Kubernetes values](../../apps/trust-game-app/k8s/README.md)<br>
+[RabbitMQ Kubernetes values](../../infrastructure/k8s/rabbitmq/README.md)
 
 ## Environments
 

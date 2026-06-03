@@ -68,9 +68,10 @@ The Kubernetes commands are for the cluster deployment path, not for local devel
 For local work, use the [compose stack](#compose-stack) above.
 
 `ENV` selects the target environment, for example `dev`, `test`, or `prod`.
-`SERVICE` is optional. If omitted, deploy commands target all prepared services and the app entrypoint.
+`SERVICE` is optional. If omitted, deploy commands target RabbitMQ, all prepared services, and the app entrypoint.
 If set, only that service is handled.
 Prepared services are `gateway-service`, `game-service`, `logging-service`, `audit-service`, and `frontend-web`.
+RabbitMQ is a Kubernetes infrastructure workload, not a service image built by this repository.
 
 ### Local
 
@@ -108,6 +109,7 @@ make k8s-build-push SERVICE=gateway-service ENV=dev IMAGE_TAG=dev-local
 Use these commands when the image already exists and you want Kubernetes to run it.
 
 Deploys already published images for all prepared services using the current Git commit SHA as the image tag.
+This also installs or upgrades RabbitMQ before the services.
 
 ```bash
 make k8s-deploy ENV=dev
@@ -125,6 +127,12 @@ Use this when the image already exists and you only want to update one Helm rele
 
 ```bash
 make k8s-apply SERVICE=gateway-service ENV=dev IMAGE_TAG=dev-local
+```
+
+Installs or upgrades RabbitMQ for the selected environment.
+
+```bash
+make k8s-apply-rabbitmq ENV=dev
 ```
 
 Installs or upgrades the Flutter web frontend using values from `apps/trust-game-app/k8s`.

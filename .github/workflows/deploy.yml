@@ -67,9 +67,19 @@ jobs:
         run: |
           if [ "${{ inputs.service }}" = "all" ]; then
             echo "names=gateway-service game-service logging-service audit-service frontend-web" >> "$GITHUB_OUTPUT"
+            echo "deploy-rabbitmq=true" >> "$GITHUB_OUTPUT"
           else
             echo "names=${{ inputs.service }}" >> "$GITHUB_OUTPUT"
+            echo "deploy-rabbitmq=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Render RabbitMQ broker
+        if: steps.services.outputs.deploy-rabbitmq == 'true'
+        shell: bash
+        run: |
+          helm template rabbitmq ./infrastructure/k8s/rabbitmq-chart \
+            -f ./infrastructure/k8s/rabbitmq/values.yaml \
+            -f ./infrastructure/k8s/rabbitmq/values-${{ inputs.environment }}.yaml
 
       - name: Check Kubernetes values
         shell: bash
@@ -92,28 +102,52 @@ jobs:
         run: |
           for service in ${{ steps.services.outputs.names }}; do
             if [ "$service" = "frontend-web" ]; then
+              base_values_file="./apps/trust-game-app/k8s/values.yaml"
               values_file="./apps/trust-game-app/k8s/values-${{ inputs.environment }}.yaml"
             else
+              base_values_file="./services/$service/k8s/values.yaml"
               values_file="./services/$service/k8s/values-${{ inputs.environment }}.yaml"
             fi
 
+            values_args=(-f "$values_file")
+            if [ -f "$base_values_file" ]; then
+              values_args=(-f "$base_values_file" -f "$values_file")
+            fi
+
             helm template "$service" ./infrastructure/k8s/service-chart \
-              -f "$values_file" \
+              "${values_args[@]}" \
               --set image.tag="${{ inputs.image-tag }}"
           done
+
+      - name: Deploy RabbitMQ broker
+        if: steps.services.outputs.deploy-rabbitmq == 'true'
+        shell: bash
+        run: |
+          helm upgrade --install rabbitmq ./infrastructure/k8s/rabbitmq-chart \
+            -f ./infrastructure/k8s/rabbitmq/values.yaml \
+            -f ./infrastructure/k8s/rabbitmq/values-${{ inputs.environment }}.yaml \
+            --namespace "atg-${{ inputs.environment }}" \
+            --create-namespace
 
       - name: Deploy release
         shell: bash
         run: |
           for service in ${{ steps.services.outputs.names }}; do
             if [ "$service" = "frontend-web" ]; then
+              base_values_file="./apps/trust-game-app/k8s/values.yaml"
               values_file="./apps/trust-game-app/k8s/values-${{ inputs.environment }}.yaml"
             else
+              base_values_file="./services/$service/k8s/values.yaml"
               values_file="./services/$service/k8s/values-${{ inputs.environment }}.yaml"
             fi
 
+            values_args=(-f "$values_file")
+            if [ -f "$base_values_file" ]; then
+              values_args=(-f "$base_values_file" -f "$values_file")
+            fi
+
             helm upgrade --install "$service" ./infrastructure/k8s/service-chart \
-              -f "$values_file" \
+              "${values_args[@]}" \
               --set image.tag="${{ inputs.image-tag }}" \
               --namespace "atg-${{ inputs.environment }}" \
               --create-namespace

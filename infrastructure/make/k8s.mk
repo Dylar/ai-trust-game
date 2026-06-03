@@ -12,6 +12,12 @@ K8S_NAMESPACE ?= atg-$(ENV)
 K8S_ENTRY_RELEASE ?= app-entry
 K8S_ENTRY_CHART ?= ./infrastructure/k8s/entry-chart
 K8S_ENTRY_VALUES ?= ./apps/trust-game-app/k8s/entry-values-$(ENV).yaml
+K8S_RABBITMQ_RELEASE ?= rabbitmq
+K8S_RABBITMQ_CHART ?= ./infrastructure/k8s/rabbitmq-chart
+K8S_RABBITMQ_CONFIG_DIR ?= ./infrastructure/k8s/rabbitmq
+K8S_RABBITMQ_BASE_VALUES ?= $(K8S_RABBITMQ_CONFIG_DIR)/values.yaml
+K8S_RABBITMQ_VALUES ?= $(K8S_RABBITMQ_CONFIG_DIR)/values-$(ENV).yaml
+K8S_RABBITMQ_VALUES_ARGS := $(if $(wildcard $(K8S_RABBITMQ_BASE_VALUES)),-f $(K8S_RABBITMQ_BASE_VALUES),) -f $(K8S_RABBITMQ_VALUES)
 K8S_ENVS ?= dev test prod
 IMAGE_TAG ?=
 K8S_DEPLOY_IMAGE_TAG ?=
@@ -25,7 +31,7 @@ ifneq ($(strip $(IMAGE_TAG)),)
 K8S_SET_ARGS += --set image.tag=$(IMAGE_TAG)
 endif
 
-.PHONY: k8s-lint k8s-template k8s-check-kubeconfig k8s-context k8s-build-push k8s-apply k8s-deploy k8s-delete k8s-apply-entry k8s-delete-entry k8s-status manual-deploy-tag manual-deploy
+.PHONY: k8s-lint k8s-template k8s-template-rabbitmq k8s-check-kubeconfig k8s-context k8s-build-push k8s-apply k8s-apply-rabbitmq k8s-deploy k8s-delete k8s-delete-rabbitmq k8s-apply-entry k8s-delete-entry k8s-status manual-deploy-tag manual-deploy
 
 k8s-lint:
 	@for service in $(K8S_DEPLOY_SERVICES); do \
@@ -47,9 +53,20 @@ k8s-lint:
 			helm template $$service $(K8S_CHART) $$values_args >/dev/null; \
 		done; \
 	done
+	@if [ -z "$(strip $(SERVICE))" ]; then \
+		for env in $(K8S_ENVS); do \
+			echo "Linting rabbitmq $$env"; \
+			helm lint $(K8S_RABBITMQ_CHART) -f $(K8S_RABBITMQ_BASE_VALUES) -f $(K8S_RABBITMQ_CONFIG_DIR)/values-$$env.yaml; \
+			echo "Rendering rabbitmq $$env"; \
+			helm template $(K8S_RABBITMQ_RELEASE) $(K8S_RABBITMQ_CHART) -f $(K8S_RABBITMQ_BASE_VALUES) -f $(K8S_RABBITMQ_CONFIG_DIR)/values-$$env.yaml >/dev/null; \
+		done; \
+	fi
 
 k8s-template:
 	helm template $(K8S_RELEASE) $(K8S_CHART) $(K8S_VALUES_ARGS) $(K8S_SET_ARGS)
+
+k8s-template-rabbitmq:
+	helm template $(K8S_RABBITMQ_RELEASE) $(K8S_RABBITMQ_CHART) $(K8S_RABBITMQ_VALUES_ARGS)
 
 k8s-check-kubeconfig:
 	@if [ ! -f "$(K8S_KUBECONFIG)" ]; then \
@@ -68,9 +85,14 @@ k8s-build-push:
 		echo "Error: IMAGE_TAG missing"; \
 		exit 1; \
 	fi
-	@image_repo=$$(yq eval -r '.image.repository' "$(K8S_VALUES)"); \
+	@image_repo=$$(yq eval -r '.image.repository // ""' "$(K8S_VALUES)"); \
 	if [ -z "$$image_repo" ] || [ "$$image_repo" = "null" ]; then \
-		echo "Error: image.repository missing in $(K8S_VALUES)"; \
+		if [ -f "$(K8S_BASE_VALUES)" ]; then \
+			image_repo=$$(yq eval -r '.image.repository // ""' "$(K8S_BASE_VALUES)"); \
+		fi; \
+	fi; \
+	if [ -z "$$image_repo" ] || [ "$$image_repo" = "null" ]; then \
+		echo "Error: image.repository missing in $(K8S_BASE_VALUES) and $(K8S_VALUES)"; \
 		exit 1; \
 	fi; \
 	echo "Building and pushing $(K8S_SELECTED_SERVICE) for $(ENV) as $$image_repo:$(IMAGE_TAG)"; \
@@ -103,6 +125,13 @@ k8s-apply: k8s-check-kubeconfig
 	echo "Deploying $(K8S_RELEASE) to $(K8S_NAMESPACE) with image tag $$image_tag"; \
 	$(K8S_HELM) upgrade --install $(K8S_RELEASE) $(K8S_CHART) $(K8S_VALUES_ARGS) --set image.tag=$$image_tag --namespace $(K8S_NAMESPACE) --create-namespace
 
+k8s-apply-rabbitmq: k8s-check-kubeconfig
+	@if [ ! -f "$(K8S_RABBITMQ_VALUES)" ]; then \
+		echo "Error: K8S_RABBITMQ_VALUES not found: $(K8S_RABBITMQ_VALUES)"; \
+		exit 1; \
+	fi
+	$(K8S_HELM) upgrade --install $(K8S_RABBITMQ_RELEASE) $(K8S_RABBITMQ_CHART) $(K8S_RABBITMQ_VALUES_ARGS) --namespace $(K8S_NAMESPACE) --create-namespace
+
 k8s-deploy:
 	@if [ -n "$(IMAGE_TAG)" ]; then \
 		echo "Error: k8s-deploy uses the current commit SHA as image tag. Do not pass IMAGE_TAG."; \
@@ -113,6 +142,9 @@ k8s-deploy:
 	image_tag="$(K8S_DEPLOY_IMAGE_TAG)"; \
 	if [ -z "$$image_tag" ]; then \
 		image_tag=$$(git rev-parse HEAD); \
+	fi; \
+	if [ -z "$(strip $(SERVICE))" ]; then \
+		$(MAKE) k8s-apply-rabbitmq ENV=$(ENV) || exit $$?; \
 	fi; \
 	for service in $(K8S_DEPLOY_SERVICES); do \
 		$(MAKE) k8s-apply SERVICE=$$service ENV=$(ENV) IMAGE_TAG=$$image_tag || exit $$?; \
@@ -127,6 +159,9 @@ k8s-deploy:
 
 k8s-delete: k8s-check-kubeconfig
 	$(K8S_HELM) uninstall $(K8S_RELEASE) --namespace $(K8S_NAMESPACE)
+
+k8s-delete-rabbitmq: k8s-check-kubeconfig
+	$(K8S_HELM) uninstall $(K8S_RABBITMQ_RELEASE) --namespace $(K8S_NAMESPACE) --ignore-not-found
 
 k8s-apply-entry: k8s-check-kubeconfig
 	@if [ ! -f "$(K8S_ENTRY_VALUES)" ]; then \

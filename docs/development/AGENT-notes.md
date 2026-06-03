@@ -187,7 +187,7 @@ By the end of Phase 12:
    - `/logs/*` routes through the gateway to `logging-service`.
    - Docker Compose, Kubernetes values, Make deploy lists, and GitHub workflows include `logging-service`.
 
-8. Add `audit-service`.
+8. Add `audit-service`. (Done)
    - Create the service structure under `services/audit-service/`.
    - Move audit event ingestion, analysis, read models, and intent summaries out of the game service.
    - Keep persistence out of scope until Phase 13.
@@ -204,7 +204,7 @@ By the end of Phase 12:
    - Shared audit event producer contracts live under `services/shared/project/audit/`.
    - Compose, Kubernetes values, Make service lists, and GitHub workflows include `audit-service`.
 
-9. Choose and implement async messaging.
+9. Choose and implement async messaging. (Done)
    - Choose the async messaging technology for service-to-service log and audit delivery.
    - Add local Compose support for the selected broker or event system.
    - Add Kubernetes runtime configuration for the selected broker or event system if needed in Phase 12 deployments.
@@ -223,11 +223,30 @@ By the end of Phase 12:
    - `POST /audit/events` remains available as a fallback/debug HTTP ingestion path, but the normal service boundary is
      RabbitMQ.
 
-10. Update runtime and deployment wiring.
+10. Update runtime and deployment wiring. (Done)
    - Ensure Docker Compose starts the app, gateway, game, logging, and audit services.
+   - Ensure Docker Compose starts RabbitMQ for local async audit delivery.
    - Add or update Kubernetes values for each service.
+   - Ensure Kubernetes runtime config includes RabbitMQ and audit event routing values for the services that need them.
    - Ensure public cluster entry routes to `gateway-service`.
    - Keep service-specific deployment values close to each service.
+   - Verify local Compose config and Kubernetes rendering after runtime wiring changes.
+
+   Completion notes:
+
+   - Docker Compose starts `rabbitmq`, `game-service`, `logging-service`, `audit-service`, `gateway-service`, and
+     `frontend-web`.
+   - `game-service` and `audit-service` depend on healthy RabbitMQ in Compose.
+   - `gateway-service` remains the only local backend service exposed on port `8080`; `frontend-web` is exposed on
+     port `3000`; RabbitMQ Management UI is exposed on port `15672`.
+   - Kubernetes service values are split into service-stable `values.yaml` files and environment-specific
+     `values-dev/test/prod.yaml` overrides.
+   - Kubernetes runtime config includes RabbitMQ and audit event routing values for `game-service` and `audit-service`.
+   - Kubernetes app-entry renders public backend routes through `gateway-service`.
+   - Make and GitHub deployment rendering now merge service `values.yaml` before the selected environment values file.
+   - Kubernetes deploys RabbitMQ through a dedicated infra Helm chart before the app services during full deploys.
+   - The Phase 12 RabbitMQ deployment is intentionally ephemeral; RabbitMQ persistence, broker credentials through
+     Secrets, dead-letter handling, and retry policy hardening belong to Phase 13.
 
 11. Update stable documentation.
     - Update backend architecture documentation for the new service boundaries.
