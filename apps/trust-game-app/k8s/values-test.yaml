@@ -1,0 +1,42 @@
+serviceName: frontend-web
+namespace: atg-test
+environment: test
+component: frontend
+partOf: ai-trust-game
+
+replicas: 1
+
+image:
+  repository: ghcr.io/dylar/atg-frontend-web-test
+  tag: test
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+containerPort: 80
+servicePort: 80
+
+probes:
+  readiness:
+    path: /
+    initialDelaySeconds: 3
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  liveness:
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 20
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+config:
+  APP_ENV: test

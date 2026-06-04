@@ -1,0 +1,48 @@
+serviceName: app-entry
+namespace: atg-dev
+environment: dev
+component: entrypoint
+partOf: ai-trust-game
+
+replicas: 1
+
+image:
+  repository: nginx
+  tag: 1.29-alpine
+  pullPolicy: IfNotPresent
+
+containerPort: 8080
+servicePort: 80
+nodePort: 30080
+
+backend:
+  serviceName: gateway-service
+  servicePort: 8080
+  routes:
+    - analysis
+    - chat
+    - interaction
+    - logs
+    - session
+
+frontend:
+  serviceName: frontend-web
+  servicePort: 80
+
+probes:
+  readiness:
+    path: /
+    initialDelaySeconds: 3
+    periodSeconds: 10
+  liveness:
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 20
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi

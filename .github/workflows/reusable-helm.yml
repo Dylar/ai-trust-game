@@ -39,9 +39,15 @@ jobs:
               continue
             fi
 
+            values_args=(-f "$values_file")
+            base_values_file="$(dirname "$values_file")/values.yaml"
+            if [ -f "$base_values_file" ]; then
+              values_args=(-f "$base_values_file" -f "$values_file")
+            fi
+
             echo "Linting $values_file"
-            helm lint "${{ inputs.chart-path }}" -f "$values_file"
+            helm lint "${{ inputs.chart-path }}" "${values_args[@]}"
 
             echo "Rendering $values_file"
-            helm template "$(basename "$values_file" .yaml)" "${{ inputs.chart-path }}" -f "$values_file" >/dev/null
+            helm template "$(basename "$values_file" .yaml)" "${{ inputs.chart-path }}" "${values_args[@]}" >/dev/null
           done <<< "$VALUES_FILES"

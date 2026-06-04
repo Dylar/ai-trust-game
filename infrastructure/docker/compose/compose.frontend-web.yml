@@ -1,0 +1,14 @@
+services:
+  frontend-web:
+    build:
+      context: ../../..
+      dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
+      args:
+        APP_ENV: dev
+        API_BASE_URL: http://localhost:8080
+    image: frontend-web:local
+    depends_on:
+      gateway-service:
+        condition: service_healthy
+    ports:
+      - "3000:80"

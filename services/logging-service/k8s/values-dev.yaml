@@ -1,0 +1,7 @@
+namespace: atg-dev
+environment: dev
+
+replicas: 1
+
+config:
+  APP_ENV: dev

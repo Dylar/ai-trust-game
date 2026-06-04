@@ -17,22 +17,73 @@ jobs:
   helm-checks:
     uses: ./.github/workflows/reusable-helm.yml
     with:
-      chart-path: ./infrastructure/k8s/chart
+      chart-path: ./infrastructure/k8s/service-chart
       values-files: |
-        ./services/main-service/k8s/values-dev.yaml
-        ./services/main-service/k8s/values-test.yaml
-        ./services/main-service/k8s/values-prod.yaml
-        ./app/k8s/values-dev.yaml
-        ./app/k8s/values-test.yaml
-        ./app/k8s/values-prod.yaml
+        ./services/gateway-service/k8s/values-dev.yaml
+        ./services/gateway-service/k8s/values-test.yaml
+        ./services/gateway-service/k8s/values-prod.yaml
+        ./services/game-service/k8s/values-dev.yaml
+        ./services/game-service/k8s/values-test.yaml
+        ./services/game-service/k8s/values-prod.yaml
+        ./services/logging-service/k8s/values-dev.yaml
+        ./services/logging-service/k8s/values-test.yaml
+        ./services/logging-service/k8s/values-prod.yaml
+        ./services/audit-service/k8s/values-dev.yaml
+        ./services/audit-service/k8s/values-test.yaml
+        ./services/audit-service/k8s/values-prod.yaml
+        ./apps/trust-game-app/k8s/values-dev.yaml
+        ./apps/trust-game-app/k8s/values-test.yaml
+        ./apps/trust-game-app/k8s/values-prod.yaml
 
-  docker-build-main-service:
+  helm-entry-checks:
+    uses: ./.github/workflows/reusable-helm.yml
+    with:
+      chart-path: ./infrastructure/k8s/entry-chart
+      values-files: |
+        ./apps/trust-game-app/k8s/entry-values-dev.yaml
+        ./apps/trust-game-app/k8s/entry-values-test.yaml
+        ./apps/trust-game-app/k8s/entry-values-prod.yaml
+
+  helm-rabbitmq-checks:
+    uses: ./.github/workflows/reusable-helm.yml
+    with:
+      chart-path: ./infrastructure/k8s/rabbitmq-chart
+      values-files: |
+        ./infrastructure/k8s/rabbitmq/values-dev.yaml
+        ./infrastructure/k8s/rabbitmq/values-test.yaml
+        ./infrastructure/k8s/rabbitmq/values-prod.yaml
+
+  docker-build-gateway-service:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      job-name: Docker Build Main Service
+      job-name: Docker Build Gateway Service
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
       build-args: |
-        SERVICE=main-service
+        SERVICE=gateway-service
+
+  docker-build-game-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Game Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=game-service
+
+  docker-build-logging-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Logging Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=logging-service
+
+  docker-build-audit-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Audit Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=audit-service
 
   docker-build-frontend-web:
     uses: ./.github/workflows/reusable-docker-build.yml
@@ -41,4 +92,4 @@ jobs:
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       build-args: |
         APP_ENV=dev
-        API_BASE_URL=http://raspberrypi.tail164eef.ts.net
+        API_BASE_URL=http://raspberrypi.tail164eef.ts.net:30080

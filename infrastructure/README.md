@@ -2,37 +2,37 @@
 
 This directory contains shared infrastructure assets for building, packaging, and deploying the system.
 
-It is intentionally separate from `tooling/`:
+It is intentionally separate from service-focused shared tooling:
 
-- `tooling/` contains development helpers such as scripts and test support
 - `infrastructure/` contains runtime and deployment assets such as Docker and Kubernetes definitions
+- `services/shared/tooling/` contains backend service test helpers, script support, mocks, and assertions
 
 ## Current Structure
 
 - [`docker/`](./docker/)
   shared Docker build definitions for services
 
-- [`../compose.yml`](../compose.yml)
-  local multi-container stack definition for the current development setup
+- [`make/`](./make/)
+  focused Makefile fragments included by the repository root `Makefile`
 
-- [`env/`](./env/)
-  shared environment variable files for local stack variants such as `dev` and `test`
+- [`docker/compose/`](./docker/compose/)
+  optional local Docker Compose stack split into a root include file plus service, web, and model environment files
 
 - [`.github/workflows/`](../.github/workflows/)
-  reusable GitHub Actions building blocks plus small caller workflows for `PR -> test` and `push -> master`
+  reusable GitHub Actions building blocks plus caller workflows for CI, image publishing, and deploys
+  See [workflow documentation](../.github/workflows/README.md).
 
 - [`k8s/`](./k8s/)
   shared Kubernetes Helm charts and deployment assets
 
-The `env/` and `k8s/` directories are intentionally lightweight Phase 11 starting points.
-Right now they keep environment selection and shared Kubernetes charting simple while the project still runs as one main
-service plus one frontend stack.
-Later, once multiple services and Kubernetes-specific environment differences become concrete, this may evolve into a
-more environment-centered structure such as dedicated `dev/`, `test/`, and `prod/` deployment areas.
+- [`k8s/rabbitmq/`](./k8s/rabbitmq/)
+  Kubernetes values for the RabbitMQ broker used by async service messaging
 
-## Planned Structure
-
-- `terraform/`
-  infrastructure provisioning setup when the project reaches that stage
+The Docker Compose and Kubernetes directories intentionally keep shared infrastructure separate from service-owned
+configuration.
+Compose owns the optional local container stack.
+Kubernetes shared chart logic lives under [`k8s/`](./k8s/), while workload values live close to the owning module.
 
 Service-specific deployment values live close to the owning module, for example under `services/<service-name>/k8s/`.
+Frontend workload and app entrypoint values live under `apps/trust-game-app/k8s/`.
+Infrastructure workload values live under `infrastructure/k8s/<workload>/`.

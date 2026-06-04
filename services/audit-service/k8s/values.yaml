@@ -1,0 +1,30 @@
+serviceName: audit-service
+component: backend
+partOf: ai-trust-game
+
+image:
+  repository: ghcr.io/dylar/atg-audit-service
+  tag: local
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+containerPort: 8080
+servicePort: 8080
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+config:
+  PORT: "8080"
+  LLM_PROVIDER: static
+  GROQ_MODEL: ""
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+  AUDIT_EVENTS_EXCHANGE: audit.events
+  AUDIT_EVENTS_QUEUE: audit-service.audit-events
+  AUDIT_EVENTS_ROUTING_KEY: audit.event

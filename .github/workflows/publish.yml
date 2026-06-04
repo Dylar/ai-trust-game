@@ -28,22 +28,73 @@ jobs:
   helm-checks:
     uses: ./.github/workflows/reusable-helm.yml
     with:
-      chart-path: ./infrastructure/k8s/chart
+      chart-path: ./infrastructure/k8s/service-chart
       values-files: |
-        ./services/main-service/k8s/values-dev.yaml
-        ./services/main-service/k8s/values-test.yaml
-        ./services/main-service/k8s/values-prod.yaml
-        ./app/k8s/values-dev.yaml
-        ./app/k8s/values-test.yaml
-        ./app/k8s/values-prod.yaml
+        ./services/gateway-service/k8s/values-dev.yaml
+        ./services/gateway-service/k8s/values-test.yaml
+        ./services/gateway-service/k8s/values-prod.yaml
+        ./services/game-service/k8s/values-dev.yaml
+        ./services/game-service/k8s/values-test.yaml
+        ./services/game-service/k8s/values-prod.yaml
+        ./services/logging-service/k8s/values-dev.yaml
+        ./services/logging-service/k8s/values-test.yaml
+        ./services/logging-service/k8s/values-prod.yaml
+        ./services/audit-service/k8s/values-dev.yaml
+        ./services/audit-service/k8s/values-test.yaml
+        ./services/audit-service/k8s/values-prod.yaml
+        ./apps/trust-game-app/k8s/values-dev.yaml
+        ./apps/trust-game-app/k8s/values-test.yaml
+        ./apps/trust-game-app/k8s/values-prod.yaml
 
-  docker-build-main-service:
+  helm-entry-checks:
+    uses: ./.github/workflows/reusable-helm.yml
+    with:
+      chart-path: ./infrastructure/k8s/entry-chart
+      values-files: |
+        ./apps/trust-game-app/k8s/entry-values-dev.yaml
+        ./apps/trust-game-app/k8s/entry-values-test.yaml
+        ./apps/trust-game-app/k8s/entry-values-prod.yaml
+
+  helm-rabbitmq-checks:
+    uses: ./.github/workflows/reusable-helm.yml
+    with:
+      chart-path: ./infrastructure/k8s/rabbitmq-chart
+      values-files: |
+        ./infrastructure/k8s/rabbitmq/values-dev.yaml
+        ./infrastructure/k8s/rabbitmq/values-test.yaml
+        ./infrastructure/k8s/rabbitmq/values-prod.yaml
+
+  docker-build-gateway-service:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
-      job-name: Docker Build Main Service
+      job-name: Docker Build Gateway Service
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
       build-args: |
-        SERVICE=main-service
+        SERVICE=gateway-service
+
+  docker-build-game-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Game Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=game-service
+
+  docker-build-logging-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Logging Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=logging-service
+
+  docker-build-audit-service:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      job-name: Docker Build Audit Service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      build-args: |
+        SERVICE=audit-service
 
   docker-build-frontend-web:
     uses: ./.github/workflows/reusable-docker-build.yml
@@ -52,75 +103,161 @@ jobs:
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       build-args: |
         APP_ENV=dev
-        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net' }}
+        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30080' }}
 
-  publish-main-service:
+  publish-gateway-service:
     needs:
       - go-checks
       - flutter-checks
       - helm-checks
-      - docker-build-main-service
+      - helm-entry-checks
+      - helm-rabbitmq-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
     with:
-      job-name: Publish Main Service To GHCR
-      image-name: ai-trust-game-main-service
+      job-name: Publish Gateway Service To GHCR
+      image-name: atg-gateway-service
       dockerfile: ./infrastructure/docker/go-service.Dockerfile
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
-        SERVICE=main-service
+        SERVICE=gateway-service
+
+  publish-game-service:
+    needs:
+      - go-checks
+      - flutter-checks
+      - helm-checks
+      - helm-entry-checks
+      - helm-rabbitmq-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Game Service To GHCR
+      image-name: atg-game-service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
+      build-args: |
+        SERVICE=game-service
+
+  publish-logging-service:
+    needs:
+      - go-checks
+      - flutter-checks
+      - helm-checks
+      - helm-entry-checks
+      - helm-rabbitmq-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Logging Service To GHCR
+      image-name: atg-logging-service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
+      build-args: |
+        SERVICE=logging-service
+
+  publish-audit-service:
+    needs:
+      - go-checks
+      - flutter-checks
+      - helm-checks
+      - helm-entry-checks
+      - helm-rabbitmq-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
+      - docker-build-frontend-web
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    secrets: inherit
+    with:
+      job-name: Publish Audit Service To GHCR
+      image-name: atg-audit-service
+      dockerfile: ./infrastructure/docker/go-service.Dockerfile
+      extra-tags: ${{ github.event.inputs.image-tag || '' }}
+      build-args: |
+        SERVICE=audit-service
 
   publish-frontend-web-dev:
     needs:
       - go-checks
       - flutter-checks
       - helm-checks
-      - docker-build-main-service
+      - helm-entry-checks
+      - helm-rabbitmq-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
     with:
       job-name: Publish Frontend Web Dev To GHCR
-      image-name: ai-trust-game-frontend-web-dev
+      image-name: atg-frontend-web-dev
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=dev
-        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net' }}
+        API_BASE_URL=${{ vars.DEV_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30080' }}
 
   publish-frontend-web-test:
     needs:
       - go-checks
       - flutter-checks
       - helm-checks
-      - docker-build-main-service
+      - helm-entry-checks
+      - helm-rabbitmq-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
     with:
       job-name: Publish Frontend Web Test To GHCR
-      image-name: ai-trust-game-frontend-web-test
+      image-name: atg-frontend-web-test
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=test
-        API_BASE_URL=${{ vars.TEST_API_BASE_URL || 'http://localhost:8080' }}
+        API_BASE_URL=${{ vars.TEST_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30081' }}
 
   publish-frontend-web-prod:
     needs:
       - go-checks
       - flutter-checks
       - helm-checks
-      - docker-build-main-service
+      - helm-entry-checks
+      - helm-rabbitmq-checks
+      - docker-build-gateway-service
+      - docker-build-game-service
+      - docker-build-logging-service
+      - docker-build-audit-service
       - docker-build-frontend-web
     uses: ./.github/workflows/reusable-docker-publish.yml
     secrets: inherit
     with:
       job-name: Publish Frontend Web Prod To GHCR
-      image-name: ai-trust-game-frontend-web-prod
+      image-name: atg-frontend-web-prod
       dockerfile: ./infrastructure/docker/flutter-web.Dockerfile
       extra-tags: ${{ github.event.inputs.image-tag || '' }}
       build-args: |
         APP_ENV=prod
-        API_BASE_URL=${{ vars.PROD_API_BASE_URL || 'https://api.example.com' }}
+        API_BASE_URL=${{ vars.PROD_API_BASE_URL || 'http://raspberrypi.tail164eef.ts.net:30082' }}
