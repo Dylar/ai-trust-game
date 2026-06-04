@@ -1,0 +1,7 @@
+namespace: atg-test
+environment: test
+
+replicas: 1
+
+config:
+  APP_ENV: test

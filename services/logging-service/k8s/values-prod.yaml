@@ -1,0 +1,7 @@
+namespace: atg-prod
+environment: prod
+
+replicas: 2
+
+config:
+  APP_ENV: prod

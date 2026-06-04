@@ -18,9 +18,7 @@ In another, it becomes stricter and keeps control in server-side logic.
 
 ## Why this project?
 
-A lot of AI demos focus on what a model can do.
-
-This project is more interested in what goes wrong when the system around the model is designed poorly:
+This project is interested in what goes wrong when the system around the model is designed poorly:
 
 - user claims are treated as truth
 - model output is treated as authority
@@ -29,16 +27,28 @@ This project is more interested in what goes wrong when the system around the mo
 
 The idea is to make those differences visible in a small and understandable setup.
 
+For more details on the project design and architecture, see the documentation:<br>
+[Project description](./docs/project/description.md).
+
 ## Quick Start
 
-Run the main service:
+Run the local container stack:
 
-`make run SERVICE=main-service`
+```bash
+make compose-up
+```
 
-- [Development commands and example scripts](./docs/commands.md)
+Use localhost:3000 in your browser to access the frontend.<br>
+The public backend gateway is available at localhost:8080.<br>
+RabbitMQ Management UI is available at localhost:15672 during the local compose run.
+
+For more commands and development scripts, see the documentation:<br>
+
+- [Development commands and example scripts](./docs/development/commands.md)
 
 ## Project Navigation
 
-Look into this table of contents for more details. There is everything from architecture to development roadmap.
+Look into this table of contents for more details.<br>
+There is everything from architecture to the broad project plan.
 
-- [Navigation links](./docs/project-navigation.md)
+- [Navigation links](./docs/project/navigation.md)

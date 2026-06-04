@@ -1,0 +1,18 @@
+namespace: atg-dev
+environment: dev
+
+replicas: 1
+
+image:
+  tag: local
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+config:
+  APP_ENV: dev
