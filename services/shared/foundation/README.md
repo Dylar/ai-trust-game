@@ -19,5 +19,11 @@ Current packages:
 - [`network/`](./network/)
   request metadata, transport helpers, CORS, and JSON response utilities
 
+- [`persistence/`](./persistence/)
+  provider-neutral persistence support
+
+- [`persistence/postgres/`](./persistence/postgres/)
+  generic PostgreSQL connection, health, and migration helpers
+
 Foundation code should stay technical and broadly reusable.
 Project-specific workflows and business behavior belong in service-owned packages or `services/shared/project/`.

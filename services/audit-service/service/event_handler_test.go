@@ -22,44 +22,96 @@ func (sink *fakeAuditSink) WriteEvent(_ context.Context, event audit.Event) erro
 }
 
 func TestEventHandler(t *testing.T) {
-	t.Run("accepts audit events", func(t *testing.T) {
-		sink := &fakeAuditSink{}
-		handler := NewEventHandler(sink)
+	type Given struct {
+		method string
+		body   string
+	}
 
-		rec := tests.ExecuteRequest(
-			handler,
-			http.MethodPost,
-			"/audit/events",
-			map[string]string{"Content-Type": "application/json"},
-			`{"Type":"interaction","SessionID":"session-123","RequestID":"request-123","Step":"planned"}`,
-		)
+	type Then struct {
+		expectedStatus     int
+		expectedErrorCode  string
+		expectedEventCount int
+		expectedSessionID  string
+		expectedRequestID  string
+		expectedStep       audit.Step
+	}
 
-		assert.Equal(t, rec.Code, http.StatusAccepted, "unexpected status code")
-		assert.Equal(t, len(sink.events), 1, "expected one event to be written")
-		assert.Equal(t, sink.events[0].SessionID, "session-123", "unexpected session id")
-		assert.Equal(t, sink.events[0].RequestID, "request-123", "unexpected request id")
-		assert.Equal(t, sink.events[0].Step, audit.StepPlanned, "unexpected step")
-	})
+	type Scenario struct {
+		name  string
+		given Given
+		then  Then
+	}
 
-	t.Run("rejects invalid JSON", func(t *testing.T) {
-		sink := &fakeAuditSink{}
-		handler := NewEventHandler(sink)
+	scenarios := []Scenario{
+		{
+			name: "GIVEN valid audit event " +
+				"WHEN POST /audit/events " +
+				"THEN accepts event and writes it to sink",
+			given: Given{
+				method: http.MethodPost,
+				body:   `{"Type":"interaction","SessionID":"session-123","RequestID":"request-123","Step":"planned"}`,
+			},
+			then: Then{
+				expectedStatus:     http.StatusAccepted,
+				expectedEventCount: 1,
+				expectedSessionID:  "session-123",
+				expectedRequestID:  "request-123",
+				expectedStep:       audit.StepPlanned,
+			},
+		},
+		{
+			name: "GIVEN invalid JSON " +
+				"WHEN POST /audit/events " +
+				"THEN returns invalid JSON error",
+			given: Given{
+				method: http.MethodPost,
+				body:   `{`,
+			},
+			then: Then{
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: network.ErrorCodeInvalidJSON,
+			},
+		},
+		{
+			name: "GIVEN unsupported method " +
+				"WHEN GET /audit/events " +
+				"THEN returns method not allowed",
+			given: Given{method: http.MethodGet},
+			then: Then{
+				expectedStatus:    http.StatusMethodNotAllowed,
+				expectedErrorCode: network.ErrorCodeMethodNotAllowed,
+			},
+		},
+	}
 
-		rec := tests.ExecuteRequest(handler, http.MethodPost, "/audit/events", nil, `{`)
+	for _, scenario := range scenarios {
+		given := scenario.given
+		then := scenario.then
 
-		assert.Equal(t, rec.Code, http.StatusBadRequest, "unexpected status code")
-		assert.ErrorCode(t, rec.Body.Bytes(), network.ErrorCodeInvalidJSON)
-		assert.Equal(t, len(sink.events), 0, "expected no events to be written")
-	})
+		t.Run(scenario.name, func(t *testing.T) {
+			sink := &fakeAuditSink{}
+			handler := NewEventHandler(sink)
 
-	t.Run("rejects unsupported methods", func(t *testing.T) {
-		sink := &fakeAuditSink{}
-		handler := NewEventHandler(sink)
+			rec := tests.ExecuteRequest(
+				handler,
+				given.method,
+				"/audit/events",
+				map[string]string{"Content-Type": "application/json"},
+				given.body,
+			)
 
-		rec := tests.ExecuteRequest(handler, http.MethodGet, "/audit/events", nil, "")
+			assert.Equal(t, rec.Code, then.expectedStatus, "unexpected status code")
+			assert.Equal(t, len(sink.events), then.expectedEventCount, "unexpected event count")
 
-		assert.Equal(t, rec.Code, http.StatusMethodNotAllowed, "unexpected status code")
-		assert.ErrorCode(t, rec.Body.Bytes(), network.ErrorCodeMethodNotAllowed)
-		assert.Equal(t, len(sink.events), 0, "expected no events to be written")
-	})
+			if then.expectedErrorCode != "" {
+				assert.ErrorCode(t, rec.Body.Bytes(), then.expectedErrorCode)
+				return
+			}
+
+			event := sink.events[0]
+			assert.Equal(t, event.SessionID, then.expectedSessionID, "unexpected session id")
+			assert.Equal(t, event.RequestID, then.expectedRequestID, "unexpected request id")
+			assert.Equal(t, event.Step, then.expectedStep, "unexpected step")
+		})
+	}
 }

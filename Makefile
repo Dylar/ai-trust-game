@@ -2,6 +2,7 @@ include infrastructure/make/common.mk
 include infrastructure/make/quality.mk
 include infrastructure/make/compose.mk
 include infrastructure/make/k8s.mk
+include infrastructure/make/persistence.mk
 
 .PHONY: help
 
@@ -23,6 +24,8 @@ help:
 	@echo "  make k8s-status"
 	@echo "  make manual-deploy [SERVICE=gateway-service] [ENV=dev|test|prod]"
 	@echo "  make manual-deploy-tag"
+	@echo "  make migrate-up [POSTGRES_DATABASE_URL=<postgres-url>]"
+	@echo "  make migrate-down [POSTGRES_DATABASE_URL=<postgres-url>]"
 	@echo "  make test"
 	@echo "  make test-go"
 	@echo "  make test-flutter"

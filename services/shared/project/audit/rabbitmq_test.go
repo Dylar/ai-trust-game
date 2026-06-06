@@ -7,26 +7,66 @@ import (
 )
 
 func TestRabbitMQConfigWithDefaults(t *testing.T) {
-	t.Run("fills audit route values", func(t *testing.T) {
-		cfg := (RabbitMQConfig{}).withDefaults()
+	type Given struct {
+		cfg RabbitMQConfig
+	}
 
-		assert.Equal(t, cfg.URL, DefaultRabbitMQURL, "unexpected url")
-		assert.Equal(t, cfg.Exchange, DefaultRabbitMQExchange, "unexpected exchange")
-		assert.Equal(t, cfg.Queue, DefaultRabbitMQQueue, "unexpected queue")
-		assert.Equal(t, cfg.RoutingKey, DefaultRabbitMQRoutingKey, "unexpected routing key")
-	})
+	type Then struct {
+		expectedURL        string
+		expectedExchange   string
+		expectedQueue      string
+		expectedRoutingKey string
+	}
 
-	t.Run("keeps explicit audit route values", func(t *testing.T) {
-		cfg := (RabbitMQConfig{
-			URL:        "amqp://guest:guest@rabbitmq:5672/",
-			Exchange:   "custom.exchange",
-			Queue:      "custom.queue",
-			RoutingKey: "custom.key",
-		}).withDefaults()
+	type Scenario struct {
+		name  string
+		given Given
+		then  Then
+	}
 
-		assert.Equal(t, cfg.URL, "amqp://guest:guest@rabbitmq:5672/", "unexpected url")
-		assert.Equal(t, cfg.Exchange, "custom.exchange", "unexpected exchange")
-		assert.Equal(t, cfg.Queue, "custom.queue", "unexpected queue")
-		assert.Equal(t, cfg.RoutingKey, "custom.key", "unexpected routing key")
-	})
+	scenarios := []Scenario{
+		{
+			name: "GIVEN empty RabbitMQ config " +
+				"WHEN withDefaults is called " +
+				"THEN fills audit route values",
+			given: Given{cfg: RabbitMQConfig{}},
+			then: Then{
+				expectedURL:        DefaultRabbitMQURL,
+				expectedExchange:   DefaultRabbitMQExchange,
+				expectedQueue:      DefaultRabbitMQQueue,
+				expectedRoutingKey: DefaultRabbitMQRoutingKey,
+			},
+		},
+		{
+			name: "GIVEN explicit RabbitMQ config " +
+				"WHEN withDefaults is called " +
+				"THEN keeps explicit audit route values",
+			given: Given{cfg: RabbitMQConfig{
+				URL:        "amqp://guest:guest@rabbitmq:5672/",
+				Exchange:   "custom.exchange",
+				Queue:      "custom.queue",
+				RoutingKey: "custom.key",
+			}},
+			then: Then{
+				expectedURL:        "amqp://guest:guest@rabbitmq:5672/",
+				expectedExchange:   "custom.exchange",
+				expectedQueue:      "custom.queue",
+				expectedRoutingKey: "custom.key",
+			},
+		},
+	}
+
+	for _, scenario := range scenarios {
+		given := scenario.given
+		then := scenario.then
+
+		t.Run(scenario.name, func(t *testing.T) {
+			cfg := given.cfg.withDefaults()
+
+			assert.Equal(t, cfg.URL, then.expectedURL, "unexpected url")
+			assert.Equal(t, cfg.Exchange, then.expectedExchange, "unexpected exchange")
+			assert.Equal(t, cfg.Queue, then.expectedQueue, "unexpected queue")
+			assert.Equal(t, cfg.RoutingKey, then.expectedRoutingKey, "unexpected routing key")
+		})
+	}
 }

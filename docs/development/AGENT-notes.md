@@ -10,261 +10,225 @@ notes.
 The notes are not the project source of truth. They are a planning area for discussion and decision-making until the
 relevant decisions are implemented and reflected in stable documentation.
 
-## Phase 12 Notes
+## Phase 13 planning notes
 
-Phase 12 focuses on service ownership and repository structure.
-Do not add gRPC or Proto contracts in this phase. They would add code generation, contract-versioning, and tooling
-overhead without a clear project need yet.
+### Working goal
 
-### Target State
+Turn persistence from a broad phase topic into a small sequence of implementation steps that preserves the existing
+architecture boundaries.
 
-By the end of Phase 12:
+Phase 13 should make state survive process and app restarts while keeping the backend authoritative for session and
+interaction state.
 
-- Public cluster traffic enters through `gateway-service`.
-- The former `main-service` has been renamed to `game-service`.
-- `game-service`, `logging-service`, and `audit-service` have explicit service ownership and runtime structure.
-- The Flutter app lives under `apps/trust-game-app/`.
-- Service-owned backend code is no longer mixed into root-level `internal/` or `pkg/` folders.
-- Shared backend code lives only under explicit `services/shared/...` folders.
-- Backend tooling lives under `services/shared/tooling/`.
-- Documentation reflects the new service boundaries and repository structure.
+### Phase scope
 
-### Architecture Rules
+- Add PostgreSQL-backed backend persistence for users, sessions, interactions, and audit/events.
+- Add local Flutter persistence with drift for app restore flows and offline read-only access to previously loaded state.
+- Introduce minimal user identity for persistence restore flows.
+- Keep the minimal user identity intentionally simple: it is a demo continuity mechanism, not real authentication or
+  authorization.
+- Persist all user-relevant app state needed to reopen the app offline, inspect prior sessions/interactions, and show a
+  clear offline error if the user tries to continue a flow that requires the backend.
+- Define how local app state and backend authoritative state are reconciled after restart or reconnect.
+- Persist RabbitMQ queues and configure retry/dead-letter behavior for async messages.
+- Define migration strategy for both backend and frontend schemas.
 
-- Public API communication uses HTTP/JSON through `gateway-service`.
-- Internal service communication uses HTTP/JSON by default for now.
-- Async messaging for logging and audit delivery is part of Phase 12.
-- The concrete async messaging technology must be chosen during Phase 12 before implementation.
-- Services must not import directly from another `services/<service-name>/...` folder.
-- Shared code must move through `services/shared/...`.
-- Use `services/shared/project/` for project-specific shared Go code that multiple services need.
-- Use `services/shared/foundation/` only for generic, project-independent infrastructure-style packages.
-- Use `services/shared/tooling/` for backend test helpers, service scripts support, mocks, and other service-focused
-  development tooling.
-- Keep root-level directories focused on repository-wide concerns such as documentation, infrastructure, tooling, and
-  top-level orchestration.
+### First planning decisions
 
-### Work Plan
+- Treat the backend as the source of truth for sessions, interactions, and audit/event records.
+- Treat local app persistence as a full offline-readable copy of previously loaded user-facing state, but not as
+  authority over backend state.
+- Name the identity feature carefully in implementation and docs so it cannot be mistaken for production-grade auth.
+- Add an auth-service boundary for minimal user identity, while documenting that it is intentionally not real auth yet
+  and can be evolved later into proper authentication.
+- Show a list of existing users and provide an input for creating/selecting a new user.
 
-1. Define the final service boundaries. (Done)
-   - `gateway-service` owns the public backend entry point for external access into the cluster.
-   - `gateway-service` can later own cross-cutting public-edge concerns such as auth, CORS, rate limiting, request
-     shaping, and routing.
-   - `game-service` owns the core product logic such as sessions, interactions, modes, policies, and the current game
-     flow.
-   - `logging-service` owns log ingestion from the app through the gateway and, later, service or cluster-internal logs.
-   - `audit-service` owns audit event ingestion, audit analysis, audit read models, and later audit persistence.
+### Concrete implementation plan
 
-   Boundary details:
+#### 1. Add backend persistence foundation
 
-   - `gateway-service`
-     - Owns public HTTP routing for backend API paths.
-     - Receives external app/client requests.
-     - Preserves and forwards request metadata such as request ID, session ID, and user ID where needed.
-     - Routes synchronous public requests to the owning internal service.
-     - Does not own game rules, session state, audit analysis, log storage, or persistence.
-     - Can later add auth, CORS, rate limiting, public request shaping, and routing policies.
+- Add a shared persistence foundation under `services/shared/foundation/persistence`.
+- Add PostgreSQL as a replaceable implementation under `services/shared/foundation/persistence/postgres`.
+- Keep the shared PostgreSQL package generic: connection setup, configuration, ping/health helpers, migration glue, and
+  optional transaction helpers only.
+- Keep service-specific repository interfaces and SQL adapters under the owning service packages.
+- Use `golang-migrate` for backend schema migrations.
+- Add migration files using numbered `*.up.sql` and `*.down.sql` files.
+- Add initial migrations for users, sessions, interactions, audit events, client logs if needed by read views, and
+  service-owned metadata.
+- Add local migration commands to the development workflow.
+- Add test helpers for running repository tests against PostgreSQL.
+- Add tests for PostgreSQL config parsing, ping/health behavior, migration glue, and test helper setup.
+- Update the shared persistence README.
 
-   - `game-service`
-     - Owns trust-game domain behavior.
-     - Owns session start, authoritative session state, interaction processing, modes, policies, planning, execution,
-       response building, and LLM-backed game flow behavior.
-     - Emits log and audit events to the appropriate service boundary instead of storing or analyzing them directly once
-       those services exist.
-     - Does not own public edge routing, client log ingestion, audit read models, or cross-service log collection.
+#### 2. Create auth-service
 
-   - `logging-service`
-     - Owns log ingestion APIs for app/client logs routed through the gateway.
-     - Owns service log event ingestion once internal delivery is introduced.
-     - Owns log normalization and log-oriented read models when needed.
-     - Does not own audit semantics, game rules, session state, or public API routing.
+- Create `services/auth-service`.
+- Add `cmd/` composition root, `service/` HTTP layer, `k8s/` values, and a service README following the existing service
+  layout.
+- Add health endpoint `GET /healthz`.
+- Add user domain/repository boundary for minimal identity.
+- Implement PostgreSQL user repository under the auth-service's service-owned persistence package.
+- Add `GET /users` to list existing users.
+- Add `POST /users` to create a new user from a display/login name.
+- Add `POST /users/select` to return the selected user identity without validating credentials.
+- Validate empty, duplicate, and overly long names.
+- Return stable `userId`, display name, and timestamps.
+- Ensure all auth-service responses use the same error style as the other Go services.
+- Keep the service intentionally simple: no passwords, no tokens, no authorization checks.
+- Add handler, repository, and migration-backed tests while building the service.
+- Document in the service README that this is demo identity for restore continuity and can later become real auth.
 
-   - `audit-service`
-     - Owns audit event ingestion and audit-specific event semantics.
-     - Owns request analysis, session analysis, audit read models, and intent summaries.
-     - Receives audit events from `game-service` and possibly public-edge audit events from `gateway-service`.
-     - Does not own generic logging, game state transitions, public routing, or persistence setup before Phase 13.
+#### 3. Wire auth-service through gateway
 
-   Cross-service ownership rules:
+- Add `AUTH_SERVICE_URL` configuration to `gateway-service`.
+- Proxy `/auth/*` routes from the gateway to `auth-service`.
+- Forward request metadata headers consistently.
+- Update gateway tests for the new proxy route.
+- Update gateway README and k8s values for the new service URL.
 
-   - A service may expose HTTP endpoints or async event subjects/queues as its boundary.
-   - Other services call or publish to those boundaries instead of importing the service's code directly.
-   - Shared event envelopes, DTOs, and project concepts used by multiple services belong under
-     `services/shared/project/`.
-   - Generic service runtime helpers belong under `services/shared/foundation/`.
-   - Backend test and script helpers belong under `services/shared/tooling/`.
+#### 4. Persist game-service sessions and interactions
 
-2. Move the app into the new app hierarchy. (Done)
-   - Move `app/` to `apps/trust-game-app/`.
-   - Update Make targets, Dockerfiles, Compose files, Kubernetes values, and documentation links that reference `app/`.
-   - Verify Flutter tests and build commands still work from the new path.
+- Replace or supplement the in-memory session repository with a PostgreSQL-backed implementation.
+- Place game-service PostgreSQL repository adapters under service-owned persistence packages.
+- Persist sessions with `user_id`, role, mode, current state, created/updated timestamps, and completion/status metadata.
+- Persist interactions with session id, user id, request id, user input, selected action, policy result, response text,
+  timestamps, and relevant structured pipeline outputs.
+- Keep the existing in-memory repository available for focused tests and lightweight runs where appropriate.
+- Update `POST /session/start` so it requires/uses stable user identity from request metadata.
+- Update `POST /interaction` so saved interaction records are user-scoped and session-scoped.
+- Add restore/query endpoints for listing a user's resumable sessions and fetching full session detail.
+- Add tests for session start persistence, interaction save behavior, user-scoped restore queries, and in-memory
+  repository compatibility where it remains supported.
+- Update game-service README and service-owned package READMEs for persistence behavior.
 
-   Completion notes:
+#### 5. Persist audit-service events and analysis views
 
-   - The Flutter app now lives under `apps/trust-game-app/`.
-   - Make quality targets run Flutter checks from the new app path.
-   - The Flutter web Dockerfile copies the app from the new app path.
-   - GitHub Actions Flutter, Helm, deploy, and publish workflows reference the new app path.
-   - Frontend Kubernetes values and app-entry values are read from `apps/trust-game-app/k8s/`.
-   - App and deployment documentation links point to the new app path.
+- Add PostgreSQL-backed audit event storage.
+- Place audit-service PostgreSQL repository adapters under the audit-service-owned persistence package.
+- Persist consumed audit events instead of keeping analysis data only in memory.
+- Add query support for request-level and session-level analysis views.
+- Include user id when audit events provide it.
+- Preserve current analysis response contracts unless a contract change is required for restore/offline read views.
+- Add tests for audit event storage, request-level analysis queries, session-level analysis queries, and user id
+  propagation.
+- Update audit-service README for persistence behavior.
 
-3. Rename `main-service` to `game-service`. (Done)
-   - Move `services/main-service/` to `services/game-service/`.
-   - Update Go package paths, scripts, Compose services, image names, Kubernetes values, Make targets, and docs.
-   - Keep behavior unchanged during the rename.
-   - Verify Go tests still pass after the rename.
+#### 6. Persist logging-service client logs
 
-   Completion notes:
+- Add PostgreSQL-backed client log storage.
+- Place logging-service PostgreSQL repository adapters under the logging-service-owned persistence package.
+- Persist log entries with request id, session id, user id, level, message, timestamp, and structured metadata.
+- Keep ingestion behavior compatible with the existing app log shipping flow.
+- Add query support for stored client logs used by UI and analysis views.
+- Add tests for log ingestion persistence and stored log queries.
+- Update logging-service README for persistence behavior.
 
-   - The backend service folder now lives under `services/game-service/`.
-   - Service runtime name, logs, Compose service, Kubernetes service name, and image repository use `game-service`.
-   - Go imports and service scripts reference `services/game-service/...`.
-   - Documentation and workflow references point to `game-service`.
+#### 7. Configure RabbitMQ persistence
 
-4. Move service-owned backend code into the owning service. (Done)
-   - Move game-specific domain, session, interaction, LLM, and audit usage code into `services/game-service/service/`
-     where ownership belongs.
-   - Move reusable code only when there is a clear owner or shared need.
-   - Avoid behavior changes while moving code.
+- Configure durable exchanges and queues for audit/log async delivery.
+- Configure persistent messages where the publisher controls delivery mode.
+- Add broker volume setup in Docker Compose.
+- Add persistent volume configuration in Kubernetes values/charts.
+- Move broker credentials into Kubernetes Secrets.
+- Add retry and dead-letter queue configuration.
+- Add focused messaging tests or runtime checks for durable queue/exchange declaration, persistent publishing, retry, and
+  dead-letter behavior.
+- Update RabbitMQ and infrastructure docs for persistence, Secrets, and volumes.
 
-   Completion notes:
+#### 8. Update Docker Compose runtime
 
-   - Game-owned domain, session, interaction, and LLM packages now live under `services/game-service/service/`.
-   - Audit was kept service-owned first, then split again in Point 8 once `audit-service` became the owner of
-     audit ingestion, analysis, read models, and intent summarization.
-   - Root-level `internal/` was removed.
-   - The shared Go service Dockerfile now builds from `services/` without copying root-level backend code.
-   - Code-near documentation links now point to the new service-owned package locations.
+- Add PostgreSQL service to the compose setup.
+- Add auth-service to compose.
+- Wire database URLs for auth-service, game-service, audit-service, and logging-service as needed.
+- Add database volume for local persistence.
+- Ensure gateway can reach auth-service through the compose network.
+- Add or update make commands for starting the full persistence stack.
+- Add a compose smoke check for service health, database connectivity, and gateway-to-auth routing.
+- Update Docker Compose documentation.
 
-5. Create the shared service code areas. (Done)
-   - Create `services/shared/project/` for project-specific shared code.
-   - Create `services/shared/foundation/` for generic service foundations such as logging, HTTP/network helpers, and
-     runtime bootstrap if they are needed by multiple services.
-   - Create `services/shared/tooling/` for backend test helpers, service script helpers, mocks, assertions, and other
-     service-focused development tooling.
-   - Move existing root-level `pkg/` code into the appropriate shared location only after deciding whether each package
-     is project-specific or generic foundation code.
-   - Move existing root-level backend `tooling/` code into `services/shared/tooling/` when it supports services rather
-     than repository-wide orchestration.
+#### 9. Update Kubernetes runtime
 
-   Completion notes:
+- Add auth-service Helm values for dev, test, and prod.
+- Add PostgreSQL configuration or document the expected external PostgreSQL dependency for each environment.
+- Add Secrets for database credentials and RabbitMQ credentials.
+- Add persistent volume values for PostgreSQL and RabbitMQ where the environment owns storage.
+- Wire service URLs through gateway, game-service, audit-service, and logging-service values.
+- Update deployment docs after implementation.
+- Add template/value checks for the changed Helm configuration.
 
-   - `services/shared/project/` now exists for future project-specific shared contracts and vocabulary.
-   - Root-level `pkg/infra`, `pkg/logging`, and `pkg/network` moved to `services/shared/foundation/`.
-   - Root-level backend `tooling/scripts` and `tooling/tests` moved to `services/shared/tooling/`.
-   - Root-level `pkg/` and `tooling/` were removed.
-   - The shared Go service Dockerfile now builds from `services/` only.
-   - Shared-code documentation lives under `services/shared/`.
+#### 10. Add Flutter local persistence
 
-6. Add `gateway-service`. (Done)
-   - Create the service structure under `services/gateway-service/`.
-   - Add health checks and minimal HTTP routing/proxy behavior.
-   - Route public API paths through the gateway to the appropriate internal service.
-   - Update local Compose and Kubernetes so external backend traffic targets the gateway.
+- Add drift dependencies to `apps/trust-game-app`.
+- Create a local database layer under the app's existing data/service boundaries.
+- Add local tables for selected user, known users, sessions, interactions, analysis/audit views, client logs, and sync or
+  restore metadata.
+- Track when known users were last selected.
+- Derive whether a user is loaded from locally persisted sessions for that user.
+- Persist every user-facing record the app has already loaded so it can be inspected offline.
+- Add repository abstractions so screens do not access drift directly.
+- Add local schema migrations for app database changes.
+- Add drift database tests for local tables, local migrations, selected-user state, loaded/unloaded user derivation, and
+  cached session/interaction reads.
 
-   Completion notes:
+#### 11. Create login screen
 
-   - `services/gateway-service/` now owns the public backend edge for the current HTTP API.
-   - The gateway exposes `GET /healthz` and proxies public backend routes to the current owning service.
-   - `/chat`, `/interaction`, and `/session/*` route to `game-service`.
-   - Later points route `/logs/*` to `logging-service` and `/analysis/*` to `audit-service`.
-   - Request metadata forwarding covers `X-Request-Id`, `X-Session-Id`, `X-User-Id`, and `X-Forwarded-Proto`.
-   - Docker Compose exposes only `gateway-service` on local port `8080`; `game-service` stays internal behind it.
-   - Kubernetes service values and GitHub workflows include the gateway image and Helm checks.
-   - `app-entry` now routes public backend paths to `gateway-service`.
+- Always show a login/user-selection screen before entering the main app flow.
+- Show two user lists: loaded users and unloaded users.
+- Derive loaded users from users that have locally persisted sessions.
+- Treat known users without locally persisted sessions as unloaded users.
+- Sort both lists by last selected timestamp, newest first.
+- Treat loaded users as available for offline read-only use.
+- Treat unloaded users as requiring an online backend load before entering their app state.
+- Preselect the last selected user when one exists.
+- If online, refresh the list from auth-service.
+- Add an input for creating a new user.
+- On selection or creation, persist the selected user locally.
+- Make the copy/UI clear and lightweight without presenting it as secure login.
+- Handle offline startup by allowing the last selected/local users to be selected, but prevent creating a new user while
+  offline.
+- Add UI/state tests for user list sorting, preselection, user creation, user selection, and offline restrictions.
 
-7. Add `logging-service`. (Done)
-   - Create the service structure under `services/logging-service/`.
-   - Move client log ingestion responsibility out of the game service.
-   - Update gateway routing and app/backend clients as needed.
+#### 12. Implement app startup and restore flow
 
-   Completion notes:
+- On startup, load the selected user and cached state from drift.
+- Route to the login/user-selection screen before entering the main app flow.
+- Preselect the last selected user when local state contains one.
+- Continue into the main app flow only after the user confirms, selects, or creates a user.
+- If the selected user is loaded locally, allow offline read-only entry.
+- If the selected user is not loaded locally, require online backend access to load that user's app state first.
+- If online, fetch authoritative resumable sessions for the selected user and update local drift data.
+- If offline, show cached sessions, interactions, and analysis views read-only.
+- When the user tries to continue a backend-dependent flow offline, show a clear offline error.
+- Reconcile stale local session references when the backend no longer has a session.
+- Add app startup tests for selected user restore, online refresh, offline read-only entry, unloaded-user online loading,
+  and stale local session handling.
 
-   - `services/logging-service/` now owns `POST /logs/client`.
-   - The client log handler, DTO, validation errors, route tests, and handler tests moved out of `game-service`.
-   - `game-service` no longer registers `/logs/client` or creates a client log handler.
-   - `gateway-service` now uses separate proxies for game routes and log routes.
-   - `/logs/*` routes through the gateway to `logging-service`.
-   - Docker Compose, Kubernetes values, Make deploy lists, and GitHub workflows include `logging-service`.
+#### 13. Update session and interaction UI flows
 
-8. Add `audit-service`. (Done)
-   - Create the service structure under `services/audit-service/`.
-   - Move audit event ingestion, analysis, read models, and intent summaries out of the game service.
-   - Keep persistence out of scope until Phase 13.
-   - Update game service calls and gateway routing as needed.
+- Ensure session start sends the selected user id through the existing request metadata path.
+- Ensure interaction requests continue to include session id and user id metadata.
+- Update home/session screens to show restored sessions from local persistence.
+- Update detail screens to read from local persistence first and refresh from backend when online.
+- Preserve current loading and error handling patterns.
+- Add tests for session start metadata, interaction metadata, restored session display, detail-screen cached reads, and
+  offline action errors.
+- Update app README for local persistence and offline restore behavior.
 
-   Completion notes:
+#### 14. Run end-to-end verification
 
-   - `services/audit-service/` now owns `POST /audit/events`, `GET /analysis/request/{requestId}`, and
-     `GET /analysis/session/{sessionId}`.
-   - Audit analysis, in-memory read models, and intent summarization moved out of `game-service`.
-   - `game-service` initially sent audit events to `audit-service` through `AUDIT_SERVICE_URL`; Point 9 replaces that
-     with RabbitMQ-based async delivery.
-   - `gateway-service` routes `/analysis/*` to `audit-service`.
-   - Shared audit event producer contracts live under `services/shared/project/audit/`.
-   - Compose, Kubernetes values, Make service lists, and GitHub workflows include `audit-service`.
+- Start the full compose stack with PostgreSQL, RabbitMQ, gateway, auth-service, game-service, audit-service,
+  logging-service, and Flutter web.
+- Create/select a user.
+- Start a session and complete at least one interaction.
+- Verify session, interaction, audit, and log data are written to persistent storage.
+- Restart backend services and confirm the app can restore the same user/session state.
+- Restart the browser/app and confirm local restore works.
+- Stop backend connectivity and confirm offline read-only behavior works.
+- Restart RabbitMQ and confirm durable queued messages behave according to the configured persistence rules.
+- Run backend tests, Flutter tests, linting, and formatting after the full persistence path works.
 
-9. Choose and implement async messaging. (Done)
-   - Choose the async messaging technology for service-to-service log and audit delivery.
-   - Add local Compose support for the selected broker or event system.
-   - Add Kubernetes runtime configuration for the selected broker or event system if needed in Phase 12 deployments.
-   - Define shared event envelope conventions under `services/shared/project/` when events are project-specific.
-   - Route log and audit events asynchronously where that is the intended service boundary.
-   - Keep public client communication synchronous through `gateway-service`.
+#### 15. Final documentation cleanup
 
-   Completion notes:
-
-   - RabbitMQ was selected as the Phase 12 async broker because it provides a real queue model with a free local and
-     self-hostable path.
-   - Docker Compose starts `rabbitmq:3-management`; the Management UI is exposed on `http://localhost:15672`.
-   - `game-service` publishes audit events to the durable `audit.events` exchange using routing key `audit.event`.
-   - `audit-service` consumes the durable `audit-service.audit-events` queue and acknowledges messages after analysis
-     processing succeeds.
-   - `POST /audit/events` remains available as a fallback/debug HTTP ingestion path, but the normal service boundary is
-     RabbitMQ.
-
-10. Update runtime and deployment wiring. (Done)
-   - Ensure Docker Compose starts the app, gateway, game, logging, and audit services.
-   - Ensure Docker Compose starts RabbitMQ for local async audit delivery.
-   - Add or update Kubernetes values for each service.
-   - Ensure Kubernetes runtime config includes RabbitMQ and audit event routing values for the services that need them.
-   - Ensure public cluster entry routes to `gateway-service`.
-   - Keep service-specific deployment values close to each service.
-   - Verify local Compose config and Kubernetes rendering after runtime wiring changes.
-
-   Completion notes:
-
-   - Docker Compose starts `rabbitmq`, `game-service`, `logging-service`, `audit-service`, `gateway-service`, and
-     `frontend-web`.
-   - `game-service` and `audit-service` depend on healthy RabbitMQ in Compose.
-   - `gateway-service` remains the only local backend service exposed on port `8080`; `frontend-web` is exposed on
-     port `3000`; RabbitMQ Management UI is exposed on port `15672`.
-   - Kubernetes service values are split into service-stable `values.yaml` files and environment-specific
-     `values-dev/test/prod.yaml` overrides.
-   - Kubernetes runtime config includes RabbitMQ and audit event routing values for `game-service` and `audit-service`.
-   - Kubernetes app-entry renders public backend routes through `gateway-service`.
-   - Make and GitHub deployment rendering now merge service `values.yaml` before the selected environment values file.
-   - Kubernetes deploys RabbitMQ through a dedicated infra Helm chart before the app services during full deploys.
-   - The Phase 12 RabbitMQ deployment is intentionally ephemeral; RabbitMQ persistence, broker credentials through
-     Secrets, dead-letter handling, and retry policy hardening belong to Phase 13.
-
-11. Update stable documentation. (Done)
-    - Update backend architecture documentation for the new service boundaries.
-    - Update service READMEs for each new or renamed service.
-    - Update app, infrastructure, deployment, and command documentation for the new paths.
-    - Update project navigation and root README links where needed.
-
-   Completion notes:
-
-   - Stable docs now describe the current service stack, gateway entry, async audit path, shared messaging packages,
-     RabbitMQ broker values, and Kubernetes deploy behavior.
-   - Architecture playbooks under `docs/architecture/` remain project-agnostic by design; concrete Phase 12 decisions
-     live in project, service, shared-code, infrastructure, deployment, and command docs.
-
-12. Verify the phase.
-    - Run Go tests.
-    - Run Flutter tests.
-    - Run formatting and linting checks.
-    - Run Compose checks for the local stack.
-    - Render or lint Kubernetes manifests for the changed services.
-    - Remove obsolete working notes once stable documentation reflects the implemented decisions.
+- Confirm all changed stable docs are linked from the proper README ownership chain.
+- Move durable decisions from these notes into stable docs and delete obsolete phase-planning notes.

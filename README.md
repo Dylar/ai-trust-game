@@ -16,6 +16,16 @@ and authority live.
 In one mode, the system is intentionally too permissive.  
 In another, it becomes stricter and keeps control in server-side logic.
 
+## Portfolio Intent
+
+This project is intentionally architecture-forward.
+
+The goal is not to find the smallest implementation that works, but to demonstrate how a compact AI-facing system can
+be structured around clear trust boundaries, explicit service ownership, controlled model integration, observability,
+and deployment-ready runtime setup.
+
+In other words, the project is meant to show system design judgment as much as feature implementation.
+
 ## Why this project?
 
 This project is interested in what goes wrong when the system around the model is designed poorly:

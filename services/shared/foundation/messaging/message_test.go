@@ -6,15 +6,47 @@ import (
 )
 
 func TestShouldRequeue(t *testing.T) {
-	t.Run("requeues normal errors", func(t *testing.T) {
-		if !ShouldRequeue(errors.New("processing failed")) {
-			t.Fatal("expected normal error to requeue")
-		}
-	})
+	type Given struct {
+		err error
+	}
 
-	t.Run("does not requeue rejected messages", func(t *testing.T) {
-		if ShouldRequeue(Reject(errors.New("invalid payload"))) {
-			t.Fatal("expected rejected message to skip requeue")
-		}
-	})
+	type Then struct {
+		expectedRequeue bool
+	}
+
+	type Scenario struct {
+		name  string
+		given Given
+		then  Then
+	}
+
+	scenarios := []Scenario{
+		{
+			name: "GIVEN normal error " +
+				"WHEN ShouldRequeue is called " +
+				"THEN returns true",
+			given: Given{err: errors.New("processing failed")},
+			then:  Then{expectedRequeue: true},
+		},
+		{
+			name: "GIVEN rejected message error " +
+				"WHEN ShouldRequeue is called " +
+				"THEN returns false",
+			given: Given{err: Reject(errors.New("invalid payload"))},
+			then:  Then{expectedRequeue: false},
+		},
+	}
+
+	for _, scenario := range scenarios {
+		given := scenario.given
+		then := scenario.then
+
+		t.Run(scenario.name, func(t *testing.T) {
+			actual := ShouldRequeue(given.err)
+
+			if actual != then.expectedRequeue {
+				t.Fatalf("expected requeue %t, got %t", then.expectedRequeue, actual)
+			}
+		})
+	}
 }

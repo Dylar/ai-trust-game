@@ -160,6 +160,7 @@ Goal: move towards scalable architecture
 
 - Backend: PostgreSQL integration
 - Frontend: drift integration
+- introduce minimal user identity for persistence restore flows
 - persistent backend sessions and interactions
 - local app persistence and restore flows
 - audit/event storage
