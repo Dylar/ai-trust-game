@@ -16,7 +16,7 @@ func TestHealthRoute(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 	healthHandler := NewHealthHandler()
 	proxyHandler := newTestProxyHandler(t, "http://127.0.0.1:1")
-	SetupRoutes(mux, logger, healthHandler, proxyHandler, proxyHandler, proxyHandler)
+	SetupRoutes(mux, logger, healthHandler, proxyHandler, proxyHandler, proxyHandler, proxyHandler)
 
 	type When struct {
 		method string

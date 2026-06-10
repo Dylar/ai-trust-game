@@ -9,6 +9,7 @@ It currently owns:
 - reverse proxying to the internal `game-service`
 - reverse proxying app log ingestion to the internal `logging-service`
 - reverse proxying analysis reads to the internal `audit-service`
+- reverse proxying minimal identity requests to the internal `auth-service`
 - request metadata forwarding for request, session, and user identifiers
 
 The gateway does not own game rules, session state, audit analysis, log storage, or persistence.
@@ -46,6 +47,9 @@ Current routes:
 
 - `/analysis/*`
   proxies analysis requests to `audit-service`
+
+- `/auth/*`
+  proxies minimal identity requests to `auth-service`
 
 - `/chat`
   proxies chat requests to `game-service`
@@ -99,6 +103,9 @@ Header meaning:
 
 - `AUDIT_SERVICE_URL`
   internal URL for the audit service, defaults to `http://audit-service:8080`
+
+- `AUTH_SERVICE_URL`
+  internal URL for the auth service, defaults to `http://auth-service:8080`
 
 ## Kubernetes
 

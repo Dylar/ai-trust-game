@@ -45,7 +45,7 @@ interaction state.
 
 ### Concrete implementation plan
 
-#### 1. Add backend persistence foundation
+#### 1. Add backend persistence foundation (DONE)
 
 - Add a shared persistence foundation under `services/shared/foundation/persistence`.
 - Add PostgreSQL as a replaceable implementation under `services/shared/foundation/persistence/postgres`.
@@ -61,7 +61,7 @@ interaction state.
 - Add tests for PostgreSQL config parsing, ping/health behavior, migration glue, and test helper setup.
 - Update the shared persistence README.
 
-#### 2. Create auth-service
+#### 2. Create auth-service (DONE)
 
 - Create `services/auth-service`.
 - Add `cmd/` composition root, `service/` HTTP layer, `k8s/` values, and a service README following the existing service
@@ -79,7 +79,7 @@ interaction state.
 - Add handler, repository, and migration-backed tests while building the service.
 - Document in the service README that this is demo identity for restore continuity and can later become real auth.
 
-#### 3. Wire auth-service through gateway
+#### 3. Wire auth-service through gateway (DONE)
 
 - Add `AUTH_SERVICE_URL` configuration to `gateway-service`.
 - Proxy `/auth/*` routes from the gateway to `auth-service`.

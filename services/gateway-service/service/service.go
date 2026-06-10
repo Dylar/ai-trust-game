@@ -14,9 +14,10 @@ func SetupRoutes(
 	gameProxyHandler *ProxyHandler,
 	loggingProxyHandler *ProxyHandler,
 	auditProxyHandler *ProxyHandler,
+	authProxyHandler *ProxyHandler,
 ) {
 	setupHealthRoute(mux, logger, healthHandler)
-	setupProxyRoutes(mux, logger, gameProxyHandler, loggingProxyHandler, auditProxyHandler)
+	setupProxyRoutes(mux, logger, gameProxyHandler, loggingProxyHandler, auditProxyHandler, authProxyHandler)
 }
 
 func setupHealthRoute(mux *http.ServeMux, logger logging.Logger, healthHandler *HealthHandler) {
@@ -33,12 +34,15 @@ func setupProxyRoutes(
 	gameProxyHandler *ProxyHandler,
 	loggingProxyHandler *ProxyHandler,
 	auditProxyHandler *ProxyHandler,
+	authProxyHandler *ProxyHandler,
 ) {
 	handleGameProxy := wrapProxy(logger, gameProxyHandler)
 	handleLoggingProxy := wrapProxy(logger, loggingProxyHandler)
 	handleAuditProxy := wrapProxy(logger, auditProxyHandler)
+	handleAuthProxy := wrapProxy(logger, authProxyHandler)
 
 	mux.Handle("/analysis/", handleAuditProxy)
+	mux.Handle("/auth/", handleAuthProxy)
 	mux.Handle("/chat", handleGameProxy)
 	mux.Handle("/interaction", handleGameProxy)
 	mux.Handle("/logs/", handleLoggingProxy)
