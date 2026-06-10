@@ -6,11 +6,12 @@ import (
 )
 
 type AnalyzingSink struct {
-	next       Sink
-	repo       RequestAnalysisRepository
-	summarizer IntentSummarizer
-	mu         sync.Mutex
-	eventsByID map[string][]Event
+	next         Sink
+	eventRepo    EventRepository
+	analysisRepo RequestAnalysisRepository
+	summarizer   IntentSummarizer
+	mu           sync.Mutex
+	eventsByID   map[string][]Event
 }
 
 func NewAnalyzingSink(next Sink, repo RequestAnalysisRepository) *AnalyzingSink {
@@ -18,26 +19,42 @@ func NewAnalyzingSink(next Sink, repo RequestAnalysisRepository) *AnalyzingSink 
 }
 
 func NewAnalyzingSinkWithSummarizer(next Sink, repo RequestAnalysisRepository, summarizer IntentSummarizer) *AnalyzingSink {
+	return NewAnalyzingSinkWithStores(next, NewNoopEventRepository(), repo, summarizer)
+}
+
+func NewAnalyzingSinkWithStores(
+	next Sink,
+	eventRepo EventRepository,
+	analysisRepo RequestAnalysisRepository,
+	summarizer IntentSummarizer,
+) *AnalyzingSink {
 	if next == nil {
 		next = NewNoopSink()
 	}
-	if repo == nil {
-		repo = NewInMemoryRequestAnalysisRepository()
+	if eventRepo == nil {
+		eventRepo = NewNoopEventRepository()
+	}
+	if analysisRepo == nil {
+		analysisRepo = NewInMemoryRequestAnalysisRepository()
 	}
 	if summarizer == nil {
 		summarizer = NoopIntentSummarizer{}
 	}
 
 	return &AnalyzingSink{
-		next:       next,
-		repo:       repo,
-		summarizer: summarizer,
-		eventsByID: make(map[string][]Event),
+		next:         next,
+		eventRepo:    eventRepo,
+		analysisRepo: analysisRepo,
+		summarizer:   summarizer,
+		eventsByID:   make(map[string][]Event),
 	}
 }
 
 func (s *AnalyzingSink) WriteEvent(ctx context.Context, event Event) error {
 	if err := s.next.WriteEvent(ctx, event); err != nil {
+		return err
+	}
+	if err := s.eventRepo.Save(ctx, event); err != nil {
 		return err
 	}
 
@@ -58,8 +75,7 @@ func (s *AnalyzingSink) WriteEvent(ctx context.Context, event Event) error {
 
 	analysis := AnalyzeRequest(events)
 	summarized := s.summarizeRequest(ctx, analysis, events)
-	s.repo.Save(summarized)
-	return nil
+	return s.analysisRepo.Save(ctx, summarized)
 }
 
 func (s *AnalyzingSink) summarizeRequest(ctx context.Context, analysis RequestAnalysis, events []Event) RequestAnalysis {

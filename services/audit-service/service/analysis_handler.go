@@ -16,8 +16,8 @@ var ErrRequestAnalysisNotFound = errors.New("request analysis not found")
 var ErrSessionAnalysisNotFound = errors.New("session analysis not found")
 
 type requestAnalysisRepository interface {
-	Get(requestID string) (audit.RequestAnalysis, bool)
-	ListBySession(sessionID string) []audit.RequestAnalysis
+	Get(ctx context.Context, requestID string) (audit.RequestAnalysis, bool, error)
+	ListBySession(ctx context.Context, sessionID string) ([]audit.RequestAnalysis, error)
 }
 
 type RequestAnalysisHandler struct {
@@ -47,7 +47,7 @@ func (handler *RequestAnalysisHandler) ServeHTTP(w http.ResponseWriter, req *htt
 
 	path := req.URL.Path
 	if strings.HasPrefix(path, "/analysis/session/") {
-		response, err := handler.handleGetSessionAnalysis(sessionIDFromPath(path))
+		response, err := handler.handleGetSessionAnalysis(req.Context(), sessionIDFromPath(path))
 		if err != nil {
 			status, errorCode := handler.mapSessionAnalysisError(err)
 			network.WriteJSONError(w, status, errorCode)
@@ -58,7 +58,7 @@ func (handler *RequestAnalysisHandler) ServeHTTP(w http.ResponseWriter, req *htt
 		return
 	}
 
-	response, err := handler.handleGetRequestAnalysis(requestIDFromPath(path))
+	response, err := handler.handleGetRequestAnalysis(req.Context(), requestIDFromPath(path))
 	if err != nil {
 		status, errorCode := handler.mapRequestAnalysisError(err)
 		network.WriteJSONError(w, status, errorCode)
@@ -68,19 +68,23 @@ func (handler *RequestAnalysisHandler) ServeHTTP(w http.ResponseWriter, req *htt
 	network.WriteJSON(w, http.StatusOK, response)
 }
 
-func (handler *RequestAnalysisHandler) handleGetRequestAnalysis(requestID string) (RequestAnalysisResponse, error) {
+func (handler *RequestAnalysisHandler) handleGetRequestAnalysis(ctx context.Context, requestID string) (RequestAnalysisResponse, error) {
 	requestID = strings.TrimSpace(requestID)
 	if requestID == "" {
 		return RequestAnalysisResponse{}, ErrNoAnalysisRequestID
 	}
 
-	analysis, ok := handler.repo.Get(requestID)
+	analysis, ok, err := handler.repo.Get(ctx, requestID)
+	if err != nil {
+		return RequestAnalysisResponse{}, err
+	}
 	if !ok {
 		return RequestAnalysisResponse{}, ErrRequestAnalysisNotFound
 	}
 
 	return RequestAnalysisResponse{
 		RequestID:      analysis.RequestID,
+		UserID:         analysis.UserID,
 		SessionID:      analysis.SessionID,
 		CompletedAt:    analysis.CompletedAt,
 		Classification: string(analysis.Classification),
@@ -104,13 +108,16 @@ func (handler *RequestAnalysisHandler) mapRequestAnalysisError(err error) (int, 
 	return http.StatusInternalServerError, network.ErrorCodeInternal
 }
 
-func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string) (SessionAnalysisResponse, error) {
+func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(ctx context.Context, sessionID string) (SessionAnalysisResponse, error) {
 	sessionID = strings.TrimSpace(sessionID)
 	if sessionID == "" {
 		return SessionAnalysisResponse{}, ErrNoAnalysisSessionID
 	}
 
-	analyses := handler.repo.ListBySession(sessionID)
+	analyses, err := handler.repo.ListBySession(ctx, sessionID)
+	if err != nil {
+		return SessionAnalysisResponse{}, err
+	}
 	if len(analyses) == 0 {
 		return SessionAnalysisResponse{}, ErrSessionAnalysisNotFound
 	}
@@ -118,6 +125,7 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 	session := audit.AnalyzeSession(analyses)
 	response := SessionAnalysisResponse{
 		SessionID:      sessionID,
+		UserID:         session.UserID,
 		Classification: string(session.Classification),
 		Signals:        session.Signals,
 		AttackPatterns: session.AttackPatterns,
@@ -137,6 +145,7 @@ func (handler *RequestAnalysisHandler) handleGetSessionAnalysis(sessionID string
 	for _, analysis := range analyses {
 		response.Requests = append(response.Requests, RequestAnalysisResponse{
 			RequestID:      analysis.RequestID,
+			UserID:         analysis.UserID,
 			SessionID:      analysis.SessionID,
 			CompletedAt:    analysis.CompletedAt,
 			Classification: string(analysis.Classification),

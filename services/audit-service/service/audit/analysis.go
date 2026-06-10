@@ -26,6 +26,7 @@ const (
 
 type RequestAnalysis struct {
 	RequestID      string
+	UserID         string
 	SessionID      string
 	StartedAt      time.Time
 	CompletedAt    time.Time
@@ -40,6 +41,7 @@ type RequestAnalysis struct {
 
 type SessionAnalysis struct {
 	SessionID      string
+	UserID         string
 	Classification Classification
 	Signals        []string
 	AttackPatterns []string
@@ -64,6 +66,9 @@ func AnalyzeRequest(events []Event) RequestAnalysis {
 		}
 		if analysis.SessionID == "" && event.SessionID != "" {
 			analysis.SessionID = event.SessionID
+		}
+		if analysis.UserID == "" && event.UserID != "" {
+			analysis.UserID = event.UserID
 		}
 		if analysis.StartedAt.IsZero() || event.Timestamp.Before(analysis.StartedAt) {
 			analysis.StartedAt = event.Timestamp
@@ -128,6 +133,9 @@ func AnalyzeSession(analyses []RequestAnalysis) SessionAnalysis {
 	for _, analysis := range analyses {
 		if session.SessionID == "" && analysis.SessionID != "" {
 			session.SessionID = analysis.SessionID
+		}
+		if session.UserID == "" && analysis.UserID != "" {
+			session.UserID = analysis.UserID
 		}
 
 		session.SuspicionCount += analysis.SuspicionCount

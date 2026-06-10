@@ -89,3 +89,14 @@ func TestInitialMigrationCreatesExpectedTables(t *testing.T) {
 		})
 	}
 }
+
+func TestAuditAnalysisMigrationCreatesRequestAnalysesTable(t *testing.T) {
+	content, err := os.ReadFile("000002_audit_request_analyses.up.sql")
+	if err != nil {
+		t.Fatalf("read audit analysis migration: %v", err)
+	}
+
+	if !strings.Contains(string(content), "CREATE TABLE request_analyses") {
+		t.Fatal("expected audit analysis migration to create request_analyses table")
+	}
+}

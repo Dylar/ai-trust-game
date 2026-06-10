@@ -36,8 +36,9 @@ func TestRequestAnalysisRoute(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewConsoleLogger()
 	repo := audit.NewInMemoryRequestAnalysisRepository()
-	repo.Save(audit.RequestAnalysis{
+	mustSaveAnalysis(t, repo, audit.RequestAnalysis{
 		RequestID:      "request-123",
+		UserID:         "11111111-1111-1111-1111-111111111111",
 		SessionID:      "session-123",
 		CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 		Classification: audit.ClassificationSuspicious,
@@ -150,6 +151,7 @@ func TestRequestAnalysisRoute(t *testing.T) {
 			}
 
 			assert.Equal(t, response.RequestID, "request-123", "unexpected request id")
+			assert.Equal(t, response.UserID, "11111111-1111-1111-1111-111111111111", "unexpected user id")
 			assert.Equal(t, response.SessionID, "session-123", "unexpected session id")
 			assert.Equal(t, response.CompletedAt.IsZero(), false, "expected completed at")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected classification")
@@ -164,8 +166,9 @@ func TestSessionAnalysisRoute(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewConsoleLogger()
 	repo := audit.NewInMemoryRequestAnalysisRepository()
-	repo.Save(audit.RequestAnalysis{
+	mustSaveAnalysis(t, repo, audit.RequestAnalysis{
 		RequestID:      "request-123",
+		UserID:         "11111111-1111-1111-1111-111111111111",
 		SessionID:      "session-123",
 		CompletedAt:    time.Date(2026, 4, 20, 10, 0, 0, 0, time.UTC),
 		Classification: audit.ClassificationSuspicious,
@@ -176,8 +179,9 @@ func TestSessionAnalysisRoute(t *testing.T) {
 		SuspicionCount: 1,
 		ModelFailCount: 0,
 	})
-	repo.Save(audit.RequestAnalysis{
+	mustSaveAnalysis(t, repo, audit.RequestAnalysis{
 		RequestID:      "request-456",
+		UserID:         "11111111-1111-1111-1111-111111111111",
 		SessionID:      "session-123",
 		CompletedAt:    time.Date(2026, 4, 20, 10, 5, 0, 0, time.UTC),
 		Classification: audit.ClassificationFailedModelStep,
@@ -292,6 +296,7 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			}
 
 			assert.Equal(t, response.SessionID, "session-123", "unexpected session id")
+			assert.Equal(t, response.UserID, "11111111-1111-1111-1111-111111111111", "unexpected user id")
 			assert.Equal(t, response.Classification, then.expectedClassification, "unexpected session classification")
 			assert.Equal(t, response.IntentSummary, then.expectedIntentSummary, "unexpected session intent summary")
 			assert.Equal(t, len(response.Signals), len(then.expectedSignals), "unexpected session signal count")
@@ -312,5 +317,13 @@ func TestSessionAnalysisRoute(t *testing.T) {
 			assert.Equal(t, response.Requests[1].IntentSummary, "The user appears to be trying to obtain protected data.", "unexpected second request intent summary")
 			assert.Equal(t, response.Requests[0].CompletedAt.Before(response.Requests[1].CompletedAt), true, "expected timeline ordering")
 		})
+	}
+}
+
+func mustSaveAnalysis(t *testing.T, repo audit.RequestAnalysisRepository, analysis audit.RequestAnalysis) {
+	t.Helper()
+
+	if err := repo.Save(context.Background(), analysis); err != nil {
+		t.Fatalf("save analysis: %v", err)
 	}
 }

@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/services/audit-service/service"
 	"github.com/Dylar/ai-trust-game/services/audit-service/service/audit"
+	auditpostgres "github.com/Dylar/ai-trust-game/services/audit-service/service/audit/persistence/postgres"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	sharedpostgres "github.com/Dylar/ai-trust-game/services/shared/foundation/persistence/postgres"
 	sharedaudit "github.com/Dylar/ai-trust-game/services/shared/project/audit"
 )
 
@@ -21,9 +24,21 @@ func main() {
 		logging.WithField("env", appEnv),
 	)
 
-	requestAnalysisRepo := audit.NewInMemoryRequestAnalysisRepository()
+	eventRepo, requestAnalysisRepo, db, err := newPersistenceRepositories(context.Background(), logger)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if db != nil {
+		defer db.Close()
+	}
+
 	intentSummarizer := newConfiguredIntentSummarizer(logger)
-	auditSink := audit.NewAnalyzingSinkWithSummarizer(audit.NewConsoleSink(), requestAnalysisRepo, intentSummarizer)
+	auditSink := audit.NewAnalyzingSinkWithStores(
+		audit.NewConsoleSink(),
+		eventRepo,
+		requestAnalysisRepo,
+		intentSummarizer,
+	)
 	consumer, err := sharedaudit.NewRabbitMQConsumer(
 		sharedaudit.RabbitMQConfig{
 			URL:        infra.GetEnv("RABBITMQ_URL", sharedaudit.DefaultRabbitMQURL),
@@ -72,4 +87,23 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func newPersistenceRepositories(
+	ctx context.Context,
+	logger logging.Logger,
+) (audit.EventRepository, audit.RequestAnalysisRepository, *sql.DB, error) {
+	cfg := sharedpostgres.ConfigFromEnv()
+	if cfg.DatabaseURL == "" {
+		logger.Info(ctx, "audit-service using in-memory persistence repositories")
+		return audit.NewInMemoryEventRepository(), audit.NewInMemoryRequestAnalysisRepository(), nil, nil
+	}
+
+	db, err := sharedpostgres.Open(ctx, cfg)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	logger.Info(ctx, "audit-service using postgres persistence repositories")
+	return auditpostgres.NewEventRepository(db), auditpostgres.NewRequestAnalysisRepository(db), db, nil
 }

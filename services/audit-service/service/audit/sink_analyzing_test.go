@@ -137,7 +137,7 @@ func TestAnalyzingSinkWriteEvent(t *testing.T) {
 
 			assert.ErrorIs(t, err, then.expectedError, "unexpected write error")
 
-			analysis, ok := repo.Get(given.events[0].RequestID)
+			analysis, ok := mustGetAnalysis(t, repo, given.events[0].RequestID)
 			assert.Equal(t, ok, then.expectedStored, "unexpected stored analysis state")
 
 			if !then.expectedStored {
@@ -152,6 +152,16 @@ func TestAnalyzingSinkWriteEvent(t *testing.T) {
 			}
 		})
 	}
+}
+
+func mustGetAnalysis(t *testing.T, repo RequestAnalysisRepository, requestID string) (RequestAnalysis, bool) {
+	t.Helper()
+
+	analysis, ok, err := repo.Get(context.Background(), requestID)
+	if err != nil {
+		t.Fatalf("get analysis: %v", err)
+	}
+	return analysis, ok
 }
 
 func TestAnalyzingSinkWriteEvent_SeparatesRequests(t *testing.T) {
@@ -207,12 +217,12 @@ func TestAnalyzingSinkWriteEvent_SeparatesRequests(t *testing.T) {
 				assert.ErrorIs(t, err, nil, "unexpected write error")
 			}
 
-			first, ok := repo.Get(then.expectedFirstRequestID)
+			first, ok := mustGetAnalysis(t, repo, then.expectedFirstRequestID)
 			assert.Equal(t, ok, true, "expected first analysis")
 			assert.Equal(t, first.RequestID, then.expectedFirstRequestID, "unexpected first request id")
 			assert.Equal(t, first.Classification, then.expectedFirstClassification, "unexpected first classification")
 
-			second, ok := repo.Get(then.expectedSecondRequestID)
+			second, ok := mustGetAnalysis(t, repo, then.expectedSecondRequestID)
 			assert.Equal(t, ok, true, "expected second analysis")
 			assert.Equal(t, second.RequestID, then.expectedSecondRequestID, "unexpected second request id")
 			assert.Equal(t, second.Classification, then.expectedSecondClassification, "unexpected second classification")
@@ -285,7 +295,7 @@ func TestAnalyzingSinkWriteEvent_WithIntentSummary(t *testing.T) {
 				assert.ErrorIs(t, err, nil, "unexpected write error")
 			}
 
-			analysis, ok := repo.Get(given.events[0].RequestID)
+			analysis, ok := mustGetAnalysis(t, repo, given.events[0].RequestID)
 			assert.Equal(t, ok, true, "expected stored analysis")
 			assert.Equal(t, analysis.IntentSummary, then.expectedIntentSummary, "unexpected intent summary")
 			assert.Equal(t, given.summarizer.requestCalls, then.expectedRequestCalls, "unexpected request summarizer call count")

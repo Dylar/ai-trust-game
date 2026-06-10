@@ -4,6 +4,7 @@ import "time"
 
 type RequestAnalysisResponse struct {
 	RequestID      string    `json:"request_id"`
+	UserID         string    `json:"user_id"`
 	SessionID      string    `json:"session_id"`
 	CompletedAt    time.Time `json:"completed_at"`
 	Classification string    `json:"classification"`
@@ -17,6 +18,7 @@ type RequestAnalysisResponse struct {
 
 type SessionAnalysisResponse struct {
 	SessionID      string                    `json:"session_id"`
+	UserID         string                    `json:"user_id"`
 	Classification string                    `json:"classification"`
 	Signals        []string                  `json:"signals"`
 	AttackPatterns []string                  `json:"attack_patterns"`

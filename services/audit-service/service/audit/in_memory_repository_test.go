@@ -1,6 +1,7 @@
 package audit
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -65,14 +66,32 @@ func TestInMemoryRequestAnalysisRepositoryListBySession(t *testing.T) {
 		t.Run(scenario.name, func(t *testing.T) {
 			repo := NewInMemoryRequestAnalysisRepository()
 			for _, analysis := range given.analyses {
-				repo.Save(analysis)
+				mustSaveAnalysis(t, repo, analysis)
 			}
 
-			analyses := repo.ListBySession(given.sessionID)
+			analyses := mustListBySession(t, repo, given.sessionID)
 
 			assert.Equal(t, len(analyses), then.expectedCount, "unexpected analysis count")
 			assert.Equal(t, analyses[0].RequestID, then.expectedFirst, "unexpected first request id")
 			assert.Equal(t, analyses[1].RequestID, then.expectedSecond, "unexpected second request id")
 		})
 	}
+}
+
+func mustSaveAnalysis(t *testing.T, repo RequestAnalysisRepository, analysis RequestAnalysis) {
+	t.Helper()
+
+	if err := repo.Save(context.Background(), analysis); err != nil {
+		t.Fatalf("save analysis: %v", err)
+	}
+}
+
+func mustListBySession(t *testing.T, repo RequestAnalysisRepository, sessionID string) []RequestAnalysis {
+	t.Helper()
+
+	analyses, err := repo.ListBySession(context.Background(), sessionID)
+	if err != nil {
+		t.Fatalf("list analyses by session: %v", err)
+	}
+	return analyses
 }

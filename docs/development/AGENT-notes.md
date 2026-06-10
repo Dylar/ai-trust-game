@@ -102,7 +102,7 @@ interaction state.
   repository compatibility where it remains supported.
 - Update game-service README and service-owned package READMEs for persistence behavior.
 
-#### 5. Persist audit-service events and analysis views
+#### 5. Persist audit-service events and analysis views (DONE)
 
 - Add PostgreSQL-backed audit event storage.
 - Place audit-service PostgreSQL repository adapters under the audit-service-owned persistence package.

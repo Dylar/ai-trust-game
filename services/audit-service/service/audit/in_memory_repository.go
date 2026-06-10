@@ -1,9 +1,46 @@
 package audit
 
 import (
+	"context"
 	"sort"
 	"sync"
 )
+
+type NoopEventRepository struct{}
+
+func NewNoopEventRepository() NoopEventRepository {
+	return NoopEventRepository{}
+}
+
+func (NoopEventRepository) Save(context.Context, Event) error {
+	return nil
+}
+
+type InMemoryEventRepository struct {
+	mu     sync.RWMutex
+	events []Event
+}
+
+func NewInMemoryEventRepository() *InMemoryEventRepository {
+	return &InMemoryEventRepository{}
+}
+
+func (r *InMemoryEventRepository) Save(_ context.Context, event Event) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	r.events = append(r.events, event)
+	return nil
+}
+
+func (r *InMemoryEventRepository) List() []Event {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	events := make([]Event, len(r.events))
+	copy(events, r.events)
+	return events
+}
 
 type InMemoryRequestAnalysisRepository struct {
 	mu         sync.RWMutex
@@ -16,22 +53,23 @@ func NewInMemoryRequestAnalysisRepository() *InMemoryRequestAnalysisRepository {
 	}
 }
 
-func (r *InMemoryRequestAnalysisRepository) Save(analysis RequestAnalysis) {
+func (r *InMemoryRequestAnalysisRepository) Save(_ context.Context, analysis RequestAnalysis) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	r.analysesBy[analysis.RequestID] = analysis
+	return nil
 }
 
-func (r *InMemoryRequestAnalysisRepository) Get(requestID string) (RequestAnalysis, bool) {
+func (r *InMemoryRequestAnalysisRepository) Get(_ context.Context, requestID string) (RequestAnalysis, bool, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	analysis, ok := r.analysesBy[requestID]
-	return analysis, ok
+	return analysis, ok, nil
 }
 
-func (r *InMemoryRequestAnalysisRepository) ListBySession(sessionID string) []RequestAnalysis {
+func (r *InMemoryRequestAnalysisRepository) ListBySession(_ context.Context, sessionID string) ([]RequestAnalysis, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -55,5 +93,5 @@ func (r *InMemoryRequestAnalysisRepository) ListBySession(sessionID string) []Re
 		return analyses[i].CompletedAt.Before(analyses[j].CompletedAt)
 	})
 
-	return analyses
+	return analyses, nil
 }
