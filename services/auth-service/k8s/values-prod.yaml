@@ -1,0 +1,5 @@
+image:
+  tag: prod
+
+config:
+  APP_ENV: prod

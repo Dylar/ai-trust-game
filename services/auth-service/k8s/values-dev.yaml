@@ -1,0 +1,5 @@
+image:
+  tag: dev
+
+config:
+  APP_ENV: dev

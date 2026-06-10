@@ -29,6 +29,7 @@ Detailed code-near documentation is linked from the owning app, service, shared-
 ## Backend
 
 - [Gateway Service](../../services/gateway-service/README.md)
+- [Auth Service](../../services/auth-service/README.md)
 - [Game Service](../../services/game-service/README.md)
 - [Logging Service](../../services/logging-service/README.md)
 - [Audit Service](../../services/audit-service/README.md)
