@@ -1,7 +1,7 @@
 package execution
 
 import (
-	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction/capability"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/game/capability"
 	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 )
 

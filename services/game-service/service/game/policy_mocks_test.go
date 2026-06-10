@@ -1,7 +1,7 @@
-package interaction
+package game
 
 import (
-	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/policy"
+	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/game/policy"
 	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 )
 

@@ -8,14 +8,16 @@ import (
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 func TestHandleStartSession(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	type Given struct {
-		role domain.Role
-		mode domain.Mode
+		userID string
+		role   domain.Role
+		mode   domain.Mode
 	}
 
 	type Then struct {
@@ -40,8 +42,9 @@ func TestHandleStartSession(t *testing.T) {
 				"WHEN handleStartSession is called " +
 				"THEN returns session response and stores session",
 			given: Given{
-				role: domain.RoleGuest,
-				mode: "easy",
+				userID: "user-123",
+				role:   domain.RoleGuest,
+				mode:   "easy",
 			},
 			then: Then{
 				expectedError:       nil,
@@ -56,8 +59,9 @@ func TestHandleStartSession(t *testing.T) {
 				"WHEN handleStartSession is called " +
 				"THEN returns ErrInvalidRole",
 			given: Given{
-				role: "superadmin",
-				mode: "easy",
+				userID: "user-123",
+				role:   "superadmin",
+				mode:   "easy",
 			},
 			then: Then{
 				expectedError:       ErrInvalidRole,
@@ -70,11 +74,26 @@ func TestHandleStartSession(t *testing.T) {
 				"WHEN handleStartSession is called " +
 				"THEN returns ErrInvalidMode",
 			given: Given{
-				role: "guest",
-				mode: "nightmare",
+				userID: "user-123",
+				role:   "guest",
+				mode:   "nightmare",
 			},
 			then: Then{
 				expectedError:       ErrInvalidMode,
+				expectResponse:      false,
+				expectStoredSession: false,
+			},
+		},
+		{
+			name: "GIVEN missing user id " +
+				"WHEN handleStartSession is called " +
+				"THEN returns ErrNoUserProvided",
+			given: Given{
+				role: domain.RoleGuest,
+				mode: domain.ModeEasy,
+			},
+			then: Then{
+				expectedError:       ErrNoUserProvided,
 				expectResponse:      false,
 				expectStoredSession: false,
 			},
@@ -89,7 +108,9 @@ func TestHandleStartSession(t *testing.T) {
 			sessionRepo := session.NewInMemoryRepository()
 			handler := NewStartSessionHandler(logger, sessionRepo)
 
-			ctx := context.Background()
+			ctx := network.WithMetadata(context.Background(), network.Metadata{
+				UserID: given.userID,
+			})
 
 			response, err := handler.handleStartSession(ctx, StartSessionRequest{
 				Role: string(given.role),
@@ -109,7 +130,10 @@ func TestHandleStartSession(t *testing.T) {
 			assert.Equal(t, response.Role, string(then.expectedRole), "unexpected role")
 			assert.Equal(t, response.Mode, string(then.expectedMode), "unexpected mode")
 
-			sess, ok := sessionRepo.Get(response.SessionID)
+			sess, ok, err := sessionRepo.Get(ctx, response.SessionID)
+			if err != nil {
+				t.Fatalf("get session: %v", err)
+			}
 
 			if then.expectStoredSession && !ok {
 				t.Fatalf("expected session to be stored")
@@ -119,6 +143,7 @@ func TestHandleStartSession(t *testing.T) {
 				assert.Equal(t, string(sess.Settings.Role), string(then.expectedRole), "unexpected stored role")
 				assert.Equal(t, string(sess.Settings.Mode), string(then.expectedMode), "unexpected stored mode")
 				assert.Equal(t, string(sess.State.TrustedRole), string(then.expectedRole), "unexpected initial trusted role")
+				assert.Equal(t, sess.UserID, given.userID, "unexpected stored user id")
 			}
 		})
 	}

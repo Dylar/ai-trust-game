@@ -1,4 +1,4 @@
-package interaction
+package game
 
 import (
 	"context"

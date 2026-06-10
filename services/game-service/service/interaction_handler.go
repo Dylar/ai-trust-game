@@ -4,35 +4,46 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/game"
+	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/game/planning"
+	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/game/response"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction"
-	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/planning"
-	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
 	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
 	"net/http"
+	"time"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
+	"github.com/google/uuid"
 )
 
 var ErrNoSessionFound = errors.New("no session found")
 var ErrNoSessionProvided = errors.New("no session provided")
 
 type InteractionHandler struct {
-	logger      logging.Logger
-	sessionRepo session.Repository
-	processor   interaction.Processor
+	logger          logging.Logger
+	sessionRepo     session.Repository
+	interactionRepo interaction.Repository
+	processor       game.Processor
 }
 
 func NewInteractionHandler(
 	logger logging.Logger,
 	sessionRepo session.Repository,
-	processor interaction.Processor,
+	processor game.Processor,
+	interactionRepos ...interaction.Repository,
 ) *InteractionHandler {
+	interactionRepo := interaction.Repository(interaction.NewNoopRepository())
+	if len(interactionRepos) > 0 && interactionRepos[0] != nil {
+		interactionRepo = interactionRepos[0]
+	}
+
 	return &InteractionHandler{
-		logger:      logger,
-		sessionRepo: sessionRepo,
-		processor:   processor,
+		logger:          logger,
+		sessionRepo:     sessionRepo,
+		interactionRepo: interactionRepo,
+		processor:       processor,
 	}
 }
 
@@ -58,7 +69,7 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 	if err != nil {
 		if !errors.Is(err, ErrNoSessionProvided) &&
 			!errors.Is(err, ErrNoSessionFound) &&
-			!errors.Is(err, interaction.ErrEmptyInteractionMessage) {
+			!errors.Is(err, game.ErrEmptyInteractionMessage) {
 			fields := []logging.Field{
 				logging.WithError(err),
 			}
@@ -80,16 +91,25 @@ func (handler *InteractionHandler) ServeHTTP(w http.ResponseWriter, req *http.Re
 
 func (handler *InteractionHandler) handleInteraction(ctx context.Context, req InteractionRequest) (InteractionResponse, error) {
 	if req.Message == "" {
-		return InteractionResponse{}, interaction.ErrEmptyInteractionMessage
+		return InteractionResponse{}, game.ErrEmptyInteractionMessage
 	}
 
 	meta := network.GetMetadata(ctx)
 	if meta.SessionID == "" {
 		return InteractionResponse{}, ErrNoSessionProvided
 	}
+	if meta.UserID == "" {
+		return InteractionResponse{}, ErrNoUserProvided
+	}
 
-	sess, found := handler.sessionRepo.Get(meta.SessionID)
+	sess, found, err := handler.sessionRepo.Get(ctx, meta.SessionID)
+	if err != nil {
+		return InteractionResponse{}, err
+	}
 	if !found {
+		return InteractionResponse{}, ErrNoSessionFound
+	}
+	if sess.UserID != meta.UserID {
 		return InteractionResponse{}, ErrNoSessionFound
 	}
 
@@ -97,6 +117,7 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 		ctx,
 		"interaction started",
 		logging.WithField("session_id", sess.ID),
+		logging.WithField("user_id", sess.UserID),
 		logging.WithField("role", sess.Settings.Role),
 		logging.WithField("mode", sess.Settings.Mode),
 		logging.WithField("message", req.Message),
@@ -112,7 +133,33 @@ func (handler *InteractionHandler) handleInteraction(ctx context.Context, req In
 		return InteractionResponse{}, err
 	}
 	if result.UpdatedSession != nil {
-		handler.sessionRepo.Save(*result.UpdatedSession)
+		updatedSession := *result.UpdatedSession
+		updatedSession.UserID = sess.UserID
+		updatedSession.CreatedAt = sess.CreatedAt
+		updatedSession.UpdatedAt = time.Now().UTC()
+		if err := handler.sessionRepo.Save(ctx, updatedSession); err != nil {
+			return InteractionResponse{}, err
+		}
+	}
+
+	if err := handler.interactionRepo.Save(ctx, interaction.Record{
+		ID:             uuid.NewString(),
+		SessionID:      sess.ID,
+		UserID:         sess.UserID,
+		RequestID:      meta.RequestID,
+		UserInput:      req.Message,
+		SelectedAction: string(result.SelectedAction),
+		PolicyResult: interaction.PolicyResult{
+			Allowed: result.DecisionAllowed,
+			Reason:  result.DecisionReason,
+		},
+		ResponseText: result.Message,
+		Pipeline: interaction.Pipeline{
+			ResponseSource: string(result.Source),
+		},
+		CreatedAt: time.Now().UTC(),
+	}); err != nil {
+		return InteractionResponse{}, err
 	}
 
 	return handler.mapToResponse(result), nil
@@ -122,7 +169,10 @@ func (handler *InteractionHandler) mapInteractionError(err error) (int, string) 
 	if errors.Is(err, ErrNoSessionProvided) {
 		return http.StatusBadRequest, errorCodeMissingSession
 	}
-	if errors.Is(err, interaction.ErrEmptyInteractionMessage) {
+	if errors.Is(err, ErrNoUserProvided) {
+		return http.StatusBadRequest, errorCodeMissingUser
+	}
+	if errors.Is(err, game.ErrEmptyInteractionMessage) {
 		return http.StatusBadRequest, errorCodeEmptyMessage
 	}
 	if errors.Is(err, ErrNoSessionFound) {

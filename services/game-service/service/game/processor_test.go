@@ -1,14 +1,14 @@
-package interaction
+package game
 
 import (
 	"context"
 	"errors"
 	"testing"
 
-	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/execution"
-	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/planning"
-	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/policy"
-	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
+	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/game/execution"
+	interactionplanning "github.com/Dylar/ai-trust-game/services/game-service/service/game/planning"
+	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/game/policy"
+	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/game/response"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 	"github.com/Dylar/ai-trust-game/services/shared/project/audit"
 	"github.com/Dylar/ai-trust-game/services/shared/project/domain"

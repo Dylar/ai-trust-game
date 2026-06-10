@@ -1,9 +1,9 @@
-package interaction
+package game
 
 import (
 	"context"
 
-	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
+	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/game/response"
 )
 
 type stubResponseDataGuard struct {

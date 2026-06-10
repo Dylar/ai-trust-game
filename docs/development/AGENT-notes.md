@@ -87,7 +87,7 @@ interaction state.
 - Update gateway tests for the new proxy route.
 - Update gateway README and k8s values for the new service URL.
 
-#### 4. Persist game-service sessions and interactions
+#### 4. Persist game-service sessions and interactions (DONE)
 
 - Replace or supplement the in-memory session repository with a PostgreSQL-backed implementation.
 - Place game-service PostgreSQL repository adapters under service-owned persistence packages.

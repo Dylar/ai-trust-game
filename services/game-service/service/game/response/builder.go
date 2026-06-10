@@ -46,9 +46,12 @@ type PasswordCheck struct {
 }
 
 type Result struct {
-	Message        string
-	Source         Source
-	UpdatedSession *domain.Session
+	Message         string
+	Source          Source
+	UpdatedSession  *domain.Session
+	SelectedAction  domain.Action
+	DecisionAllowed bool
+	DecisionReason  string
 }
 
 type Source string

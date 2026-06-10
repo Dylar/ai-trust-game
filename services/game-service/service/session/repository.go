@@ -1,8 +1,13 @@
 package session
 
-import "github.com/Dylar/ai-trust-game/services/shared/project/domain"
+import (
+	"context"
+
+	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
+)
 
 type Repository interface {
-	Save(session domain.Session)
-	Get(id string) (domain.Session, bool)
+	Save(ctx context.Context, session domain.Session) error
+	Get(ctx context.Context, id string) (domain.Session, bool, error)
+	ListByUserID(ctx context.Context, userID string) ([]domain.Session, error)
 }

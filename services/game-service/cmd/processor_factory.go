@@ -4,14 +4,14 @@ import (
 	"context"
 	"log"
 
-	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/game"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 	"github.com/Dylar/ai-trust-game/services/shared/project/audit"
 	"github.com/Dylar/ai-trust-game/services/shared/project/llm"
 )
 
-func newConfiguredProcessor(logger logging.Logger, auditSink audit.Sink) interaction.Processor {
+func newConfiguredProcessor(logger logging.Logger, auditSink audit.Sink) game.Processor {
 	provider := llm.ParseProvider(infra.GetEnv("LLM_PROVIDER", string(llm.ProviderStatic)))
 
 	switch provider {
@@ -31,16 +31,16 @@ func newConfiguredProcessor(logger logging.Logger, auditSink audit.Sink) interac
 	}
 }
 
-func newStaticProcessor(logger logging.Logger, auditSink audit.Sink) interaction.Processor {
+func newStaticProcessor(logger logging.Logger, auditSink audit.Sink) game.Processor {
 	logger.Info(
 		context.Background(),
 		"using static interaction processor",
 		logging.WithField("llm_provider", llm.ProviderStatic),
 	)
-	return interaction.NewStaticProcessor(auditSink, logger)
+	return game.NewStaticProcessor(auditSink, logger)
 }
 
-func newGroqProcessor(logger logging.Logger, auditSink audit.Sink) interaction.Processor {
+func newGroqProcessor(logger logging.Logger, auditSink audit.Sink) game.Processor {
 	apiKey := infra.GetEnv("GROQ_API_KEY", "")
 	if apiKey == "" {
 		log.Fatal("GROQ_API_KEY is required when LLM_PROVIDER=groq")
@@ -55,14 +55,14 @@ func newGroqProcessor(logger logging.Logger, auditSink audit.Sink) interaction.P
 		logging.WithField("groq_model", model),
 	)
 
-	return interaction.NewLLMProcessor(
+	return game.NewLLMProcessor(
 		auditSink,
 		llm.NewGroqClient(apiKey, model),
 		logger,
 	)
 }
 
-func newOpenAIProcessor(logger logging.Logger, auditSink audit.Sink) interaction.Processor {
+func newOpenAIProcessor(logger logging.Logger, auditSink audit.Sink) game.Processor {
 	logger.Warn(
 		context.Background(),
 		"openai processor is not implemented yet, falling back to static processor",

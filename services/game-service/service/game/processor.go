@@ -1,13 +1,13 @@
-package interaction
+package game
 
 import (
 	"context"
 	"errors"
 
-	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/execution"
-	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/policy"
-	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/response"
-	interactionstate "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/state"
+	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/game/execution"
+	interactionpolicy "github.com/Dylar/ai-trust-game/services/game-service/service/game/policy"
+	interactionresponse "github.com/Dylar/ai-trust-game/services/game-service/service/game/response"
+	interactionstate "github.com/Dylar/ai-trust-game/services/game-service/service/game/state"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 	"github.com/Dylar/ai-trust-game/services/shared/project/audit"
 	"github.com/Dylar/ai-trust-game/services/shared/project/domain"
@@ -112,8 +112,11 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 	processor.writeAuditEvent(ctx, decidedAuditEvent(ctx, interaction, plan, decision))
 	if !decision.Allowed {
 		return interactionresponse.Result{
-			Message: "interaction denied",
-			Source:  interactionresponse.SourceSystem,
+			Message:         "interaction denied",
+			Source:          interactionresponse.SourceSystem,
+			SelectedAction:  plan.Action,
+			DecisionAllowed: decision.Allowed,
+			DecisionReason:  decision.Reason,
 		}, nil
 	}
 
@@ -137,6 +140,9 @@ func (processor Processor) Process(ctx context.Context, interaction domain.Inter
 		Response: response,
 		Result:   result,
 	})
+	result.SelectedAction = plan.Action
+	result.DecisionAllowed = decision.Allowed
+	result.DecisionReason = decision.Reason
 	processor.writeAuditEvent(ctx, respondedAuditEvent(ctx, interaction, plan, result))
 
 	updatedSession, updated := processor.stateUpdater.Update(interactionstate.Input{

@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"log"
 	"net/http"
 
 	"github.com/Dylar/ai-trust-game/services/game-service/service"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction"
+	interactionpostgres "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/persistence/postgres"
 	"github.com/Dylar/ai-trust-game/services/game-service/service/session"
+	sessionpostgres "github.com/Dylar/ai-trust-game/services/game-service/service/session/persistence/postgres"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
+	sharedpostgres "github.com/Dylar/ai-trust-game/services/shared/foundation/persistence/postgres"
 	"github.com/Dylar/ai-trust-game/services/shared/project/audit"
 )
 
@@ -35,11 +41,19 @@ func main() {
 	healthHandler := service.NewHealthHandler()
 	chatHandler := service.NewChatHandler(logger, auditSink)
 
-	sessionRepo := session.NewInMemoryRepository()
+	sessionRepo, interactionRepo, db, err := newPersistenceRepositories(context.Background(), logger)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if db != nil {
+		defer db.Close()
+	}
+
 	startSessionHandler := service.NewStartSessionHandler(logger, sessionRepo)
+	sessionQueryHandler := service.NewSessionQueryHandler(sessionRepo)
 
 	processor := newConfiguredProcessor(logger, auditSink)
-	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor)
+	interactionHandler := service.NewInteractionHandler(logger, sessionRepo, processor, interactionRepo)
 
 	srv := infra.NewServer(
 		logger,
@@ -49,7 +63,15 @@ func main() {
 					Name: "game-service",
 					Port: infra.GetEnv("PORT", infra.DefaultPort),
 					Register: func(mux *http.ServeMux) {
-						service.SetupRoutes(mux, logger, healthHandler, chatHandler, startSessionHandler, interactionHandler)
+						service.SetupRoutes(
+							mux,
+							logger,
+							healthHandler,
+							chatHandler,
+							startSessionHandler,
+							sessionQueryHandler,
+							interactionHandler,
+						)
 					},
 				},
 			},
@@ -59,4 +81,23 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func newPersistenceRepositories(
+	ctx context.Context,
+	logger logging.Logger,
+) (session.Repository, interaction.Repository, *sql.DB, error) {
+	cfg := sharedpostgres.ConfigFromEnv()
+	if cfg.DatabaseURL == "" {
+		logger.Info(ctx, "game-service using in-memory persistence repositories")
+		return session.NewInMemoryRepository(), interaction.NewInMemoryRepository(), nil, nil
+	}
+
+	db, err := sharedpostgres.Open(ctx, cfg)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	logger.Info(ctx, "game-service using postgres persistence repositories")
+	return sessionpostgres.NewRepository(db), interactionpostgres.NewRepository(db), db, nil
 }

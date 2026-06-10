@@ -23,6 +23,7 @@ func TestStartSessionRoute(t *testing.T) {
 
 	type Given struct {
 		requestBody string
+		headers     map[string]string
 	}
 
 	type When struct {
@@ -50,6 +51,10 @@ func TestStartSessionRoute(t *testing.T) {
 				"THEN returns 200 and session response",
 			given: Given{
 				requestBody: `{"role":"guest","mode":"easy"}`,
+				headers: map[string]string{
+					"Content-Type":       "application/json",
+					network.UserIDHeader: "user-123",
+				},
 			},
 			when: When{
 				method: http.MethodPost,
@@ -66,6 +71,10 @@ func TestStartSessionRoute(t *testing.T) {
 				"THEN returns 400",
 			given: Given{
 				requestBody: `{"role":"superadmin","mode":"easy"}`,
+				headers: map[string]string{
+					"Content-Type":       "application/json",
+					network.UserIDHeader: "user-123",
+				},
 			},
 			when: When{
 				method: http.MethodPost,
@@ -81,6 +90,10 @@ func TestStartSessionRoute(t *testing.T) {
 				"THEN returns 400",
 			given: Given{
 				requestBody: `{"role":"guest","mode":"nightmare"}`,
+				headers: map[string]string{
+					"Content-Type":       "application/json",
+					network.UserIDHeader: "user-123",
+				},
 			},
 			when: When{
 				method: http.MethodPost,
@@ -96,6 +109,10 @@ func TestStartSessionRoute(t *testing.T) {
 				"THEN returns 400",
 			given: Given{
 				requestBody: `{"role":"guest","mode":}`,
+				headers: map[string]string{
+					"Content-Type":       "application/json",
+					network.UserIDHeader: "user-123",
+				},
 			},
 			when: When{
 				method: http.MethodPost,
@@ -103,6 +120,24 @@ func TestStartSessionRoute(t *testing.T) {
 			then: Then{
 				expectedStatus:    http.StatusBadRequest,
 				expectedErrorCode: network.ErrorCodeInvalidJSON,
+			},
+		},
+		{
+			name: "GIVEN missing user id " +
+				"WHEN POST /session/start " +
+				"THEN returns 400",
+			given: Given{
+				requestBody: `{"role":"guest","mode":"easy"}`,
+				headers: map[string]string{
+					"Content-Type": "application/json",
+				},
+			},
+			when: When{
+				method: http.MethodPost,
+			},
+			then: Then{
+				expectedStatus:    http.StatusBadRequest,
+				expectedErrorCode: errorCodeMissingUser,
 			},
 		},
 		{
@@ -121,9 +156,6 @@ func TestStartSessionRoute(t *testing.T) {
 	}
 
 	path := "/session/start"
-	headers := map[string]string{
-		"Content-Type": "application/json",
-	}
 	for _, scenario := range scenarios {
 		given := scenario.given
 		when := scenario.when
@@ -134,7 +166,7 @@ func TestStartSessionRoute(t *testing.T) {
 				mux,
 				when.method,
 				path,
-				headers,
+				given.headers,
 				given.requestBody,
 			)
 

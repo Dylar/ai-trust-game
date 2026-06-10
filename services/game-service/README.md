@@ -5,7 +5,9 @@ This service owns the game workflow behind the public gateway.
 It wires together:
 
 - session start
+- session restore queries
 - interaction processing
+- interaction record persistence
 - basic chat input auditing
 - async audit event publishing through RabbitMQ
 
@@ -31,7 +33,8 @@ The service keeps transport concerns in `service/` and composes core workflow de
 
 It currently creates:
 
-- an in-memory session repository
+- a session repository backed by PostgreSQL when `DATABASE_URL` is configured, otherwise in-memory storage
+- an interaction record repository backed by PostgreSQL when `DATABASE_URL` is configured, otherwise in-memory storage
 - a RabbitMQ audit sink that publishes audit events for `audit-service`
 - the configured interaction processor
 - the HTTP server and route registration
@@ -53,10 +56,17 @@ Current routes:
   accepts a message and writes a suspicious-input audit event for a few basic patterns
 
 - `POST /session/start`
-  creates a new session from the requested role and mode
+  creates a new user-scoped session from the requested role and mode
 
 - `POST /interaction`
-  loads the authoritative session and runs the interaction pipeline
+  loads the authoritative user-scoped session, runs the game pipeline, persists session updates, and stores an
+  interaction record
+
+- `GET /session/list`
+  lists the current user's resumable sessions
+
+- `GET /session/{sessionId}`
+  returns user-scoped session detail for restore flows
 
 - `GET /analysis/request/{requestId}`
   moved to `audit-service`
@@ -77,10 +87,11 @@ Important headers:
   read from the incoming request and required for `POST /interaction`
 
 - `X-User-Id`
-  read from the incoming request and stored in request metadata
+  read from the incoming request, required for session start, interaction, and session restore queries
 
 The interaction endpoint does not take the session ID in the JSON body.
 It trusts the request metadata header and loads the authoritative session from the repository.
+The loaded session must belong to the same `X-User-Id`, otherwise the service returns `session_not_found`.
 
 ## Handler Responsibilities
 
@@ -91,15 +102,22 @@ It trusts the request metadata header and loads the authoritative session from t
   validates role and mode, creates initial authoritative session state, and persists it
 
 - [`interaction_handler.go`](./service/interaction_handler.go)
-  validates request metadata, loads the session, delegates to `interaction.Processor`, and saves updated session state
+  validates request metadata, loads the session, delegates to `game.Processor`, saves updated session state, and
+  stores the interaction record
+
+- [`session_query_handler.go`](./service/session_query_handler.go)
+  lists and returns sessions for the current user so app restore flows can resume from persisted backend state
 
 ## Service Documentation
 
 - [`service/session/`](./service/session/)
-  authoritative session repository boundary and in-memory storage
+  authoritative session repository boundary plus in-memory and PostgreSQL storage
 
 - [`service/interaction/`](./service/interaction/)
-  interaction pipeline, policy, execution, state update, and response flow
+  interaction record repository boundary plus in-memory and PostgreSQL storage
+
+- [`service/game/`](./service/game/)
+  game pipeline, policy, execution, state update, and response flow
 
 ## Environment Variables
 
@@ -125,6 +143,10 @@ Current runtime configuration is read in the service composition root:
 
 - `AUDIT_EVENTS_ROUTING_KEY`
   routing key used for audit event publishing
+
+- `DATABASE_URL`
+  optional PostgreSQL connection string used for persistent sessions and interaction records; when omitted, the service
+  uses in-memory repositories for lightweight local runs and focused tests
 
 `openai` is already accepted as a configured provider value, but the service currently falls back to static behavior for
 interaction processing.

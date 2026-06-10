@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/Dylar/ai-trust-game/services/game-service/service/interaction"
+	"github.com/Dylar/ai-trust-game/services/game-service/service/game"
 	"net/http"
 	"testing"
 
@@ -20,13 +20,14 @@ func TestInteractionRoute(t *testing.T) {
 	logger := logging.NewConsoleLogger()
 
 	sessionRepo := session.NewInMemoryRepository()
-	processor := interaction.NewStaticProcessor(audit.NewNoopSink(), logger)
+	processor := game.NewStaticProcessor(audit.NewNoopSink(), logger)
 	handler := NewInteractionHandler(logger, sessionRepo, processor)
 
 	setupInteractionRoute(mux, logger, handler)
 
-	sessionRepo.Save(domain.Session{
-		ID: "session-easy",
+	mustSaveSession(t, sessionRepo, domain.Session{
+		ID:     "session-easy",
+		UserID: "user-123",
 		Settings: domain.GameSettings{
 			Role: domain.RoleGuest,
 			Mode: domain.ModeEasy,
@@ -35,8 +36,9 @@ func TestInteractionRoute(t *testing.T) {
 			TrustedRole: domain.RoleGuest,
 		},
 	})
-	sessionRepo.Save(domain.Session{
-		ID: "session-medium-claim",
+	mustSaveSession(t, sessionRepo, domain.Session{
+		ID:     "session-medium-claim",
+		UserID: "user-123",
 		Settings: domain.GameSettings{
 			Role: domain.RoleGuest,
 			Mode: domain.ModeMedium,
@@ -45,8 +47,9 @@ func TestInteractionRoute(t *testing.T) {
 			TrustedRole: domain.RoleGuest,
 		},
 	})
-	sessionRepo.Save(domain.Session{
-		ID: "session-medium-denied",
+	mustSaveSession(t, sessionRepo, domain.Session{
+		ID:     "session-medium-denied",
+		UserID: "user-123",
 		Settings: domain.GameSettings{
 			Role: domain.RoleGuest,
 			Mode: domain.ModeMedium,
@@ -55,8 +58,9 @@ func TestInteractionRoute(t *testing.T) {
 			TrustedRole: domain.RoleGuest,
 		},
 	})
-	sessionRepo.Save(domain.Session{
-		ID: "session-hard-denied",
+	mustSaveSession(t, sessionRepo, domain.Session{
+		ID:     "session-hard-denied",
+		UserID: "user-123",
 		Settings: domain.GameSettings{
 			Role: domain.RoleGuest,
 			Mode: domain.ModeHard,
@@ -65,8 +69,9 @@ func TestInteractionRoute(t *testing.T) {
 			TrustedRole: domain.RoleGuest,
 		},
 	})
-	sessionRepo.Save(domain.Session{
-		ID: "session-hard-admin",
+	mustSaveSession(t, sessionRepo, domain.Session{
+		ID:     "session-hard-admin",
+		UserID: "user-123",
 		Settings: domain.GameSettings{
 			Role: domain.RoleAdmin,
 			Mode: domain.ModeHard,
@@ -112,6 +117,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "session-easy",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{
@@ -131,6 +137,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "session-medium-claim",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{
@@ -150,6 +157,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "session-medium-denied",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{
@@ -169,6 +177,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "session-hard-denied",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{
@@ -188,6 +197,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "session-hard-admin",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{
@@ -204,7 +214,10 @@ func TestInteractionRoute(t *testing.T) {
 				"THEN returns 400",
 			given: Given{
 				requestBody: `{"message":"hello"}`,
-				headers:     baseHeaders,
+				headers: map[string]string{
+					"Content-Type":       "application/json",
+					network.UserIDHeader: "user-123",
+				},
 			},
 			when: When{
 				method: http.MethodPost,
@@ -223,6 +236,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "unknown-session",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{
@@ -242,6 +256,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "session-easy",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{
@@ -261,6 +276,7 @@ func TestInteractionRoute(t *testing.T) {
 				headers: map[string]string{
 					"Content-Type":          "application/json",
 					network.SessionIDHeader: "session-easy",
+					network.UserIDHeader:    "user-123",
 				},
 			},
 			when: When{

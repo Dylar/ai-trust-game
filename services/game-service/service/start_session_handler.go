@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -16,6 +17,7 @@ import (
 
 var ErrInvalidRole = errors.New("role is invalid")
 var ErrInvalidMode = errors.New("mode is invalid")
+var ErrNoUserProvided = errors.New("no user provided")
 
 type StartSessionHandler struct {
 	logger      logging.Logger
@@ -66,6 +68,11 @@ func (handler *StartSessionHandler) ServeHTTP(w http.ResponseWriter, req *http.R
 }
 
 func (handler *StartSessionHandler) handleStartSession(ctx context.Context, req StartSessionRequest) (StartSessionResponse, error) {
+	meta := network.GetMetadata(ctx)
+	if meta.UserID == "" {
+		return StartSessionResponse{}, ErrNoUserProvided
+	}
+
 	role, ok := domain.ParseRole(req.Role)
 	if !ok {
 		return StartSessionResponse{}, ErrInvalidRole
@@ -77,8 +84,10 @@ func (handler *StartSessionHandler) handleStartSession(ctx context.Context, req 
 	}
 
 	sessionID := uuid.NewString()
+	now := time.Now().UTC()
 	sess := domain.Session{
-		ID: sessionID,
+		ID:     sessionID,
+		UserID: meta.UserID,
 		Settings: domain.GameSettings{
 			Role: role,
 			Mode: mode,
@@ -87,13 +96,18 @@ func (handler *StartSessionHandler) handleStartSession(ctx context.Context, req 
 			TrustedRole:    role,
 			SecretUnlocked: false,
 		},
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
-	handler.sessionRepo.Save(sess)
+	if err := handler.sessionRepo.Save(ctx, sess); err != nil {
+		return StartSessionResponse{}, err
+	}
 	handler.logger.Debug(
 		ctx,
 		"session started",
 		logging.WithField("session_id", sessionID),
+		logging.WithField("user_id", meta.UserID),
 		logging.WithField("role", role),
 		logging.WithField("mode", mode),
 	)
@@ -112,6 +126,9 @@ func (handler *StartSessionHandler) mapStartSessionError(err error) (int, string
 	}
 	if errors.Is(err, ErrInvalidMode) {
 		return http.StatusBadRequest, errorCodeInvalidMode
+	}
+	if errors.Is(err, ErrNoUserProvided) {
+		return http.StatusBadRequest, errorCodeMissingUser
 	}
 	return http.StatusInternalServerError, network.ErrorCodeInternal
 }

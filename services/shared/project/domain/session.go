@@ -1,9 +1,14 @@
 package domain
 
+import "time"
+
 type Session struct {
-	ID       string
-	Settings GameSettings
-	State    GameState
+	ID        string
+	UserID    string
+	Settings  GameSettings
+	State     GameState
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type GameSettings struct {

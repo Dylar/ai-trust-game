@@ -1,9 +1,9 @@
-package interaction
+package game
 
 import (
 	"errors"
 
-	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/interaction/execution"
+	interactionexecution "github.com/Dylar/ai-trust-game/services/game-service/service/game/execution"
 )
 
 var errStubExecutor = errors.New("stub executor failed")
