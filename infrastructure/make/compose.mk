@@ -4,7 +4,7 @@ COMPOSE_ENV_FILE ?= ./infrastructure/docker/compose/env/$(COMPOSE_MODEL_ENV).env
 COMPOSE_REQUIRED_VARS ?= LLM_PROVIDER
 COMPOSE := docker compose --file $(COMPOSE_FILE) --env-file $(COMPOSE_ENV_FILE)
 
-.PHONY: compose-check-env compose-up compose-down compose-logs compose-restart
+.PHONY: compose-check-env compose-up compose-down compose-logs compose-restart compose-smoke
 
 compose-check-env:
 	@if [ ! -f "$(COMPOSE_FILE)" ]; then \
@@ -37,3 +37,9 @@ compose-down: compose-check-env
 
 compose-logs: compose-check-env
 	$(COMPOSE) logs -f
+
+compose-smoke: compose-check-env
+	$(COMPOSE) up -d --build --force-recreate
+	$(COMPOSE) exec -T postgres sh -c 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
+	$(COMPOSE) exec -T gateway-service wget -qO- http://127.0.0.1:8080/healthz
+	$(COMPOSE) exec -T gateway-service wget -qO- http://127.0.0.1:8080/auth/users

@@ -12,7 +12,10 @@ services:
       GAME_SERVICE_URL: http://game-service:8080
       LOGGING_SERVICE_URL: http://logging-service:8080
       AUDIT_SERVICE_URL: http://audit-service:8080
+      AUTH_SERVICE_URL: http://auth-service:8080
     depends_on:
+      auth-service:
+        condition: service_healthy
       game-service:
         condition: service_healthy
       logging-service:

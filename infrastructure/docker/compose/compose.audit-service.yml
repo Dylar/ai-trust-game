@@ -12,11 +12,14 @@ services:
       LLM_PROVIDER: ${LLM_PROVIDER}
       GROQ_API_KEY: ${GROQ_API_KEY}
       GROQ_MODEL: ${GROQ_MODEL}
+      DATABASE_URL: postgres://${POSTGRES_USER:-ai_trust_game}:${POSTGRES_PASSWORD:-ai_trust_game}@postgres:5432/${POSTGRES_DB:-ai_trust_game}?sslmode=disable
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
       AUDIT_EVENTS_EXCHANGE: audit.events
       AUDIT_EVENTS_QUEUE: audit-service.audit-events
       AUDIT_EVENTS_ROUTING_KEY: audit.event
     depends_on:
+      postgres-migrate:
+        condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
     healthcheck:

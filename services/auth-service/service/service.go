@@ -3,8 +3,8 @@ package service
 import (
 	"net/http"
 
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
-	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 func SetupRoutes(
@@ -19,25 +19,18 @@ func SetupRoutes(
 }
 
 func setupHealthRoute(mux *http.ServeMux, logger logging.Logger, healthHandler *HealthHandler) {
-	handleHealth := http.Handler(healthHandler)
-	handleHealth = logging.HttpLogging(logger)(handleHealth)
-	handleHealth = network.RequestMiddleware(handleHealth)
-	handleHealth = network.CORSMiddleware(handleHealth)
+	handleHealth := infra.StandardHTTPHandler(logger, healthHandler)
 	mux.Handle("/healthz", handleHealth)
 }
 
 func setupUsersRoute(mux *http.ServeMux, logger logging.Logger, userHandler *UserHandler) {
-	handleUsers := http.Handler(http.HandlerFunc(userHandler.ServeUsersHTTP))
-	handleUsers = logging.HttpLogging(logger)(handleUsers)
-	handleUsers = network.RequestMiddleware(handleUsers)
-	handleUsers = network.CORSMiddleware(handleUsers)
+	handleUsers := infra.StandardHTTPHandler(logger, http.HandlerFunc(userHandler.ServeUsersHTTP))
 	mux.Handle("/users", handleUsers)
+	mux.Handle("/auth/users", handleUsers)
 }
 
 func setupUserSelectRoute(mux *http.ServeMux, logger logging.Logger, userHandler *UserHandler) {
-	handleUserSelect := http.Handler(http.HandlerFunc(userHandler.ServeUserSelectHTTP))
-	handleUserSelect = logging.HttpLogging(logger)(handleUserSelect)
-	handleUserSelect = network.RequestMiddleware(handleUserSelect)
-	handleUserSelect = network.CORSMiddleware(handleUserSelect)
+	handleUserSelect := infra.StandardHTTPHandler(logger, http.HandlerFunc(userHandler.ServeUserSelectHTTP))
 	mux.Handle("/users/select", handleUserSelect)
+	mux.Handle("/auth/users/select", handleUserSelect)
 }

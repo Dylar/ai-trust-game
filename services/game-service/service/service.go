@@ -3,8 +3,8 @@ package service
 import (
 	"net/http"
 
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
-	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 func SetupRoutes(
@@ -24,41 +24,26 @@ func SetupRoutes(
 }
 
 func setupHealthRoute(mux *http.ServeMux, logger logging.Logger, healthHandler *HealthHandler) {
-	handleHealth := http.Handler(healthHandler)
-	handleHealth = logging.HttpLogging(logger)(handleHealth)
-	handleHealth = network.RequestMiddleware(handleHealth)
-	handleHealth = network.CORSMiddleware(handleHealth)
+	handleHealth := infra.StandardHTTPHandler(logger, healthHandler)
 	mux.Handle("/healthz", handleHealth)
 }
 
 func setupChatRoute(mux *http.ServeMux, logger logging.Logger, chatHandler *ChatHandler) {
-	handleChat := http.Handler(chatHandler)
-	handleChat = logging.HttpLogging(logger)(handleChat)
-	handleChat = network.RequestMiddleware(handleChat)
-	handleChat = network.CORSMiddleware(handleChat)
+	handleChat := infra.StandardHTTPHandler(logger, chatHandler)
 	mux.Handle("/chat", handleChat)
 }
 
 func setupStartSessionRoute(mux *http.ServeMux, logger logging.Logger, startSessionHandler *StartSessionHandler) {
-	handleSessionStart := http.Handler(startSessionHandler)
-	handleSessionStart = logging.HttpLogging(logger)(handleSessionStart)
-	handleSessionStart = network.RequestMiddleware(handleSessionStart)
-	handleSessionStart = network.CORSMiddleware(handleSessionStart)
+	handleSessionStart := infra.StandardHTTPHandler(logger, startSessionHandler)
 	mux.Handle("/session/start", handleSessionStart)
 }
 
 func setupSessionQueryRoute(mux *http.ServeMux, logger logging.Logger, sessionQueryHandler *SessionQueryHandler) {
-	handleSessionQuery := http.Handler(sessionQueryHandler)
-	handleSessionQuery = logging.HttpLogging(logger)(handleSessionQuery)
-	handleSessionQuery = network.RequestMiddleware(handleSessionQuery)
-	handleSessionQuery = network.CORSMiddleware(handleSessionQuery)
+	handleSessionQuery := infra.StandardHTTPHandler(logger, sessionQueryHandler)
 	mux.Handle("/session/", handleSessionQuery)
 }
 
 func setupInteractionRoute(mux *http.ServeMux, logger logging.Logger, interactionHandler *InteractionHandler) {
-	handleSessionStart := http.Handler(interactionHandler)
-	handleSessionStart = logging.HttpLogging(logger)(handleSessionStart)
-	handleSessionStart = network.RequestMiddleware(handleSessionStart)
-	handleSessionStart = network.CORSMiddleware(handleSessionStart)
-	mux.Handle("/interaction", handleSessionStart)
+	handleInteraction := infra.StandardHTTPHandler(logger, interactionHandler)
+	mux.Handle("/interaction", handleInteraction)
 }

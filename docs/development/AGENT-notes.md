@@ -135,7 +135,7 @@ interaction state.
   dead-letter behavior.
 - Update RabbitMQ and infrastructure docs for persistence, Secrets, and volumes.
 
-#### 8. Update Docker Compose runtime
+#### 8. Update Docker Compose runtime (DONE)
 
 - Add PostgreSQL service to the compose setup.
 - Add auth-service to compose.

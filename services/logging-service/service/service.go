@@ -3,8 +3,8 @@ package service
 import (
 	"net/http"
 
+	"github.com/Dylar/ai-trust-game/services/shared/foundation/infra"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
-	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
 func SetupRoutes(
@@ -18,17 +18,11 @@ func SetupRoutes(
 }
 
 func setupHealthRoute(mux *http.ServeMux, logger logging.Logger, healthHandler *HealthHandler) {
-	handleHealth := http.Handler(healthHandler)
-	handleHealth = logging.HttpLogging(logger)(handleHealth)
-	handleHealth = network.RequestMiddleware(handleHealth)
-	handleHealth = network.CORSMiddleware(handleHealth)
+	handleHealth := infra.StandardHTTPHandler(logger, healthHandler)
 	mux.Handle("/healthz", handleHealth)
 }
 
 func setupClientLogRoute(mux *http.ServeMux, logger logging.Logger, clientLogHandler *ClientLogHandler) {
-	handleClientLog := http.Handler(clientLogHandler)
-	handleClientLog = logging.HttpLogging(logger)(handleClientLog)
-	handleClientLog = network.RequestMiddleware(handleClientLog)
-	handleClientLog = network.CORSMiddleware(handleClientLog)
+	handleClientLog := infra.StandardHTTPHandler(logger, clientLogHandler)
 	mux.Handle("/logs/client", handleClientLog)
 }
