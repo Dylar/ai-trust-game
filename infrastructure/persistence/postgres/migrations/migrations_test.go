@@ -68,7 +68,6 @@ func TestInitialMigrationCreatesExpectedTables(t *testing.T) {
 		{given: Given{table: "sessions"}},
 		{given: Given{table: "interactions"}},
 		{given: Given{table: "audit_events"}},
-		{given: Given{table: "client_logs"}},
 	}
 
 	for index := range scenarios {

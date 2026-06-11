@@ -49,18 +49,3 @@ CREATE TABLE audit_events (
 CREATE INDEX audit_events_request_id_created_at_idx ON audit_events (request_id, created_at);
 CREATE INDEX audit_events_session_id_created_at_idx ON audit_events (session_id, created_at);
 CREATE INDEX audit_events_user_id_created_at_idx ON audit_events (user_id, created_at DESC);
-
-CREATE TABLE client_logs (
-    id uuid PRIMARY KEY,
-    request_id text,
-    session_id uuid,
-    user_id uuid,
-    level text NOT NULL,
-    message text NOT NULL,
-    metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
-    created_at timestamptz NOT NULL
-);
-
-CREATE INDEX client_logs_request_id_created_at_idx ON client_logs (request_id, created_at);
-CREATE INDEX client_logs_session_id_created_at_idx ON client_logs (session_id, created_at);
-CREATE INDEX client_logs_user_id_created_at_idx ON client_logs (user_id, created_at DESC);

@@ -29,7 +29,6 @@ func (handler *ClientLogHandler) ServeHTTP(w http.ResponseWriter, req *http.Requ
 		network.WriteJSONError(w, http.StatusMethodNotAllowed, network.ErrorCodeMethodNotAllowed)
 		return
 	}
-
 	defer func() {
 		_ = req.Body.Close()
 	}()

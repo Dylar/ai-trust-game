@@ -114,15 +114,15 @@ interaction state.
   propagation.
 - Update audit-service README for persistence behavior.
 
-#### 6. Persist logging-service client logs
+#### 6. Keep logging-service logs external (DONE)
 
-- Add PostgreSQL-backed client log storage.
-- Place logging-service PostgreSQL repository adapters under the logging-service-owned persistence package.
-- Persist log entries with request id, session id, user id, level, message, timestamp, and structured metadata.
-- Keep ingestion behavior compatible with the existing app log shipping flow.
-- Add query support for stored client logs used by UI and analysis views.
-- Add tests for log ingestion persistence and stored log queries.
-- Update logging-service README for persistence behavior.
+- Do not persist backend or client logs in the application PostgreSQL database.
+- Keep `logging-service` as an ephemeral ingestion and normalization boundary for client-side app logs.
+- Write accepted client logs to backend structured logs only.
+- Let external observability infrastructure such as Datadog, Loki, ELK, or OpenTelemetry own long-term log retention,
+  indexing, cleanup, and dashboards.
+- Keep Phase 13 database persistence focused on domain state, audit events, and analysis read models.
+- Keep stable logging-service documentation limited to its current ingestion responsibility.
 
 #### 7. Configure RabbitMQ persistence
 
@@ -140,7 +140,7 @@ interaction state.
 
 - Add PostgreSQL service to the compose setup.
 - Add auth-service to compose.
-- Wire database URLs for auth-service, game-service, audit-service, and logging-service as needed.
+- Wire database URLs for auth-service, game-service, and audit-service as needed.
 - Add database volume for local persistence.
 - Ensure gateway can reach auth-service through the compose network.
 - Add or update make commands for starting the full persistence stack.
@@ -161,7 +161,7 @@ interaction state.
 
 - Add drift dependencies to `apps/trust-game-app`.
 - Create a local database layer under the app's existing data/service boundaries.
-- Add local tables for selected user, known users, sessions, interactions, analysis/audit views, client logs, and sync or
+- Add local tables for selected user, known users, sessions, interactions, analysis/audit views, and sync or
   restore metadata.
 - Track when known users were last selected.
 - Derive whether a user is loaded from locally persisted sessions for that user.
