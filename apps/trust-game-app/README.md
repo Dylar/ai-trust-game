@@ -24,13 +24,14 @@ The app currently has:
 - app-wide configuration through `AppConfig`
 - app-wide logging through `core/logging/` and `AppLogger`
 - Dev, Test, and Prod flavor configuration
-- user-scoped dependency composition through `AppDependencies.forUser(...)`
+- app-wide selected-user state through `SelectedUserController`
 - shared frontend models for `Session` and `Interaction`
 - `services/` -> `data/` boundaries for session start, interaction creation, and analysis reads
 - API clients using `http.Client` and `apiBaseUri`
 - a local Drift database under `data/local/`
-- Drift-backed repositories for cached sessions, interactions, and analysis views scoped to the current runtime user ID
+- Drift-backed repositories for cached sessions, interactions, and analysis views scoped to the selected user
 - local known-user and selected-user persistence boundaries for restore-related app state
+- a loading screen that runs startup work before the future login/user-selection screen
 
 Prepared targets:
 
@@ -62,8 +63,9 @@ Current frontend architecture choices:
 - `AppConfig.fromEnvironment()` reads `APP_ENV` and `API_BASE_URL`
 - `AppLogger` is the frontend logging boundary under `core/logging/`
 - backend log shipping is implemented as a concrete adapter under `data/logging/`
-- `AppDependencies.forUser(...)` creates user-scoped repositories and API clients for an already selected user identity
-- `main.dart` currently shows a user-selection bootstrap placeholder until the login screen owns user selection
+- `AppDependencies.defaults()` creates repositories and API clients around shared app state without inventing a user ID
+- `SelectedUserController` owns the currently selected user identity for user-scoped backend requests and local reads
+- `main.dart` currently starts with the loading screen before the login screen is added
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
 - view models stay screen-local and are composed in the router before being passed into screens
@@ -72,7 +74,7 @@ Current frontend architecture choices:
 - session flow currently follows `screen -> view model -> service -> repository/data`
 - interaction flow currently follows `screen -> view model -> service -> repository/data`
 - analysis detail flows currently follow `screen -> view model -> service -> repository/data`
-- default app dependencies store cached sessions, interactions, and analysis views in Drift
+- default app dependencies store cached sessions, interactions, and analysis views in Drift after a user is selected
 - in-memory repository implementations remain available for focused tests and lightweight compositions
 - current routing paths are `Home -> SessionStart -> Interaction`, `Home -> Interaction`, `Interaction -> SessionDetail`,
   and `Interaction -> InteractionDetail`

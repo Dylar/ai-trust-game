@@ -170,7 +170,7 @@ interaction state.
 - Add drift database tests for local tables, local migrations, selected-user state, loaded/unloaded user derivation, and
   cached session/interaction reads.
 
-#### 11. Add app identity state and startup refresh screen
+#### 11. Add app identity state and loading screen
 
 - Add an app-level selected-user state boundary, for example a small `SelectedUserController` backed by a
   `ValueNotifier<UserIdentity?>` or `ValueNotifier<SelectedUser?>`.
@@ -179,10 +179,11 @@ interaction state.
 - Stop creating repository/API clients around an invented runtime user id.
 - Make user-scoped repositories and API clients read the currently selected user from the app identity state at request
   or query time.
-- Show a startup loading screen before the login/user-selection screen.
+- Show a loading screen before the login/user-selection screen.
 - On startup, load all locally known users from drift before showing the login screen.
 - If the backend is reachable, refresh backend data for all locally known users before the login screen is shown.
 - For each known user, fetch authoritative sessions from the backend and update the local drift session cache.
+- Add a game-service interaction restore/query endpoint before implementing interaction cache refresh.
 - For each refreshed session, fetch or restore its interactions and update the local drift interaction cache.
 - Refresh request-level and session-level analysis views where the backend has data for the refreshed sessions.
 - Keep the loading screen lightweight and explicit about sync state: loading, refreshed, offline fallback, and failed

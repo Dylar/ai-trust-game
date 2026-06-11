@@ -1,4 +1,6 @@
 import 'package:app/data/analysis/drift_analysis_repository.dart';
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/interaction/drift_interaction_repository.dart';
 import 'package:app/data/local/local_database.dart';
 import 'package:app/data/local/local_user_repository.dart';
@@ -50,9 +52,12 @@ void main() {
     'GIVEN known users WHEN one has a cached session THEN loaded and unloaded lists are derived locally',
     () async {
       final users = DriftLocalUserRepository(database: database);
+      final selectedUser = SelectedUserController(
+        initialUser: const UserIdentity(id: 'loaded-user'),
+      );
       final sessions = DriftSessionRepository(
         database: database,
-        userId: 'loaded-user',
+        selectedUser: selectedUser,
       );
 
       await users.saveKnownUser(
@@ -116,11 +121,15 @@ void main() {
     () async {
       final userSessions = DriftSessionRepository(
         database: database,
-        userId: 'user-1',
+        selectedUser: SelectedUserController(
+          initialUser: const UserIdentity(id: 'user-1'),
+        ),
       );
       final otherSessions = DriftSessionRepository(
         database: database,
-        userId: 'user-2',
+        selectedUser: SelectedUserController(
+          initialUser: const UserIdentity(id: 'user-2'),
+        ),
       );
 
       await userSessions.saveSession(
@@ -144,7 +153,9 @@ void main() {
     () async {
       final interactions = DriftInteractionRepository(
         database: database,
-        userId: 'user-1',
+        selectedUser: SelectedUserController(
+          initialUser: const UserIdentity(id: 'user-1'),
+        ),
       );
 
       await interactions.saveInteraction(
@@ -180,7 +191,9 @@ void main() {
     () async {
       final analysisRepository = DriftAnalysisRepository(
         database: database,
-        userId: 'user-1',
+        selectedUser: SelectedUserController(
+          initialUser: const UserIdentity(id: 'user-1'),
+        ),
       );
       final request = RequestAnalysis(
         requestId: 'request-1',

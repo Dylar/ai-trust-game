@@ -1,15 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart';
 
+import 'package:app/core/user/selected_user_controller.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/local/local_database.dart';
 import 'package:app/models/interaction_models.dart';
 
 class DriftInteractionRepository implements InteractionRepository {
-  DriftInteractionRepository({required this.database, required this.userId});
+  DriftInteractionRepository({
+    required this.database,
+    required this.selectedUser,
+  });
 
   final LocalDatabase database;
-  final String userId;
+  final SelectedUserController selectedUser;
   final _RepositoryChangeNotifier _changes = _RepositoryChangeNotifier();
 
   @override
@@ -23,6 +27,7 @@ class DriftInteractionRepository implements InteractionRepository {
 
   @override
   Future<List<Interaction>> listInteractions(String sessionId) async {
+    final userId = selectedUser.requiredUser.id;
     final rows =
         await (database.select(database.interactionRows)
               ..where(
@@ -36,6 +41,7 @@ class DriftInteractionRepository implements InteractionRepository {
 
   @override
   Future<void> saveInteraction(Interaction interaction) async {
+    final userId = selectedUser.requiredUser.id;
     await database
         .into(database.interactionRows)
         .insertOnConflictUpdate(

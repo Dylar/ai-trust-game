@@ -30,3 +30,26 @@ class StartSessionResponse {
     );
   }
 }
+
+class ListSessionsResponse {
+  const ListSessionsResponse({required this.sessions});
+
+  final List<Session> sessions;
+
+  factory ListSessionsResponse.fromJson(Map<String, dynamic> json) {
+    final sessionsJson = json['sessions'] as List<dynamic>? ?? <dynamic>[];
+    return ListSessionsResponse(
+      sessions: sessionsJson
+          .map((item) => _sessionFromJson(item as Map<String, dynamic>))
+          .toList(growable: false),
+    );
+  }
+}
+
+Session _sessionFromJson(Map<String, dynamic> json) {
+  return Session(
+    id: json['sessionId'] as String,
+    role: Role.values.byName(json['role'] as String),
+    mode: Mode.values.byName(json['mode'] as String),
+  );
+}

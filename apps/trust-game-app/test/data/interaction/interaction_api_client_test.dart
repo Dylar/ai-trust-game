@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_dto.dart';
@@ -8,6 +10,10 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  final selectedUser = SelectedUserController(
+    initialUser: const UserIdentity(id: 'user-123'),
+  );
+
   test('posts interaction JSON with session header to the backend', () async {
     late http.Request capturedRequest;
     final client = InteractionApiClient(
@@ -20,7 +26,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     final response = await client.createInteraction(
@@ -55,7 +61,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     expect(

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +9,10 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  final selectedUser = SelectedUserController(
+    initialUser: const UserIdentity(id: 'user-123'),
+  );
+
   test('loads session analysis from backend', () async {
     late http.Request capturedRequest;
     final client = AnalysisApiClient(
@@ -28,7 +34,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     final response = await client.getSessionAnalysis('session-1');
@@ -62,7 +68,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     final response = await client.getRequestAnalysis('request-1');
@@ -85,7 +91,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     expect(

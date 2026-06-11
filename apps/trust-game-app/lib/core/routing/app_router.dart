@@ -7,10 +7,13 @@ import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_view_model.dart';
 import 'package:app/screens/interaction/interaction_screen.dart';
 import 'package:app/screens/interaction/interaction_view_model.dart';
+import 'package:app/screens/loading/loading_screen.dart';
+import 'package:app/screens/loading/loading_view_model.dart';
 import 'package:app/screens/session_detail/session_detail_screen.dart';
 import 'package:app/screens/session_detail/session_detail_view_model.dart';
 import 'package:app/screens/session_start/session_start_screen.dart';
 import 'package:app/screens/session_start/session_start_view_model.dart';
+import 'package:app/services/startup_refresh_service.dart';
 
 class AppRouter {
   const AppRouter({required this.dependencies});
@@ -34,6 +37,17 @@ class AppRouter {
         interactionRepository: dependencies.interactionRepository,
         sessionRepository: dependencies.sessionRepository,
       ),
+    );
+  }
+
+  Widget buildLoadingScreen({
+    required ValueChanged<StartupRefreshResult> onLoaded,
+  }) {
+    return LoadingScreen(
+      viewModel: LoadingViewModel(
+        startupRefreshService: dependencies.startupRefreshService,
+      ),
+      onLoaded: onLoaded,
     );
   }
 

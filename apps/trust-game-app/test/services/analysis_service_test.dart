@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/models/analysis_models.dart';
@@ -9,6 +11,10 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  final selectedUser = SelectedUserController(
+    initialUser: const UserIdentity(id: 'test-user'),
+  );
+
   test('returns cached session analysis without calling the backend', () async {
     var requestCount = 0;
     const cached = SessionAnalysis(
@@ -34,7 +40,7 @@ void main() {
           return http.Response('', 500);
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
-        userId: 'test-user',
+        selectedUser: selectedUser,
       ),
     );
 
@@ -68,7 +74,7 @@ void main() {
           );
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
-        userId: 'test-user',
+        selectedUser: selectedUser,
       ),
     );
 
@@ -104,7 +110,7 @@ void main() {
           return http.Response('', 500);
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
-        userId: 'test-user',
+        selectedUser: selectedUser,
       ),
     );
 

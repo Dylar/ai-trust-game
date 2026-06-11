@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:app/core/logging/app_logger.dart';
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/core/user/user_identity.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/logging/log_api_client.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +10,10 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  final selectedUser = SelectedUserController(
+    initialUser: const UserIdentity(id: 'user-123'),
+  );
+
   test('posts log JSON with user and optional session headers', () async {
     late http.Request capturedRequest;
     final client = LogApiClient(
@@ -16,7 +22,7 @@ void main() {
         return http.Response('', 202);
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     await client.sendLog(
@@ -50,7 +56,7 @@ void main() {
         return http.Response('', 202);
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     await client.sendLog(
@@ -76,7 +82,7 @@ void main() {
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
-      userId: 'user-123',
+      selectedUser: selectedUser,
     );
 
     expect(
@@ -93,5 +99,27 @@ void main() {
             .having((error) => error.code, 'code', ApiErrorCode.invalidJson),
       ),
     );
+  });
+
+  test('uses anonymous user header before user selection', () async {
+    late http.Request capturedRequest;
+    final client = LogApiClient(
+      httpClient: MockClient((request) async {
+        capturedRequest = request;
+        return http.Response('', 202);
+      }),
+      apiBaseUri: Uri.parse('http://localhost:8080'),
+      selectedUser: SelectedUserController(),
+    );
+
+    await client.sendLog(
+      AppLogEvent(
+        level: AppLogLevel.info,
+        category: 'startup',
+        message: 'Opened app',
+      ),
+    );
+
+    expect(capturedRequest.headers['X-User-Id'], 'anonymous');
   });
 }

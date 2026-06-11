@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 
+import 'package:app/core/user/selected_user_controller.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/interaction/interaction_dto.dart';
@@ -8,12 +9,12 @@ class InteractionApiClient {
   const InteractionApiClient({
     required this.httpClient,
     required this.apiBaseUri,
-    required this.userId,
+    required this.selectedUser,
   });
 
   final http.Client httpClient;
   final Uri apiBaseUri;
-  final String userId;
+  final SelectedUserController selectedUser;
 
   Future<InteractionResponse> createInteraction(
     InteractionRequest request,
@@ -23,7 +24,7 @@ class InteractionApiClient {
         httpClient,
         apiBaseUri.resolve('/interaction'),
         headers: buildHeaders(
-          userId: userId,
+          userId: selectedUser.requiredUser.id,
           sessionId: request.sessionId,
           includeJsonContentType: true,
         ),

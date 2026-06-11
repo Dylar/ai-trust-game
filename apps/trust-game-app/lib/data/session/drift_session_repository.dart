@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart';
 
+import 'package:app/core/user/selected_user_controller.dart';
 import 'package:app/data/local/local_database.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
 
 class DriftSessionRepository implements SessionRepository {
-  DriftSessionRepository({required this.database, required this.userId});
+  DriftSessionRepository({required this.database, required this.selectedUser});
 
   final LocalDatabase database;
-  final String userId;
+  final SelectedUserController selectedUser;
   final ValueNotifier<List<Session>> _sessions = ValueNotifier<List<Session>>(
     const <Session>[],
   );
@@ -19,6 +20,7 @@ class DriftSessionRepository implements SessionRepository {
 
   @override
   Future<Session?> getSession(String id) async {
+    final userId = selectedUser.requiredUser.id;
     final row =
         await (database.select(database.sessionRows)
               ..where((tbl) => tbl.id.equals(id) & tbl.userId.equals(userId)))
@@ -28,6 +30,7 @@ class DriftSessionRepository implements SessionRepository {
 
   @override
   Future<List<Session>> listSessions() async {
+    final userId = selectedUser.requiredUser.id;
     final rows =
         await (database.select(database.sessionRows)
               ..where((tbl) => tbl.userId.equals(userId))
@@ -40,6 +43,15 @@ class DriftSessionRepository implements SessionRepository {
 
   @override
   Future<void> saveSession(Session session) async {
+    final userId = selectedUser.requiredUser.id;
+    await saveSessionForUser(userId: userId, session: session);
+    await listSessions();
+  }
+
+  Future<void> saveSessionForUser({
+    required String userId,
+    required Session session,
+  }) async {
     await database
         .into(database.sessionRows)
         .insertOnConflictUpdate(
@@ -51,7 +63,6 @@ class DriftSessionRepository implements SessionRepository {
             updatedAt: DateTime.now().toUtc(),
           ),
         );
-    await listSessions();
   }
 }
 

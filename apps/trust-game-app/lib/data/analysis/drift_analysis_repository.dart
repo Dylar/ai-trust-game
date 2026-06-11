@@ -2,18 +2,23 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 
+import 'package:app/core/user/selected_user_controller.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/data/local/local_database.dart';
 import 'package:app/models/analysis_models.dart';
 
 class DriftAnalysisRepository implements AnalysisRepository {
-  const DriftAnalysisRepository({required this.database, required this.userId});
+  const DriftAnalysisRepository({
+    required this.database,
+    required this.selectedUser,
+  });
 
   final LocalDatabase database;
-  final String userId;
+  final SelectedUserController selectedUser;
 
   @override
   Future<RequestAnalysis?> getRequestAnalysis(String requestId) async {
+    final userId = selectedUser.requiredUser.id;
     final row =
         await (database.select(database.requestAnalysisRows)..where(
               (tbl) =>
@@ -25,6 +30,7 @@ class DriftAnalysisRepository implements AnalysisRepository {
 
   @override
   Future<SessionAnalysis?> getSessionAnalysis(String sessionId) async {
+    final userId = selectedUser.requiredUser.id;
     final sessionRow =
         await (database.select(database.sessionAnalysisRows)..where(
               (tbl) =>
@@ -59,6 +65,7 @@ class DriftAnalysisRepository implements AnalysisRepository {
 
   @override
   Future<void> saveRequestAnalysis(RequestAnalysis analysis) async {
+    final userId = selectedUser.requiredUser.id;
     await database
         .into(database.requestAnalysisRows)
         .insertOnConflictUpdate(
@@ -80,6 +87,7 @@ class DriftAnalysisRepository implements AnalysisRepository {
 
   @override
   Future<void> saveSessionAnalysis(SessionAnalysis analysis) async {
+    final userId = selectedUser.requiredUser.id;
     await database.transaction(() async {
       await database
           .into(database.sessionAnalysisRows)

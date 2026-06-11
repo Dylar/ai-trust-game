@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 
 import 'package:app/core/logging/app_logger.dart';
+import 'package:app/core/user/selected_user_controller.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/api/api_transport.dart';
 
@@ -8,12 +9,12 @@ class LogApiClient {
   const LogApiClient({
     required this.httpClient,
     required this.apiBaseUri,
-    required this.userId,
+    required this.selectedUser,
   });
 
   final http.Client httpClient;
   final Uri apiBaseUri;
-  final String userId;
+  final SelectedUserController selectedUser;
 
   Future<void> sendLog(AppLogEvent event) async {
     try {
@@ -21,7 +22,7 @@ class LogApiClient {
         httpClient,
         apiBaseUri.resolve('/logs/client'),
         headers: buildHeaders(
-          userId: userId,
+          userId: selectedUser.value?.id ?? 'anonymous',
           sessionId: event.sessionId,
           includeJsonContentType: true,
         ),
