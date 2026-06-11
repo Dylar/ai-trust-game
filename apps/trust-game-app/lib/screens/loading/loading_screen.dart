@@ -34,6 +34,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
     if (!mounted) {
       return;
     }
+    if (widget.viewModel.state.value.canRetry) {
+      return;
+    }
     widget.onLoaded(result);
   }
 
@@ -69,6 +72,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
+                    if (state.canRetry) ...[
+                      const SizedBox(height: AppSpacing.large),
+                      FilledButton(
+                        key: LoadingKeys.retryButton,
+                        onPressed: _load,
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ],
                 );
               },

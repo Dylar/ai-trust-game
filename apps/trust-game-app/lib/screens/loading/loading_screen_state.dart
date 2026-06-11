@@ -1,6 +1,6 @@
 import 'package:app/services/startup_refresh_service.dart';
 
-enum LoadingScreenStatus { loading, ready }
+enum LoadingScreenStatus { loading, ready, retryableError }
 
 class LoadingScreenState {
   const LoadingScreenState({
@@ -19,6 +19,8 @@ class LoadingScreenState {
   final LoadingScreenStatus status;
   final String message;
   final StartupRefreshResult? result;
+
+  bool get canRetry => status == LoadingScreenStatus.retryableError;
 
   LoadingScreenState copyWith({
     LoadingScreenStatus? status,

@@ -18,13 +18,11 @@ class LoadingViewModel {
   Future<StartupRefreshResult> load() async {
     state.value = LoadingScreenState.loading();
     final refresh = startupRefreshService.refreshKnownUsers();
-    await Future.wait<void>([
-      refresh.then((_) {}),
-      Future<void>.delayed(minimumDisplayDuration),
-    ]);
+    final minimumDisplay = Future<void>.delayed(minimumDisplayDuration);
     final result = await refresh;
+    await minimumDisplay;
     state.value = LoadingScreenState(
-      status: LoadingScreenStatus.ready,
+      status: _statusFor(result),
       message: _messageFor(result),
       result: result,
     );
@@ -34,6 +32,15 @@ class LoadingViewModel {
   void dispose() {
     state.dispose();
   }
+}
+
+LoadingScreenStatus _statusFor(StartupRefreshResult result) {
+  return switch (result.status) {
+    StartupRefreshStatus.offlineFallback ||
+    StartupRefreshStatus.partialFailure => LoadingScreenStatus.retryableError,
+    StartupRefreshStatus.noKnownUsers ||
+    StartupRefreshStatus.refreshed => LoadingScreenStatus.ready,
+  };
 }
 
 String _messageFor(StartupRefreshResult result) {

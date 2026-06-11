@@ -45,6 +45,85 @@ void main() {
       expect(loadedResult?.status, StartupRefreshStatus.refreshed);
     },
   );
+
+  testWidgets(
+    'GIVEN retryable loading result WHEN shown THEN displays retry without calling onLoaded',
+    (tester) async {
+      StartupRefreshResult? loadedResult;
+      final service = _FakeStartupRefreshService(
+        result: const StartupRefreshResult(
+          status: StartupRefreshStatus.offlineFallback,
+          refreshedUserCount: 0,
+          refreshedSessionCount: 0,
+          failedUserIds: <String>['user-1'],
+        ),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoadingScreen(
+            viewModel: LoadingViewModel(
+              startupRefreshService: service,
+              minimumDisplayDuration: Duration.zero,
+            ),
+            onLoaded: (result) {
+              loadedResult = result;
+            },
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(LoadingKeys.retryButton), findsOneWidget);
+      expect(find.text('Offline mode uses saved data'), findsOneWidget);
+      expect(loadedResult, isNull);
+    },
+  );
+
+  testWidgets(
+    'GIVEN retryable loading result WHEN retry succeeds THEN calls onLoaded',
+    (tester) async {
+      StartupRefreshResult? loadedResult;
+      final service = _SequencedStartupRefreshService(
+        results: const <StartupRefreshResult>[
+          StartupRefreshResult(
+            status: StartupRefreshStatus.partialFailure,
+            refreshedUserCount: 1,
+            refreshedSessionCount: 1,
+            failedUserIds: <String>['user-2'],
+          ),
+          StartupRefreshResult(
+            status: StartupRefreshStatus.refreshed,
+            refreshedUserCount: 2,
+            refreshedSessionCount: 3,
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LoadingScreen(
+            viewModel: LoadingViewModel(
+              startupRefreshService: service,
+              minimumDisplayDuration: Duration.zero,
+            ),
+            onLoaded: (result) {
+              loadedResult = result;
+            },
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(LoadingKeys.retryButton));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(LoadingKeys.retryButton), findsNothing);
+      expect(loadedResult?.status, StartupRefreshStatus.refreshed);
+      expect(service.calls, 2);
+    },
+  );
 }
 
 class _FakeStartupRefreshService implements StartupRefreshService {
@@ -55,5 +134,19 @@ class _FakeStartupRefreshService implements StartupRefreshService {
   @override
   Future<StartupRefreshResult> refreshKnownUsers() async {
     return result;
+  }
+}
+
+class _SequencedStartupRefreshService implements StartupRefreshService {
+  _SequencedStartupRefreshService({required this.results});
+
+  final List<StartupRefreshResult> results;
+  int calls = 0;
+
+  @override
+  Future<StartupRefreshResult> refreshKnownUsers() async {
+    final index = calls;
+    calls += 1;
+    return results[index];
   }
 }

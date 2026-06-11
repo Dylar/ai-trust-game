@@ -6,4 +6,5 @@ class LoadingKeys {
   static const screen = Key('loading.screen');
   static const statusMessage = Key('loading.statusMessage');
   static const loadingIndicator = Key('loading.loadingIndicator');
+  static const retryButton = Key('loading.retryButton');
 }
