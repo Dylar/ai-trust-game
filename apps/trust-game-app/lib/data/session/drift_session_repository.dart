@@ -1,15 +1,16 @@
-import 'package:flutter/foundation.dart';
-import 'package:drift/drift.dart';
-
 import 'package:app/core/user/selected_user_controller.dart';
-import 'package:app/data/local/local_database.dart';
+import 'package:app/data/drift/drift_db.dart';
 import 'package:app/data/session/session_repository.dart';
+import 'package:app/data/session/session_sql_statements.dart';
 import 'package:app/models/session_models.dart';
+import 'package:flutter/foundation.dart';
 
 class DriftSessionRepository implements SessionRepository {
-  DriftSessionRepository({required this.database, required this.selectedUser});
+  DriftSessionRepository({required this.database, required this.selectedUser})
+    : statements = SessionSqlStatements(database: database);
 
-  final LocalDatabase database;
+  final DriftDB database;
+  final SessionSqlStatements statements;
   final SelectedUserController selectedUser;
   final ValueNotifier<List<Session>> _sessions = ValueNotifier<List<Session>>(
     const <Session>[],
@@ -21,21 +22,14 @@ class DriftSessionRepository implements SessionRepository {
   @override
   Future<Session?> getSession(String id) async {
     final userId = selectedUser.requiredUser.id;
-    final row =
-        await (database.select(database.sessionRows)
-              ..where((tbl) => tbl.id.equals(id) & tbl.userId.equals(userId)))
-            .getSingleOrNull();
+    final row = await statements.getSession(userId: userId, sessionId: id);
     return row == null ? null : _toSession(row);
   }
 
   @override
   Future<List<Session>> listSessions() async {
     final userId = selectedUser.requiredUser.id;
-    final rows =
-        await (database.select(database.sessionRows)
-              ..where((tbl) => tbl.userId.equals(userId))
-              ..orderBy([(tbl) => OrderingTerm.desc(tbl.updatedAt)]))
-            .get();
+    final rows = await statements.listSessions(userId: userId);
     final sessions = rows.map(_toSession).toList();
     _sessions.value = List<Session>.unmodifiable(sessions);
     return _sessions.value;
@@ -52,17 +46,15 @@ class DriftSessionRepository implements SessionRepository {
     required String userId,
     required Session session,
   }) async {
-    await database
-        .into(database.sessionRows)
-        .insertOnConflictUpdate(
-          SessionRowsCompanion.insert(
-            id: session.id,
-            userId: userId,
-            role: session.role.name,
-            mode: session.mode.name,
-            updatedAt: DateTime.now().toUtc(),
-          ),
-        );
+    await statements.saveSession(
+      session: SessionRowsCompanion.insert(
+        id: session.id,
+        userId: userId,
+        role: session.role.name,
+        mode: session.mode.name,
+        updatedAt: DateTime.now().toUtc(),
+      ),
+    );
   }
 }
 

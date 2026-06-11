@@ -32,32 +32,6 @@ func (handler *UserHandler) ServeUsersHTTP(w http.ResponseWriter, req *http.Requ
 	}
 }
 
-func (handler *UserHandler) ServeUserSelectHTTP(w http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodPost {
-		network.WriteJSONError(w, http.StatusMethodNotAllowed, network.ErrorCodeMethodNotAllowed)
-		return
-	}
-
-	defer func() {
-		_ = req.Body.Close()
-	}()
-
-	var request SelectUserRequest
-	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		network.WriteJSONError(w, http.StatusBadRequest, network.ErrorCodeInvalidJSON)
-		return
-	}
-
-	selectedUser, err := handler.selectUser(req.Context(), request)
-	if err != nil {
-		status, errorCode := mapUserError(err)
-		network.WriteJSONError(w, status, errorCode)
-		return
-	}
-
-	network.WriteJSON(w, http.StatusOK, toUserResponse(selectedUser))
-}
-
 func (handler *UserHandler) listUsers(w http.ResponseWriter, req *http.Request) {
 	users, err := handler.repo.List(req.Context())
 	if err != nil {
@@ -106,23 +80,6 @@ func (handler *UserHandler) createUserRecord(ctx context.Context, req CreateUser
 	return handler.repo.Create(ctx, displayName)
 }
 
-func (handler *UserHandler) selectUser(ctx context.Context, req SelectUserRequest) (user.User, error) {
-	userID := strings.TrimSpace(req.UserID)
-	if userID == "" {
-		return user.User{}, user.ErrMissingID
-	}
-
-	selectedUser, found, err := handler.repo.Get(ctx, userID)
-	if err != nil {
-		return user.User{}, err
-	}
-	if !found {
-		return user.User{}, user.ErrNotFound
-	}
-
-	return selectedUser, nil
-}
-
 func mapUserError(err error) (int, string) {
 	if errors.Is(err, user.ErrMissingDisplayName) {
 		return http.StatusBadRequest, errorCodeMissingUserDisplayName
@@ -130,14 +87,8 @@ func mapUserError(err error) (int, string) {
 	if errors.Is(err, user.ErrInvalidDisplayName) {
 		return http.StatusBadRequest, errorCodeInvalidUserDisplayName
 	}
-	if errors.Is(err, user.ErrMissingID) {
-		return http.StatusBadRequest, errorCodeMissingUserID
-	}
 	if errors.Is(err, user.ErrDuplicateDisplayName) {
 		return http.StatusConflict, errorCodeDuplicateUserDisplayName
-	}
-	if errors.Is(err, user.ErrNotFound) {
-		return http.StatusNotFound, errorCodeUserNotFound
 	}
 
 	return http.StatusInternalServerError, network.ErrorCodeInternal

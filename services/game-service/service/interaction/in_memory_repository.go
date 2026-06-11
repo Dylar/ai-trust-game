@@ -2,6 +2,7 @@ package interaction
 
 import (
 	"context"
+	"sort"
 	"sync"
 )
 
@@ -29,4 +30,25 @@ func (repo *InMemoryRepository) List() []Record {
 	records := make([]Record, len(repo.records))
 	copy(records, repo.records)
 	return records
+}
+
+func (repo *InMemoryRepository) ListBySession(_ context.Context, sessionID string) ([]Record, error) {
+	repo.mu.RLock()
+	defer repo.mu.RUnlock()
+
+	records := []Record{}
+	for _, record := range repo.records {
+		if record.SessionID == sessionID {
+			records = append(records, record)
+		}
+	}
+
+	sort.Slice(records, func(i, j int) bool {
+		if records[i].CreatedAt.Equal(records[j].CreatedAt) {
+			return records[i].ID < records[j].ID
+		}
+		return records[i].CreatedAt.Before(records[j].CreatedAt)
+	})
+
+	return records, nil
 }

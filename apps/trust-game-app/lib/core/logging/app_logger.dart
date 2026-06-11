@@ -55,7 +55,11 @@ class AppLogger {
 
   Future<void> log(AppLogEvent event) async {
     for (final sink in sinks) {
-      await sink.write(event);
+      try {
+        await sink.write(event);
+      } on Object {
+        continue;
+      }
     }
   }
 }

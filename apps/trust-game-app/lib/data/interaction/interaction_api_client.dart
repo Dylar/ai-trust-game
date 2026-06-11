@@ -45,6 +45,22 @@ class InteractionApiClient {
       throw InteractionApiException.fromApiException(error);
     }
   }
+
+  Future<ListInteractionsResponse> listInteractionsForSession({
+    required String userId,
+    required String sessionId,
+  }) async {
+    try {
+      final json = await sendGetJsonRequest(
+        httpClient,
+        apiBaseUri.resolve('/interaction/session/$sessionId'),
+        headers: buildHeaders(userId: userId),
+      );
+      return ListInteractionsResponse.fromJson(json);
+    } on ApiException catch (error) {
+      throw InteractionApiException.fromApiException(error);
+    }
+  }
 }
 
 class InteractionApiException extends ApiException {

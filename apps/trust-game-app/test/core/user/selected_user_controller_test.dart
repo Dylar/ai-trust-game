@@ -1,5 +1,5 @@
 import 'package:app/core/user/selected_user_controller.dart';
-import 'package:app/core/user/user_identity.dart';
+import '../../testing/test_user_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -16,7 +16,7 @@ void main() {
       seen.add(controller.value?.id);
     });
 
-    controller.select(const UserIdentity(id: 'user-1'));
+    controller.select(testUserProfile('user-1'));
     controller.clear();
 
     expect(seen, <String?>['user-1', null]);

@@ -1,21 +1,21 @@
-import 'package:app/data/analysis/drift_analysis_repository.dart';
 import 'package:app/core/user/selected_user_controller.dart';
-import 'package:app/core/user/user_identity.dart';
+import 'package:app/core/user/user_profile.dart';
+import '../../testing/test_user_profile.dart';
+import 'package:app/data/analysis/drift_analysis_repository.dart';
 import 'package:app/data/interaction/drift_interaction_repository.dart';
-import 'package:app/data/local/local_database.dart';
-import 'package:app/data/local/local_user_repository.dart';
+import 'package:app/data/drift/drift_db.dart';
+import 'package:app/data/drift/drift_user_repository.dart';
 import 'package:app/data/session/drift_session_repository.dart';
 import 'package:app/models/analysis_models.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late LocalDatabase database;
+  late DriftDB database;
 
   setUp(() {
-    database = LocalDatabase(NativeDatabase.memory());
+    database = DriftDB.forTest(migrations: [InitialDriftMigration()]);
   });
 
   tearDown(() async {
@@ -23,7 +23,15 @@ void main() {
   });
 
   test(
-    'GIVEN a new local database WHEN opened THEN it creates all tables',
+    'GIVEN Drift database configuration WHEN inspected THEN it uses timestamp versioning',
+    () {
+      expect(aiTrustGameDriftDatabaseName, 'aiTrustGameDriftDB');
+      expect(database.schemaVersion, DriftDB.versions.last.version);
+    },
+  );
+
+  test(
+    'GIVEN a new Drift database WHEN opened THEN it creates all tables',
     () async {
       final rows = await database
           .customSelect(
@@ -40,79 +48,77 @@ void main() {
           'request_analyses',
           'session_analyses',
           'sessions',
-          'selected_users',
-          'sync_metadata',
           'users',
         }),
       );
+      expect(tableNames, isNot(contains('selected_users')));
+      expect(tableNames, isNot(contains('sync_metadata')));
     },
   );
 
   test(
-    'GIVEN known users WHEN one has a cached session THEN loaded and unloaded lists are derived locally',
+    'GIVEN users WHEN sessions exist THEN loaded users are sorted by latest local activity',
     () async {
-      final users = DriftLocalUserRepository(database: database);
-      final selectedUser = SelectedUserController(
-        initialUser: const UserIdentity(id: 'loaded-user'),
-      );
-      final sessions = DriftSessionRepository(
-        database: database,
-        selectedUser: selectedUser,
-      );
+      final users = DriftUserRepository(database: database);
 
-      await users.saveKnownUser(
-        KnownUser(
-          id: 'loaded-user',
-          displayName: 'Loaded User',
+      await users.saveUser(
+        UserProfile(
+          id: 'older-user',
+          displayName: 'Older User',
           createdAt: DateTime.utc(2026),
           updatedAt: DateTime.utc(2026),
-          lastSelectedAt: DateTime.utc(2026, 1, 2),
         ),
       );
-      await users.saveKnownUser(
-        KnownUser(
-          id: 'unloaded-user',
-          displayName: 'Unloaded User',
+      await users.saveUser(
+        UserProfile(
+          id: 'newer-user',
+          displayName: 'Newer User',
           createdAt: DateTime.utc(2026),
           updatedAt: DateTime.utc(2026),
-          lastSelectedAt: DateTime.utc(2026, 1, 1),
         ),
       );
-      await sessions.saveSession(
-        const Session(id: 'session-1', role: Role.admin, mode: Mode.hard),
+      await users.saveUser(
+        UserProfile(
+          id: 'alpha-user',
+          displayName: 'Alpha User',
+          createdAt: DateTime.utc(2026),
+          updatedAt: DateTime.utc(2026),
+        ),
+      );
+      await users.saveUser(
+        UserProfile(
+          id: 'zulu-user',
+          displayName: 'Zulu User',
+          createdAt: DateTime.utc(2026),
+          updatedAt: DateTime.utc(2026),
+        ),
+      );
+      await _insertSessionRow(
+        database,
+        userId: 'older-user',
+        sessionId: 'session-older',
+        updatedAt: DateTime.utc(2026, 1, 1),
+      );
+      await _insertSessionRow(
+        database,
+        userId: 'newer-user',
+        sessionId: 'session-newer',
+        updatedAt: DateTime.utc(2026, 1, 2),
       );
 
       final loadedUsers = await users.listLoadedUsers();
       final unloadedUsers = await users.listUnloadedUsers();
 
-      expect(loadedUsers.map((user) => user.id), <String>['loaded-user']);
-      expect(unloadedUsers.map((user) => user.id), <String>['unloaded-user']);
-      expect(loadedUsers.single.isLoaded, isTrue);
-      expect(unloadedUsers.single.isLoaded, isFalse);
-    },
-  );
-
-  test(
-    'GIVEN known users WHEN a user is selected THEN selected user state is stored locally',
-    () async {
-      final users = DriftLocalUserRepository(database: database);
-
-      await users.saveKnownUser(
-        KnownUser(
-          id: 'user-1',
-          displayName: 'User One',
-          createdAt: DateTime.utc(2026),
-          updatedAt: DateTime.utc(2026),
-        ),
-      );
-
-      await users.selectUser('user-1');
-
-      final selectedUser = await users.getSelectedUser();
-
-      expect(selectedUser?.id, 'user-1');
-      expect(selectedUser?.displayName, 'User One');
-      expect(selectedUser?.lastSelectedAt, isNotNull);
+      expect(loadedUsers.map((user) => user.id), <String>[
+        'newer-user',
+        'older-user',
+      ]);
+      expect(unloadedUsers.map((user) => user.id), <String>[
+        'alpha-user',
+        'zulu-user',
+      ]);
+      expect(loadedUsers.every((user) => user.isLoaded), isTrue);
+      expect(unloadedUsers.every((user) => !user.isLoaded), isTrue);
     },
   );
 
@@ -122,13 +128,13 @@ void main() {
       final userSessions = DriftSessionRepository(
         database: database,
         selectedUser: SelectedUserController(
-          initialUser: const UserIdentity(id: 'user-1'),
+          initialUser: testUserProfile('user-1'),
         ),
       );
       final otherSessions = DriftSessionRepository(
         database: database,
         selectedUser: SelectedUserController(
-          initialUser: const UserIdentity(id: 'user-2'),
+          initialUser: testUserProfile('user-2'),
         ),
       );
 
@@ -154,7 +160,7 @@ void main() {
       final interactions = DriftInteractionRepository(
         database: database,
         selectedUser: SelectedUserController(
-          initialUser: const UserIdentity(id: 'user-1'),
+          initialUser: testUserProfile('user-1'),
         ),
       );
 
@@ -192,7 +198,7 @@ void main() {
       final analysisRepository = DriftAnalysisRepository(
         database: database,
         selectedUser: SelectedUserController(
-          initialUser: const UserIdentity(id: 'user-1'),
+          initialUser: testUserProfile('user-1'),
         ),
       );
       final request = RequestAnalysis(
@@ -234,4 +240,23 @@ void main() {
       expect(savedSession?.requests.single.requestId, 'request-1');
     },
   );
+}
+
+Future<void> _insertSessionRow(
+  DriftDB database, {
+  required String userId,
+  required String sessionId,
+  required DateTime updatedAt,
+}) async {
+  await database
+      .into(database.sessionRows)
+      .insert(
+        SessionRowsCompanion.insert(
+          id: sessionId,
+          userId: userId,
+          role: Role.admin.name,
+          mode: Mode.hard.name,
+          updatedAt: updatedAt,
+        ),
+      );
 }

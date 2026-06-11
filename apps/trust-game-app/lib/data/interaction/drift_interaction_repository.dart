@@ -1,18 +1,18 @@
-import 'package:flutter/foundation.dart';
-import 'package:drift/drift.dart';
-
 import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/data/drift/drift_db.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
-import 'package:app/data/local/local_database.dart';
+import 'package:app/data/interaction/interaction_sql_statements.dart';
 import 'package:app/models/interaction_models.dart';
+import 'package:flutter/foundation.dart';
 
 class DriftInteractionRepository implements InteractionRepository {
   DriftInteractionRepository({
     required this.database,
     required this.selectedUser,
-  });
+  }) : statements = InteractionSqlStatements(database: database);
 
-  final LocalDatabase database;
+  final DriftDB database;
+  final InteractionSqlStatements statements;
   final SelectedUserController selectedUser;
   final _RepositoryChangeNotifier _changes = _RepositoryChangeNotifier();
 
@@ -28,33 +28,34 @@ class DriftInteractionRepository implements InteractionRepository {
   @override
   Future<List<Interaction>> listInteractions(String sessionId) async {
     final userId = selectedUser.requiredUser.id;
-    final rows =
-        await (database.select(database.interactionRows)
-              ..where(
-                (tbl) =>
-                    tbl.sessionId.equals(sessionId) & tbl.userId.equals(userId),
-              )
-              ..orderBy([(tbl) => OrderingTerm.asc(tbl.savedAt)]))
-            .get();
+    final rows = await statements.listInteractions(
+      userId: userId,
+      sessionId: sessionId,
+    );
     return rows.map(_toInteraction).toList();
   }
 
   @override
   Future<void> saveInteraction(Interaction interaction) async {
     final userId = selectedUser.requiredUser.id;
-    await database
-        .into(database.interactionRows)
-        .insertOnConflictUpdate(
-          InteractionRowsCompanion.insert(
-            interactionId: interaction.interactionId,
-            sessionId: interaction.sessionId,
-            userId: userId,
-            message: interaction.message,
-            answer: interaction.answer,
-            savedAt: DateTime.now().toUtc(),
-          ),
-        );
+    await saveInteractionForUser(userId: userId, interaction: interaction);
     _changes.emitChange();
+  }
+
+  Future<void> saveInteractionForUser({
+    required String userId,
+    required Interaction interaction,
+  }) async {
+    await statements.saveInteraction(
+      interaction: InteractionRowsCompanion.insert(
+        interactionId: interaction.interactionId,
+        sessionId: interaction.sessionId,
+        userId: userId,
+        message: interaction.message,
+        answer: interaction.answer,
+        savedAt: DateTime.now().toUtc(),
+      ),
+    );
   }
 }
 

@@ -12,6 +12,65 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appTitle => 'AI Trust Game';
 
   @override
+  String get loginTitle => 'User auswählen';
+
+  @override
+  String get loginLoadedUsersTitle => 'Geladene User';
+
+  @override
+  String get loginLoadedUsersEmpty => 'Noch keine geladenen User vorhanden.';
+
+  @override
+  String get loginUnloadedUsersTitle => 'Weitere User';
+
+  @override
+  String get loginUnloadedUsersEmpty => 'Noch keine weiteren User bekannt.';
+
+  @override
+  String get loginCreateUserTitle => 'Neuer User';
+
+  @override
+  String get loginDisplayNameLabel => 'Anzeigename';
+
+  @override
+  String get loginCreateUserButton => 'Erstellen und weiter';
+
+  @override
+  String get loginErrorTitle => 'User-Auswahl fehlgeschlagen';
+
+  @override
+  String get loginErrorEmptyDisplayName =>
+      'Gib einen Anzeigenamen ein, bevor du einen User erstellst.';
+
+  @override
+  String get loginErrorLoadUsersFailed =>
+      'Die Userliste konnte nicht geladen werden.';
+
+  @override
+  String get loginErrorSelectUserFailed =>
+      'Der ausgewählte User konnte nicht geladen werden.';
+
+  @override
+  String get loginErrorCreateUserFailed =>
+      'Das Backend ist nicht erreichbar oder hat den neuen User abgelehnt.';
+
+  @override
+  String get loadingStatusMessage => 'Daten werden geladen...';
+
+  @override
+  String get loadingErrorMessage =>
+      'Beim Laden der Daten ist ein Fehler aufgetreten.';
+
+  @override
+  String get loadingRetryButton => 'Erneut versuchen';
+
+  @override
+  String get loadingUserProfilesStep => 'Userprofile laden';
+
+  @override
+  String get loadingSyncSavedUsersStep => 'Gespeicherte User synchronisieren';
+
+  @override
   String get homeTitle => 'Start';
 
   @override
@@ -120,6 +179,18 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get apiErrorSessionAnalysisNotFound =>
       'Für diese Sitzung ist noch keine Analyse verfügbar.';
+
+  @override
+  String get apiErrorDuplicateUserDisplayName =>
+      'Ein User mit diesem Anzeigenamen existiert bereits.';
+
+  @override
+  String get apiErrorInvalidUserDisplayName =>
+      'Der Anzeigename ist nicht gültig.';
+
+  @override
+  String get apiErrorMissingUserDisplayName =>
+      'Der Anzeigename darf nicht leer sein.';
 
   @override
   String get apiErrorBackendUnreachable =>

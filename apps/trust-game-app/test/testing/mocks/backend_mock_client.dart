@@ -37,6 +37,25 @@ http.Client buildBackendMockClient({BackendMockOverride? override}) {
       );
     }
 
+    if (request.url.path.startsWith('/interaction/session/')) {
+      final sessionId = request.url.pathSegments.last;
+      return http.Response(
+        jsonEncode(<String, Object>{
+          'interactions': <Object>[
+            <String, String>{
+              'interactionId': 'interaction-1',
+              'sessionId': sessionId,
+              'requestId': 'request-1',
+              'message': 'Saved backend message',
+              'answer': 'Saved backend answer',
+              'createdAt': '2026-04-21T10:00:00Z',
+            },
+          ],
+        }),
+        200,
+      );
+    }
+
     if (request.url.path.startsWith('/analysis/session/')) {
       final sessionId = request.url.pathSegments.last;
       return http.Response(

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/core/user/selected_user_controller.dart';
-import 'package:app/core/user/user_identity.dart';
+import '../testing/test_user_profile.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/models/analysis_models.dart';
@@ -12,7 +12,7 @@ import 'package:http/testing.dart';
 
 void main() {
   final selectedUser = SelectedUserController(
-    initialUser: const UserIdentity(id: 'test-user'),
+    initialUser: testUserProfile('test-user'),
   );
 
   test('returns cached session analysis without calling the backend', () async {

@@ -14,19 +14,15 @@ import (
 const uniqueViolationCode = "23505"
 
 type Repository struct {
-	db *sql.DB
+	statements userStatements
 }
 
 func NewRepository(db *sql.DB) *Repository {
-	return &Repository{db: db}
+	return &Repository{statements: newUserStatements(db)}
 }
 
 func (repo *Repository) List(ctx context.Context) ([]user.User, error) {
-	rows, err := repo.db.QueryContext(ctx, `
-		SELECT id, display_name, created_at, updated_at
-		FROM users
-		ORDER BY updated_at DESC, display_name ASC
-	`)
+	rows, err := repo.statements.list(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -53,10 +49,7 @@ func (repo *Repository) Create(ctx context.Context, displayName string) (user.Us
 		UpdatedAt:   now,
 	}
 
-	_, err := repo.db.ExecContext(ctx, `
-		INSERT INTO users (id, display_name, created_at, updated_at)
-		VALUES ($1, $2, $3, $4)
-	`, createdUser.ID, createdUser.DisplayName, createdUser.CreatedAt, createdUser.UpdatedAt)
+	_, err := repo.statements.insert(ctx, createdUser.ID, createdUser.DisplayName, createdUser.CreatedAt, createdUser.UpdatedAt)
 	if isUniqueViolation(err) {
 		return user.User{}, user.ErrDuplicateDisplayName
 	}
@@ -68,11 +61,7 @@ func (repo *Repository) Create(ctx context.Context, displayName string) (user.Us
 }
 
 func (repo *Repository) Get(ctx context.Context, id string) (user.User, bool, error) {
-	row := repo.db.QueryRowContext(ctx, `
-		SELECT id, display_name, created_at, updated_at
-		FROM users
-		WHERE id = $1
-	`, id)
+	row := repo.statements.get(ctx, id)
 
 	currentUser, err := scanUser(row)
 	if errors.Is(err, sql.ErrNoRows) {

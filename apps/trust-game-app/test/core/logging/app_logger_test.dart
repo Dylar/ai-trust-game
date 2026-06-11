@@ -18,6 +18,22 @@ void main() {
     expect(firstSink.events, <AppLogEvent>[event]);
     expect(secondSink.events, <AppLogEvent>[event]);
   });
+
+  test('fanout logger continues when one sink fails', () async {
+    final recordingSink = _RecordingSink();
+    final event = AppLogEvent(
+      level: AppLogLevel.error,
+      category: 'login',
+      message: 'Failed',
+    );
+    final logger = AppLogger(
+      sinks: <AppLogSink>[_FailingSink(), recordingSink],
+    );
+
+    await logger.log(event);
+
+    expect(recordingSink.events, <AppLogEvent>[event]);
+  });
 }
 
 class _RecordingSink implements AppLogSink {
@@ -26,5 +42,12 @@ class _RecordingSink implements AppLogSink {
   @override
   Future<void> write(AppLogEvent event) async {
     events.add(event);
+  }
+}
+
+class _FailingSink implements AppLogSink {
+  @override
+  Future<void> write(AppLogEvent event) async {
+    throw Exception('sink failed');
   }
 }

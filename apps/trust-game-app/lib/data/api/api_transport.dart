@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/data/api/api_error.dart';
 import 'package:http/http.dart' as http;
@@ -100,7 +101,7 @@ Future<http.Response> _sendApiRequest(
 }
 
 Map<String, dynamic> parseJsonResponse(http.Response response) {
-  if (response.statusCode == 200) {
+  if (response.statusCode == HttpStatus.ok) {
     return jsonDecode(response.body) as Map<String, dynamic>;
   }
 

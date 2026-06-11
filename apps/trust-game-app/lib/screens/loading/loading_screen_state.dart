@@ -1,36 +1,36 @@
-import 'package:app/services/startup_refresh_service.dart';
+enum LoadingScreenStatus { userLoading, userSyncing, finished, retryableError }
 
-enum LoadingScreenStatus { loading, ready, retryableError }
+enum LoadingSteps { loadUserProfiles, syncLoadedUsers }
 
 class LoadingScreenState {
-  const LoadingScreenState({
-    required this.status,
-    required this.message,
-    this.result,
-  });
+  const LoadingScreenState({required this.status});
 
-  factory LoadingScreenState.loading() {
-    return const LoadingScreenState(
-      status: LoadingScreenStatus.loading,
-      message: 'Loading saved users',
-    );
+  factory LoadingScreenState.initial() {
+    return const LoadingScreenState(status: LoadingScreenStatus.userLoading);
   }
 
   final LoadingScreenStatus status;
-  final String message;
-  final StartupRefreshResult? result;
 
   bool get canRetry => status == LoadingScreenStatus.retryableError;
 
-  LoadingScreenState copyWith({
-    LoadingScreenStatus? status,
-    String? message,
-    StartupRefreshResult? result,
-  }) {
-    return LoadingScreenState(
-      status: status ?? this.status,
-      message: message ?? this.message,
-      result: result ?? this.result,
-    );
+  bool get hasLoadedUsers {
+    return switch (status) {
+      LoadingScreenStatus.userLoading => false,
+      LoadingScreenStatus.userSyncing || LoadingScreenStatus.finished => true,
+      LoadingScreenStatus.retryableError => false,
+    };
+  }
+
+  bool get hasSyncedUsers {
+    return switch (status) {
+      LoadingScreenStatus.userLoading ||
+      LoadingScreenStatus.userSyncing => false,
+      LoadingScreenStatus.finished => true,
+      LoadingScreenStatus.retryableError => false,
+    };
+  }
+
+  LoadingScreenState copyWith({LoadingScreenStatus? status}) {
+    return LoadingScreenState(status: status ?? this.status);
   }
 }

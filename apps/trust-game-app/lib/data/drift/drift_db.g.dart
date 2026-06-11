@@ -1,14 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'local_database.dart';
+part of 'drift_db.dart';
 
 // ignore_for_file: type=lint
-class $UserProfilesTable extends UserProfiles
-    with TableInfo<$UserProfilesTable, UserProfile> {
+class $UserRowsTable extends UserRows with TableInfo<$UserRowsTable, UserRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $UserProfilesTable(this.attachedDatabase, [this._alias]);
+  $UserRowsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -51,26 +50,8 @@ class $UserProfilesTable extends UserProfiles
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _lastSelectedAtMeta = const VerificationMeta(
-    'lastSelectedAt',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastSelectedAt =
-      GeneratedColumn<DateTime>(
-        'last_selected_at',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    displayName,
-    createdAt,
-    updatedAt,
-    lastSelectedAt,
-  ];
+  List<GeneratedColumn> get $columns => [id, displayName, createdAt, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -78,7 +59,7 @@ class $UserProfilesTable extends UserProfiles
   static const String $name = 'users';
   @override
   VerificationContext validateIntegrity(
-    Insertable<UserProfile> instance, {
+    Insertable<UserRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -115,24 +96,15 @@ class $UserProfilesTable extends UserProfiles
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
-    if (data.containsKey('last_selected_at')) {
-      context.handle(
-        _lastSelectedAtMeta,
-        lastSelectedAt.isAcceptableOrUnknown(
-          data['last_selected_at']!,
-          _lastSelectedAtMeta,
-        ),
-      );
-    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  UserProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+  UserRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return UserProfile(
+    return UserRow(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -149,31 +121,25 @@ class $UserProfilesTable extends UserProfiles
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
-      lastSelectedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_selected_at'],
-      ),
     );
   }
 
   @override
-  $UserProfilesTable createAlias(String alias) {
-    return $UserProfilesTable(attachedDatabase, alias);
+  $UserRowsTable createAlias(String alias) {
+    return $UserRowsTable(attachedDatabase, alias);
   }
 }
 
-class UserProfile extends DataClass implements Insertable<UserProfile> {
+class UserRow extends DataClass implements Insertable<UserRow> {
   final String id;
   final String displayName;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final DateTime? lastSelectedAt;
-  const UserProfile({
+  const UserRow({
     required this.id,
     required this.displayName,
     required this.createdAt,
     required this.updatedAt,
-    this.lastSelectedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -182,35 +148,28 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     map['display_name'] = Variable<String>(displayName);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || lastSelectedAt != null) {
-      map['last_selected_at'] = Variable<DateTime>(lastSelectedAt);
-    }
     return map;
   }
 
-  UserProfilesCompanion toCompanion(bool nullToAbsent) {
-    return UserProfilesCompanion(
+  UserRowsCompanion toCompanion(bool nullToAbsent) {
+    return UserRowsCompanion(
       id: Value(id),
       displayName: Value(displayName),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
-      lastSelectedAt: lastSelectedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastSelectedAt),
     );
   }
 
-  factory UserProfile.fromJson(
+  factory UserRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return UserProfile(
+    return UserRow(
       id: serializer.fromJson<String>(json['id']),
       displayName: serializer.fromJson<String>(json['displayName']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      lastSelectedAt: serializer.fromJson<DateTime?>(json['lastSelectedAt']),
     );
   }
   @override
@@ -221,97 +180,82 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       'displayName': serializer.toJson<String>(displayName),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'lastSelectedAt': serializer.toJson<DateTime?>(lastSelectedAt),
     };
   }
 
-  UserProfile copyWith({
+  UserRow copyWith({
     String? id,
     String? displayName,
     DateTime? createdAt,
     DateTime? updatedAt,
-    Value<DateTime?> lastSelectedAt = const Value.absent(),
-  }) => UserProfile(
+  }) => UserRow(
     id: id ?? this.id,
     displayName: displayName ?? this.displayName,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
-    lastSelectedAt: lastSelectedAt.present
-        ? lastSelectedAt.value
-        : this.lastSelectedAt,
   );
-  UserProfile copyWithCompanion(UserProfilesCompanion data) {
-    return UserProfile(
+  UserRow copyWithCompanion(UserRowsCompanion data) {
+    return UserRow(
       id: data.id.present ? data.id.value : this.id,
       displayName: data.displayName.present
           ? data.displayName.value
           : this.displayName,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      lastSelectedAt: data.lastSelectedAt.present
-          ? data.lastSelectedAt.value
-          : this.lastSelectedAt,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('UserProfile(')
+    return (StringBuffer('UserRow(')
           ..write('id: $id, ')
           ..write('displayName: $displayName, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('lastSelectedAt: $lastSelectedAt')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, displayName, createdAt, updatedAt, lastSelectedAt);
+  int get hashCode => Object.hash(id, displayName, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is UserProfile &&
+      (other is UserRow &&
           other.id == this.id &&
           other.displayName == this.displayName &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.lastSelectedAt == this.lastSelectedAt);
+          other.updatedAt == this.updatedAt);
 }
 
-class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
+class UserRowsCompanion extends UpdateCompanion<UserRow> {
   final Value<String> id;
   final Value<String> displayName;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
-  final Value<DateTime?> lastSelectedAt;
   final Value<int> rowid;
-  const UserProfilesCompanion({
+  const UserRowsCompanion({
     this.id = const Value.absent(),
     this.displayName = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
-    this.lastSelectedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  UserProfilesCompanion.insert({
+  UserRowsCompanion.insert({
     required String id,
     required String displayName,
     required DateTime createdAt,
     required DateTime updatedAt,
-    this.lastSelectedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        displayName = Value(displayName),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt);
-  static Insertable<UserProfile> custom({
+  static Insertable<UserRow> custom({
     Expression<String>? id,
     Expression<String>? displayName,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
-    Expression<DateTime>? lastSelectedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -319,25 +263,22 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       if (displayName != null) 'display_name': displayName,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
-      if (lastSelectedAt != null) 'last_selected_at': lastSelectedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  UserProfilesCompanion copyWith({
+  UserRowsCompanion copyWith({
     Value<String>? id,
     Value<String>? displayName,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
-    Value<DateTime?>? lastSelectedAt,
     Value<int>? rowid,
   }) {
-    return UserProfilesCompanion(
+    return UserRowsCompanion(
       id: id ?? this.id,
       displayName: displayName ?? this.displayName,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      lastSelectedAt: lastSelectedAt ?? this.lastSelectedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -357,9 +298,6 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
-    if (lastSelectedAt.present) {
-      map['last_selected_at'] = Variable<DateTime>(lastSelectedAt.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -368,264 +306,12 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
 
   @override
   String toString() {
-    return (StringBuffer('UserProfilesCompanion(')
+    return (StringBuffer('UserRowsCompanion(')
           ..write('id: $id, ')
           ..write('displayName: $displayName, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('lastSelectedAt: $lastSelectedAt, ')
           ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $SelectedUsersTable extends SelectedUsers
-    with TableInfo<$SelectedUsersTable, SelectedUser> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $SelectedUsersTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES users (id)',
-    ),
-  );
-  static const VerificationMeta _selectedAtMeta = const VerificationMeta(
-    'selectedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> selectedAt = GeneratedColumn<DateTime>(
-    'selected_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [id, userId, selectedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'selected_users';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<SelectedUser> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('selected_at')) {
-      context.handle(
-        _selectedAtMeta,
-        selectedAt.isAcceptableOrUnknown(data['selected_at']!, _selectedAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_selectedAtMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  SelectedUser map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SelectedUser(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      selectedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}selected_at'],
-      )!,
-    );
-  }
-
-  @override
-  $SelectedUsersTable createAlias(String alias) {
-    return $SelectedUsersTable(attachedDatabase, alias);
-  }
-}
-
-class SelectedUser extends DataClass implements Insertable<SelectedUser> {
-  final int id;
-  final String userId;
-  final DateTime selectedAt;
-  const SelectedUser({
-    required this.id,
-    required this.userId,
-    required this.selectedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['user_id'] = Variable<String>(userId);
-    map['selected_at'] = Variable<DateTime>(selectedAt);
-    return map;
-  }
-
-  SelectedUsersCompanion toCompanion(bool nullToAbsent) {
-    return SelectedUsersCompanion(
-      id: Value(id),
-      userId: Value(userId),
-      selectedAt: Value(selectedAt),
-    );
-  }
-
-  factory SelectedUser.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return SelectedUser(
-      id: serializer.fromJson<int>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      selectedAt: serializer.fromJson<DateTime>(json['selectedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'userId': serializer.toJson<String>(userId),
-      'selectedAt': serializer.toJson<DateTime>(selectedAt),
-    };
-  }
-
-  SelectedUser copyWith({int? id, String? userId, DateTime? selectedAt}) =>
-      SelectedUser(
-        id: id ?? this.id,
-        userId: userId ?? this.userId,
-        selectedAt: selectedAt ?? this.selectedAt,
-      );
-  SelectedUser copyWithCompanion(SelectedUsersCompanion data) {
-    return SelectedUser(
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      selectedAt: data.selectedAt.present
-          ? data.selectedAt.value
-          : this.selectedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('SelectedUser(')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('selectedAt: $selectedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, userId, selectedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SelectedUser &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.selectedAt == this.selectedAt);
-}
-
-class SelectedUsersCompanion extends UpdateCompanion<SelectedUser> {
-  final Value<int> id;
-  final Value<String> userId;
-  final Value<DateTime> selectedAt;
-  const SelectedUsersCompanion({
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.selectedAt = const Value.absent(),
-  });
-  SelectedUsersCompanion.insert({
-    this.id = const Value.absent(),
-    required String userId,
-    required DateTime selectedAt,
-  }) : userId = Value(userId),
-       selectedAt = Value(selectedAt);
-  static Insertable<SelectedUser> custom({
-    Expression<int>? id,
-    Expression<String>? userId,
-    Expression<DateTime>? selectedAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (selectedAt != null) 'selected_at': selectedAt,
-    });
-  }
-
-  SelectedUsersCompanion copyWith({
-    Value<int>? id,
-    Value<String>? userId,
-    Value<DateTime>? selectedAt,
-  }) {
-    return SelectedUsersCompanion(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      selectedAt: selectedAt ?? this.selectedAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (selectedAt.present) {
-      map['selected_at'] = Variable<DateTime>(selectedAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('SelectedUsersCompanion(')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('selectedAt: $selectedAt')
           ..write(')'))
         .toString();
   }
@@ -2747,277 +2433,10 @@ class SessionAnalysisRowsCompanion extends UpdateCompanion<SessionAnalysisRow> {
   }
 }
 
-class $SyncMetadataEntriesTable extends SyncMetadataEntries
-    with TableInfo<$SyncMetadataEntriesTable, SyncMetadataEntry> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $SyncMetadataEntriesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _keyMeta = const VerificationMeta('key');
-  @override
-  late final GeneratedColumn<String> key = GeneratedColumn<String>(
-    'key',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _valueMeta = const VerificationMeta('value');
-  @override
-  late final GeneratedColumn<String> value = GeneratedColumn<String>(
-    'value',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [key, value, updatedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'sync_metadata';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<SyncMetadataEntry> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('key')) {
-      context.handle(
-        _keyMeta,
-        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_keyMeta);
-    }
-    if (data.containsKey('value')) {
-      context.handle(
-        _valueMeta,
-        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_valueMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {key};
-  @override
-  SyncMetadataEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SyncMetadataEntry(
-      key: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}key'],
-      )!,
-      value: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}value'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-    );
-  }
-
-  @override
-  $SyncMetadataEntriesTable createAlias(String alias) {
-    return $SyncMetadataEntriesTable(attachedDatabase, alias);
-  }
-}
-
-class SyncMetadataEntry extends DataClass
-    implements Insertable<SyncMetadataEntry> {
-  final String key;
-  final String value;
-  final DateTime updatedAt;
-  const SyncMetadataEntry({
-    required this.key,
-    required this.value,
-    required this.updatedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['key'] = Variable<String>(key);
-    map['value'] = Variable<String>(value);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    return map;
-  }
-
-  SyncMetadataEntriesCompanion toCompanion(bool nullToAbsent) {
-    return SyncMetadataEntriesCompanion(
-      key: Value(key),
-      value: Value(value),
-      updatedAt: Value(updatedAt),
-    );
-  }
-
-  factory SyncMetadataEntry.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return SyncMetadataEntry(
-      key: serializer.fromJson<String>(json['key']),
-      value: serializer.fromJson<String>(json['value']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'key': serializer.toJson<String>(key),
-      'value': serializer.toJson<String>(value),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-    };
-  }
-
-  SyncMetadataEntry copyWith({
-    String? key,
-    String? value,
-    DateTime? updatedAt,
-  }) => SyncMetadataEntry(
-    key: key ?? this.key,
-    value: value ?? this.value,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
-  SyncMetadataEntry copyWithCompanion(SyncMetadataEntriesCompanion data) {
-    return SyncMetadataEntry(
-      key: data.key.present ? data.key.value : this.key,
-      value: data.value.present ? data.value.value : this.value,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('SyncMetadataEntry(')
-          ..write('key: $key, ')
-          ..write('value: $value, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(key, value, updatedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SyncMetadataEntry &&
-          other.key == this.key &&
-          other.value == this.value &&
-          other.updatedAt == this.updatedAt);
-}
-
-class SyncMetadataEntriesCompanion extends UpdateCompanion<SyncMetadataEntry> {
-  final Value<String> key;
-  final Value<String> value;
-  final Value<DateTime> updatedAt;
-  final Value<int> rowid;
-  const SyncMetadataEntriesCompanion({
-    this.key = const Value.absent(),
-    this.value = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  SyncMetadataEntriesCompanion.insert({
-    required String key,
-    required String value,
-    required DateTime updatedAt,
-    this.rowid = const Value.absent(),
-  }) : key = Value(key),
-       value = Value(value),
-       updatedAt = Value(updatedAt);
-  static Insertable<SyncMetadataEntry> custom({
-    Expression<String>? key,
-    Expression<String>? value,
-    Expression<DateTime>? updatedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (key != null) 'key': key,
-      if (value != null) 'value': value,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  SyncMetadataEntriesCompanion copyWith({
-    Value<String>? key,
-    Value<String>? value,
-    Value<DateTime>? updatedAt,
-    Value<int>? rowid,
-  }) {
-    return SyncMetadataEntriesCompanion(
-      key: key ?? this.key,
-      value: value ?? this.value,
-      updatedAt: updatedAt ?? this.updatedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (key.present) {
-      map['key'] = Variable<String>(key.value);
-    }
-    if (value.present) {
-      map['value'] = Variable<String>(value.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('SyncMetadataEntriesCompanion(')
-          ..write('key: $key, ')
-          ..write('value: $value, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-abstract class _$LocalDatabase extends GeneratedDatabase {
-  _$LocalDatabase(QueryExecutor e) : super(e);
-  $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
-  late final $UserProfilesTable userProfiles = $UserProfilesTable(this);
-  late final $SelectedUsersTable selectedUsers = $SelectedUsersTable(this);
+abstract class _$DriftDB extends GeneratedDatabase {
+  _$DriftDB(QueryExecutor e) : super(e);
+  $DriftDBManager get managers => $DriftDBManager(this);
+  late final $UserRowsTable userRows = $UserRowsTable(this);
   late final $SessionRowsTable sessionRows = $SessionRowsTable(this);
   late final $InteractionRowsTable interactionRows = $InteractionRowsTable(
     this,
@@ -3026,68 +2445,39 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $RequestAnalysisRowsTable(this);
   late final $SessionAnalysisRowsTable sessionAnalysisRows =
       $SessionAnalysisRowsTable(this);
-  late final $SyncMetadataEntriesTable syncMetadataEntries =
-      $SyncMetadataEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    userProfiles,
-    selectedUsers,
+    userRows,
     sessionRows,
     interactionRows,
     requestAnalysisRows,
     sessionAnalysisRows,
-    syncMetadataEntries,
   ];
 }
 
-typedef $$UserProfilesTableCreateCompanionBuilder =
-    UserProfilesCompanion Function({
+typedef $$UserRowsTableCreateCompanionBuilder =
+    UserRowsCompanion Function({
       required String id,
       required String displayName,
       required DateTime createdAt,
       required DateTime updatedAt,
-      Value<DateTime?> lastSelectedAt,
       Value<int> rowid,
     });
-typedef $$UserProfilesTableUpdateCompanionBuilder =
-    UserProfilesCompanion Function({
+typedef $$UserRowsTableUpdateCompanionBuilder =
+    UserRowsCompanion Function({
       Value<String> id,
       Value<String> displayName,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
-      Value<DateTime?> lastSelectedAt,
       Value<int> rowid,
     });
 
-final class $$UserProfilesTableReferences
-    extends BaseReferences<_$LocalDatabase, $UserProfilesTable, UserProfile> {
-  $$UserProfilesTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$SelectedUsersTable, List<SelectedUser>>
-  _selectedUsersRefsTable(_$LocalDatabase db) => MultiTypedResultKey.fromTable(
-    db.selectedUsers,
-    aliasName: 'users__id__selected_users__user_id',
-  );
-
-  $$SelectedUsersTableProcessedTableManager get selectedUsersRefs {
-    final manager = $$SelectedUsersTableTableManager(
-      $_db,
-      $_db.selectedUsers,
-    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_selectedUsersRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$UserProfilesTableFilterComposer
-    extends Composer<_$LocalDatabase, $UserProfilesTable> {
-  $$UserProfilesTableFilterComposer({
+class $$UserRowsTableFilterComposer
+    extends Composer<_$DriftDB, $UserRowsTable> {
+  $$UserRowsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3113,41 +2503,11 @@ class $$UserProfilesTableFilterComposer
     column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
-
-  ColumnFilters<DateTime> get lastSelectedAt => $composableBuilder(
-    column: $table.lastSelectedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  Expression<bool> selectedUsersRefs(
-    Expression<bool> Function($$SelectedUsersTableFilterComposer f) f,
-  ) {
-    final $$SelectedUsersTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.selectedUsers,
-      getReferencedColumn: (t) => t.userId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$SelectedUsersTableFilterComposer(
-            $db: $db,
-            $table: $db.selectedUsers,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
-class $$UserProfilesTableOrderingComposer
-    extends Composer<_$LocalDatabase, $UserProfilesTable> {
-  $$UserProfilesTableOrderingComposer({
+class $$UserRowsTableOrderingComposer
+    extends Composer<_$DriftDB, $UserRowsTable> {
+  $$UserRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3173,16 +2533,11 @@ class $$UserProfilesTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
-
-  ColumnOrderings<DateTime> get lastSelectedAt => $composableBuilder(
-    column: $table.lastSelectedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
 }
 
-class $$UserProfilesTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $UserProfilesTable> {
-  $$UserProfilesTableAnnotationComposer({
+class $$UserRowsTableAnnotationComposer
+    extends Composer<_$DriftDB, $UserRowsTable> {
+  $$UserRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3202,78 +2557,46 @@ class $$UserProfilesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get lastSelectedAt => $composableBuilder(
-    column: $table.lastSelectedAt,
-    builder: (column) => column,
-  );
-
-  Expression<T> selectedUsersRefs<T extends Object>(
-    Expression<T> Function($$SelectedUsersTableAnnotationComposer a) f,
-  ) {
-    final $$SelectedUsersTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.selectedUsers,
-      getReferencedColumn: (t) => t.userId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$SelectedUsersTableAnnotationComposer(
-            $db: $db,
-            $table: $db.selectedUsers,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
-class $$UserProfilesTableTableManager
+class $$UserRowsTableTableManager
     extends
         RootTableManager<
-          _$LocalDatabase,
-          $UserProfilesTable,
-          UserProfile,
-          $$UserProfilesTableFilterComposer,
-          $$UserProfilesTableOrderingComposer,
-          $$UserProfilesTableAnnotationComposer,
-          $$UserProfilesTableCreateCompanionBuilder,
-          $$UserProfilesTableUpdateCompanionBuilder,
-          (UserProfile, $$UserProfilesTableReferences),
-          UserProfile,
-          PrefetchHooks Function({bool selectedUsersRefs})
+          _$DriftDB,
+          $UserRowsTable,
+          UserRow,
+          $$UserRowsTableFilterComposer,
+          $$UserRowsTableOrderingComposer,
+          $$UserRowsTableAnnotationComposer,
+          $$UserRowsTableCreateCompanionBuilder,
+          $$UserRowsTableUpdateCompanionBuilder,
+          (UserRow, BaseReferences<_$DriftDB, $UserRowsTable, UserRow>),
+          UserRow,
+          PrefetchHooks Function()
         > {
-  $$UserProfilesTableTableManager(_$LocalDatabase db, $UserProfilesTable table)
+  $$UserRowsTableTableManager(_$DriftDB db, $UserRowsTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$UserProfilesTableFilterComposer($db: db, $table: table),
+              $$UserRowsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$UserProfilesTableOrderingComposer($db: db, $table: table),
+              $$UserRowsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$UserProfilesTableAnnotationComposer($db: db, $table: table),
+              $$UserRowsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> displayName = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> lastSelectedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => UserProfilesCompanion(
+              }) => UserRowsCompanion(
                 id: id,
                 displayName: displayName,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
-                lastSelectedAt: lastSelectedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3282,354 +2605,35 @@ class $$UserProfilesTableTableManager
                 required String displayName,
                 required DateTime createdAt,
                 required DateTime updatedAt,
-                Value<DateTime?> lastSelectedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => UserProfilesCompanion.insert(
+              }) => UserRowsCompanion.insert(
                 id: id,
                 displayName: displayName,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
-                lastSelectedAt: lastSelectedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$UserProfilesTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({selectedUsersRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (selectedUsersRefs) db.selectedUsers,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (selectedUsersRefs)
-                    await $_getPrefetchedData<
-                      UserProfile,
-                      $UserProfilesTable,
-                      SelectedUser
-                    >(
-                      currentTable: table,
-                      referencedTable: $$UserProfilesTableReferences
-                          ._selectedUsersRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$UserProfilesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).selectedUsersRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.userId == item.id),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ),
       );
 }
 
-typedef $$UserProfilesTableProcessedTableManager =
+typedef $$UserRowsTableProcessedTableManager =
     ProcessedTableManager<
-      _$LocalDatabase,
-      $UserProfilesTable,
-      UserProfile,
-      $$UserProfilesTableFilterComposer,
-      $$UserProfilesTableOrderingComposer,
-      $$UserProfilesTableAnnotationComposer,
-      $$UserProfilesTableCreateCompanionBuilder,
-      $$UserProfilesTableUpdateCompanionBuilder,
-      (UserProfile, $$UserProfilesTableReferences),
-      UserProfile,
-      PrefetchHooks Function({bool selectedUsersRefs})
-    >;
-typedef $$SelectedUsersTableCreateCompanionBuilder =
-    SelectedUsersCompanion Function({
-      Value<int> id,
-      required String userId,
-      required DateTime selectedAt,
-    });
-typedef $$SelectedUsersTableUpdateCompanionBuilder =
-    SelectedUsersCompanion Function({
-      Value<int> id,
-      Value<String> userId,
-      Value<DateTime> selectedAt,
-    });
-
-final class $$SelectedUsersTableReferences
-    extends BaseReferences<_$LocalDatabase, $SelectedUsersTable, SelectedUser> {
-  $$SelectedUsersTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $UserProfilesTable _userIdTable(_$LocalDatabase db) =>
-      db.userProfiles.createAlias('selected_users__user_id__users__id');
-
-  $$UserProfilesTableProcessedTableManager get userId {
-    final $_column = $_itemColumn<String>('user_id')!;
-
-    final manager = $$UserProfilesTableTableManager(
-      $_db,
-      $_db.userProfiles,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$SelectedUsersTableFilterComposer
-    extends Composer<_$LocalDatabase, $SelectedUsersTable> {
-  $$SelectedUsersTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get selectedAt => $composableBuilder(
-    column: $table.selectedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$UserProfilesTableFilterComposer get userId {
-    final $$UserProfilesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userId,
-      referencedTable: $db.userProfiles,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UserProfilesTableFilterComposer(
-            $db: $db,
-            $table: $db.userProfiles,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$SelectedUsersTableOrderingComposer
-    extends Composer<_$LocalDatabase, $SelectedUsersTable> {
-  $$SelectedUsersTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get selectedAt => $composableBuilder(
-    column: $table.selectedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$UserProfilesTableOrderingComposer get userId {
-    final $$UserProfilesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userId,
-      referencedTable: $db.userProfiles,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UserProfilesTableOrderingComposer(
-            $db: $db,
-            $table: $db.userProfiles,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$SelectedUsersTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $SelectedUsersTable> {
-  $$SelectedUsersTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get selectedAt => $composableBuilder(
-    column: $table.selectedAt,
-    builder: (column) => column,
-  );
-
-  $$UserProfilesTableAnnotationComposer get userId {
-    final $$UserProfilesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userId,
-      referencedTable: $db.userProfiles,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UserProfilesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.userProfiles,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$SelectedUsersTableTableManager
-    extends
-        RootTableManager<
-          _$LocalDatabase,
-          $SelectedUsersTable,
-          SelectedUser,
-          $$SelectedUsersTableFilterComposer,
-          $$SelectedUsersTableOrderingComposer,
-          $$SelectedUsersTableAnnotationComposer,
-          $$SelectedUsersTableCreateCompanionBuilder,
-          $$SelectedUsersTableUpdateCompanionBuilder,
-          (SelectedUser, $$SelectedUsersTableReferences),
-          SelectedUser,
-          PrefetchHooks Function({bool userId})
-        > {
-  $$SelectedUsersTableTableManager(
-    _$LocalDatabase db,
-    $SelectedUsersTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$SelectedUsersTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SelectedUsersTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SelectedUsersTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<DateTime> selectedAt = const Value.absent(),
-              }) => SelectedUsersCompanion(
-                id: id,
-                userId: userId,
-                selectedAt: selectedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String userId,
-                required DateTime selectedAt,
-              }) => SelectedUsersCompanion.insert(
-                id: id,
-                userId: userId,
-                selectedAt: selectedAt,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$SelectedUsersTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({userId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (userId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.userId,
-                                referencedTable: $$SelectedUsersTableReferences
-                                    ._userIdTable(db),
-                                referencedColumn: $$SelectedUsersTableReferences
-                                    ._userIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$SelectedUsersTableProcessedTableManager =
-    ProcessedTableManager<
-      _$LocalDatabase,
-      $SelectedUsersTable,
-      SelectedUser,
-      $$SelectedUsersTableFilterComposer,
-      $$SelectedUsersTableOrderingComposer,
-      $$SelectedUsersTableAnnotationComposer,
-      $$SelectedUsersTableCreateCompanionBuilder,
-      $$SelectedUsersTableUpdateCompanionBuilder,
-      (SelectedUser, $$SelectedUsersTableReferences),
-      SelectedUser,
-      PrefetchHooks Function({bool userId})
+      _$DriftDB,
+      $UserRowsTable,
+      UserRow,
+      $$UserRowsTableFilterComposer,
+      $$UserRowsTableOrderingComposer,
+      $$UserRowsTableAnnotationComposer,
+      $$UserRowsTableCreateCompanionBuilder,
+      $$UserRowsTableUpdateCompanionBuilder,
+      (UserRow, BaseReferences<_$DriftDB, $UserRowsTable, UserRow>),
+      UserRow,
+      PrefetchHooks Function()
     >;
 typedef $$SessionRowsTableCreateCompanionBuilder =
     SessionRowsCompanion Function({
@@ -3651,7 +2655,7 @@ typedef $$SessionRowsTableUpdateCompanionBuilder =
     });
 
 class $$SessionRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $SessionRowsTable> {
+    extends Composer<_$DriftDB, $SessionRowsTable> {
   $$SessionRowsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3686,7 +2690,7 @@ class $$SessionRowsTableFilterComposer
 }
 
 class $$SessionRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $SessionRowsTable> {
+    extends Composer<_$DriftDB, $SessionRowsTable> {
   $$SessionRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3721,7 +2725,7 @@ class $$SessionRowsTableOrderingComposer
 }
 
 class $$SessionRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $SessionRowsTable> {
+    extends Composer<_$DriftDB, $SessionRowsTable> {
   $$SessionRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3748,7 +2752,7 @@ class $$SessionRowsTableAnnotationComposer
 class $$SessionRowsTableTableManager
     extends
         RootTableManager<
-          _$LocalDatabase,
+          _$DriftDB,
           $SessionRowsTable,
           SessionRow,
           $$SessionRowsTableFilterComposer,
@@ -3758,12 +2762,12 @@ class $$SessionRowsTableTableManager
           $$SessionRowsTableUpdateCompanionBuilder,
           (
             SessionRow,
-            BaseReferences<_$LocalDatabase, $SessionRowsTable, SessionRow>,
+            BaseReferences<_$DriftDB, $SessionRowsTable, SessionRow>,
           ),
           SessionRow,
           PrefetchHooks Function()
         > {
-  $$SessionRowsTableTableManager(_$LocalDatabase db, $SessionRowsTable table)
+  $$SessionRowsTableTableManager(_$DriftDB db, $SessionRowsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -3816,7 +2820,7 @@ class $$SessionRowsTableTableManager
 
 typedef $$SessionRowsTableProcessedTableManager =
     ProcessedTableManager<
-      _$LocalDatabase,
+      _$DriftDB,
       $SessionRowsTable,
       SessionRow,
       $$SessionRowsTableFilterComposer,
@@ -3824,10 +2828,7 @@ typedef $$SessionRowsTableProcessedTableManager =
       $$SessionRowsTableAnnotationComposer,
       $$SessionRowsTableCreateCompanionBuilder,
       $$SessionRowsTableUpdateCompanionBuilder,
-      (
-        SessionRow,
-        BaseReferences<_$LocalDatabase, $SessionRowsTable, SessionRow>,
-      ),
+      (SessionRow, BaseReferences<_$DriftDB, $SessionRowsTable, SessionRow>),
       SessionRow,
       PrefetchHooks Function()
     >;
@@ -3853,7 +2854,7 @@ typedef $$InteractionRowsTableUpdateCompanionBuilder =
     });
 
 class $$InteractionRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $InteractionRowsTable> {
+    extends Composer<_$DriftDB, $InteractionRowsTable> {
   $$InteractionRowsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3893,7 +2894,7 @@ class $$InteractionRowsTableFilterComposer
 }
 
 class $$InteractionRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $InteractionRowsTable> {
+    extends Composer<_$DriftDB, $InteractionRowsTable> {
   $$InteractionRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3933,7 +2934,7 @@ class $$InteractionRowsTableOrderingComposer
 }
 
 class $$InteractionRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $InteractionRowsTable> {
+    extends Composer<_$DriftDB, $InteractionRowsTable> {
   $$InteractionRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3965,7 +2966,7 @@ class $$InteractionRowsTableAnnotationComposer
 class $$InteractionRowsTableTableManager
     extends
         RootTableManager<
-          _$LocalDatabase,
+          _$DriftDB,
           $InteractionRowsTable,
           InteractionRow,
           $$InteractionRowsTableFilterComposer,
@@ -3975,19 +2976,13 @@ class $$InteractionRowsTableTableManager
           $$InteractionRowsTableUpdateCompanionBuilder,
           (
             InteractionRow,
-            BaseReferences<
-              _$LocalDatabase,
-              $InteractionRowsTable,
-              InteractionRow
-            >,
+            BaseReferences<_$DriftDB, $InteractionRowsTable, InteractionRow>,
           ),
           InteractionRow,
           PrefetchHooks Function()
         > {
-  $$InteractionRowsTableTableManager(
-    _$LocalDatabase db,
-    $InteractionRowsTable table,
-  ) : super(
+  $$InteractionRowsTableTableManager(_$DriftDB db, $InteractionRowsTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
@@ -4043,7 +3038,7 @@ class $$InteractionRowsTableTableManager
 
 typedef $$InteractionRowsTableProcessedTableManager =
     ProcessedTableManager<
-      _$LocalDatabase,
+      _$DriftDB,
       $InteractionRowsTable,
       InteractionRow,
       $$InteractionRowsTableFilterComposer,
@@ -4053,7 +3048,7 @@ typedef $$InteractionRowsTableProcessedTableManager =
       $$InteractionRowsTableUpdateCompanionBuilder,
       (
         InteractionRow,
-        BaseReferences<_$LocalDatabase, $InteractionRowsTable, InteractionRow>,
+        BaseReferences<_$DriftDB, $InteractionRowsTable, InteractionRow>,
       ),
       InteractionRow,
       PrefetchHooks Function()
@@ -4090,7 +3085,7 @@ typedef $$RequestAnalysisRowsTableUpdateCompanionBuilder =
     });
 
 class $$RequestAnalysisRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $RequestAnalysisRowsTable> {
+    extends Composer<_$DriftDB, $RequestAnalysisRowsTable> {
   $$RequestAnalysisRowsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4155,7 +3150,7 @@ class $$RequestAnalysisRowsTableFilterComposer
 }
 
 class $$RequestAnalysisRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $RequestAnalysisRowsTable> {
+    extends Composer<_$DriftDB, $RequestAnalysisRowsTable> {
   $$RequestAnalysisRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4220,7 +3215,7 @@ class $$RequestAnalysisRowsTableOrderingComposer
 }
 
 class $$RequestAnalysisRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $RequestAnalysisRowsTable> {
+    extends Composer<_$DriftDB, $RequestAnalysisRowsTable> {
   $$RequestAnalysisRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4281,7 +3276,7 @@ class $$RequestAnalysisRowsTableAnnotationComposer
 class $$RequestAnalysisRowsTableTableManager
     extends
         RootTableManager<
-          _$LocalDatabase,
+          _$DriftDB,
           $RequestAnalysisRowsTable,
           RequestAnalysisRow,
           $$RequestAnalysisRowsTableFilterComposer,
@@ -4292,7 +3287,7 @@ class $$RequestAnalysisRowsTableTableManager
           (
             RequestAnalysisRow,
             BaseReferences<
-              _$LocalDatabase,
+              _$DriftDB,
               $RequestAnalysisRowsTable,
               RequestAnalysisRow
             >,
@@ -4301,7 +3296,7 @@ class $$RequestAnalysisRowsTableTableManager
           PrefetchHooks Function()
         > {
   $$RequestAnalysisRowsTableTableManager(
-    _$LocalDatabase db,
+    _$DriftDB db,
     $RequestAnalysisRowsTable table,
   ) : super(
         TableManagerState(
@@ -4385,7 +3380,7 @@ class $$RequestAnalysisRowsTableTableManager
 
 typedef $$RequestAnalysisRowsTableProcessedTableManager =
     ProcessedTableManager<
-      _$LocalDatabase,
+      _$DriftDB,
       $RequestAnalysisRowsTable,
       RequestAnalysisRow,
       $$RequestAnalysisRowsTableFilterComposer,
@@ -4396,7 +3391,7 @@ typedef $$RequestAnalysisRowsTableProcessedTableManager =
       (
         RequestAnalysisRow,
         BaseReferences<
-          _$LocalDatabase,
+          _$DriftDB,
           $RequestAnalysisRowsTable,
           RequestAnalysisRow
         >,
@@ -4434,7 +3429,7 @@ typedef $$SessionAnalysisRowsTableUpdateCompanionBuilder =
     });
 
 class $$SessionAnalysisRowsTableFilterComposer
-    extends Composer<_$LocalDatabase, $SessionAnalysisRowsTable> {
+    extends Composer<_$DriftDB, $SessionAnalysisRowsTable> {
   $$SessionAnalysisRowsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4494,7 +3489,7 @@ class $$SessionAnalysisRowsTableFilterComposer
 }
 
 class $$SessionAnalysisRowsTableOrderingComposer
-    extends Composer<_$LocalDatabase, $SessionAnalysisRowsTable> {
+    extends Composer<_$DriftDB, $SessionAnalysisRowsTable> {
   $$SessionAnalysisRowsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4554,7 +3549,7 @@ class $$SessionAnalysisRowsTableOrderingComposer
 }
 
 class $$SessionAnalysisRowsTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $SessionAnalysisRowsTable> {
+    extends Composer<_$DriftDB, $SessionAnalysisRowsTable> {
   $$SessionAnalysisRowsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4610,7 +3605,7 @@ class $$SessionAnalysisRowsTableAnnotationComposer
 class $$SessionAnalysisRowsTableTableManager
     extends
         RootTableManager<
-          _$LocalDatabase,
+          _$DriftDB,
           $SessionAnalysisRowsTable,
           SessionAnalysisRow,
           $$SessionAnalysisRowsTableFilterComposer,
@@ -4621,7 +3616,7 @@ class $$SessionAnalysisRowsTableTableManager
           (
             SessionAnalysisRow,
             BaseReferences<
-              _$LocalDatabase,
+              _$DriftDB,
               $SessionAnalysisRowsTable,
               SessionAnalysisRow
             >,
@@ -4630,7 +3625,7 @@ class $$SessionAnalysisRowsTableTableManager
           PrefetchHooks Function()
         > {
   $$SessionAnalysisRowsTableTableManager(
-    _$LocalDatabase db,
+    _$DriftDB db,
     $SessionAnalysisRowsTable table,
   ) : super(
         TableManagerState(
@@ -4710,7 +3705,7 @@ class $$SessionAnalysisRowsTableTableManager
 
 typedef $$SessionAnalysisRowsTableProcessedTableManager =
     ProcessedTableManager<
-      _$LocalDatabase,
+      _$DriftDB,
       $SessionAnalysisRowsTable,
       SessionAnalysisRow,
       $$SessionAnalysisRowsTableFilterComposer,
@@ -4721,7 +3716,7 @@ typedef $$SessionAnalysisRowsTableProcessedTableManager =
       (
         SessionAnalysisRow,
         BaseReferences<
-          _$LocalDatabase,
+          _$DriftDB,
           $SessionAnalysisRowsTable,
           SessionAnalysisRow
         >,
@@ -4729,192 +3724,12 @@ typedef $$SessionAnalysisRowsTableProcessedTableManager =
       SessionAnalysisRow,
       PrefetchHooks Function()
     >;
-typedef $$SyncMetadataEntriesTableCreateCompanionBuilder =
-    SyncMetadataEntriesCompanion Function({
-      required String key,
-      required String value,
-      required DateTime updatedAt,
-      Value<int> rowid,
-    });
-typedef $$SyncMetadataEntriesTableUpdateCompanionBuilder =
-    SyncMetadataEntriesCompanion Function({
-      Value<String> key,
-      Value<String> value,
-      Value<DateTime> updatedAt,
-      Value<int> rowid,
-    });
 
-class $$SyncMetadataEntriesTableFilterComposer
-    extends Composer<_$LocalDatabase, $SyncMetadataEntriesTable> {
-  $$SyncMetadataEntriesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get key => $composableBuilder(
-    column: $table.key,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get value => $composableBuilder(
-    column: $table.value,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$SyncMetadataEntriesTableOrderingComposer
-    extends Composer<_$LocalDatabase, $SyncMetadataEntriesTable> {
-  $$SyncMetadataEntriesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get key => $composableBuilder(
-    column: $table.key,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get value => $composableBuilder(
-    column: $table.value,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$SyncMetadataEntriesTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $SyncMetadataEntriesTable> {
-  $$SyncMetadataEntriesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get key =>
-      $composableBuilder(column: $table.key, builder: (column) => column);
-
-  GeneratedColumn<String> get value =>
-      $composableBuilder(column: $table.value, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-}
-
-class $$SyncMetadataEntriesTableTableManager
-    extends
-        RootTableManager<
-          _$LocalDatabase,
-          $SyncMetadataEntriesTable,
-          SyncMetadataEntry,
-          $$SyncMetadataEntriesTableFilterComposer,
-          $$SyncMetadataEntriesTableOrderingComposer,
-          $$SyncMetadataEntriesTableAnnotationComposer,
-          $$SyncMetadataEntriesTableCreateCompanionBuilder,
-          $$SyncMetadataEntriesTableUpdateCompanionBuilder,
-          (
-            SyncMetadataEntry,
-            BaseReferences<
-              _$LocalDatabase,
-              $SyncMetadataEntriesTable,
-              SyncMetadataEntry
-            >,
-          ),
-          SyncMetadataEntry,
-          PrefetchHooks Function()
-        > {
-  $$SyncMetadataEntriesTableTableManager(
-    _$LocalDatabase db,
-    $SyncMetadataEntriesTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$SyncMetadataEntriesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SyncMetadataEntriesTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
-          createComputedFieldComposer: () =>
-              $$SyncMetadataEntriesTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<String> key = const Value.absent(),
-                Value<String> value = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => SyncMetadataEntriesCompanion(
-                key: key,
-                value: value,
-                updatedAt: updatedAt,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String key,
-                required String value,
-                required DateTime updatedAt,
-                Value<int> rowid = const Value.absent(),
-              }) => SyncMetadataEntriesCompanion.insert(
-                key: key,
-                value: value,
-                updatedAt: updatedAt,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$SyncMetadataEntriesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$LocalDatabase,
-      $SyncMetadataEntriesTable,
-      SyncMetadataEntry,
-      $$SyncMetadataEntriesTableFilterComposer,
-      $$SyncMetadataEntriesTableOrderingComposer,
-      $$SyncMetadataEntriesTableAnnotationComposer,
-      $$SyncMetadataEntriesTableCreateCompanionBuilder,
-      $$SyncMetadataEntriesTableUpdateCompanionBuilder,
-      (
-        SyncMetadataEntry,
-        BaseReferences<
-          _$LocalDatabase,
-          $SyncMetadataEntriesTable,
-          SyncMetadataEntry
-        >,
-      ),
-      SyncMetadataEntry,
-      PrefetchHooks Function()
-    >;
-
-class $LocalDatabaseManager {
-  final _$LocalDatabase _db;
-  $LocalDatabaseManager(this._db);
-  $$UserProfilesTableTableManager get userProfiles =>
-      $$UserProfilesTableTableManager(_db, _db.userProfiles);
-  $$SelectedUsersTableTableManager get selectedUsers =>
-      $$SelectedUsersTableTableManager(_db, _db.selectedUsers);
+class $DriftDBManager {
+  final _$DriftDB _db;
+  $DriftDBManager(this._db);
+  $$UserRowsTableTableManager get userRows =>
+      $$UserRowsTableTableManager(_db, _db.userRows);
   $$SessionRowsTableTableManager get sessionRows =>
       $$SessionRowsTableTableManager(_db, _db.sessionRows);
   $$InteractionRowsTableTableManager get interactionRows =>
@@ -4923,6 +3738,4 @@ class $LocalDatabaseManager {
       $$RequestAnalysisRowsTableTableManager(_db, _db.requestAnalysisRows);
   $$SessionAnalysisRowsTableTableManager get sessionAnalysisRows =>
       $$SessionAnalysisRowsTableTableManager(_db, _db.sessionAnalysisRows);
-  $$SyncMetadataEntriesTableTableManager get syncMetadataEntries =>
-      $$SyncMetadataEntriesTableTableManager(_db, _db.syncMetadataEntries);
 }

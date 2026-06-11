@@ -35,33 +35,3 @@ func TestAuthPrefixedUsersRoute(t *testing.T) {
 	assert.Equal(t, response.Users[0].UserID, createdUser.ID, "unexpected user id")
 	assert.Equal(t, response.Users[0].DisplayName, "Kolja", "unexpected display name")
 }
-
-func TestAuthPrefixedUserSelectRoute(t *testing.T) {
-	repo := user.NewInMemoryRepository()
-	createdUser, err := repo.Create(t.Context(), "Kolja")
-	if err != nil {
-		t.Fatalf("seed user: %v", err)
-	}
-
-	mux := http.NewServeMux()
-	logger := logging.NewNoopLogger()
-	SetupRoutes(mux, logger, NewHealthHandler(), NewUserHandler(repo))
-
-	rec := tests.ExecuteRequest(
-		mux,
-		http.MethodPost,
-		"/auth/users/select",
-		map[string]string{"Content-Type": "application/json"},
-		`{"userId":"`+createdUser.ID+`"}`,
-	)
-
-	assert.Equal(t, rec.Code, http.StatusOK, "unexpected status code")
-
-	var response UserResponse
-	if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
-		t.Fatalf("unmarshal user response: %v", err)
-	}
-
-	assert.Equal(t, response.UserID, createdUser.ID, "unexpected user id")
-	assert.Equal(t, response.DisplayName, "Kolja", "unexpected display name")
-}

@@ -1,53 +1,85 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
+import 'package:app/core/logging/app_logger.dart';
+import 'package:app/screens/loading/loading_logger.dart';
 import 'package:app/screens/loading/loading_screen_state.dart';
-import 'package:app/services/startup_refresh_service.dart';
+import 'package:app/services/auth_service.dart';
+import 'package:app/services/sync_service.dart';
+import 'package:flutter/foundation.dart';
 
 class LoadingViewModel {
   LoadingViewModel({
-    required this.startupRefreshService,
-    this.minimumDisplayDuration = const Duration(seconds: 1),
-  }) : state = ValueNotifier<LoadingScreenState>(LoadingScreenState.loading());
+    required AppLogger appLogger,
+    required AuthService authService,
+    required SyncService syncService,
+    Duration minimumDisplayDuration = const Duration(seconds: 1),
+  }) : _syncService = syncService,
+       _authService = authService,
+       _logger = LoadingLogger(appLogger: appLogger),
+       _minimumDisplayDuration = minimumDisplayDuration,
+       stateNotifier = ValueNotifier<LoadingScreenState>(
+         LoadingScreenState.initial(),
+       );
 
-  final StartupRefreshService startupRefreshService;
-  final Duration minimumDisplayDuration;
-  final ValueNotifier<LoadingScreenState> state;
+  // for testing purposes only - allows overriding the minimum display duration to speed up tests
+  final Duration _minimumDisplayDuration;
 
-  Future<StartupRefreshResult> load() async {
-    state.value = LoadingScreenState.loading();
-    final refresh = startupRefreshService.refreshKnownUsers();
-    final minimumDisplay = Future<void>.delayed(minimumDisplayDuration);
-    final result = await refresh;
-    await minimumDisplay;
-    state.value = LoadingScreenState(
-      status: _statusFor(result),
-      message: _messageFor(result),
-      result: result,
-    );
-    return result;
-  }
+  final LoadingLogger _logger;
+  final AuthService _authService;
+  final SyncService _syncService;
+  final ValueNotifier<LoadingScreenState> stateNotifier;
+
+  LoadingScreenState get state => stateNotifier.value;
+
+  LoadingSteps currentStep = LoadingSteps.loadUserProfiles;
 
   void dispose() {
-    state.dispose();
+    stateNotifier.dispose();
   }
-}
 
-LoadingScreenStatus _statusFor(StartupRefreshResult result) {
-  return switch (result.status) {
-    StartupRefreshStatus.offlineFallback ||
-    StartupRefreshStatus.partialFailure => LoadingScreenStatus.retryableError,
-    StartupRefreshStatus.noKnownUsers ||
-    StartupRefreshStatus.refreshed => LoadingScreenStatus.ready,
-  };
-}
+  Future<void> init() async {
+    await load();
+  }
 
-String _messageFor(StartupRefreshResult result) {
-  return switch (result.status) {
-    StartupRefreshStatus.noKnownUsers => 'User selection required',
-    StartupRefreshStatus.refreshed => 'Saved users refreshed',
-    StartupRefreshStatus.offlineFallback => 'Offline mode uses saved data',
-    StartupRefreshStatus.partialFailure => 'Some saved users could not refresh',
-  };
+  Future<void> load() async {
+    try {
+      stateNotifier.value = LoadingScreenState(
+        status: LoadingScreenStatus.userLoading,
+      );
+      await doStep(
+        step: LoadingSteps.loadUserProfiles,
+        doIt: _authService.loadUserProfiles,
+      );
+      stateNotifier.value = LoadingScreenState(
+        status: LoadingScreenStatus.userSyncing,
+      );
+      await doStep(
+        step: LoadingSteps.syncLoadedUsers,
+        doIt: _syncService.syncLoadedUsers,
+      );
+      stateNotifier.value = LoadingScreenState(
+        status: LoadingScreenStatus.finished,
+      );
+    } on Object catch (error, stackTrace) {
+      await _logger.logLoadingFailed(
+        step: currentStep.name,
+        error: error,
+        stackTrace: stackTrace,
+      );
+      stateNotifier.value = LoadingScreenState(
+        status: LoadingScreenStatus.retryableError,
+      );
+    }
+  }
+
+  Future<void> doStep({
+    required LoadingSteps step,
+    required Future<Object?> Function() doIt,
+  }) async {
+    currentStep = step;
+    final waitAtLeast = Future<void>.delayed(_minimumDisplayDuration);
+    final work = doIt();
+    await work;
+    await waitAtLeast;
+  }
 }

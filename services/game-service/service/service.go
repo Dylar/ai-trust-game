@@ -46,4 +46,5 @@ func setupSessionQueryRoute(mux *http.ServeMux, logger logging.Logger, sessionQu
 func setupInteractionRoute(mux *http.ServeMux, logger logging.Logger, interactionHandler *InteractionHandler) {
 	handleInteraction := infra.StandardHTTPHandler(logger, interactionHandler)
 	mux.Handle("/interaction", handleInteraction)
+	mux.Handle("/interaction/session/", handleInteraction)
 }

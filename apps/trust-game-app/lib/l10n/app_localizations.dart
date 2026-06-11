@@ -104,6 +104,114 @@ abstract class AppLocalizations {
   /// **'AI Trust Game'**
   String get appTitle;
 
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose user'**
+  String get loginTitle;
+
+  /// No description provided for @loginLoadedUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded users'**
+  String get loginLoadedUsersTitle;
+
+  /// No description provided for @loginLoadedUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No loaded users yet.'**
+  String get loginLoadedUsersEmpty;
+
+  /// No description provided for @loginUnloadedUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Other users'**
+  String get loginUnloadedUsersTitle;
+
+  /// No description provided for @loginUnloadedUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No other users are known yet.'**
+  String get loginUnloadedUsersEmpty;
+
+  /// No description provided for @loginCreateUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New user'**
+  String get loginCreateUserTitle;
+
+  /// No description provided for @loginDisplayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get loginDisplayNameLabel;
+
+  /// No description provided for @loginCreateUserButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and continue'**
+  String get loginCreateUserButton;
+
+  /// No description provided for @loginErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User selection failed'**
+  String get loginErrorTitle;
+
+  /// No description provided for @loginErrorEmptyDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a display name before creating a user.'**
+  String get loginErrorEmptyDisplayName;
+
+  /// No description provided for @loginErrorLoadUsersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The user list could not be loaded.'**
+  String get loginErrorLoadUsersFailed;
+
+  /// No description provided for @loginErrorSelectUserFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected user could not be loaded.'**
+  String get loginErrorSelectUserFailed;
+
+  /// No description provided for @loginErrorCreateUserFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend is not reachable or rejected the new user.'**
+  String get loginErrorCreateUserFailed;
+
+  /// No description provided for @loadingStatusMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading data...'**
+  String get loadingStatusMessage;
+
+  /// No description provided for @loadingErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while loading data.'**
+  String get loadingErrorMessage;
+
+  /// No description provided for @loadingRetryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get loadingRetryButton;
+
+  /// No description provided for @loadingUserProfilesStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Load user profiles'**
+  String get loadingUserProfilesStep;
+
+  /// No description provided for @loadingSyncSavedUsersStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync saved users'**
+  String get loadingSyncSavedUsersStep;
+
   /// No description provided for @homeTitle.
   ///
   /// In en, this message translates to:
@@ -289,6 +397,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No analysis is available for this session yet.'**
   String get apiErrorSessionAnalysisNotFound;
+
+  /// No description provided for @apiErrorDuplicateUserDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'A user with this display name already exists.'**
+  String get apiErrorDuplicateUserDisplayName;
+
+  /// No description provided for @apiErrorInvalidUserDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'The display name is not valid.'**
+  String get apiErrorInvalidUserDisplayName;
+
+  /// No description provided for @apiErrorMissingUserDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'The display name cannot be empty.'**
+  String get apiErrorMissingUserDisplayName;
 
   /// No description provided for @apiErrorBackendUnreachable.
   ///

@@ -29,4 +29,5 @@ type Pipeline struct {
 
 type Repository interface {
 	Save(ctx context.Context, record Record) error
+	ListBySession(ctx context.Context, sessionID string) ([]Record, error)
 }

@@ -21,6 +21,12 @@ class HomeScreen extends StatefulWidget {
     return Navigator.of(context).pushNamed<T>(routeName);
   }
 
+  static Future<T?> replace<T extends Object?, TO extends Object?>(
+    BuildContext context,
+  ) {
+    return Navigator.of(context).pushReplacementNamed<T, TO>(routeName);
+  }
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }

@@ -12,6 +12,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'AI Trust Game';
 
   @override
+  String get loginTitle => 'Choose user';
+
+  @override
+  String get loginLoadedUsersTitle => 'Loaded users';
+
+  @override
+  String get loginLoadedUsersEmpty => 'No loaded users yet.';
+
+  @override
+  String get loginUnloadedUsersTitle => 'Other users';
+
+  @override
+  String get loginUnloadedUsersEmpty => 'No other users are known yet.';
+
+  @override
+  String get loginCreateUserTitle => 'New user';
+
+  @override
+  String get loginDisplayNameLabel => 'Display name';
+
+  @override
+  String get loginCreateUserButton => 'Create and continue';
+
+  @override
+  String get loginErrorTitle => 'User selection failed';
+
+  @override
+  String get loginErrorEmptyDisplayName =>
+      'Enter a display name before creating a user.';
+
+  @override
+  String get loginErrorLoadUsersFailed => 'The user list could not be loaded.';
+
+  @override
+  String get loginErrorSelectUserFailed =>
+      'The selected user could not be loaded.';
+
+  @override
+  String get loginErrorCreateUserFailed =>
+      'The backend is not reachable or rejected the new user.';
+
+  @override
+  String get loadingStatusMessage => 'Loading data...';
+
+  @override
+  String get loadingErrorMessage => 'An error occurred while loading data.';
+
+  @override
+  String get loadingRetryButton => 'Retry';
+
+  @override
+  String get loadingUserProfilesStep => 'Load user profiles';
+
+  @override
+  String get loadingSyncSavedUsersStep => 'Sync saved users';
+
+  @override
   String get homeTitle => 'Home';
 
   @override
@@ -117,6 +174,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get apiErrorSessionAnalysisNotFound =>
       'No analysis is available for this session yet.';
+
+  @override
+  String get apiErrorDuplicateUserDisplayName =>
+      'A user with this display name already exists.';
+
+  @override
+  String get apiErrorInvalidUserDisplayName => 'The display name is not valid.';
+
+  @override
+  String get apiErrorMissingUserDisplayName =>
+      'The display name cannot be empty.';
 
   @override
   String get apiErrorBackendUnreachable =>

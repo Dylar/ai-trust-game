@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
-
 import 'package:app/core/app/app_dependencies.dart';
 import 'package:app/screens/home/home_screen.dart';
 import 'package:app/screens/home/home_view_model.dart';
-import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
-import 'package:app/screens/interaction_detail/interaction_detail_view_model.dart';
 import 'package:app/screens/interaction/interaction_screen.dart';
 import 'package:app/screens/interaction/interaction_view_model.dart';
+import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
+import 'package:app/screens/interaction_detail/interaction_detail_view_model.dart';
 import 'package:app/screens/loading/loading_screen.dart';
 import 'package:app/screens/loading/loading_view_model.dart';
+import 'package:app/screens/login/login_screen.dart';
+import 'package:app/screens/login/login_view_model.dart';
 import 'package:app/screens/session_detail/session_detail_screen.dart';
 import 'package:app/screens/session_detail/session_detail_view_model.dart';
 import 'package:app/screens/session_start/session_start_screen.dart';
 import 'package:app/screens/session_start/session_start_view_model.dart';
-import 'package:app/services/startup_refresh_service.dart';
+import 'package:flutter/material.dart';
 
 class AppRouter {
   const AppRouter({required this.dependencies});
@@ -23,6 +23,7 @@ class AppRouter {
   Route<dynamic> onGenerateRoute(RouteSettings settings) {
     return switch (settings.name) {
       HomeScreen.routeName => _homeRoute(settings),
+      LoginScreen.routeName => _loginRoute(settings),
       SessionStartScreen.routeName => _sessionStartRoute(settings),
       InteractionScreen.routeName => _interactionRoute(settings),
       SessionDetailScreen.routeName => _sessionDetailRoute(settings),
@@ -40,14 +41,24 @@ class AppRouter {
     );
   }
 
-  Widget buildLoadingScreen({
-    required ValueChanged<StartupRefreshResult> onLoaded,
-  }) {
+  Widget buildLoadingScreen() {
     return LoadingScreen(
       viewModel: LoadingViewModel(
-        startupRefreshService: dependencies.startupRefreshService,
+        appLogger: dependencies.appLogger,
+        authService: dependencies.authService,
+        syncService: dependencies.syncService,
       ),
-      onLoaded: onLoaded,
+    );
+  }
+
+  Widget buildLoginScreen() {
+    return LoginScreen(
+      viewModel: LoginViewModel(
+        appLogger: dependencies.appLogger,
+        authService: dependencies.authService,
+        userRepository: dependencies.userRepository,
+        syncService: dependencies.syncService,
+      ),
     );
   }
 
@@ -96,6 +107,13 @@ class AppRouter {
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (_) => buildHomeScreen(),
+    );
+  }
+
+  Route<void> _loginRoute(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => buildLoginScreen(),
     );
   }
 

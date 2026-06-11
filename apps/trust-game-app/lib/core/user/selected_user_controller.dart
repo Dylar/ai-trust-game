@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 
-import 'user_identity.dart';
+import 'user_profile.dart';
 
-class SelectedUserController extends ValueNotifier<UserIdentity?> {
-  SelectedUserController({UserIdentity? initialUser}) : super(initialUser);
+class SelectedUserController extends ValueNotifier<UserProfile?> {
+  SelectedUserController({UserProfile? initialUser}) : super(initialUser);
 
-  UserIdentity get requiredUser {
+  UserProfile get requiredUser {
     final user = value;
     if (user == null) {
       throw StateError('No user selected.');
@@ -13,7 +13,7 @@ class SelectedUserController extends ValueNotifier<UserIdentity?> {
     return user;
   }
 
-  void select(UserIdentity user) {
+  void select(UserProfile user) {
     value = user;
   }
 

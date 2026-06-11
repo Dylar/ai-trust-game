@@ -11,6 +11,9 @@ enum ApiErrorCode {
   requestAnalysisNotFound('request_analysis_not_found'),
   missingAnalysisSession('missing_analysis_session'),
   sessionAnalysisNotFound('session_analysis_not_found'),
+  duplicateUserDisplayName('duplicate_user_display_name'),
+  invalidUserDisplayName('invalid_user_display_name'),
+  missingUserDisplayName('missing_user_display_name'),
   backendUnreachable('backend_unreachable'),
   requestTimeout('request_timeout');
 

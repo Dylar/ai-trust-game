@@ -70,7 +70,6 @@ interaction state.
 - Implement PostgreSQL user repository under the auth-service's service-owned persistence package.
 - Add `GET /users` to list existing users.
 - Add `POST /users` to create a new user from a display/login name.
-- Add `POST /users/select` to return the selected user identity without validating credentials.
 - Validate empty, duplicate, and overly long names.
 - Return stable `userId`, display name, and timestamps.
 - Ensure all auth-service responses use the same error style as the other Go services.
@@ -160,77 +159,66 @@ interaction state.
 
 - Add drift dependencies to `apps/trust-game-app`.
 - Create a local database layer under the app's existing data/service boundaries.
-- Add local tables for selected user, known users, sessions, interactions, analysis/audit views, and sync or
-  restore metadata.
-- Track when known users were last selected.
-- Derive whether a user is loaded from locally persisted sessions for that user.
+- Add local tables for users, sessions, interactions, and analysis/audit views.
+- Keep selected user state in memory through `SelectedUserController`; do not persist selected user state.
+- Derive whether a user is loaded from locally persisted sessions or interactions for that user.
 - Persist every user-facing record the app has already loaded so it can be inspected offline.
 - Add repository abstractions so screens do not access drift directly.
 - Add local schema migrations for app database changes.
-- Add drift database tests for local tables, local migrations, selected-user state, loaded/unloaded user derivation, and
-  cached session/interaction reads.
+- Add drift database tests for local tables, local migrations, loaded/unloaded user derivation, and cached
+  session/interaction reads.
 
-#### 11. Add app identity state and loading screen
+#### 11. Add app identity state and loading screen (DONE)
 
 - Add an app-level selected-user state boundary, for example a small `SelectedUserController` backed by a
-  `ValueNotifier<UserIdentity?>` or `ValueNotifier<SelectedUser?>`.
-- Let the login/user-selection flow update that selected-user state after the auth-service returns or confirms the
-  user identity.
+  `ValueNotifier<UserProfile?>`.
 - Stop creating repository/API clients around an invented runtime user id.
 - Make user-scoped repositories and API clients read the currently selected user from the app identity state at request
   or query time.
 - Show a loading screen before the login/user-selection screen.
-- On startup, load all locally known users from drift before showing the login screen.
-- If the backend is reachable, refresh backend data for all locally known users before the login screen is shown.
-- For each known user, fetch authoritative sessions from the backend and update the local drift session cache.
-- Add a game-service interaction restore/query endpoint before implementing interaction cache refresh.
-- For each refreshed session, fetch or restore its interactions and update the local drift interaction cache.
-- Refresh request-level and session-level analysis views where the backend has data for the refreshed sessions.
-- Keep the loading screen lightweight and explicit about sync state: loading, refreshed, offline fallback, and failed
-  refresh.
-- If the app is offline during startup, keep showing the login/user-selection screen from local drift data after the
-  refresh attempt fails.
+- On startup, derive loaded users from drift before showing the login screen.
+- Keep startup loading focused on preparing the user-selection lists.
+- Defer session, interaction, and analysis restore for a user until that user is explicitly selected.
+- If the app is offline during startup, keep showing the login/user-selection screen from local drift data.
 - Do not block offline read-only usage when cached data exists.
-- Track refresh metadata per user/session so later startup runs can avoid unnecessary repeated full reloads.
-- Add startup refresh tests for all-known-user refresh, interaction cache refresh, offline fallback, partial backend
-  failure, and selected-user state updates.
+- Add sync tests for loaded-user refresh, interaction cache refresh, offline fallback, and partial backend failure.
 
 #### 12. Create login screen
 
-- Always show a login/user-selection screen before entering the main app flow.
-- Show two user lists: loaded users and unloaded users.
-- Derive loaded users from users that have locally persisted sessions.
-- Treat known users without locally persisted sessions as unloaded users.
-- Sort both lists by last selected timestamp, newest first.
+- Always show a login/user-selection screen before entering the main app flow. (DONE)
+- Show two user lists: loaded users and unloaded users. (DONE)
+- Derive loaded users from users that have locally persisted sessions or interactions. (DONE)
+- Treat users without locally persisted sessions or interactions as unloaded users. (DONE)
+- Sort loaded users by latest local session/interaction timestamp, newest first. (DONE)
+- Sort unloaded users alphabetically by display name. (DONE)
 - Treat loaded users as available for offline read-only use.
 - Treat unloaded users as requiring an online backend load before entering their app state.
-- Preselect the last selected user when one exists.
-- Use the startup refresh result and local drift state as the initial user list.
-- If online, refresh the user list from auth-service when the login screen is shown or manually retried.
-- Add an input for creating a new user.
-- On selection or creation, persist the selected user locally.
-- On selection or creation, update the app-level selected-user state.
-- Make the copy/UI clear and lightweight without presenting it as secure login.
-- Handle offline startup by allowing the last selected/local users to be selected, but prevent creating a new user while
-  offline.
-- Add UI/state tests for user list sorting, preselection, user creation, user selection, and offline restrictions.
+- Use the loading-screen result and drift state as the initial user list. (DONE)
+- If online, refresh the user list from auth-service during loading before the login screen is shown. (DONE)
+- Add a manual retry for refreshing the login user list from auth-service.
+- Add an input for creating a new user. (DONE)
+- On selection or creation, update the app-level selected-user state. (DONE)
+- Make the copy/UI clear and lightweight without presenting it as secure login. (DONE)
+- Handle offline startup by allowing loaded users to be selected, but prevent loading an unloaded user while offline.
+  (DONE)
+- Prevent creating a new user while offline with a clear login-screen error.
+- Add UI/state tests for user list sorting, user creation, and user selection. (DONE)
+- Add UI/state tests for offline restrictions.
 
 #### 13. Implement app startup and restore flow
 
-- On startup, load known users, selected user, and cached state from drift.
-- Show the startup refresh/loading screen before the login/user-selection screen.
-- Run the all-known-users backend refresh while the startup loading screen is visible when the backend is reachable.
-- Route to the login/user-selection screen before entering the main app flow.
-- Preselect the last selected user when local state contains one.
-- Continue into the main app flow only after the user confirms, selects, or creates a user.
-- If the selected user is loaded locally, allow offline read-only entry.
-- If the selected user is not loaded locally, require online backend access to load that user's app state first.
-- If online, fetch authoritative resumable sessions for the selected user on explicit login selection when startup
-  refresh did not already refresh that user.
+- On startup, load users and cached state from drift.
+- Show the startup sync/loading screen before the login/user-selection screen. (DONE)
+- Prepare the user-selection lists while the startup loading screen is visible. (DONE)
+- Route to the login/user-selection screen before entering the main app flow. (DONE)
+- Continue into the main app flow only after the user selects or creates a user. (DONE)
+- If the selected user is loaded locally, allow offline read-only entry. (DONE)
+- If the selected user is not loaded locally, require online backend access to load that user's app state first. (DONE)
+- If online, fetch authoritative resumable sessions for the selected user on explicit login selection. (DONE)
 - If offline, show cached sessions, interactions, and analysis views read-only.
 - When the user tries to continue a backend-dependent flow offline, show a clear offline error.
 - Reconcile stale local session references when the backend no longer has a session.
-- Add app startup tests for selected user restore, startup refresh, online refresh, offline read-only entry,
+- Add app startup tests for user selection, startup sync, online refresh, offline read-only entry,
   unloaded-user online loading, and stale local session handling.
 
 #### 14. Update session and interaction UI flows

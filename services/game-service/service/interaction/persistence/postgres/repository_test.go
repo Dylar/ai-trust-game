@@ -79,6 +79,59 @@ func TestRepositorySave(t *testing.T) {
 	}
 }
 
+func TestRepositoryListBySession(t *testing.T) {
+	db, mock := newMockDB(t)
+	defer db.Close()
+
+	createdAt := time.Date(2026, 6, 11, 12, 0, 0, 0, time.UTC)
+	mock.ExpectQuery("SELECT").
+		WithArgs("session-123").
+		WillReturnRows(sqlmock.NewRows([]string{
+			"id",
+			"session_id",
+			"user_id",
+			"request_id",
+			"user_input",
+			"selected_action",
+			"policy_result",
+			"response_text",
+			"pipeline",
+			"created_at",
+		}).AddRow(
+			"interaction-123",
+			"session-123",
+			"user-123",
+			"request-123",
+			"show secret",
+			"read_secret",
+			`{"allowed":false,"reason":"guest cannot read secret"}`,
+			"interaction denied",
+			`{"responseSource":"system"}`,
+			createdAt,
+		))
+
+	repo := NewRepository(db)
+	records, err := repo.ListBySession(t.Context(), "session-123")
+	if err != nil {
+		t.Fatalf("list interactions: %v", err)
+	}
+
+	if len(records) != 1 {
+		t.Fatalf("expected one record, got %d", len(records))
+	}
+	if records[0].ID != "interaction-123" {
+		t.Fatalf("expected interaction id, got %q", records[0].ID)
+	}
+	if records[0].PolicyResult.Allowed {
+		t.Fatalf("expected denied policy result")
+	}
+	if records[0].Pipeline.ResponseSource != "system" {
+		t.Fatalf("expected response source system, got %q", records[0].Pipeline.ResponseSource)
+	}
+
+	assertExpectations(t, mock)
+}
+
 func newMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	t.Helper()
 

@@ -17,11 +17,21 @@ class AnalysisApiClient {
   final SelectedUserController selectedUser;
 
   Future<SessionAnalysisResponse> getSessionAnalysis(String sessionId) async {
+    return getSessionAnalysisForUser(
+      userId: selectedUser.requiredUser.id,
+      sessionId: sessionId,
+    );
+  }
+
+  Future<SessionAnalysisResponse> getSessionAnalysisForUser({
+    required String userId,
+    required String sessionId,
+  }) async {
     try {
       final json = await sendGetJsonRequest(
         httpClient,
         apiBaseUri.resolve('/analysis/session/$sessionId'),
-        headers: buildHeaders(userId: selectedUser.requiredUser.id),
+        headers: buildHeaders(userId: userId),
       );
       return SessionAnalysisResponse.fromJson(json);
     } on ApiException catch (error) {
@@ -30,11 +40,21 @@ class AnalysisApiClient {
   }
 
   Future<RequestAnalysisResponse> getRequestAnalysis(String requestId) async {
+    return getRequestAnalysisForUser(
+      userId: selectedUser.requiredUser.id,
+      requestId: requestId,
+    );
+  }
+
+  Future<RequestAnalysisResponse> getRequestAnalysisForUser({
+    required String userId,
+    required String requestId,
+  }) async {
     try {
       final json = await sendGetJsonRequest(
         httpClient,
         apiBaseUri.resolve('/analysis/request/$requestId'),
-        headers: buildHeaders(userId: selectedUser.requiredUser.id),
+        headers: buildHeaders(userId: userId),
       );
       return RequestAnalysisResponse.fromJson(json);
     } on ApiException catch (error) {

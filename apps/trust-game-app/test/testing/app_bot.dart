@@ -20,10 +20,7 @@ class AppBot {
     final router = AppRouter(dependencies: resolvedDependencies);
 
     await tester.pumpWidget(
-      TrustGameApp(
-        home: home ?? homeBuilder?.call(router),
-        dependencies: resolvedDependencies,
-      ),
+      TrustGameApp(router: router, home: home ?? homeBuilder?.call(router)),
     );
   }
 }

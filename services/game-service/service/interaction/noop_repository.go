@@ -11,3 +11,7 @@ func NewNoopRepository() NoopRepository {
 func (NoopRepository) Save(context.Context, Record) error {
 	return nil
 }
+
+func (NoopRepository) ListBySession(context.Context, string) ([]Record, error) {
+	return []Record{}, nil
+}

@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-class UserProfiles extends Table {
+class UserRows extends Table {
   @override
   String get tableName => 'users';
 
@@ -8,7 +8,6 @@ class UserProfiles extends Table {
   TextColumn get displayName => text()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
-  DateTimeColumn get lastSelectedAt => dateTime().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

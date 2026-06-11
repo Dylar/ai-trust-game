@@ -28,10 +28,11 @@ The app currently has:
 - shared frontend models for `Session` and `Interaction`
 - `services/` -> `data/` boundaries for session start, interaction creation, and analysis reads
 - API clients using `http.Client` and `apiBaseUri`
-- a local Drift database under `data/local/`
+- a Drift database under `data/drift/`
 - Drift-backed repositories for cached sessions, interactions, and analysis views scoped to the selected user
-- local known-user and selected-user persistence boundaries for restore-related app state
-- a loading screen that runs startup work before the future login/user-selection screen
+- Drift-backed user persistence for users returned by the backend identity flow
+- a loading screen that refreshes cached sessions, interactions, and available analysis views for loaded users before the
+  future login/user-selection screen
 
 Prepared targets:
 
@@ -65,7 +66,10 @@ Current frontend architecture choices:
 - backend log shipping is implemented as a concrete adapter under `data/logging/`
 - `AppDependencies.defaults()` creates repositories and API clients around shared app state without inventing a user ID
 - `SelectedUserController` owns the currently selected user identity for user-scoped backend requests and local reads
+- selected-user state is in-memory only; each app restart returns to user selection
 - `main.dart` currently starts with the loading screen before the login screen is added
+- startup sync loads all locally loaded users and updates their cached sessions, interactions, and available
+  request/session analysis views before continuing
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
 - view models stay screen-local and are composed in the router before being passed into screens

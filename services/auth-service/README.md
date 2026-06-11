@@ -37,9 +37,6 @@ Current routes:
 - `POST /users`
   creates a new user from a display name
 
-- `POST /users/select`
-  returns an existing user identity without validating credentials
-
 ## Runtime Wiring
 
 [`cmd/main.go`](./cmd/main.go) is the composition root.

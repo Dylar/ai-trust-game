@@ -14,7 +14,9 @@ void main() {
     final context = HomeTestContext(tester);
 
     // Given
-    await context.appBot.startApp();
+    await context.appBot.startApp(
+      homeBuilder: (router) => router.buildHomeScreen(),
+    );
 
     // When
 
@@ -28,7 +30,9 @@ void main() {
     final context = HomeTestContext(tester);
 
     // Given
-    await context.appBot.startApp();
+    await context.appBot.startApp(
+      homeBuilder: (router) => router.buildHomeScreen(),
+    );
 
     // When
     await context.process.openSessionStart();
@@ -41,7 +45,9 @@ void main() {
     final context = HomeTestContext(tester);
 
     // Given
-    await context.appBot.startApp();
+    await context.appBot.startApp(
+      homeBuilder: (router) => router.buildHomeScreen(),
+    );
 
     // When
     await context.process.createAdminHardSessionFromHome();
@@ -65,7 +71,10 @@ void main() {
     );
 
     // Given
-    await context.appBot.startApp(dependencies: dependencies);
+    await context.appBot.startApp(
+      dependencies: dependencies,
+      homeBuilder: (router) => router.buildHomeScreen(),
+    );
     await context.process.waitUntilRecentSessionsLoaded();
     context.screenBot.expectRecentSessionCount(1);
 
@@ -101,7 +110,10 @@ void main() {
       sessionRepository: repository,
     );
 
-    await context.appBot.startApp(dependencies: dependencies);
+    await context.appBot.startApp(
+      dependencies: dependencies,
+      homeBuilder: (router) => router.buildHomeScreen(),
+    );
     await context.process.waitUntilRecentSessionsLoaded();
 
     context.screenBot.expectRecentSessionVisible('seeded-session');

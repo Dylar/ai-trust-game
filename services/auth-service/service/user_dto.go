@@ -14,7 +14,3 @@ type ListUsersResponse struct {
 type CreateUserRequest struct {
 	DisplayName string `json:"displayName"`
 }
-
-type SelectUserRequest struct {
-	UserID string `json:"userId"`
-}

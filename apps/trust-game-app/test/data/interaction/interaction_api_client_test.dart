@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/core/user/selected_user_controller.dart';
-import 'package:app/core/user/user_identity.dart';
+import '../../testing/test_user_profile.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_dto.dart';
@@ -11,7 +11,7 @@ import 'package:http/testing.dart';
 
 void main() {
   final selectedUser = SelectedUserController(
-    initialUser: const UserIdentity(id: 'user-123'),
+    initialUser: testUserProfile('user-123'),
   );
 
   test('posts interaction JSON with session header to the backend', () async {
@@ -78,5 +78,43 @@ void main() {
             ),
       ),
     );
+  });
+
+  test('loads restored interactions for a session from backend', () async {
+    late http.Request capturedRequest;
+    final client = InteractionApiClient(
+      httpClient: MockClient((request) async {
+        capturedRequest = request;
+        return http.Response(
+          jsonEncode(<String, Object>{
+            'interactions': <Object>[
+              <String, String>{
+                'interactionId': 'interaction-1',
+                'sessionId': 'session-1',
+                'requestId': 'request-1',
+                'message': 'Saved message',
+                'answer': 'Saved answer',
+                'createdAt': '2026-06-11T15:00:00Z',
+              },
+            ],
+          }),
+          200,
+        );
+      }),
+      apiBaseUri: Uri.parse('http://localhost:8080'),
+      selectedUser: selectedUser,
+    );
+
+    final response = await client.listInteractionsForSession(
+      userId: 'user-123',
+      sessionId: 'session-1',
+    );
+
+    expect(capturedRequest.method, 'GET');
+    expect(capturedRequest.url.path, '/interaction/session/session-1');
+    expect(capturedRequest.headers['X-User-Id'], 'user-123');
+    expect(response.interactions.single.interactionId, 'request-1');
+    expect(response.interactions.single.message, 'Saved message');
+    expect(response.interactions.single.answer, 'Saved answer');
   });
 }

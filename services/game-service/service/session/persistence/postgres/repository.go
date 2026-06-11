@@ -11,11 +11,11 @@ import (
 const activeStatus = "active"
 
 type Repository struct {
-	db *sql.DB
+	statements sessionStatements
 }
 
 func NewRepository(db *sql.DB) *Repository {
-	return &Repository{db: db}
+	return &Repository{statements: newSessionStatements(db)}
 }
 
 func (repo *Repository) Save(ctx context.Context, sess domain.Session) error {
@@ -24,35 +24,12 @@ func (repo *Repository) Save(ctx context.Context, sess domain.Session) error {
 		return err
 	}
 
-	_, err = repo.db.ExecContext(ctx, `
-		INSERT INTO sessions (
-			id,
-			user_id,
-			role,
-			mode,
-			status,
-			state,
-			created_at,
-			updated_at
-		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		ON CONFLICT (id) DO UPDATE SET
-			user_id = EXCLUDED.user_id,
-			role = EXCLUDED.role,
-			mode = EXCLUDED.mode,
-			status = EXCLUDED.status,
-			state = EXCLUDED.state,
-			updated_at = EXCLUDED.updated_at
-	`, sess.ID, sess.UserID, sess.Settings.Role, sess.Settings.Mode, activeStatus, string(state), sess.CreatedAt, sess.UpdatedAt)
+	_, err = repo.statements.save(ctx, sess.ID, sess.UserID, string(sess.Settings.Role), string(sess.Settings.Mode), activeStatus, string(state), sess.CreatedAt, sess.UpdatedAt)
 	return err
 }
 
 func (repo *Repository) Get(ctx context.Context, id string) (domain.Session, bool, error) {
-	row := repo.db.QueryRowContext(ctx, `
-		SELECT id, user_id, role, mode, state, created_at, updated_at
-		FROM sessions
-		WHERE id = $1
-	`, id)
+	row := repo.statements.get(ctx, id)
 
 	sess, err := scanSession(row)
 	if err == sql.ErrNoRows {
@@ -66,12 +43,7 @@ func (repo *Repository) Get(ctx context.Context, id string) (domain.Session, boo
 }
 
 func (repo *Repository) ListByUserID(ctx context.Context, userID string) ([]domain.Session, error) {
-	rows, err := repo.db.QueryContext(ctx, `
-		SELECT id, user_id, role, mode, state, created_at, updated_at
-		FROM sessions
-		WHERE user_id = $1
-		ORDER BY updated_at DESC
-	`, userID)
+	rows, err := repo.statements.listByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

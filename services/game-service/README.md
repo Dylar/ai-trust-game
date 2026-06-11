@@ -62,6 +62,9 @@ Current routes:
   loads the authoritative user-scoped session, runs the game pipeline, persists session updates, and stores an
   interaction record
 
+- `GET /interaction/session/{sessionId}`
+  returns the current user's stored interaction records for the session, ordered by creation time
+
 - `GET /session/list`
   lists the current user's resumable sessions
 
@@ -87,7 +90,8 @@ Important headers:
   read from the incoming request and required for `POST /interaction`
 
 - `X-User-Id`
-  read from the incoming request, required for session start, interaction, and session restore queries
+  read from the incoming request, required for session start, interaction, session restore queries, and interaction
+  restore queries
 
 The interaction endpoint does not take the session ID in the JSON body.
 It trusts the request metadata header and loads the authoritative session from the repository.
@@ -103,7 +107,7 @@ The loaded session must belong to the same `X-User-Id`, otherwise the service re
 
 - [`interaction_handler.go`](./service/interaction_handler.go)
   validates request metadata, loads the session, delegates to `game.Processor`, saves updated session state, and
-  stores the interaction record
+  stores or returns interaction records
 
 - [`session_query_handler.go`](./service/session_query_handler.go)
   lists and returns sessions for the current user so app restore flows can resume from persisted backend state

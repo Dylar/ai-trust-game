@@ -42,6 +42,7 @@ func setupProxyRoutes(
 	mux.Handle("/auth/", handleAuthProxy)
 	mux.Handle("/chat", handleGameProxy)
 	mux.Handle("/interaction", handleGameProxy)
+	mux.Handle("/interaction/", handleGameProxy)
 	mux.Handle("/logs/", handleLoggingProxy)
 	mux.Handle("/session/", handleGameProxy)
 }

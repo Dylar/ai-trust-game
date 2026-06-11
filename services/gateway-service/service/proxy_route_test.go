@@ -250,21 +250,21 @@ func TestAuthProxyRoutesToAuthService(t *testing.T) {
 	rec := tests.ExecuteRequest(
 		mux,
 		http.MethodPost,
-		"/auth/users/select",
+		"/auth/users",
 		map[string]string{
 			network.SessionIDHeader: "session-123",
 			network.UserIDHeader:    "user-456",
 			"Content-Type":          "application/json",
 		},
-		`{"userId":"user-456"}`,
+		`{"displayName":"Kolja"}`,
 	)
 
 	assert.Equal(t, rec.Code, http.StatusOK, "unexpected proxy response status")
 
 	upstreamRequest := receiveUpstreamRequest(t, received)
 	assert.Equal(t, upstreamRequest.Method, http.MethodPost, "unexpected upstream method")
-	assert.Equal(t, upstreamRequest.Path, "/auth/users/select", "unexpected upstream path")
-	assert.Equal(t, upstreamRequest.Body, `{"userId":"user-456"}`, "unexpected upstream body")
+	assert.Equal(t, upstreamRequest.Path, "/auth/users", "unexpected upstream path")
+	assert.Equal(t, upstreamRequest.Body, `{"displayName":"Kolja"}`, "unexpected upstream body")
 	assert.Equal(t, upstreamRequest.SessionID, "session-123", "unexpected upstream session id")
 	assert.Equal(t, upstreamRequest.UserID, "user-456", "unexpected upstream user id")
 	assert.Equal(t, upstreamRequest.Proto, "http", "unexpected forwarded proto")

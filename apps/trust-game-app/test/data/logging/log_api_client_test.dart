@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/core/user/selected_user_controller.dart';
-import 'package:app/core/user/user_identity.dart';
+import '../../testing/test_user_profile.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/logging/log_api_client.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,7 +11,7 @@ import 'package:http/testing.dart';
 
 void main() {
   final selectedUser = SelectedUserController(
-    initialUser: const UserIdentity(id: 'user-123'),
+    initialUser: testUserProfile('user-123'),
   );
 
   test('posts log JSON with user and optional session headers', () async {
