@@ -15,6 +15,15 @@ managementPort: 15672
 config:
   allowGuestRemote: true
 
+auth:
+  username: guest
+  password: guest
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: ""
+
 resources:
   requests:
     cpu: 50m

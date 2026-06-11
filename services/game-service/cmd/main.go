@@ -27,9 +27,14 @@ func main() {
 	)
 
 	auditSink, err := audit.NewRabbitMQSink(audit.RabbitMQConfig{
-		URL:        infra.GetEnv("RABBITMQ_URL", audit.DefaultRabbitMQURL),
-		Exchange:   infra.GetEnv("AUDIT_EVENTS_EXCHANGE", audit.DefaultRabbitMQExchange),
-		RoutingKey: infra.GetEnv("AUDIT_EVENTS_ROUTING_KEY", audit.DefaultRabbitMQRoutingKey),
+		URL:                infra.GetEnv("RABBITMQ_URL", audit.DefaultRabbitMQURL),
+		Exchange:           infra.GetEnv("AUDIT_EVENTS_EXCHANGE", audit.DefaultRabbitMQExchange),
+		RoutingKey:         infra.GetEnv("AUDIT_EVENTS_ROUTING_KEY", audit.DefaultRabbitMQRoutingKey),
+		RetryExchange:      infra.GetEnv("AUDIT_EVENTS_RETRY_EXCHANGE", ""),
+		RetryQueue:         infra.GetEnv("AUDIT_EVENTS_RETRY_QUEUE", ""),
+		RetryDelayMillis:   infra.GetEnvInt("AUDIT_EVENTS_RETRY_DELAY_MILLIS", audit.DefaultRabbitMQRetryDelay),
+		DeadLetterExchange: infra.GetEnv("AUDIT_EVENTS_DEAD_LETTER_EXCHANGE", ""),
+		DeadLetterQueue:    infra.GetEnv("AUDIT_EVENTS_DEAD_LETTER_QUEUE", ""),
 	})
 	if err != nil {
 		log.Fatal(err)

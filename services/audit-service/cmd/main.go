@@ -41,10 +41,15 @@ func main() {
 	)
 	consumer, err := sharedaudit.NewRabbitMQConsumer(
 		sharedaudit.RabbitMQConfig{
-			URL:        infra.GetEnv("RABBITMQ_URL", sharedaudit.DefaultRabbitMQURL),
-			Exchange:   infra.GetEnv("AUDIT_EVENTS_EXCHANGE", sharedaudit.DefaultRabbitMQExchange),
-			Queue:      infra.GetEnv("AUDIT_EVENTS_QUEUE", sharedaudit.DefaultRabbitMQQueue),
-			RoutingKey: infra.GetEnv("AUDIT_EVENTS_ROUTING_KEY", sharedaudit.DefaultRabbitMQRoutingKey),
+			URL:                infra.GetEnv("RABBITMQ_URL", sharedaudit.DefaultRabbitMQURL),
+			Exchange:           infra.GetEnv("AUDIT_EVENTS_EXCHANGE", sharedaudit.DefaultRabbitMQExchange),
+			Queue:              infra.GetEnv("AUDIT_EVENTS_QUEUE", sharedaudit.DefaultRabbitMQQueue),
+			RoutingKey:         infra.GetEnv("AUDIT_EVENTS_ROUTING_KEY", sharedaudit.DefaultRabbitMQRoutingKey),
+			RetryExchange:      infra.GetEnv("AUDIT_EVENTS_RETRY_EXCHANGE", ""),
+			RetryQueue:         infra.GetEnv("AUDIT_EVENTS_RETRY_QUEUE", ""),
+			RetryDelayMillis:   infra.GetEnvInt("AUDIT_EVENTS_RETRY_DELAY_MILLIS", sharedaudit.DefaultRabbitMQRetryDelay),
+			DeadLetterExchange: infra.GetEnv("AUDIT_EVENTS_DEAD_LETTER_EXCHANGE", ""),
+			DeadLetterQueue:    infra.GetEnv("AUDIT_EVENTS_DEAD_LETTER_QUEUE", ""),
 		},
 		auditSink,
 		logger,

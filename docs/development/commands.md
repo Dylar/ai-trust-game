@@ -15,7 +15,8 @@ The compose stack is optional local development tooling. It is not part of the K
 Compose uses `COMPOSE_FILE`, which defaults to `infrastructure/docker/compose/compose.yml`.<br>
 Container-to-container and browser-to-backend communication is local in that file.<br>
 The root compose file includes the backend and web compose files from the same directory.<br>
-The local stack also starts RabbitMQ for async audit events, with Management UI on `http://localhost:15672`.<br>
+The local stack also starts RabbitMQ for async audit events, with a named data volume and Management UI on
+`http://localhost:15672`.<br>
 Model provider values are read from `COMPOSE_ENV_FILE`, which defaults to
 `infrastructure/docker/compose/env/<COMPOSE_MODEL_ENV>.env`.<br>
 Before each compose command, Make checks that the compose file and selected model env file exist and that required

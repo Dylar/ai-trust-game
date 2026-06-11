@@ -25,6 +25,9 @@ spec:
         - name: {{ .Values.serviceName }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.serviceName }}-secret
           ports:
             - name: amqp
               containerPort: {{ .Values.amqpPort }}
@@ -61,7 +64,16 @@ spec:
             - name: rabbitmq-config
               mountPath: /etc/rabbitmq/rabbitmq.conf
               subPath: rabbitmq.conf
+            {{- if .Values.persistence.enabled }}
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+            {{- end }}
       volumes:
         - name: rabbitmq-config
           configMap:
             name: {{ .Values.serviceName }}-config-map
+        {{- if .Values.persistence.enabled }}
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.serviceName }}-data
+        {{- end }}

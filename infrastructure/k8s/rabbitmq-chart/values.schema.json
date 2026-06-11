@@ -13,6 +13,8 @@
     "amqpPort",
     "managementPort",
     "config",
+    "auth",
+    "persistence",
     "resources"
   ],
   "properties": {
@@ -77,6 +79,38 @@
       "properties": {
         "allowGuestRemote": {
           "type": "boolean"
+        }
+      }
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["username", "password"],
+      "properties": {
+        "username": {
+          "type": "string",
+          "minLength": 1
+        },
+        "password": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "size", "storageClassName"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storageClassName": {
+          "type": "string"
         }
       }
     },

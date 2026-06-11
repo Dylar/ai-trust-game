@@ -12,10 +12,15 @@ func TestRabbitMQConfigWithDefaults(t *testing.T) {
 	}
 
 	type Then struct {
-		expectedURL        string
-		expectedExchange   string
-		expectedQueue      string
-		expectedRoutingKey string
+		expectedURL                string
+		expectedExchange           string
+		expectedQueue              string
+		expectedRoutingKey         string
+		expectedRetryExchange      string
+		expectedRetryQueue         string
+		expectedRetryDelayMillis   int
+		expectedDeadLetterExchange string
+		expectedDeadLetterQueue    string
 	}
 
 	type Scenario struct {
@@ -31,10 +36,15 @@ func TestRabbitMQConfigWithDefaults(t *testing.T) {
 				"THEN fills audit route values",
 			given: Given{cfg: RabbitMQConfig{}},
 			then: Then{
-				expectedURL:        DefaultRabbitMQURL,
-				expectedExchange:   DefaultRabbitMQExchange,
-				expectedQueue:      DefaultRabbitMQQueue,
-				expectedRoutingKey: DefaultRabbitMQRoutingKey,
+				expectedURL:                DefaultRabbitMQURL,
+				expectedExchange:           DefaultRabbitMQExchange,
+				expectedQueue:              DefaultRabbitMQQueue,
+				expectedRoutingKey:         DefaultRabbitMQRoutingKey,
+				expectedRetryExchange:      DefaultRabbitMQExchange + ".retry",
+				expectedRetryQueue:         DefaultRabbitMQQueue + ".retry",
+				expectedRetryDelayMillis:   DefaultRabbitMQRetryDelay,
+				expectedDeadLetterExchange: DefaultRabbitMQExchange + ".dead-letter",
+				expectedDeadLetterQueue:    DefaultRabbitMQQueue + ".dead-letter",
 			},
 		},
 		{
@@ -42,16 +52,26 @@ func TestRabbitMQConfigWithDefaults(t *testing.T) {
 				"WHEN withDefaults is called " +
 				"THEN keeps explicit audit route values",
 			given: Given{cfg: RabbitMQConfig{
-				URL:        "amqp://guest:guest@rabbitmq:5672/",
-				Exchange:   "custom.exchange",
-				Queue:      "custom.queue",
-				RoutingKey: "custom.key",
+				URL:                "amqp://guest:guest@rabbitmq:5672/",
+				Exchange:           "custom.exchange",
+				Queue:              "custom.queue",
+				RoutingKey:         "custom.key",
+				RetryExchange:      "custom.retry.exchange",
+				RetryQueue:         "custom.retry.queue",
+				RetryDelayMillis:   9000,
+				DeadLetterExchange: "custom.dead.exchange",
+				DeadLetterQueue:    "custom.dead.queue",
 			}},
 			then: Then{
-				expectedURL:        "amqp://guest:guest@rabbitmq:5672/",
-				expectedExchange:   "custom.exchange",
-				expectedQueue:      "custom.queue",
-				expectedRoutingKey: "custom.key",
+				expectedURL:                "amqp://guest:guest@rabbitmq:5672/",
+				expectedExchange:           "custom.exchange",
+				expectedQueue:              "custom.queue",
+				expectedRoutingKey:         "custom.key",
+				expectedRetryExchange:      "custom.retry.exchange",
+				expectedRetryQueue:         "custom.retry.queue",
+				expectedRetryDelayMillis:   9000,
+				expectedDeadLetterExchange: "custom.dead.exchange",
+				expectedDeadLetterQueue:    "custom.dead.queue",
 			},
 		},
 	}
@@ -67,6 +87,11 @@ func TestRabbitMQConfigWithDefaults(t *testing.T) {
 			assert.Equal(t, cfg.Exchange, then.expectedExchange, "unexpected exchange")
 			assert.Equal(t, cfg.Queue, then.expectedQueue, "unexpected queue")
 			assert.Equal(t, cfg.RoutingKey, then.expectedRoutingKey, "unexpected routing key")
+			assert.Equal(t, cfg.RetryExchange, then.expectedRetryExchange, "unexpected retry exchange")
+			assert.Equal(t, cfg.RetryQueue, then.expectedRetryQueue, "unexpected retry queue")
+			assert.Equal(t, cfg.RetryDelayMillis, then.expectedRetryDelayMillis, "unexpected retry delay")
+			assert.Equal(t, cfg.DeadLetterExchange, then.expectedDeadLetterExchange, "unexpected dead-letter exchange")
+			assert.Equal(t, cfg.DeadLetterQueue, then.expectedDeadLetterQueue, "unexpected dead-letter queue")
 		})
 	}
 }

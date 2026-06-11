@@ -54,8 +54,7 @@ interaction state.
 - Keep service-specific repository interfaces and SQL adapters under the owning service packages.
 - Use `golang-migrate` for backend schema migrations.
 - Add migration files using numbered `*.up.sql` and `*.down.sql` files.
-- Add initial migrations for users, sessions, interactions, audit events, client logs if needed by read views, and
-  service-owned metadata.
+- Add initial migrations for users, sessions, interactions, audit events, and service-owned metadata.
 - Add local migration commands to the development workflow.
 - Add test helpers for running repository tests against PostgreSQL.
 - Add tests for PostgreSQL config parsing, ping/health behavior, migration glue, and test helper setup.
@@ -124,9 +123,9 @@ interaction state.
 - Keep Phase 13 database persistence focused on domain state, audit events, and analysis read models.
 - Keep stable logging-service documentation limited to its current ingestion responsibility.
 
-#### 7. Configure RabbitMQ persistence
+#### 7. Configure RabbitMQ persistence (DONE)
 
-- Configure durable exchanges and queues for audit/log async delivery.
+- Configure durable exchanges and queues for audit async delivery.
 - Configure persistent messages where the publisher controls delivery mode.
 - Add broker volume setup in Docker Compose.
 - Add persistent volume configuration in Kubernetes values/charts.
@@ -221,7 +220,7 @@ interaction state.
   logging-service, and Flutter web.
 - Create/select a user.
 - Start a session and complete at least one interaction.
-- Verify session, interaction, audit, and log data are written to persistent storage.
+- Verify session, interaction, and audit data are written to persistent storage.
 - Restart backend services and confirm the app can restore the same user/session state.
 - Restart the browser/app and confirm local restore works.
 - Stop backend connectivity and confirm offline read-only behavior works.

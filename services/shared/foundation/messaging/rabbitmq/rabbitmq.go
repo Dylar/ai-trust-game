@@ -25,6 +25,12 @@ type ConsumerConfig struct {
 	Exchange   string
 	Queue      string
 	RoutingKey string
+
+	RetryExchange      string
+	RetryQueue         string
+	RetryDelay         time.Duration
+	DeadLetterExchange string
+	DeadLetterQueue    string
 }
 
 type Publisher struct {
@@ -71,12 +77,7 @@ func (publisher *Publisher) Publish(ctx context.Context, message messaging.Messa
 		publisher.routingKey,
 		false,
 		false,
-		amqp.Publishing{
-			ContentType:  message.ContentType,
-			DeliveryMode: amqp.Persistent,
-			Timestamp:    time.Now(),
-			Body:         message.Body,
-		},
+		persistentPublishing(message.ContentType, message.Body, nil),
 	)
 }
 
@@ -92,7 +93,7 @@ func (publisher *Publisher) Close() error {
 type Consumer struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
-	queue   string
+	cfg     ConsumerConfig
 	handler messaging.Handler
 	logger  logging.Logger
 }
@@ -119,6 +120,7 @@ func NewConsumer(cfg ConsumerConfig, handler messaging.Handler, logger logging.L
 		return nil, err
 	}
 
+	cfg = cfg.withDefaults()
 	if err := declareRoute(channel, cfg); err != nil {
 		_ = channel.Close()
 		_ = conn.Close()
@@ -128,7 +130,7 @@ func NewConsumer(cfg ConsumerConfig, handler messaging.Handler, logger logging.L
 	return &Consumer{
 		conn:    conn,
 		channel: channel,
-		queue:   cfg.Queue,
+		cfg:     cfg,
 		handler: handler,
 		logger:  logger,
 	}, nil
@@ -136,7 +138,7 @@ func NewConsumer(cfg ConsumerConfig, handler messaging.Handler, logger logging.L
 
 func (consumer *Consumer) Run(ctx context.Context) error {
 	deliveries, err := consumer.channel.Consume(
-		consumer.queue,
+		consumer.cfg.Queue,
 		"",
 		false,
 		false,
@@ -178,7 +180,13 @@ func (consumer *Consumer) handleDelivery(ctx context.Context, delivery amqp.Deli
 
 	if err := consumer.handler(ctx, message); err != nil {
 		consumer.logger.Error(ctx, "rabbitmq message processing failed", logging.WithError(err))
-		_ = delivery.Nack(false, messaging.ShouldRequeue(err))
+		if messaging.ShouldRequeue(err) {
+			if publishRetry(ctx, consumer.channel, consumer.cfg, delivery) == nil {
+				_ = delivery.Ack(false)
+				return
+			}
+		}
+		_ = delivery.Nack(false, false)
 		return
 	}
 
@@ -189,9 +197,35 @@ func declareRoute(channel *amqp.Channel, cfg ConsumerConfig) error {
 	if err := declareExchange(channel, cfg.Exchange); err != nil {
 		return err
 	}
+	if err := declareExchange(channel, cfg.RetryExchange); err != nil {
+		return err
+	}
+	if err := declareExchange(channel, cfg.DeadLetterExchange); err != nil {
+		return err
+	}
 
 	if _, err := channel.QueueDeclare(
 		cfg.Queue,
+		true,
+		false,
+		false,
+		false,
+		mainQueueArguments(cfg),
+	); err != nil {
+		return err
+	}
+	if _, err := channel.QueueDeclare(
+		cfg.RetryQueue,
+		true,
+		false,
+		false,
+		false,
+		retryQueueArguments(cfg),
+	); err != nil {
+		return err
+	}
+	if _, err := channel.QueueDeclare(
+		cfg.DeadLetterQueue,
 		true,
 		false,
 		false,
@@ -201,10 +235,28 @@ func declareRoute(channel *amqp.Channel, cfg ConsumerConfig) error {
 		return err
 	}
 
-	return channel.QueueBind(
+	if err := channel.QueueBind(
 		cfg.Queue,
 		cfg.RoutingKey,
 		cfg.Exchange,
+		false,
+		nil,
+	); err != nil {
+		return err
+	}
+	if err := channel.QueueBind(
+		cfg.RetryQueue,
+		cfg.RoutingKey,
+		cfg.RetryExchange,
+		false,
+		nil,
+	); err != nil {
+		return err
+	}
+	return channel.QueueBind(
+		cfg.DeadLetterQueue,
+		cfg.RoutingKey,
+		cfg.DeadLetterExchange,
 		false,
 		nil,
 	)
@@ -220,4 +272,58 @@ func declareExchange(channel *amqp.Channel, exchange string) error {
 		false,
 		nil,
 	)
+}
+
+func publishRetry(ctx context.Context, channel *amqp.Channel, cfg ConsumerConfig, delivery amqp.Delivery) error {
+	return channel.PublishWithContext(
+		ctx,
+		cfg.RetryExchange,
+		cfg.RoutingKey,
+		false,
+		false,
+		persistentPublishing(delivery.ContentType, delivery.Body, delivery.Headers),
+	)
+}
+
+func mainQueueArguments(cfg ConsumerConfig) amqp.Table {
+	return amqp.Table{
+		"x-dead-letter-exchange": cfg.DeadLetterExchange,
+	}
+}
+
+func retryQueueArguments(cfg ConsumerConfig) amqp.Table {
+	return amqp.Table{
+		"x-message-ttl":             int32(cfg.RetryDelay / time.Millisecond),
+		"x-dead-letter-exchange":    cfg.Exchange,
+		"x-dead-letter-routing-key": cfg.RoutingKey,
+	}
+}
+
+func persistentPublishing(contentType string, body []byte, headers amqp.Table) amqp.Publishing {
+	return amqp.Publishing{
+		ContentType:  contentType,
+		DeliveryMode: amqp.Persistent,
+		Timestamp:    time.Now(),
+		Body:         body,
+		Headers:      headers,
+	}
+}
+
+func (cfg ConsumerConfig) withDefaults() ConsumerConfig {
+	if cfg.RetryExchange == "" {
+		cfg.RetryExchange = cfg.Exchange + ".retry"
+	}
+	if cfg.RetryQueue == "" {
+		cfg.RetryQueue = cfg.Queue + ".retry"
+	}
+	if cfg.RetryDelay == 0 {
+		cfg.RetryDelay = 5 * time.Second
+	}
+	if cfg.DeadLetterExchange == "" {
+		cfg.DeadLetterExchange = cfg.Exchange + ".dead-letter"
+	}
+	if cfg.DeadLetterQueue == "" {
+		cfg.DeadLetterQueue = cfg.Queue + ".dead-letter"
+	}
+	return cfg
 }

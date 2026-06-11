@@ -36,10 +36,14 @@ APP_ENV       environment label used by logs and runtime behavior
 PORT          HTTP listen port inside the container
 LLM_PROVIDER  model provider selection, for example static or groq
 GROQ_MODEL    optional Groq model name when Groq is used
-RABBITMQ_URL              RabbitMQ endpoint for async audit events
-AUDIT_EVENTS_EXCHANGE     exchange used for audit event publishing
-AUDIT_EVENTS_QUEUE        queue consumed by audit-service
-AUDIT_EVENTS_ROUTING_KEY  routing key used for audit event publishing
+AUDIT_EVENTS_EXCHANGE                   exchange used for audit event publishing
+AUDIT_EVENTS_QUEUE                      queue consumed by audit-service
+AUDIT_EVENTS_ROUTING_KEY                routing key used for audit event publishing
+AUDIT_EVENTS_RETRY_EXCHANGE             exchange used for retry publishing
+AUDIT_EVENTS_RETRY_QUEUE                queue used for delayed audit retries
+AUDIT_EVENTS_RETRY_DELAY_MILLIS         retry delay in milliseconds
+AUDIT_EVENTS_DEAD_LETTER_EXCHANGE       exchange used for rejected audit events
+AUDIT_EVENTS_DEAD_LETTER_QUEUE          queue used for rejected audit events
 ```
 
 Secrets:
@@ -49,9 +53,7 @@ audit-service-secret
 ```
 
 `GROQ_API_KEY` is required when `LLM_PROVIDER=groq`.
-
-`RABBITMQ_URL` points at the in-cluster RabbitMQ broker deployed from
-`infrastructure/k8s/rabbitmq/`.
+`RABBITMQ_URL` is the RabbitMQ endpoint for async audit events.
 
 ## Traffic
 

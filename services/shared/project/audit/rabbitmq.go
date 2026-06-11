@@ -3,6 +3,7 @@ package audit
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/messaging"
@@ -14,6 +15,7 @@ const (
 	DefaultRabbitMQExchange   = "audit.events"
 	DefaultRabbitMQQueue      = "audit-service.audit-events"
 	DefaultRabbitMQRoutingKey = "audit.event"
+	DefaultRabbitMQRetryDelay = 5000
 )
 
 type RabbitMQConfig struct {
@@ -21,6 +23,12 @@ type RabbitMQConfig struct {
 	Exchange   string
 	Queue      string
 	RoutingKey string
+
+	RetryExchange      string
+	RetryQueue         string
+	RetryDelayMillis   int
+	DeadLetterExchange string
+	DeadLetterQueue    string
 }
 
 func (cfg RabbitMQConfig) withDefaults() RabbitMQConfig {
@@ -35,6 +43,21 @@ func (cfg RabbitMQConfig) withDefaults() RabbitMQConfig {
 	}
 	if cfg.RoutingKey == "" {
 		cfg.RoutingKey = DefaultRabbitMQRoutingKey
+	}
+	if cfg.RetryExchange == "" {
+		cfg.RetryExchange = cfg.Exchange + ".retry"
+	}
+	if cfg.RetryQueue == "" {
+		cfg.RetryQueue = cfg.Queue + ".retry"
+	}
+	if cfg.RetryDelayMillis == 0 {
+		cfg.RetryDelayMillis = DefaultRabbitMQRetryDelay
+	}
+	if cfg.DeadLetterExchange == "" {
+		cfg.DeadLetterExchange = cfg.Exchange + ".dead-letter"
+	}
+	if cfg.DeadLetterQueue == "" {
+		cfg.DeadLetterQueue = cfg.Queue + ".dead-letter"
 	}
 	return cfg
 }
@@ -90,6 +113,12 @@ func NewRabbitMQConsumer(cfg RabbitMQConfig, sink Sink, logger logging.Logger) (
 			Exchange:   cfg.Exchange,
 			Queue:      cfg.Queue,
 			RoutingKey: cfg.RoutingKey,
+
+			RetryExchange:      cfg.RetryExchange,
+			RetryQueue:         cfg.RetryQueue,
+			RetryDelay:         time.Duration(cfg.RetryDelayMillis) * time.Millisecond,
+			DeadLetterExchange: cfg.DeadLetterExchange,
+			DeadLetterQueue:    cfg.DeadLetterQueue,
 		},
 		func(ctx context.Context, message messaging.Message) error {
 			var event Event
