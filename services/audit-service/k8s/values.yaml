@@ -32,3 +32,8 @@ config:
   AUDIT_EVENTS_RETRY_DELAY_MILLIS: "5000"
   AUDIT_EVENTS_DEAD_LETTER_EXCHANGE: audit.events.dead-letter
   AUDIT_EVENTS_DEAD_LETTER_QUEUE: audit-service.audit-events.dead-letter
+
+secretConfig:
+  DATABASE_URL: postgres://ai_trust_game:ai_trust_game@postgres:5432/ai_trust_game?sslmode=disable
+  GROQ_API_KEY: ""
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/

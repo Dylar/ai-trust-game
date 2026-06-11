@@ -23,11 +23,13 @@ shape.
 Infrastructure workloads that are not built from this repository use dedicated Helm charts instead of the shared service
 chart.
 
+PostgreSQL is deployed as the backend persistence database.
+Its values live under `infrastructure/k8s/postgres/`, and full Kubernetes deploys install it before the app services.
+
 RabbitMQ is deployed as the async messaging broker for service-to-service events.
 Its values live under `infrastructure/k8s/rabbitmq/`, and full Kubernetes deploys install it before the app services.
-The current broker deployment is intentionally ephemeral for Phase 12.
-RabbitMQ persistence, broker credentials through Secrets, dead-letter handling, and retry hardening belong to Phase 13.
 
+[PostgreSQL Kubernetes values](../../infrastructure/k8s/postgres/README.md)<br>
 [RabbitMQ Kubernetes values](../../infrastructure/k8s/rabbitmq/README.md)
 
 ## Workload Values
@@ -37,10 +39,12 @@ Backend service values stay under `services/<service-name>/k8s/`.
 Frontend and current app-entry values stay under `apps/trust-game-app/k8s/`.
 
 [Gateway service Kubernetes values](../../services/gateway-service/k8s/README.md)<br>
+[Auth service Kubernetes values](../../services/auth-service/k8s/README.md)<br>
 [Game service Kubernetes values](../../services/game-service/k8s/README.md)<br>
 [Logging service Kubernetes values](../../services/logging-service/k8s/README.md)<br>
 [Audit service Kubernetes values](../../services/audit-service/k8s/README.md)<br>
 [App Kubernetes values](../../apps/trust-game-app/k8s/README.md)<br>
+[PostgreSQL Kubernetes values](../../infrastructure/k8s/postgres/README.md)<br>
 [RabbitMQ Kubernetes values](../../infrastructure/k8s/rabbitmq/README.md)
 
 ## Environments
@@ -57,7 +61,8 @@ This keeps Make targets, Helm values, and cluster resources easy to line up.
 ## Config And Secrets
 
 Normal runtime config belongs in values files and is rendered into a ConfigMap.
-Secret runtime config belongs in Kubernetes Secrets and must not be stored in this repository without encryption.
+Secret runtime config belongs in Kubernetes Secrets. Repository values provide replaceable development defaults for the
+current in-cluster PostgreSQL and RabbitMQ deployments.
 
 The shared service chart uses this naming convention:
 
@@ -70,6 +75,7 @@ Each service owns the meaning of its own secret keys.
 For concrete keys, read the service-owned Kubernetes README.
 
 [Gateway service Kubernetes values](../../services/gateway-service/k8s/README.md#runtime-config)<br>
+[Auth service Kubernetes values](../../services/auth-service/k8s/README.md#runtime-config)<br>
 [Game service Kubernetes values](../../services/game-service/k8s/README.md#runtime-config)<br>
 [Logging service Kubernetes values](../../services/logging-service/k8s/README.md#runtime-config)<br>
 [Audit service Kubernetes values](../../services/audit-service/k8s/README.md#runtime-config)
@@ -85,6 +91,7 @@ If a workload is built differently per environment, that exception belongs in th
 
 [App image setup](../../apps/trust-game-app/k8s/README.md#frontend-workload)<br>
 [Gateway service image setup](../../services/gateway-service/k8s/README.md#workload)<br>
+[Auth service image setup](../../services/auth-service/k8s/README.md#workload)<br>
 [Game service image setup](../../services/game-service/k8s/README.md#workload)<br>
 [Logging service image setup](../../services/logging-service/k8s/README.md#workload)<br>
 [Audit service image setup](../../services/audit-service/k8s/README.md#workload)

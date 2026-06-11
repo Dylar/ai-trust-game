@@ -22,3 +22,6 @@ resources:
 
 config:
   PORT: "8080"
+
+secretConfig:
+  DATABASE_URL: postgres://ai_trust_game:ai_trust_game@postgres:5432/ai_trust_game?sslmode=disable

@@ -1,5 +1,10 @@
+namespace: atg-prod
+environment: prod
+
+replicas: 2
+
 image:
-  tag: prod
+  tag: latest
 
 config:
   APP_ENV: prod

@@ -15,6 +15,7 @@ help:
 	@echo "  make compose-smoke [COMPOSE_MODEL_ENV=static]"
 	@echo "  make k8s-lint [SERVICE=<service>] [K8S_ENVS='dev test prod']"
 	@echo "  make k8s-template [SERVICE=gateway-service] [ENV=dev|test|prod] [IMAGE_TAG=<tag>]"
+	@echo "  make k8s-template-postgres [ENV=dev|test|prod]"
 	@echo "  make k8s-context [K8S_KUBECONFIG=~/.kube/ai-trust-game-pi.yaml]"
 	@echo "  make k8s-build-push SERVICE=gateway-service ENV=dev IMAGE_TAG=<tag>"
 	@echo "  make k8s-apply [SERVICE=gateway-service] [ENV=dev|test|prod] [IMAGE_TAG=<tag>]"

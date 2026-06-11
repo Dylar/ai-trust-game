@@ -1,0 +1,32 @@
+serviceName: postgres
+namespace: atg-dev
+environment: dev
+component: persistence
+partOf: ai-trust-game
+
+replicas: 1
+
+image:
+  repository: postgres
+  tag: 17-alpine
+  pullPolicy: IfNotPresent
+
+postgresPort: 5432
+
+auth:
+  username: ai_trust_game
+  password: ai_trust_game
+  database: ai_trust_game
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: ""
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

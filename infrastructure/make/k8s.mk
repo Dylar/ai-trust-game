@@ -1,5 +1,5 @@
 SERVICE ?=
-SERVICES ?= gateway-service game-service logging-service audit-service frontend-web
+SERVICES ?= gateway-service auth-service game-service logging-service audit-service frontend-web
 K8S_SELECTED_SERVICE := $(if $(strip $(SERVICE)),$(SERVICE),gateway-service)
 K8S_DEPLOY_SERVICES := $(if $(strip $(SERVICE)),$(SERVICE),$(SERVICES))
 K8S_RELEASE ?= $(K8S_SELECTED_SERVICE)
@@ -18,6 +18,12 @@ K8S_RABBITMQ_CONFIG_DIR ?= ./infrastructure/k8s/rabbitmq
 K8S_RABBITMQ_BASE_VALUES ?= $(K8S_RABBITMQ_CONFIG_DIR)/values.yaml
 K8S_RABBITMQ_VALUES ?= $(K8S_RABBITMQ_CONFIG_DIR)/values-$(ENV).yaml
 K8S_RABBITMQ_VALUES_ARGS := $(if $(wildcard $(K8S_RABBITMQ_BASE_VALUES)),-f $(K8S_RABBITMQ_BASE_VALUES),) -f $(K8S_RABBITMQ_VALUES)
+K8S_POSTGRES_RELEASE ?= postgres
+K8S_POSTGRES_CHART ?= ./infrastructure/k8s/postgres-chart
+K8S_POSTGRES_CONFIG_DIR ?= ./infrastructure/k8s/postgres
+K8S_POSTGRES_BASE_VALUES ?= $(K8S_POSTGRES_CONFIG_DIR)/values.yaml
+K8S_POSTGRES_VALUES ?= $(K8S_POSTGRES_CONFIG_DIR)/values-$(ENV).yaml
+K8S_POSTGRES_VALUES_ARGS := $(if $(wildcard $(K8S_POSTGRES_BASE_VALUES)),-f $(K8S_POSTGRES_BASE_VALUES),) -f $(K8S_POSTGRES_VALUES)
 K8S_ENVS ?= dev test prod
 IMAGE_TAG ?=
 K8S_DEPLOY_IMAGE_TAG ?=
@@ -31,7 +37,7 @@ ifneq ($(strip $(IMAGE_TAG)),)
 K8S_SET_ARGS += --set image.tag=$(IMAGE_TAG)
 endif
 
-.PHONY: k8s-lint k8s-template k8s-template-rabbitmq k8s-check-kubeconfig k8s-context k8s-build-push k8s-apply k8s-apply-rabbitmq k8s-deploy k8s-delete k8s-delete-rabbitmq k8s-apply-entry k8s-delete-entry k8s-status manual-deploy-tag manual-deploy
+.PHONY: k8s-lint k8s-template k8s-template-rabbitmq k8s-template-postgres k8s-check-kubeconfig k8s-context k8s-build-push k8s-apply k8s-apply-rabbitmq k8s-apply-postgres k8s-deploy k8s-delete k8s-delete-rabbitmq k8s-delete-postgres k8s-apply-entry k8s-delete-entry k8s-status manual-deploy-tag manual-deploy
 
 k8s-lint:
 	@for service in $(K8S_DEPLOY_SERVICES); do \
@@ -55,6 +61,10 @@ k8s-lint:
 	done
 	@if [ -z "$(strip $(SERVICE))" ]; then \
 		for env in $(K8S_ENVS); do \
+			echo "Linting postgres $$env"; \
+			helm lint $(K8S_POSTGRES_CHART) -f $(K8S_POSTGRES_BASE_VALUES) -f $(K8S_POSTGRES_CONFIG_DIR)/values-$$env.yaml; \
+			echo "Rendering postgres $$env"; \
+			helm template $(K8S_POSTGRES_RELEASE) $(K8S_POSTGRES_CHART) -f $(K8S_POSTGRES_BASE_VALUES) -f $(K8S_POSTGRES_CONFIG_DIR)/values-$$env.yaml >/dev/null; \
 			echo "Linting rabbitmq $$env"; \
 			helm lint $(K8S_RABBITMQ_CHART) -f $(K8S_RABBITMQ_BASE_VALUES) -f $(K8S_RABBITMQ_CONFIG_DIR)/values-$$env.yaml; \
 			echo "Rendering rabbitmq $$env"; \
@@ -67,6 +77,9 @@ k8s-template:
 
 k8s-template-rabbitmq:
 	helm template $(K8S_RABBITMQ_RELEASE) $(K8S_RABBITMQ_CHART) $(K8S_RABBITMQ_VALUES_ARGS)
+
+k8s-template-postgres:
+	helm template $(K8S_POSTGRES_RELEASE) $(K8S_POSTGRES_CHART) $(K8S_POSTGRES_VALUES_ARGS)
 
 k8s-check-kubeconfig:
 	@if [ ! -f "$(K8S_KUBECONFIG)" ]; then \
@@ -97,7 +110,7 @@ k8s-build-push:
 	fi; \
 	echo "Building and pushing $(K8S_SELECTED_SERVICE) for $(ENV) as $$image_repo:$(IMAGE_TAG)"; \
 	case "$(K8S_SELECTED_SERVICE)" in \
-		gateway-service|game-service|logging-service|audit-service) \
+		gateway-service|auth-service|game-service|logging-service|audit-service) \
 			docker buildx build \
 				--platform $(K8S_DOCKER_PLATFORM) \
 				--build-arg SERVICE=$(K8S_SELECTED_SERVICE) \
@@ -132,6 +145,13 @@ k8s-apply-rabbitmq: k8s-check-kubeconfig
 	fi
 	$(K8S_HELM) upgrade --install $(K8S_RABBITMQ_RELEASE) $(K8S_RABBITMQ_CHART) $(K8S_RABBITMQ_VALUES_ARGS) --namespace $(K8S_NAMESPACE) --create-namespace
 
+k8s-apply-postgres: k8s-check-kubeconfig
+	@if [ ! -f "$(K8S_POSTGRES_VALUES)" ]; then \
+		echo "Error: K8S_POSTGRES_VALUES not found: $(K8S_POSTGRES_VALUES)"; \
+		exit 1; \
+	fi
+	$(K8S_HELM) upgrade --install $(K8S_POSTGRES_RELEASE) $(K8S_POSTGRES_CHART) $(K8S_POSTGRES_VALUES_ARGS) --namespace $(K8S_NAMESPACE) --create-namespace
+
 k8s-deploy:
 	@if [ -n "$(IMAGE_TAG)" ]; then \
 		echo "Error: k8s-deploy uses the current commit SHA as image tag. Do not pass IMAGE_TAG."; \
@@ -144,6 +164,7 @@ k8s-deploy:
 		image_tag=$$(git rev-parse HEAD); \
 	fi; \
 	if [ -z "$(strip $(SERVICE))" ]; then \
+		$(MAKE) k8s-apply-postgres ENV=$(ENV) || exit $$?; \
 		$(MAKE) k8s-apply-rabbitmq ENV=$(ENV) || exit $$?; \
 	fi; \
 	for service in $(K8S_DEPLOY_SERVICES); do \
@@ -162,6 +183,9 @@ k8s-delete: k8s-check-kubeconfig
 
 k8s-delete-rabbitmq: k8s-check-kubeconfig
 	$(K8S_HELM) uninstall $(K8S_RABBITMQ_RELEASE) --namespace $(K8S_NAMESPACE) --ignore-not-found
+
+k8s-delete-postgres: k8s-check-kubeconfig
+	$(K8S_HELM) uninstall $(K8S_POSTGRES_RELEASE) --namespace $(K8S_NAMESPACE) --ignore-not-found
 
 k8s-apply-entry: k8s-check-kubeconfig
 	@if [ ! -f "$(K8S_ENTRY_VALUES)" ]; then \

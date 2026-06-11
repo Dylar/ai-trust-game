@@ -77,10 +77,12 @@ The Kubernetes commands are for the cluster deployment path, not for local devel
 For local work, use the [compose stack](#compose-stack) above.
 
 `ENV` selects the target environment, for example `dev`, `test`, or `prod`.
-`SERVICE` is optional. If omitted, deploy commands target RabbitMQ, all prepared services, and the app entrypoint.
+`SERVICE` is optional. If omitted, deploy commands target PostgreSQL, RabbitMQ, all prepared services, and the app
+entrypoint.
 If set, only that service is handled.
-Prepared services are `gateway-service`, `game-service`, `logging-service`, `audit-service`, and `frontend-web`.
-RabbitMQ is a Kubernetes infrastructure workload, not a service image built by this repository.
+Prepared services are `gateway-service`, `auth-service`, `game-service`, `logging-service`, `audit-service`, and
+`frontend-web`.
+PostgreSQL and RabbitMQ are Kubernetes infrastructure workloads, not service images built by this repository.
 
 ### Local
 
@@ -118,7 +120,7 @@ make k8s-build-push SERVICE=gateway-service ENV=dev IMAGE_TAG=dev-local
 Use these commands when the image already exists and you want Kubernetes to run it.
 
 Deploys already published images for all prepared services using the current Git commit SHA as the image tag.
-This also installs or upgrades RabbitMQ before the services.
+This also installs or upgrades PostgreSQL and RabbitMQ before the services.
 
 ```bash
 make k8s-deploy ENV=dev
@@ -138,8 +140,13 @@ Use this when the image already exists and you only want to update one Helm rele
 make k8s-apply SERVICE=gateway-service ENV=dev IMAGE_TAG=dev-local
 ```
 
+Installs or upgrades PostgreSQL for the selected environment.
+
+```bash
+make k8s-apply-postgres ENV=dev
+```
+
 Installs or upgrades RabbitMQ for the selected environment.
-The Phase 12 broker deployment is intentionally ephemeral; broker persistence is planned for Phase 13.
 
 ```bash
 make k8s-apply-rabbitmq ENV=dev
@@ -184,6 +191,12 @@ This prints what Helm would send to the cluster, without applying it.
 make k8s-template SERVICE=gateway-service ENV=dev
 ```
 
+Renders the PostgreSQL manifests for the selected environment.
+
+```bash
+make k8s-template-postgres ENV=dev
+```
+
 Renders the RabbitMQ broker manifests for the selected environment.
 
 ```bash
@@ -215,6 +228,12 @@ Uninstalls the app entry Helm release for the selected environment.
 
 ```bash
 make k8s-delete-entry ENV=dev
+```
+
+Uninstalls the PostgreSQL Helm release for the selected environment.
+
+```bash
+make k8s-delete-postgres ENV=dev
 ```
 
 Uninstalls the RabbitMQ broker Helm release for the selected environment.

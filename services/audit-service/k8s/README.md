@@ -46,14 +46,13 @@ AUDIT_EVENTS_DEAD_LETTER_EXCHANGE       exchange used for rejected audit events
 AUDIT_EVENTS_DEAD_LETTER_QUEUE          queue used for rejected audit events
 ```
 
-Secrets:
+Current Secret keys:
 
 ```text
-audit-service-secret
+DATABASE_URL  PostgreSQL endpoint for audit event and analysis persistence
+GROQ_API_KEY  Groq API key when LLM_PROVIDER=groq
+RABBITMQ_URL  RabbitMQ endpoint for async audit events
 ```
-
-`GROQ_API_KEY` is required when `LLM_PROVIDER=groq`.
-`RABBITMQ_URL` is the RabbitMQ endpoint for async audit events.
 
 ## Traffic
 

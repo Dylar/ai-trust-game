@@ -1,5 +1,10 @@
+namespace: atg-dev
+environment: dev
+
+replicas: 1
+
 image:
-  tag: dev
+  tag: local
 
 config:
   APP_ENV: dev

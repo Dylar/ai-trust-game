@@ -146,7 +146,7 @@ interaction state.
 - Add a compose smoke check for service health, database connectivity, and gateway-to-auth routing.
 - Update Docker Compose documentation.
 
-#### 9. Update Kubernetes runtime
+#### 9. Update Kubernetes runtime (DONE)
 
 - Add auth-service Helm values for dev, test, and prod.
 - Add PostgreSQL configuration or document the expected external PostgreSQL dependency for each environment.

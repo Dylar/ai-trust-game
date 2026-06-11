@@ -41,3 +41,5 @@ resources:
 config:
   APP_ENV: dev
   PORT: "8080"
+
+secretConfig: {}

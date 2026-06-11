@@ -37,6 +37,7 @@ PORT                 HTTP listen port inside the container
 GAME_SERVICE_URL     internal URL for routing public game requests to game-service
 LOGGING_SERVICE_URL  internal URL for routing public log requests to logging-service
 AUDIT_SERVICE_URL    internal URL for routing public analysis requests to audit-service
+AUTH_SERVICE_URL     internal URL for routing public auth requests to auth-service
 ```
 
 ## Traffic
