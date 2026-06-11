@@ -8,8 +8,7 @@ import 'package:app/l10n/app_localizations.dart';
 import 'package:app/core/theme/app_theme.dart';
 
 class TrustGameApp extends StatelessWidget {
-  TrustGameApp({super.key, this.home, AppDependencies? dependencies})
-    : dependencies = dependencies ?? AppDependencies.defaults();
+  const TrustGameApp({super.key, this.home, required this.dependencies});
 
   final Widget? home;
   final AppDependencies dependencies;

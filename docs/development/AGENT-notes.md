@@ -156,7 +156,7 @@ interaction state.
 - Update deployment docs after implementation.
 - Add template/value checks for the changed Helm configuration.
 
-#### 10. Add Flutter local persistence
+#### 10. Add Flutter local persistence (DONE)
 
 - Add drift dependencies to `apps/trust-game-app`.
 - Create a local database layer under the app's existing data/service boundaries.
@@ -170,7 +170,31 @@ interaction state.
 - Add drift database tests for local tables, local migrations, selected-user state, loaded/unloaded user derivation, and
   cached session/interaction reads.
 
-#### 11. Create login screen
+#### 11. Add app identity state and startup refresh screen
+
+- Add an app-level selected-user state boundary, for example a small `SelectedUserController` backed by a
+  `ValueNotifier<UserIdentity?>` or `ValueNotifier<SelectedUser?>`.
+- Let the login/user-selection flow update that selected-user state after the auth-service returns or confirms the
+  user identity.
+- Stop creating repository/API clients around an invented runtime user id.
+- Make user-scoped repositories and API clients read the currently selected user from the app identity state at request
+  or query time.
+- Show a startup loading screen before the login/user-selection screen.
+- On startup, load all locally known users from drift before showing the login screen.
+- If the backend is reachable, refresh backend data for all locally known users before the login screen is shown.
+- For each known user, fetch authoritative sessions from the backend and update the local drift session cache.
+- For each refreshed session, fetch or restore its interactions and update the local drift interaction cache.
+- Refresh request-level and session-level analysis views where the backend has data for the refreshed sessions.
+- Keep the loading screen lightweight and explicit about sync state: loading, refreshed, offline fallback, and failed
+  refresh.
+- If the app is offline during startup, keep showing the login/user-selection screen from local drift data after the
+  refresh attempt fails.
+- Do not block offline read-only usage when cached data exists.
+- Track refresh metadata per user/session so later startup runs can avoid unnecessary repeated full reloads.
+- Add startup refresh tests for all-known-user refresh, interaction cache refresh, offline fallback, partial backend
+  failure, and selected-user state updates.
+
+#### 12. Create login screen
 
 - Always show a login/user-selection screen before entering the main app flow.
 - Show two user lists: loaded users and unloaded users.
@@ -180,30 +204,35 @@ interaction state.
 - Treat loaded users as available for offline read-only use.
 - Treat unloaded users as requiring an online backend load before entering their app state.
 - Preselect the last selected user when one exists.
-- If online, refresh the list from auth-service.
+- Use the startup refresh result and local drift state as the initial user list.
+- If online, refresh the user list from auth-service when the login screen is shown or manually retried.
 - Add an input for creating a new user.
 - On selection or creation, persist the selected user locally.
+- On selection or creation, update the app-level selected-user state.
 - Make the copy/UI clear and lightweight without presenting it as secure login.
 - Handle offline startup by allowing the last selected/local users to be selected, but prevent creating a new user while
   offline.
 - Add UI/state tests for user list sorting, preselection, user creation, user selection, and offline restrictions.
 
-#### 12. Implement app startup and restore flow
+#### 13. Implement app startup and restore flow
 
-- On startup, load the selected user and cached state from drift.
+- On startup, load known users, selected user, and cached state from drift.
+- Show the startup refresh/loading screen before the login/user-selection screen.
+- Run the all-known-users backend refresh while the startup loading screen is visible when the backend is reachable.
 - Route to the login/user-selection screen before entering the main app flow.
 - Preselect the last selected user when local state contains one.
 - Continue into the main app flow only after the user confirms, selects, or creates a user.
 - If the selected user is loaded locally, allow offline read-only entry.
 - If the selected user is not loaded locally, require online backend access to load that user's app state first.
-- If online, fetch authoritative resumable sessions for the selected user and update local drift data.
+- If online, fetch authoritative resumable sessions for the selected user on explicit login selection when startup
+  refresh did not already refresh that user.
 - If offline, show cached sessions, interactions, and analysis views read-only.
 - When the user tries to continue a backend-dependent flow offline, show a clear offline error.
 - Reconcile stale local session references when the backend no longer has a session.
-- Add app startup tests for selected user restore, online refresh, offline read-only entry, unloaded-user online loading,
-  and stale local session handling.
+- Add app startup tests for selected user restore, startup refresh, online refresh, offline read-only entry,
+  unloaded-user online loading, and stale local session handling.
 
-#### 13. Update session and interaction UI flows
+#### 14. Update session and interaction UI flows
 
 - Ensure session start sends the selected user id through the existing request metadata path.
 - Ensure interaction requests continue to include session id and user id metadata.
@@ -214,7 +243,7 @@ interaction state.
   offline action errors.
 - Update app README for local persistence and offline restore behavior.
 
-#### 14. Run end-to-end verification
+#### 15. Run end-to-end verification
 
 - Start the full compose stack with PostgreSQL, RabbitMQ, gateway, auth-service, game-service, audit-service,
   logging-service, and Flutter web.
@@ -227,7 +256,7 @@ interaction state.
 - Restart RabbitMQ and confirm durable queued messages behave according to the configured persistence rules.
 - Run backend tests, Flutter tests, linting, and formatting after the full persistence path works.
 
-#### 15. Final documentation cleanup
+#### 16. Final documentation cleanup
 
 - Confirm all changed stable docs are linked from the proper README ownership chain.
 - Move durable decisions from these notes into stable docs and delete obsolete phase-planning notes.
