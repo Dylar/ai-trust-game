@@ -5,13 +5,14 @@ import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
 import 'package:app/screens/interaction/interaction_screen_state.dart';
 import 'package:app/screens/interaction/interaction_view_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../testing/mocks/interaction_service_mocks.dart';
 import '../../testing/mocks/recording_app_log_sink.dart';
 
 void main() {
-  test('logs interaction submission start and success', () async {
+  test('does not log interaction submission success path', () async {
     final sink = RecordingAppLogSink();
     final interactionRepository = InMemoryInteractionRepository();
     final viewModel = InteractionViewModel(
@@ -31,21 +32,8 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     await viewModel.submitMessage('Hello there');
 
-    expect(viewModel.state.value.status, InteractionScreenStatus.ready);
-    expect(sink.events, hasLength(2));
-    expect(sink.events.first.message, 'Submitting interaction message');
-    expect(sink.events.first.sessionId, 'session-1');
-    expect(sink.events.first.attributes, <String, Object?>{
-      'sessionId': 'session-1',
-      'messageLength': 11,
-    });
-    expect(sink.events.last.message, 'Created interaction');
-    expect(sink.events.last.sessionId, 'session-1');
-    expect(sink.events.last.attributes, <String, Object?>{
-      'sessionId': 'session-1',
-      'interactionId': 'interaction-1',
-      'messageLength': 11,
-    });
+    expect(viewModel.stateNotifier.value.status, InteractionScreenStatus.ready);
+    expect(sink.events, isEmpty);
   });
 
   test('logs interaction submission api errors', () async {
@@ -68,15 +56,61 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     await viewModel.submitMessage('Hello there');
 
-    expect(viewModel.state.value.error, isNotNull);
-    expect(sink.events, hasLength(2));
-    expect(sink.events.last.level, AppLogLevel.error);
-    expect(sink.events.last.message, 'Interaction submission failed');
-    expect(sink.events.last.attributes, <String, Object?>{
+    expect(viewModel.stateNotifier.value.error, isNotNull);
+    expect(sink.events, hasLength(1));
+    expect(sink.events.single.level, AppLogLevel.error);
+    expect(sink.events.single.message, 'Interaction submission failed');
+    expect(sink.events.single.attributes, <String, Object?>{
       'sessionId': 'session-1',
       'messageLength': 11,
       'httpStatusCode': 400,
       'errorCode': 'empty_message',
     });
   });
+
+  test('logs interaction loading errors', () async {
+    final sink = RecordingAppLogSink();
+    final viewModel = InteractionViewModel(
+      appLogger: AppLogger(sinks: <AppLogSink>[sink]),
+      interactionRepository: InMemoryInteractionRepository(),
+      interactionService: const ApiFailingInteractionService(
+        statusCode: 400,
+        code: ApiErrorCode.emptyMessage,
+      ),
+      sessionRepository: _FailingSessionRepository(),
+      sessionId: 'session-1',
+    );
+
+    await Future<void>.delayed(Duration.zero);
+
+    expect(viewModel.stateNotifier.value.status, InteractionScreenStatus.error);
+    expect(sink.events, hasLength(1));
+    expect(sink.events.single.level, AppLogLevel.error);
+    expect(sink.events.single.message, 'Interaction loading failed');
+    expect(sink.events.single.attributes, <String, Object?>{
+      'sessionId': 'session-1',
+    });
+  });
+}
+
+class _FailingSessionRepository implements SessionRepository {
+  final ValueNotifier<List<Session>> _sessions = ValueNotifier<List<Session>>(
+    const <Session>[],
+  );
+
+  @override
+  ValueListenable<List<Session>> get sessionsListenable => _sessions;
+
+  @override
+  Future<Session?> getSession(String id) async {
+    throw Exception('load failed');
+  }
+
+  @override
+  Future<List<Session>> listSessions() async {
+    return const <Session>[];
+  }
+
+  @override
+  Future<void> saveSession(Session session) async {}
 }

@@ -104,6 +104,7 @@
   "interactionAnalysisHint": "Interaction-Analyse ansehen",
   "interactionUserMessageLabel": "Du",
   "interactionAssistantMessageLabel": "Assistant",
+  "interactionLoadErrorTitle": "Interaction konnte nicht geladen werden",
   "interactionLoadErrorDescription": "Die Sitzung konnte nicht geladen werden. Bitte gehe zurueck und versuche es erneut.",
   "interactionNotFoundDescription": "Keine lokale Sitzung mit der ID {sessionId} gefunden.",
   "@interactionNotFoundDescription": {

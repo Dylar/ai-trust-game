@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:app/core/app/api_error_localizations.dart';
-import 'package:app/core/app/app_error_dialog.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -17,13 +15,11 @@ class InteractionReadyContent extends StatefulWidget {
     required this.state,
     required this.scrollController,
     required this.onSubmitMessage,
-    required this.onErrorShown,
   });
 
   final InteractionScreenState state;
   final ScrollController scrollController;
   final Future<void> Function(String message) onSubmitMessage;
-  final VoidCallback onErrorShown;
 
   @override
   State<InteractionReadyContent> createState() =>
@@ -32,7 +28,6 @@ class InteractionReadyContent extends StatefulWidget {
 
 class _InteractionReadyContentState extends State<InteractionReadyContent> {
   final TextEditingController _messageController = TextEditingController();
-  var _isErrorDialogOpen = false;
   var _lastInteractionCount = 0;
 
   @override
@@ -49,38 +44,12 @@ class _InteractionReadyContentState extends State<InteractionReadyContent> {
       _messageController.clear();
     }
     _lastInteractionCount = widget.state.interactions.length;
-
-    final error = widget.state.error;
-    if (error != null && !_isErrorDialogOpen) {
-      _isErrorDialogOpen = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) {
-          return;
-        }
-
-        await _showErrorDialog(error);
-        widget.onErrorShown();
-        _isErrorDialogOpen = false;
-      });
-    }
   }
 
   @override
   void dispose() {
     _messageController.dispose();
     super.dispose();
-  }
-
-  Future<void> _showErrorDialog(InteractionScreenError error) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return showAppErrorDialog(
-      context: context,
-      title: l10n.interactionSendErrorTitle,
-      message: error.code == null
-          ? l10n.interactionSendErrorDescription
-          : l10n.apiErrorDescription(error.code),
-    );
   }
 
   @override

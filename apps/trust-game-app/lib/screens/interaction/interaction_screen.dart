@@ -1,3 +1,4 @@
+import 'package:app/core/app/app_error_dialog.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -7,6 +8,12 @@ import 'package:app/screens/interaction/interaction_keys.dart';
 import 'package:app/screens/interaction/interaction_screen_state.dart';
 import 'package:app/screens/interaction/interaction_view_model.dart';
 import 'package:flutter/material.dart';
+
+class InteractionRouteArgs {
+  const InteractionRouteArgs({required this.sessionId});
+
+  final String sessionId;
+}
 
 class InteractionScreen extends StatefulWidget {
   const InteractionScreen({super.key, required this.viewModel});
@@ -35,38 +42,50 @@ class InteractionScreen extends StatefulWidget {
   State<InteractionScreen> createState() => _InteractionScreenState();
 }
 
-class InteractionRouteArgs {
-  const InteractionRouteArgs({required this.sessionId});
-
-  final String sessionId;
-}
-
 class _InteractionScreenState extends State<InteractionScreen> {
+  InteractionViewModel get _viewModel => widget.viewModel;
+
+  InteractionScreenState get _state => _viewModel.state;
+
   final ScrollController _scrollController = ScrollController();
+  bool _isShowingErrorDialog = false;
   int _lastInteractionCount = 0;
 
   @override
   void initState() {
     super.initState();
-    widget.viewModel.state.addListener(_handleStateChanged);
+    _viewModel.stateNotifier.addListener(_handleStateChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleStateChanged();
+    });
   }
 
   @override
   void dispose() {
-    widget.viewModel.state.removeListener(_handleStateChanged);
-    widget.viewModel.dispose();
+    _viewModel.stateNotifier.removeListener(_handleStateChanged);
+    _viewModel.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   void _handleStateChanged() {
-    final state = widget.viewModel.state.value;
     if (!mounted) {
       return;
     }
 
-    if (state.interactions.length > _lastInteractionCount) {
-      _lastInteractionCount = state.interactions.length;
+    if (_state.error != null && !_isShowingErrorDialog) {
+      _showInteractionErrorDialog();
+      return;
+    }
+
+    if (_state.status == InteractionScreenStatus.error &&
+        !_isShowingErrorDialog) {
+      _showLoadErrorDialog();
+      return;
+    }
+
+    if (_state.interactions.length > _lastInteractionCount) {
+      _lastInteractionCount = _state.interactions.length;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_scrollController.hasClients) {
           return;
@@ -78,8 +97,43 @@ class _InteractionScreenState extends State<InteractionScreen> {
         );
       });
     } else {
-      _lastInteractionCount = state.interactions.length;
+      _lastInteractionCount = _state.interactions.length;
     }
+  }
+
+  void _showInteractionErrorDialog() {
+    _isShowingErrorDialog = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) {
+        return;
+      }
+
+      final l10n = AppLocalizations.of(context)!;
+      await showAppErrorDialog(
+        context: context,
+        title: l10n.interactionSendErrorTitle,
+        message: l10n.interactionSendErrorDescription,
+      );
+      _isShowingErrorDialog = false;
+      _viewModel.clearError();
+    });
+  }
+
+  void _showLoadErrorDialog() {
+    _isShowingErrorDialog = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) {
+        return;
+      }
+
+      final l10n = AppLocalizations.of(context)!;
+      await showAppErrorDialog(
+        context: context,
+        title: l10n.interactionLoadErrorTitle,
+        message: l10n.interactionLoadErrorDescription,
+      );
+      _isShowingErrorDialog = false;
+    });
   }
 
   @override
@@ -96,7 +150,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<InteractionScreenState>(
-              valueListenable: widget.viewModel.state,
+              valueListenable: _viewModel.stateNotifier,
               builder: (context, state, _) {
                 return Padding(
                   padding: const EdgeInsets.all(AppSpacing.large),
@@ -108,8 +162,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
                     InteractionScreenStatus.ready => InteractionReadyContent(
                       state: state,
                       scrollController: _scrollController,
-                      onSubmitMessage: widget.viewModel.submitMessage,
-                      onErrorShown: widget.viewModel.clearError,
+                      onSubmitMessage: _viewModel.submitMessage,
                     ),
                     InteractionScreenStatus.notFound => _InteractionScaffold(
                       child: _SessionNotFoundState(sessionId: state.sessionId),

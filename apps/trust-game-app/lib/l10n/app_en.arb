@@ -104,6 +104,7 @@
   "interactionAnalysisHint": "View interaction analysis",
   "interactionUserMessageLabel": "You",
   "interactionAssistantMessageLabel": "Assistant",
+  "interactionLoadErrorTitle": "Interaction could not be loaded",
   "interactionLoadErrorDescription": "The session could not be loaded. Please go back and try again.",
   "interactionNotFoundDescription": "No local session with ID {sessionId} is available.",
   "@interactionNotFoundDescription": {

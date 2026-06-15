@@ -289,6 +289,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interactionAssistantMessageLabel => 'Assistant';
 
   @override
+  String get interactionLoadErrorTitle => 'Interaction could not be loaded';
+
+  @override
   String get interactionLoadErrorDescription =>
       'The session could not be loaded. Please go back and try again.';
 

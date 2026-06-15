@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
@@ -7,6 +5,7 @@ import 'package:app/data/session/session_repository.dart';
 import 'package:app/screens/interaction/interaction_logger.dart';
 import 'package:app/screens/interaction/interaction_screen_state.dart';
 import 'package:app/services/interaction_service.dart';
+import 'package:flutter/foundation.dart';
 
 class InteractionViewModel {
   InteractionViewModel({
@@ -19,7 +18,7 @@ class InteractionViewModel {
        _interactionRepository = interactionRepository,
        _interactionService = interactionService,
        _sessionRepository = sessionRepository,
-       state = ValueNotifier(
+       stateNotifier = ValueNotifier(
          InteractionScreenState.initial(sessionId: sessionId),
        ) {
     _loadSessionData();
@@ -29,16 +28,21 @@ class InteractionViewModel {
   final InteractionRepository _interactionRepository;
   final InteractionService _interactionService;
   final SessionRepository _sessionRepository;
-  final ValueNotifier<InteractionScreenState> state;
+
+  final ValueNotifier<InteractionScreenState> stateNotifier;
+
+  InteractionScreenState get state => stateNotifier.value;
+
+  void dispose() {
+    stateNotifier.dispose();
+  }
 
   Future<void> _loadSessionData() async {
     try {
-      final session = await _sessionRepository.getSession(
-        state.value.sessionId,
-      );
+      final session = await _sessionRepository.getSession(state.sessionId);
 
       if (session == null) {
-        state.value = state.value.copyWith(
+        stateNotifier.value = state.copyWith(
           status: InteractionScreenStatus.notFound,
           resetSession: true,
         );
@@ -46,16 +50,21 @@ class InteractionViewModel {
       }
 
       final interactions = await _interactionRepository.listInteractions(
-        state.value.sessionId,
+        state.sessionId,
       );
 
-      state.value = state.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: InteractionScreenStatus.ready,
         session: session,
         interactions: interactions,
       );
-    } catch (_) {
-      state.value = state.value.copyWith(
+    } catch (error, stackTrace) {
+      await _logger.logLoadFailed(
+        sessionId: state.sessionId,
+        error: error,
+        stackTrace: stackTrace,
+      );
+      stateNotifier.value = state.copyWith(
         status: InteractionScreenStatus.error,
         resetSession: true,
       );
@@ -65,56 +74,47 @@ class InteractionViewModel {
   Future<void> submitMessage(String message) async {
     final normalizedMessage = message.trim();
     if (normalizedMessage.isEmpty ||
-        state.value.status != InteractionScreenStatus.ready ||
-        state.value.isSubmitting) {
+        state.status != InteractionScreenStatus.ready ||
+        state.isSubmitting) {
       return;
     }
 
-    state.value = state.value.copyWith(isSubmitting: true, resetError: true);
-    await _logger.logSubmissionStarted(
-      sessionId: state.value.sessionId,
-      message: normalizedMessage,
-    );
+    stateNotifier.value = state.copyWith(isSubmitting: true, resetError: true);
 
     try {
-      final interaction = await _interactionService.createInteraction(
-        sessionId: state.value.sessionId,
+      await _interactionService.createInteraction(
+        sessionId: state.sessionId,
         message: normalizedMessage,
-      );
-      await _logger.logSubmissionSucceeded(
-        sessionId: state.value.sessionId,
-        message: normalizedMessage,
-        interactionId: interaction.interactionId,
       );
       final interactions = await _interactionRepository.listInteractions(
-        state.value.sessionId,
+        state.sessionId,
       );
 
-      state.value = state.value.copyWith(
+      stateNotifier.value = state.copyWith(
         interactions: interactions,
         isSubmitting: false,
       );
-    } on ApiException catch (error) {
+    } on ApiException catch (error, stackTrace) {
       await _logger.logSubmissionFailed(
-        sessionId: state.value.sessionId,
+        sessionId: state.sessionId,
         message: normalizedMessage,
         error: error,
+        stackTrace: stackTrace,
         httpStatusCode: error.statusCode,
         errorCode: error.code?.value,
       );
-      state.value = state.value.copyWith(
-        error: InteractionScreenError(
-          httpStatusCode: error.statusCode,
-          code: error.code,
-        ),
+      stateNotifier.value = state.copyWith(
+        error: const InteractionScreenError(),
         isSubmitting: false,
       );
-    } catch (_) {
+    } catch (error, stackTrace) {
       await _logger.logSubmissionFailed(
-        sessionId: state.value.sessionId,
+        sessionId: state.sessionId,
         message: normalizedMessage,
+        error: error,
+        stackTrace: stackTrace,
       );
-      state.value = state.value.copyWith(
+      stateNotifier.value = state.copyWith(
         error: const InteractionScreenError(),
         isSubmitting: false,
       );
@@ -122,10 +122,6 @@ class InteractionViewModel {
   }
 
   void clearError() {
-    state.value = state.value.copyWith(resetError: true);
-  }
-
-  void dispose() {
-    state.dispose();
+    stateNotifier.value = state.copyWith(resetError: true);
   }
 }

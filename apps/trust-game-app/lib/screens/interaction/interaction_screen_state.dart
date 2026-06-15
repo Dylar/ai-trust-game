@@ -1,14 +1,10 @@
-import 'package:app/data/api/api_error.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
 
 enum InteractionScreenStatus { loading, ready, notFound, error }
 
 class InteractionScreenError {
-  const InteractionScreenError({this.httpStatusCode, this.code});
-
-  final int? httpStatusCode;
-  final ApiErrorCode? code;
+  const InteractionScreenError();
 }
 
 class InteractionScreenState {

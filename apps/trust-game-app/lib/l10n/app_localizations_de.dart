@@ -299,6 +299,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get interactionAssistantMessageLabel => 'Assistant';
 
   @override
+  String get interactionLoadErrorTitle =>
+      'Interaction konnte nicht geladen werden';
+
+  @override
   String get interactionLoadErrorDescription =>
       'Die Sitzung konnte nicht geladen werden. Bitte gehe zurueck und versuche es erneut.';
 

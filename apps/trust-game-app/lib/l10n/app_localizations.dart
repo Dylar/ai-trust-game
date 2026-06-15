@@ -602,6 +602,12 @@ abstract class AppLocalizations {
   /// **'Assistant'**
   String get interactionAssistantMessageLabel;
 
+  /// No description provided for @interactionLoadErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction could not be loaded'**
+  String get interactionLoadErrorTitle;
+
   /// No description provided for @interactionLoadErrorDescription.
   ///
   /// In en, this message translates to:

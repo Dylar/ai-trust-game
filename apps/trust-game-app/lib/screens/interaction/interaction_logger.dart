@@ -5,42 +5,20 @@ class InteractionLogger {
 
   final AppLogger appLogger;
 
-  Future<void> logSubmissionStarted({
+  Future<void> logLoadFailed({
     required String sessionId,
-    required String message,
+    required Object error,
+    required StackTrace stackTrace,
   }) {
     return appLogger.log(
       AppLogEvent(
-        level: AppLogLevel.info,
+        level: AppLogLevel.error,
         category: 'interaction',
-        message: 'Submitting interaction message',
+        message: 'Interaction loading failed',
         sessionId: sessionId,
-        attributes: _messageAttributes(
-          sessionId: sessionId,
-          normalizedMessage: message,
-        ),
-      ),
-    );
-  }
-
-  Future<void> logSubmissionSucceeded({
-    required String sessionId,
-    required String message,
-    required String interactionId,
-  }) {
-    return appLogger.log(
-      AppLogEvent(
-        level: AppLogLevel.info,
-        category: 'interaction',
-        message: 'Created interaction',
-        sessionId: sessionId,
-        attributes: <String, Object?>{
-          ..._messageAttributes(
-            sessionId: sessionId,
-            normalizedMessage: message,
-          ),
-          'interactionId': interactionId,
-        },
+        error: error,
+        stackTrace: stackTrace,
+        attributes: <String, Object?>{'sessionId': sessionId},
       ),
     );
   }
@@ -49,6 +27,7 @@ class InteractionLogger {
     required String sessionId,
     required String message,
     Object? error,
+    StackTrace? stackTrace,
     int? httpStatusCode,
     String? errorCode,
   }) {
@@ -59,6 +38,7 @@ class InteractionLogger {
         message: 'Interaction submission failed',
         sessionId: sessionId,
         error: error,
+        stackTrace: stackTrace,
         attributes: <String, Object?>{
           ..._messageAttributes(
             sessionId: sessionId,
