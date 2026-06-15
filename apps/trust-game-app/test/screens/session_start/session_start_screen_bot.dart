@@ -54,6 +54,10 @@ class SessionStartScreenBot extends BaseScreenBot {
   void expectErrorDialogVisible() {
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(find.text('Session start failed'), findsWidgets);
+    expect(
+      find.text('The session could not be prepared. Please try again.'),
+      findsOneWidget,
+    );
   }
 
   ChoiceChip _roleChip(Key key) {

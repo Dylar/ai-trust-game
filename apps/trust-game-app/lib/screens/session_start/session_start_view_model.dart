@@ -1,75 +1,68 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/models/session_models.dart';
 import 'package:app/screens/session_start/session_start_logger.dart';
 import 'package:app/screens/session_start/session_start_screen_state.dart';
 import 'package:app/services/session_service.dart';
+import 'package:flutter/foundation.dart';
 
 class SessionStartViewModel {
-  SessionStartViewModel({required AppLogger appLogger, required this.sessionService})
-    : _logger = SessionStartLogger(appLogger: appLogger),
-      state = ValueNotifier(SessionStartScreenState.initial());
+  SessionStartViewModel({
+    required AppLogger appLogger,
+    required this.sessionService,
+  }) : _logger = SessionStartLogger(appLogger: appLogger),
+       stateNotifier = ValueNotifier(SessionStartScreenState.initial());
 
   final SessionStartLogger _logger;
   final SessionService sessionService;
-  final ValueNotifier<SessionStartScreenState> state;
+
+  final ValueNotifier<SessionStartScreenState> stateNotifier;
+
+  SessionStartScreenState get state => stateNotifier.value;
+
+  void dispose() {
+    stateNotifier.dispose();
+  }
 
   void selectRole(Role role) {
-    state.value = state.value.copyWith(selectedRole: role, resetStatus: true);
+    stateNotifier.value = state.copyWith(selectedRole: role, resetStatus: true);
   }
 
   void selectMode(Mode mode) {
-    state.value = state.value.copyWith(selectedMode: mode, resetStatus: true);
+    stateNotifier.value = state.copyWith(selectedMode: mode, resetStatus: true);
   }
 
   Future<void> prepareSession() async {
-    state.value = state.value.copyWith(status: SessionStartStatus.loading);
-    await _logger.logPreparationStarted(
-      role: state.value.selectedRole,
-      mode: state.value.selectedMode,
-    );
+    stateNotifier.value = state.copyWith(status: SessionStartStatus.loading);
 
     try {
       final session = await sessionService.startSession(
-        role: state.value.selectedRole,
-        mode: state.value.selectedMode,
+        role: state.selectedRole,
+        mode: state.selectedMode,
       );
-      await _logger.logPreparationSucceeded(session: session);
 
-      state.value = state.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: SessionStartStatus.prepared,
         createdSessionId: session.id,
       );
-    } on ApiException catch (error) {
+    } on ApiException catch (error, stackTrace) {
       await _logger.logPreparationFailed(
-        role: state.value.selectedRole,
-        mode: state.value.selectedMode,
+        role: state.selectedRole,
+        mode: state.selectedMode,
         error: error,
+        stackTrace: stackTrace,
         httpStatusCode: error.statusCode,
         errorCode: error.code?.value,
       );
-      state.value = state.value.copyWith(
-        status: SessionStartStatus.error,
-        error: SessionStartError(
-          httpStatusCode: error.statusCode,
-          code: error.code,
-        ),
-      );
-    } catch (_) {
+      stateNotifier.value = state.copyWith(status: SessionStartStatus.error);
+    } catch (error, stackTrace) {
       await _logger.logPreparationFailed(
-        role: state.value.selectedRole,
-        mode: state.value.selectedMode,
+        role: state.selectedRole,
+        mode: state.selectedMode,
+        error: error,
+        stackTrace: stackTrace,
       );
-      state.value = state.value.copyWith(
-        status: SessionStartStatus.error,
-        error: const SessionStartError(),
-      );
+      stateNotifier.value = state.copyWith(status: SessionStartStatus.error);
     }
-  }
-
-  void dispose() {
-    state.dispose();
   }
 }

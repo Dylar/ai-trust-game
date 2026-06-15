@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-
 import 'package:app/core/app/app_error_dialog.dart';
-import 'package:app/core/app/api_error_localizations.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -11,6 +8,7 @@ import 'package:app/screens/session_start/session_start_keys.dart';
 import 'package:app/screens/session_start/session_start_localizations.dart';
 import 'package:app/screens/session_start/session_start_screen_state.dart';
 import 'package:app/screens/session_start/session_start_view_model.dart';
+import 'package:flutter/material.dart';
 
 class SessionStartScreen extends StatefulWidget {
   const SessionStartScreen({super.key, required this.viewModel});
@@ -28,68 +26,65 @@ class SessionStartScreen extends StatefulWidget {
 }
 
 class _SessionStartScreenState extends State<SessionStartScreen> {
+  SessionStartViewModel get _viewModel => widget.viewModel;
+
+  SessionStartScreenState get _state => _viewModel.stateNotifier.value;
+
   bool _isShowingErrorDialog = false;
 
   @override
   void initState() {
     super.initState();
-    widget.viewModel.state.addListener(_handleStateChanged);
+    _viewModel.stateNotifier.addListener(_handleStateChanged);
   }
 
   @override
   void dispose() {
-    widget.viewModel.state.removeListener(_handleStateChanged);
-    widget.viewModel.dispose();
+    _viewModel.stateNotifier.removeListener(_handleStateChanged);
+    _viewModel.dispose();
     super.dispose();
   }
 
   void _handleStateChanged() {
-    final viewModel = widget.viewModel;
     if (!mounted) {
       return;
     }
 
-    if (viewModel.state.value.status == SessionStartStatus.error &&
-        !_isShowingErrorDialog) {
+    if (_state.status == SessionStartStatus.error && !_isShowingErrorDialog) {
       _isShowingErrorDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) {
           return;
         }
 
-        await _showErrorDialog(viewModel.state.value.error);
+        await _showErrorDialog();
         _isShowingErrorDialog = false;
       });
       return;
     }
 
-    if (viewModel.state.value.status != SessionStartStatus.prepared ||
-        viewModel.state.value.createdSessionId == null) {
+    if (_state.status != SessionStartStatus.prepared ||
+        _state.createdSessionId == null) {
       return;
     }
 
-    final sessionId = viewModel.state.value.createdSessionId!;
+    final sessionId = _state.createdSessionId!;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
       }
 
-      final navigator = Navigator.of(context);
-      if (navigator.canPop()) {
-        InteractionScreen.replace(context, sessionId: sessionId);
-      }
+      InteractionScreen.replace(context, sessionId: sessionId);
     });
   }
 
-  Future<void> _showErrorDialog(SessionStartError? error) {
+  Future<void> _showErrorDialog() {
     final l10n = AppLocalizations.of(context)!;
 
     return showAppErrorDialog(
       context: context,
       title: l10n.sessionStartErrorTitle,
-      message: error?.code == null
-          ? l10n.sessionStartErrorDescription
-          : l10n.apiErrorDescription(error!.code),
+      message: l10n.sessionStartErrorDescription,
     );
   }
 
@@ -107,7 +102,7 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<SessionStartScreenState>(
-              valueListenable: widget.viewModel.state,
+              valueListenable: _viewModel.stateNotifier,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),
@@ -118,10 +113,9 @@ class _SessionStartScreenState extends State<SessionStartScreen> {
                       const SizedBox(height: AppSpacing.large),
                       _SessionStartFormCard(
                         state: state,
-                        l10n: l10n,
-                        onRoleSelected: widget.viewModel.selectRole,
-                        onModeSelected: widget.viewModel.selectMode,
-                        onPrepareSession: widget.viewModel.prepareSession,
+                        onRoleSelected: _viewModel.selectRole,
+                        onModeSelected: _viewModel.selectMode,
+                        onPrepareSession: _viewModel.prepareSession,
                       ),
                     ],
                   ),
@@ -167,14 +161,12 @@ class _SessionStartHeader extends StatelessWidget {
 class _SessionStartFormCard extends StatelessWidget {
   const _SessionStartFormCard({
     required this.state,
-    required this.l10n,
     required this.onRoleSelected,
     required this.onModeSelected,
     required this.onPrepareSession,
   });
 
   final SessionStartScreenState state;
-  final AppLocalizations l10n;
   final ValueChanged<Role> onRoleSelected;
   final ValueChanged<Mode> onModeSelected;
   final VoidCallback onPrepareSession;
@@ -190,19 +182,16 @@ class _SessionStartFormCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _RoleSection(
-              l10n: l10n,
               selectedRole: state.selectedRole,
               onRoleSelected: onRoleSelected,
             ),
             const SizedBox(height: AppSpacing.large),
             _ModeSection(
-              l10n: l10n,
               selectedMode: state.selectedMode,
               onModeSelected: onModeSelected,
             ),
             const SizedBox(height: AppSpacing.small),
             _PrepareSessionButton(
-              l10n: l10n,
               isSubmitting: state.isSubmitting,
               onPressed: onPrepareSession,
             ),
@@ -215,17 +204,16 @@ class _SessionStartFormCard extends StatelessWidget {
 
 class _RoleSection extends StatelessWidget {
   const _RoleSection({
-    required this.l10n,
     required this.selectedRole,
     required this.onRoleSelected,
   });
 
-  final AppLocalizations l10n;
   final Role selectedRole;
   final ValueChanged<Role> onRoleSelected;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Column(
@@ -239,7 +227,6 @@ class _RoleSection extends StatelessWidget {
           children: Role.values
               .map(
                 (role) => _RoleChip(
-                  l10n: l10n,
                   role: role,
                   selected: selectedRole == role,
                   onSelected: () => onRoleSelected(role),
@@ -254,19 +241,18 @@ class _RoleSection extends StatelessWidget {
 
 class _RoleChip extends StatelessWidget {
   const _RoleChip({
-    required this.l10n,
     required this.role,
     required this.selected,
     required this.onSelected,
   });
 
-  final AppLocalizations l10n;
   final Role role;
   final bool selected;
   final VoidCallback onSelected;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ChoiceChip(
       key: switch (role) {
         Role.guest => SessionStartKeys.roleGuest,
@@ -282,17 +268,16 @@ class _RoleChip extends StatelessWidget {
 
 class _ModeSection extends StatelessWidget {
   const _ModeSection({
-    required this.l10n,
     required this.selectedMode,
     required this.onModeSelected,
   });
 
-  final AppLocalizations l10n;
   final Mode selectedMode;
   final ValueChanged<Mode> onModeSelected;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Column(
@@ -306,7 +291,6 @@ class _ModeSection extends StatelessWidget {
                 (mode) => Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.small),
                   child: _ModeCard(
-                    l10n: l10n,
                     mode: mode,
                     selected: selectedMode == mode,
                     onTap: () => onModeSelected(mode),
@@ -322,17 +306,16 @@ class _ModeSection extends StatelessWidget {
 
 class _PrepareSessionButton extends StatelessWidget {
   const _PrepareSessionButton({
-    required this.l10n,
     required this.isSubmitting,
     required this.onPressed,
   });
 
-  final AppLocalizations l10n;
   final bool isSubmitting;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return FilledButton(
       key: SessionStartKeys.prepareButton,
       onPressed: isSubmitting ? null : onPressed,
@@ -345,19 +328,18 @@ class _PrepareSessionButton extends StatelessWidget {
 
 class _ModeCard extends StatelessWidget {
   const _ModeCard({
-    required this.l10n,
     required this.mode,
     required this.selected,
     required this.onTap,
   });
 
-  final AppLocalizations l10n;
   final Mode mode;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return InkWell(

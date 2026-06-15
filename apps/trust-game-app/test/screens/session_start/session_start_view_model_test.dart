@@ -8,7 +8,7 @@ import '../../testing/mocks/recording_app_log_sink.dart';
 import '../../testing/mocks/session_service_mocks.dart';
 
 void main() {
-  test('logs session preparation start and success', () async {
+  test('does not log session preparation success path', () async {
     final sink = RecordingAppLogSink();
     final viewModel = SessionStartViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
@@ -17,22 +17,8 @@ void main() {
 
     await viewModel.prepareSession();
 
-    expect(viewModel.state.value.status, SessionStartStatus.prepared);
-    expect(sink.events, hasLength(2));
-    expect(sink.events.first.category, 'session_start');
-    expect(sink.events.first.message, 'Preparing session');
-    expect(sink.events.first.attributes, <String, Object?>{
-      'role': 'guest',
-      'mode': 'easy',
-    });
-    expect(sink.events.last.category, 'session_start');
-    expect(sink.events.last.message, 'Prepared session');
-    expect(sink.events.last.sessionId, 'session-1');
-    expect(sink.events.last.attributes, <String, Object?>{
-      'sessionId': 'session-1',
-      'role': 'guest',
-      'mode': 'easy',
-    });
+    expect(viewModel.stateNotifier.value.status, SessionStartStatus.prepared);
+    expect(sink.events, isEmpty);
   });
 
   test('logs session preparation error details', () async {
@@ -47,11 +33,11 @@ void main() {
 
     await viewModel.prepareSession();
 
-    expect(viewModel.state.value.status, SessionStartStatus.error);
-    expect(sink.events, hasLength(2));
-    expect(sink.events.last.level, AppLogLevel.error);
-    expect(sink.events.last.message, 'Session preparation failed');
-    expect(sink.events.last.attributes, <String, Object?>{
+    expect(viewModel.stateNotifier.value.status, SessionStartStatus.error);
+    expect(sink.events, hasLength(1));
+    expect(sink.events.single.level, AppLogLevel.error);
+    expect(sink.events.single.message, 'Session preparation failed');
+    expect(sink.events.single.attributes, <String, Object?>{
       'role': 'guest',
       'mode': 'easy',
       'httpStatusCode': 400,

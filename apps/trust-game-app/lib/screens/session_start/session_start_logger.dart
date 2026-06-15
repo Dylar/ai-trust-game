@@ -6,40 +6,11 @@ class SessionStartLogger {
 
   final AppLogger appLogger;
 
-  Future<void> logPreparationStarted({
-    required Role role,
-    required Mode mode,
-  }) {
-    return appLogger.log(
-      AppLogEvent(
-        level: AppLogLevel.info,
-        category: 'session_start',
-        message: 'Preparing session',
-        attributes: _selectionAttributes(role: role, mode: mode),
-      ),
-    );
-  }
-
-  Future<void> logPreparationSucceeded({required Session session}) {
-    return appLogger.log(
-      AppLogEvent(
-        level: AppLogLevel.info,
-        category: 'session_start',
-        message: 'Prepared session',
-        sessionId: session.id,
-        attributes: <String, Object?>{
-          'sessionId': session.id,
-          'role': session.role.name,
-          'mode': session.mode.name,
-        },
-      ),
-    );
-  }
-
   Future<void> logPreparationFailed({
     required Role role,
     required Mode mode,
     Object? error,
+    StackTrace? stackTrace,
     int? httpStatusCode,
     String? errorCode,
   }) {
@@ -49,6 +20,7 @@ class SessionStartLogger {
         category: 'session_start',
         message: 'Session preparation failed',
         error: error,
+        stackTrace: stackTrace,
         attributes: <String, Object?>{
           ..._selectionAttributes(role: role, mode: mode),
           'httpStatusCode': httpStatusCode,

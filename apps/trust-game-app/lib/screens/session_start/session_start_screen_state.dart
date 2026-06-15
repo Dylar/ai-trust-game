@@ -1,21 +1,12 @@
-import 'package:app/data/api/api_error.dart';
 import 'package:app/models/session_models.dart';
 
 enum SessionStartStatus { idle, loading, prepared, error }
-
-class SessionStartError {
-  const SessionStartError({this.httpStatusCode, this.code});
-
-  final int? httpStatusCode;
-  final ApiErrorCode? code;
-}
 
 class SessionStartScreenState {
   const SessionStartScreenState({
     required this.selectedRole,
     required this.selectedMode,
     required this.status,
-    required this.error,
     required this.createdSessionId,
   });
 
@@ -24,7 +15,6 @@ class SessionStartScreenState {
       selectedRole: Role.guest,
       selectedMode: Mode.easy,
       status: SessionStartStatus.idle,
-      error: null,
       createdSessionId: null,
     );
   }
@@ -32,7 +22,6 @@ class SessionStartScreenState {
   final Role selectedRole;
   final Mode selectedMode;
   final SessionStartStatus status;
-  final SessionStartError? error;
   final String? createdSessionId;
 
   bool get isSubmitting => status == SessionStartStatus.loading;
@@ -41,7 +30,6 @@ class SessionStartScreenState {
     Role? selectedRole,
     Mode? selectedMode,
     SessionStartStatus? status,
-    SessionStartError? error,
     String? createdSessionId,
     bool resetStatus = false,
   }) {
@@ -49,7 +37,6 @@ class SessionStartScreenState {
       selectedRole: selectedRole ?? this.selectedRole,
       selectedMode: selectedMode ?? this.selectedMode,
       status: resetStatus ? SessionStartStatus.idle : status ?? this.status,
-      error: resetStatus ? null : error ?? this.error,
       createdSessionId: resetStatus
           ? null
           : createdSessionId ?? this.createdSessionId,
