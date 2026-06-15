@@ -26,7 +26,7 @@ void main() {
     await context.process.expectRequestVisible('request-1');
   });
 
-  testWidgets('shows backend error text when session analysis loading fails', (
+  testWidgets('shows empty analysis state when analysis is not available yet', (
     tester,
   ) async {
     final context = SessionDetailTestContext(tester);
@@ -48,11 +48,13 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 1));
 
-    expect(find.byKey(SessionDetailKeys.errorState), findsOneWidget);
+    expect(find.byKey(SessionDetailKeys.emptyAnalysisState), findsOneWidget);
     expect(
-      find.text('No interactions are available yet for a session analysis.'),
+      find.text('No analysis is available for this session yet.'),
       findsOneWidget,
     );
+    expect(find.byKey(SessionDetailKeys.errorState), findsNothing);
+    expect(find.text('The analysis could not be loaded yet.'), findsNothing);
     expect(find.text('HTTP status: 404'), findsNothing);
   });
 }

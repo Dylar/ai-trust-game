@@ -1,5 +1,6 @@
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
+import 'package:app/data/api/api_error.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_logger.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_screen_state.dart';
 import 'package:app/services/analysis_service.dart';
@@ -43,6 +44,14 @@ class InteractionDetailViewModel {
         analysis: analysis,
       );
     } on AnalysisApiException catch (error, stackTrace) {
+      if (error.code == ApiErrorCode.requestAnalysisNotFound) {
+        stateNotifier.value = state.copyWith(
+          status: InteractionDetailStatus.notAvailableYet,
+          resetAnalysis: true,
+        );
+        return;
+      }
+
       await _logger.logAnalysisLoadFailed(
         requestId: state.requestId,
         error: error,

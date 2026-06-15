@@ -1,6 +1,6 @@
 import 'package:app/models/analysis_models.dart';
 
-enum InteractionDetailStatus { loading, ready, error }
+enum InteractionDetailStatus { loading, ready, notAvailableYet, error }
 
 class InteractionDetailScreenState {
   const InteractionDetailScreenState({
@@ -24,11 +24,12 @@ class InteractionDetailScreenState {
   InteractionDetailScreenState copyWith({
     InteractionDetailStatus? status,
     RequestAnalysis? analysis,
+    bool resetAnalysis = false,
   }) {
     return InteractionDetailScreenState(
       requestId: requestId,
       status: status ?? this.status,
-      analysis: analysis ?? this.analysis,
+      analysis: resetAnalysis ? null : analysis ?? this.analysis,
     );
   }
 }

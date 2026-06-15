@@ -22,7 +22,7 @@ void main() {
     expect(sink.events, isEmpty);
   });
 
-  test('logs request analysis load api errors', () async {
+  test('does not log missing request analysis as api error', () async {
     final sink = RecordingAppLogSink();
     final viewModel = InteractionDetailViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
@@ -35,13 +35,33 @@ void main() {
 
     await Future<void>.delayed(Duration.zero);
 
+    expect(
+      viewModel.stateNotifier.value.status,
+      InteractionDetailStatus.notAvailableYet,
+    );
+    expect(sink.events, isEmpty);
+  });
+
+  test('logs request analysis load api errors', () async {
+    final sink = RecordingAppLogSink();
+    final viewModel = InteractionDetailViewModel(
+      appLogger: AppLogger(sinks: <AppLogSink>[sink]),
+      analysisService: const FailingRequestAnalysisService(
+        statusCode: 500,
+        code: ApiErrorCode.internalError,
+      ),
+      requestId: 'request-1',
+    );
+
+    await Future<void>.delayed(Duration.zero);
+
     expect(viewModel.stateNotifier.value.status, InteractionDetailStatus.error);
     expect(sink.events, hasLength(1));
     expect(sink.events.single.message, 'Request analysis loading failed');
     expect(sink.events.single.attributes, <String, Object?>{
       'requestId': 'request-1',
-      'httpStatusCode': 404,
-      'errorCode': 'request_analysis_not_found',
+      'httpStatusCode': 500,
+      'errorCode': 'internal_error',
     });
   });
 }

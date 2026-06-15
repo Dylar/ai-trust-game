@@ -84,8 +84,31 @@ class _InteractionDetailContent extends StatelessWidget {
       InteractionDetailStatus.ready => _RequestAnalysisView(
         analysis: state.analysis!,
       ),
+      InteractionDetailStatus.notAvailableYet => const _EmptyAnalysisState(),
       InteractionDetailStatus.error => const _ErrorState(),
     };
+  }
+}
+
+class _EmptyAnalysisState extends StatelessWidget {
+  const _EmptyAnalysisState();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      key: InteractionDetailKeys.emptyAnalysisState,
+      elevation: 0,
+      color: AppColors.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.large),
+        child: Text(
+          l10n.apiErrorRequestAnalysisNotFound,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
+    );
   }
 }
 

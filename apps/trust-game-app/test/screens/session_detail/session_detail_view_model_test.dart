@@ -8,7 +8,7 @@ import '../../testing/mocks/analysis_service_mocks.dart';
 import '../../testing/mocks/recording_app_log_sink.dart';
 
 void main() {
-  test('logs session analysis load start and success', () async {
+  test('does not log session analysis load success path', () async {
     final sink = RecordingAppLogSink();
     final viewModel = SessionDetailViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
@@ -18,21 +18,11 @@ void main() {
 
     await Future<void>.delayed(Duration.zero);
 
-    expect(viewModel.state.value.status, SessionDetailStatus.ready);
-    expect(sink.events, hasLength(2));
-    expect(sink.events.first.message, 'Loading session analysis');
-    expect(sink.events.first.attributes, <String, Object?>{
-      'sessionId': 'session-1',
-    });
-    expect(sink.events.last.message, 'Loaded session analysis');
-    expect(sink.events.last.attributes, <String, Object?>{
-      'sessionId': 'session-1',
-      'requestCount': 1,
-      'classification': 'suspicious',
-    });
+    expect(viewModel.stateNotifier.value.status, SessionDetailStatus.ready);
+    expect(sink.events, isEmpty);
   });
 
-  test('logs session analysis load api errors', () async {
+  test('does not log missing session analysis as api error', () async {
     final sink = RecordingAppLogSink();
     final viewModel = SessionDetailViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
@@ -45,13 +35,33 @@ void main() {
 
     await Future<void>.delayed(Duration.zero);
 
-    expect(viewModel.state.value.status, SessionDetailStatus.error);
-    expect(sink.events, hasLength(2));
-    expect(sink.events.last.message, 'Session analysis loading failed');
-    expect(sink.events.last.attributes, <String, Object?>{
+    expect(
+      viewModel.stateNotifier.value.status,
+      SessionDetailStatus.notAvailableYet,
+    );
+    expect(sink.events, isEmpty);
+  });
+
+  test('logs session analysis load api errors', () async {
+    final sink = RecordingAppLogSink();
+    final viewModel = SessionDetailViewModel(
+      appLogger: AppLogger(sinks: <AppLogSink>[sink]),
+      analysisService: const FailingSessionAnalysisService(
+        statusCode: 500,
+        code: ApiErrorCode.internalError,
+      ),
+      sessionId: 'session-1',
+    );
+
+    await Future<void>.delayed(Duration.zero);
+
+    expect(viewModel.stateNotifier.value.status, SessionDetailStatus.error);
+    expect(sink.events, hasLength(1));
+    expect(sink.events.single.message, 'Session analysis loading failed');
+    expect(sink.events.single.attributes, <String, Object?>{
       'sessionId': 'session-1',
-      'httpStatusCode': 404,
-      'errorCode': 'session_analysis_not_found',
+      'httpStatusCode': 500,
+      'errorCode': 'internal_error',
     });
   });
 }

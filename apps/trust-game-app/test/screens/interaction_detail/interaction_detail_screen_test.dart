@@ -25,7 +25,7 @@ void main() {
     );
   });
 
-  testWidgets('shows backend error text when request analysis loading fails', (
+  testWidgets('shows empty analysis state when analysis is not available yet', (
     tester,
   ) async {
     final context = InteractionDetailTestContext(tester);
@@ -47,12 +47,16 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 1));
 
-    expect(find.byKey(InteractionDetailKeys.errorState), findsOneWidget);
-    expect(find.text('The analysis could not be loaded yet.'), findsOneWidget);
+    expect(
+      find.byKey(InteractionDetailKeys.emptyAnalysisState),
+      findsOneWidget,
+    );
     expect(
       find.text('No analysis is available for this interaction yet.'),
-      findsNothing,
+      findsOneWidget,
     );
+    expect(find.byKey(InteractionDetailKeys.errorState), findsNothing);
+    expect(find.text('The analysis could not be loaded yet.'), findsNothing);
     expect(find.text('HTTP status: 404'), findsNothing);
   });
 }

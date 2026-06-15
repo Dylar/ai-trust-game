@@ -1,5 +1,3 @@
-import 'package:app/core/app/api_error_localizations.dart';
-import 'package:app/data/api/api_error.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -9,6 +7,12 @@ import 'package:app/screens/session_detail/session_detail_keys.dart';
 import 'package:app/screens/session_detail/session_detail_screen_state.dart';
 import 'package:app/screens/session_detail/session_detail_view_model.dart';
 import 'package:flutter/material.dart';
+
+class SessionDetailRouteArgs {
+  const SessionDetailRouteArgs({required this.sessionId});
+
+  final String sessionId;
+}
 
 class SessionDetailScreen extends StatefulWidget {
   const SessionDetailScreen({super.key, required this.viewModel});
@@ -27,16 +31,12 @@ class SessionDetailScreen extends StatefulWidget {
   State<SessionDetailScreen> createState() => _SessionDetailScreenState();
 }
 
-class SessionDetailRouteArgs {
-  const SessionDetailRouteArgs({required this.sessionId});
-
-  final String sessionId;
-}
-
 class _SessionDetailScreenState extends State<SessionDetailScreen> {
+  SessionDetailViewModel get _viewModel => widget.viewModel;
+
   @override
   void dispose() {
-    widget.viewModel.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
@@ -54,7 +54,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<SessionDetailScreenState>(
-              valueListenable: widget.viewModel.state,
+              valueListenable: _viewModel.stateNotifier,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),
@@ -81,10 +81,8 @@ class _SessionDetailContent extends StatelessWidget {
       SessionDetailStatus.ready => _SessionAnalysisView(
         analysis: state.analysis!,
       ),
-      SessionDetailStatus.error => state.error?.code ==
-              ApiErrorCode.sessionAnalysisNotFound
-          ? const _EmptyAnalysisState()
-          : _ErrorState(error: state.error),
+      SessionDetailStatus.notAvailableYet => const _EmptyAnalysisState(),
+      SessionDetailStatus.error => const _ErrorState(),
     };
   }
 }
@@ -97,13 +95,13 @@ class _EmptyAnalysisState extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Card(
-      key: SessionDetailKeys.errorState,
+      key: SessionDetailKeys.emptyAnalysisState,
       elevation: 0,
       color: AppColors.surface,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.large),
         child: Text(
-          l10n.sessionDetailAnalysisEmpty,
+          l10n.apiErrorSessionAnalysisNotFound,
           style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
@@ -345,9 +343,7 @@ class _LoadingState extends StatelessWidget {
 }
 
 class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.error});
-
-  final SessionDetailError? error;
+  const _ErrorState();
 
   @override
   Widget build(BuildContext context) {
@@ -359,20 +355,9 @@ class _ErrorState extends StatelessWidget {
       color: AppColors.errorSurface,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.large),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              error?.code == null
-                  ? l10n.analysisLoadErrorDescription
-                  : l10n.apiErrorDescription(error!.code),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (error?.httpStatusCode != null) ...[
-              const SizedBox(height: AppSpacing.small),
-              Text(l10n.analysisHttpError(error!.httpStatusCode!)),
-            ],
-          ],
+        child: Text(
+          l10n.analysisLoadErrorDescription,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
     );
