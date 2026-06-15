@@ -12,56 +12,56 @@ class InteractionDetailViewModel {
     required String requestId,
   }) : _analysisService = analysisService,
        _logger = InteractionDetailLogger(appLogger: appLogger),
-       state = ValueNotifier(
+       stateNotifier = ValueNotifier(
          InteractionDetailScreenState.initial(requestId: requestId),
        ) {
     loadRequestAnalysis();
   }
 
-  final AnalysisService _analysisService;
   final InteractionDetailLogger _logger;
-  final ValueNotifier<InteractionDetailScreenState> state;
+  final AnalysisService _analysisService;
+
+  final ValueNotifier<InteractionDetailScreenState> stateNotifier;
+
+  InteractionDetailScreenState get state => stateNotifier.value;
+
+  void dispose() {
+    stateNotifier.dispose();
+  }
 
   Future<void> loadRequestAnalysis() async {
-    state.value = state.value.copyWith(
+    stateNotifier.value = state.copyWith(
       status: InteractionDetailStatus.loading,
-      resetError: true,
     );
-    await _logger.logAnalysisLoadStarted(requestId: state.value.requestId);
 
     try {
       final analysis = await _analysisService.getRequestAnalysis(
-        state.value.requestId,
+        state.requestId,
       );
-      await _logger.logAnalysisLoadSucceeded(analysis: analysis);
-      state.value = state.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: InteractionDetailStatus.ready,
         analysis: analysis,
       );
-    } on AnalysisApiException catch (error) {
+    } on AnalysisApiException catch (error, stackTrace) {
       await _logger.logAnalysisLoadFailed(
-        requestId: state.value.requestId,
+        requestId: state.requestId,
         error: error,
+        stackTrace: stackTrace,
         httpStatusCode: error.statusCode,
         errorCode: error.code?.value,
       );
-      state.value = state.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: InteractionDetailStatus.error,
-        error: InteractionDetailError(
-          httpStatusCode: error.statusCode,
-          code: error.code,
-        ),
       );
-    } catch (_) {
-      await _logger.logAnalysisLoadFailed(requestId: state.value.requestId);
-      state.value = state.value.copyWith(
+    } catch (error, stackTrace) {
+      await _logger.logAnalysisLoadFailed(
+        requestId: state.requestId,
+        error: error,
+        stackTrace: stackTrace,
+      );
+      stateNotifier.value = state.copyWith(
         status: InteractionDetailStatus.error,
-        error: const InteractionDetailError(),
       );
     }
-  }
-
-  void dispose() {
-    state.dispose();
   }
 }

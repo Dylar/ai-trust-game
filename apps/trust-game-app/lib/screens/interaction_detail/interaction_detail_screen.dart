@@ -1,4 +1,3 @@
-import 'package:app/core/app/api_error_localizations.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -7,6 +6,12 @@ import 'package:app/screens/interaction_detail/interaction_detail_keys.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_screen_state.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_view_model.dart';
 import 'package:flutter/material.dart';
+
+class InteractionDetailRouteArgs {
+  const InteractionDetailRouteArgs({required this.requestId});
+
+  final String requestId;
+}
 
 class InteractionDetailScreen extends StatefulWidget {
   const InteractionDetailScreen({super.key, required this.viewModel});
@@ -26,16 +31,12 @@ class InteractionDetailScreen extends StatefulWidget {
       _InteractionDetailScreenState();
 }
 
-class InteractionDetailRouteArgs {
-  const InteractionDetailRouteArgs({required this.requestId});
-
-  final String requestId;
-}
-
 class _InteractionDetailScreenState extends State<InteractionDetailScreen> {
+  InteractionDetailViewModel get _viewModel => widget.viewModel;
+
   @override
   void dispose() {
-    widget.viewModel.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
@@ -56,7 +57,7 @@ class _InteractionDetailScreenState extends State<InteractionDetailScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<InteractionDetailScreenState>(
-              valueListenable: widget.viewModel.state,
+              valueListenable: _viewModel.stateNotifier,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),
@@ -83,7 +84,7 @@ class _InteractionDetailContent extends StatelessWidget {
       InteractionDetailStatus.ready => _RequestAnalysisView(
         analysis: state.analysis!,
       ),
-      InteractionDetailStatus.error => _ErrorState(error: state.error),
+      InteractionDetailStatus.error => const _ErrorState(),
     };
   }
 }
@@ -216,9 +217,7 @@ class _LoadingState extends StatelessWidget {
 }
 
 class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.error});
-
-  final InteractionDetailError? error;
+  const _ErrorState();
 
   @override
   Widget build(BuildContext context) {
@@ -230,20 +229,9 @@ class _ErrorState extends StatelessWidget {
       color: AppColors.errorSurface,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.large),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              error?.code == null
-                  ? l10n.analysisLoadErrorDescription
-                  : l10n.apiErrorDescription(error!.code),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (error?.httpStatusCode != null) ...[
-              const SizedBox(height: AppSpacing.small),
-              Text(l10n.analysisHttpError(error!.httpStatusCode!)),
-            ],
-          ],
+        child: Text(
+          l10n.analysisLoadErrorDescription,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
     );

@@ -48,10 +48,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
 
     expect(find.byKey(InteractionDetailKeys.errorState), findsOneWidget);
+    expect(find.text('The analysis could not be loaded yet.'), findsOneWidget);
     expect(
       find.text('No analysis is available for this interaction yet.'),
-      findsOneWidget,
+      findsNothing,
     );
-    expect(find.text('HTTP status: 404'), findsOneWidget);
+    expect(find.text('HTTP status: 404'), findsNothing);
   });
 }
