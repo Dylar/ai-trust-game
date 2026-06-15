@@ -1,14 +1,13 @@
-import 'package:flutter/material.dart';
-
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/theme/app_spacing.dart';
 import 'package:app/l10n/app_localizations.dart';
-import 'package:app/screens/interaction/interaction_screen.dart';
-import 'package:app/screens/session_start/session_start_screen.dart';
-import 'package:app/screens/session_start/session_start_localizations.dart';
 import 'package:app/screens/home/home_keys.dart';
 import 'package:app/screens/home/home_screen_state.dart';
 import 'package:app/screens/home/home_view_model.dart';
+import 'package:app/screens/interaction/interaction_screen.dart';
+import 'package:app/screens/session_start/session_start_localizations.dart';
+import 'package:app/screens/session_start/session_start_screen.dart';
+import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.viewModel});
@@ -16,10 +15,6 @@ class HomeScreen extends StatefulWidget {
   static const routeName = '/';
 
   final HomeViewModel viewModel;
-
-  static Future<T?> open<T>(BuildContext context) {
-    return Navigator.of(context).pushNamed<T>(routeName);
-  }
 
   static Future<T?> replace<T extends Object?, TO extends Object?>(
     BuildContext context,
@@ -32,9 +27,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  HomeViewModel get _viewModel => widget.viewModel;
+
   @override
   void dispose() {
-    widget.viewModel.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
@@ -47,16 +44,14 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: ValueListenableBuilder<HomeScreenState>(
-              valueListenable: widget.viewModel.state,
+              valueListenable: _viewModel.stateNotifier,
               builder: (context, state, _) {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.large),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _HomeHeader(
-                        onStartSession: () => SessionStartScreen.open(context),
-                      ),
+                      _HomeHeader(),
                       const SizedBox(height: AppSpacing.large),
                       _RecentSessionsSection(sessions: state.recentSessions),
                     ],
@@ -72,9 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({required this.onStartSession});
-
-  final VoidCallback onStartSession;
+  const _HomeHeader();
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +116,7 @@ class _HomeHeader extends StatelessWidget {
             const SizedBox(height: AppSpacing.large),
             FilledButton(
               key: HomeKeys.startSessionButton,
-              onPressed: onStartSession,
+              onPressed: () => SessionStartScreen.open(context),
               child: Text(l10n.homeStartSessionButton),
             ),
           ],

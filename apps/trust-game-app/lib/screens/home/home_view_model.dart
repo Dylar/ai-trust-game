@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/screens/home/home_screen_state.dart';
+import 'package:flutter/foundation.dart';
 
 class HomeViewModel {
   HomeViewModel({
@@ -10,7 +9,7 @@ class HomeViewModel {
     required SessionRepository sessionRepository,
   }) : _interactionRepository = interactionRepository,
        _sessionRepository = sessionRepository,
-       state = ValueNotifier(HomeScreenState.initial()) {
+       stateNotifier = ValueNotifier(HomeScreenState.initial()) {
     _sessionRepository.sessionsListenable.addListener(_handleSessionsChanged);
     _interactionRepository.changes.addListener(_handleSessionsChanged);
     _handleSessionsChanged();
@@ -18,7 +17,10 @@ class HomeViewModel {
 
   final InteractionRepository _interactionRepository;
   final SessionRepository _sessionRepository;
-  final ValueNotifier<HomeScreenState> state;
+
+  final ValueNotifier<HomeScreenState> stateNotifier;
+
+  HomeScreenState get state => stateNotifier.value;
 
   Future<void> _handleSessionsChanged() async {
     final sessions = await _sessionRepository.listSessions();
@@ -34,7 +36,7 @@ class HomeViewModel {
       );
     }
 
-    state.value = state.value.copyWith(recentSessions: summaries);
+    stateNotifier.value = state.copyWith(recentSessions: summaries);
   }
 
   void dispose() {
@@ -42,6 +44,6 @@ class HomeViewModel {
     _sessionRepository.sessionsListenable.removeListener(
       _handleSessionsChanged,
     );
-    state.dispose();
+    stateNotifier.dispose();
   }
 }

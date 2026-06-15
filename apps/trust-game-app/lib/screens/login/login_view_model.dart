@@ -38,14 +38,14 @@ class LoginViewModel {
     try {
       final loadedUsers = await _userRepository.listLoadedUsers();
       final unloadedUsers = await _userRepository.listUnloadedUsers();
-      stateNotifier.value = stateNotifier.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: LoginScreenStatus.ready,
         loadedUsers: loadedUsers,
         unloadedUsers: unloadedUsers,
       );
     } on Exception catch (error, stackTrace) {
       await _logger.logUserListLoadFailed(error: error, stackTrace: stackTrace);
-      stateNotifier.value = stateNotifier.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: LoginScreenStatus.ready,
         error: LoginError.loadUsersFailed,
       );
@@ -53,22 +53,18 @@ class LoginViewModel {
   }
 
   Future<void> selectUser(UserProfile user) async {
-    stateNotifier.value = stateNotifier.value.copyWith(
-      status: LoginScreenStatus.loadUser,
-    );
+    stateNotifier.value = state.copyWith(status: LoginScreenStatus.loadUser);
     try {
       await _syncService.syncUser(user);
       _authService.selectUser(user);
-      stateNotifier.value = stateNotifier.value.copyWith(
-        status: LoginScreenStatus.loggedIn,
-      );
+      stateNotifier.value = state.copyWith(status: LoginScreenStatus.loggedIn);
     } on Object catch (error, stackTrace) {
       await _logger.logUserSelectionFailed(
         user: user,
         error: error,
         stackTrace: stackTrace,
       );
-      stateNotifier.value = stateNotifier.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: LoginScreenStatus.ready,
         error: LoginError.selectUserFailed,
       );
@@ -78,29 +74,27 @@ class LoginViewModel {
   Future<void> createUser(String displayName) async {
     final trimmedDisplayName = displayName.trim();
     if (trimmedDisplayName.isEmpty) {
-      stateNotifier.value = stateNotifier.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: LoginScreenStatus.ready,
         error: LoginError.emptyDisplayName,
       );
       return;
     }
 
-    stateNotifier.value = stateNotifier.value.copyWith(
+    stateNotifier.value = state.copyWith(
       status: LoginScreenStatus.loadUser,
       clearError: true,
     );
     try {
       await _authService.createUser(trimmedDisplayName);
-      stateNotifier.value = stateNotifier.value.copyWith(
-        status: LoginScreenStatus.loggedIn,
-      );
+      stateNotifier.value = state.copyWith(status: LoginScreenStatus.loggedIn);
     } on Exception catch (error, stackTrace) {
       await _logger.logUserCreationFailed(
         displayName: trimmedDisplayName,
         error: error,
         stackTrace: stackTrace,
       );
-      stateNotifier.value = stateNotifier.value.copyWith(
+      stateNotifier.value = state.copyWith(
         status: LoginScreenStatus.ready,
         error: LoginError.createUserFailed,
       );
