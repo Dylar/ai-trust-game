@@ -31,8 +31,8 @@ The app currently has:
 - a Drift database under `data/drift/`
 - Drift-backed repositories for cached sessions, interactions, and analysis views scoped to the selected user
 - Drift-backed user persistence for users returned by the backend identity flow
-- a loading screen that refreshes cached sessions, interactions, and available analysis views for loaded users before the
-  future login/user-selection screen
+- a loading screen that prepares user selection and refreshes cached sessions and interactions for loaded users
+- a login/user-selection screen that selects an existing user or creates a new backend user
 
 Prepared targets:
 
@@ -67,9 +67,8 @@ Current frontend architecture choices:
 - `AppDependencies.defaults()` creates repositories and API clients around shared app state without inventing a user ID
 - `SelectedUserController` owns the currently selected user identity for user-scoped backend requests and local reads
 - selected-user state is in-memory only; each app restart returns to user selection
-- `main.dart` currently starts with the loading screen before the login screen is added
-- startup sync loads all locally loaded users and updates their cached sessions, interactions, and available
-  request/session analysis views before continuing
+- `main.dart` starts with the loading screen before the login screen
+- startup sync loads all locally loaded users and updates their cached sessions and interactions before continuing
 - navigator-based routing is centralized under `core/routing/`
 - screens expose `routeName` and `open(...)`
 - view models stay screen-local and are composed in the router before being passed into screens
@@ -78,6 +77,7 @@ Current frontend architecture choices:
 - session flow currently follows `screen -> view model -> service -> repository/data`
 - interaction flow currently follows `screen -> view model -> service -> repository/data`
 - analysis detail flows currently follow `screen -> view model -> service -> repository/data`
+- analysis detail screens read cached analysis first, then refresh from the backend and store fresh responses locally
 - default app dependencies store cached sessions, interactions, and analysis views in Drift after a user is selected
 - in-memory repository implementations remain available for focused tests and lightweight compositions
 - current routing paths are `Home -> SessionStart -> Interaction`, `Home -> Interaction`, `Interaction -> SessionDetail`,

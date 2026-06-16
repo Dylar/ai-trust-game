@@ -6,6 +6,7 @@ import 'package:app/screens/interaction_detail/interaction_detail_screen.dart';
 import 'package:app/screens/session_detail/session_detail_keys.dart';
 import 'package:app/screens/session_detail/session_detail_screen_state.dart';
 import 'package:app/screens/session_detail/session_detail_view_model.dart';
+import 'package:app/screens/widgets/app_bar_loading_indicator.dart';
 import 'package:flutter/material.dart';
 
 class SessionDetailRouteArgs {
@@ -48,6 +49,17 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       key: SessionDetailKeys.screen,
       appBar: AppBar(
         title: Text(l10n.sessionDetailTitle, key: SessionDetailKeys.title),
+        actions: [
+          ValueListenableBuilder<SessionDetailScreenState>(
+            valueListenable: _viewModel.stateNotifier,
+            builder: (context, state, _) {
+              return AppBarLoadingIndicator(
+                isRefreshing: state.isRefreshing,
+                indicatorKey: SessionDetailKeys.refreshIndicator,
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Center(

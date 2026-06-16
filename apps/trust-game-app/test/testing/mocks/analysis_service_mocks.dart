@@ -17,14 +17,26 @@ class SuccessfulSessionAnalysisService implements AnalysisService {
   final String sessionId;
 
   @override
-  Future<RequestAnalysis> getRequestAnalysis(String requestId) {
+  Future<RequestAnalysis?> getRequestAnalysis(String requestId) {
     throw UnimplementedError();
   }
 
   @override
-  Future<SessionAnalysis> getSessionAnalysis(String sessionId) async {
+  Future<void> refreshRequestAnalysis(String requestId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<SessionAnalysis?> getSessionAnalysis(String sessionId) async {
+    return _analysis();
+  }
+
+  @override
+  Future<void> refreshSessionAnalysis(String sessionId) async {}
+
+  SessionAnalysis _analysis() {
     return SessionAnalysis(
-      sessionId: this.sessionId,
+      sessionId: sessionId,
       classification: classification,
       signals: const <String>['prompt_injection'],
       attackPatterns: const <String>['override'],
@@ -33,7 +45,7 @@ class SuccessfulSessionAnalysisService implements AnalysisService {
       requests: <RequestAnalysis>[
         RequestAnalysis(
           requestId: requestId,
-          sessionId: this.sessionId,
+          sessionId: sessionId,
           completedAt: DateTime.utc(2026, 1, 1),
           classification: classification,
           signals: const <String>['prompt_injection'],
@@ -60,12 +72,22 @@ class FailingSessionAnalysisService implements AnalysisService {
   final int statusCode;
 
   @override
-  Future<RequestAnalysis> getRequestAnalysis(String requestId) {
+  Future<RequestAnalysis?> getRequestAnalysis(String requestId) {
     throw UnimplementedError();
   }
 
   @override
-  Future<SessionAnalysis> getSessionAnalysis(String sessionId) {
+  Future<void> refreshRequestAnalysis(String requestId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<SessionAnalysis?> getSessionAnalysis(String sessionId) async {
+    return null;
+  }
+
+  @override
+  Future<void> refreshSessionAnalysis(String sessionId) {
     throw AnalysisApiException(
       statusCode: statusCode,
       error: ApiError(code: code),
@@ -85,9 +107,16 @@ class SuccessfulRequestAnalysisService implements AnalysisService {
   final String sessionId;
 
   @override
-  Future<RequestAnalysis> getRequestAnalysis(String requestId) async {
+  Future<RequestAnalysis?> getRequestAnalysis(String requestId) async {
+    return _analysis();
+  }
+
+  @override
+  Future<void> refreshRequestAnalysis(String requestId) async {}
+
+  RequestAnalysis _analysis() {
     return RequestAnalysis(
-      requestId: this.requestId,
+      requestId: requestId,
       sessionId: sessionId,
       completedAt: DateTime.utc(2026, 1, 1),
       classification: classification,
@@ -101,7 +130,12 @@ class SuccessfulRequestAnalysisService implements AnalysisService {
   }
 
   @override
-  Future<SessionAnalysis> getSessionAnalysis(String sessionId) {
+  Future<SessionAnalysis?> getSessionAnalysis(String sessionId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> refreshSessionAnalysis(String sessionId) {
     throw UnimplementedError();
   }
 }
@@ -116,7 +150,12 @@ class FailingRequestAnalysisService implements AnalysisService {
   final int statusCode;
 
   @override
-  Future<RequestAnalysis> getRequestAnalysis(String requestId) {
+  Future<RequestAnalysis?> getRequestAnalysis(String requestId) async {
+    return null;
+  }
+
+  @override
+  Future<void> refreshRequestAnalysis(String requestId) {
     throw AnalysisApiException(
       statusCode: statusCode,
       error: ApiError(code: code),
@@ -124,7 +163,12 @@ class FailingRequestAnalysisService implements AnalysisService {
   }
 
   @override
-  Future<SessionAnalysis> getSessionAnalysis(String sessionId) {
+  Future<SessionAnalysis?> getSessionAnalysis(String sessionId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> refreshSessionAnalysis(String sessionId) {
     throw UnimplementedError();
   }
 }

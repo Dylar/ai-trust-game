@@ -35,20 +35,62 @@ class InteractionDetailViewModel {
       status: InteractionDetailStatus.loading,
     );
 
+    final localAnalysis = await _analysisService.getRequestAnalysis(
+      state.requestId,
+    );
+    if (localAnalysis != null) {
+      stateNotifier.value = state.copyWith(
+        status: InteractionDetailStatus.ready,
+        analysis: localAnalysis,
+        isRefreshing: true,
+      );
+    } else {
+      stateNotifier.value = state.copyWith(isRefreshing: true);
+    }
+
     try {
+      await _analysisService.refreshRequestAnalysis(state.requestId);
       final analysis = await _analysisService.getRequestAnalysis(
         state.requestId,
       );
-      stateNotifier.value = state.copyWith(
-        status: InteractionDetailStatus.ready,
-        analysis: analysis,
-      );
-    } on AnalysisApiException catch (error, stackTrace) {
-      if (error.code == ApiErrorCode.requestAnalysisNotFound) {
+      if (analysis == null) {
         stateNotifier.value = state.copyWith(
           status: InteractionDetailStatus.notAvailableYet,
           resetAnalysis: true,
+          isRefreshing: false,
         );
+        return;
+      }
+
+      stateNotifier.value = state.copyWith(
+        status: InteractionDetailStatus.ready,
+        analysis: analysis,
+        isRefreshing: false,
+      );
+    } on AnalysisApiException catch (error, stackTrace) {
+      if (error.code == ApiErrorCode.requestAnalysisNotFound) {
+        if (localAnalysis != null) {
+          stateNotifier.value = state.copyWith(isRefreshing: false);
+          return;
+        }
+
+        stateNotifier.value = state.copyWith(
+          status: InteractionDetailStatus.notAvailableYet,
+          resetAnalysis: true,
+          isRefreshing: false,
+        );
+        return;
+      }
+
+      if (localAnalysis != null) {
+        await _logger.logAnalysisLoadFailed(
+          requestId: state.requestId,
+          error: error,
+          stackTrace: stackTrace,
+          httpStatusCode: error.statusCode,
+          errorCode: error.code?.value,
+        );
+        stateNotifier.value = state.copyWith(isRefreshing: false);
         return;
       }
 
@@ -61,8 +103,19 @@ class InteractionDetailViewModel {
       );
       stateNotifier.value = state.copyWith(
         status: InteractionDetailStatus.error,
+        isRefreshing: false,
       );
     } catch (error, stackTrace) {
+      if (localAnalysis != null) {
+        await _logger.logAnalysisLoadFailed(
+          requestId: state.requestId,
+          error: error,
+          stackTrace: stackTrace,
+        );
+        stateNotifier.value = state.copyWith(isRefreshing: false);
+        return;
+      }
+
       await _logger.logAnalysisLoadFailed(
         requestId: state.requestId,
         error: error,
@@ -70,6 +123,7 @@ class InteractionDetailViewModel {
       );
       stateNotifier.value = state.copyWith(
         status: InteractionDetailStatus.error,
+        isRefreshing: false,
       );
     }
   }

@@ -1,10 +1,16 @@
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/data/drift/drift_db.dart';
+import 'package:app/data/interaction/drift_interaction_repository.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/models/interaction_models.dart';
+import 'package:app/data/session/drift_session_repository.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../testing/test_dependencies.dart';
+import '../../testing/test_user_profile.dart';
 import 'home_test_context.dart';
 
 void main() {
@@ -118,5 +124,58 @@ void main() {
 
     context.screenBot.expectRecentSessionVisible('seeded-session');
     context.process.expectRecentSessionPreviewVisible('Latest preview message');
+  });
+
+  testWidgets('shows restored local session preview from Drift persistence', (
+    tester,
+  ) async {
+    final context = HomeTestContext(tester);
+    final database = DriftDB.forTest(migrations: [InitialDriftMigration()]);
+    final selectedUser = SelectedUserController(
+      initialUser: testUserProfile('user-1'),
+    );
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      selectedUser.dispose();
+      await database.close();
+    });
+    final sessionRepository = DriftSessionRepository(
+      database: database,
+      selectedUser: selectedUser,
+    );
+    final interactionRepository = DriftInteractionRepository(
+      database: database,
+      selectedUser: selectedUser,
+    );
+    await sessionRepository.saveSession(
+      const Session(
+        id: 'restored-session',
+        role: Role.employee,
+        mode: Mode.medium,
+      ),
+    );
+    await interactionRepository.saveInteraction(
+      const Interaction(
+        sessionId: 'restored-session',
+        interactionId: 'request-1',
+        message: 'Restored local message',
+        answer: 'Restored local answer',
+      ),
+    );
+    final dependencies = buildTestDependencies(
+      interactionRepository: interactionRepository,
+      selectedUser: selectedUser,
+      sessionRepository: sessionRepository,
+    );
+
+    await context.appBot.startApp(
+      dependencies: dependencies,
+      homeBuilder: (router) => router.buildHomeScreen(),
+    );
+    await context.process.waitUntilRecentSessionsLoaded();
+
+    context.screenBot.expectRecentSessionVisible('restored-session');
+    context.process.expectRecentSessionPreviewVisible('Restored local message');
   });
 }

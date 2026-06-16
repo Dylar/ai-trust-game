@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 abstract final class SessionDetailKeys {
   static const screen = Key('sessionDetail.screen');
   static const title = Key('sessionDetail.title');
+  static const refreshIndicator = Key('sessionDetail.refresh_indicator');
   static const loadingState = Key('sessionDetail.loading');
   static const emptyAnalysisState = Key('sessionDetail.empty_analysis');
   static const errorState = Key('sessionDetail.error');

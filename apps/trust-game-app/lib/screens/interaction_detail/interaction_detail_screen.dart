@@ -5,6 +5,7 @@ import 'package:app/models/analysis_models.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_keys.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_screen_state.dart';
 import 'package:app/screens/interaction_detail/interaction_detail_view_model.dart';
+import 'package:app/screens/widgets/app_bar_loading_indicator.dart';
 import 'package:flutter/material.dart';
 
 class InteractionDetailRouteArgs {
@@ -51,6 +52,17 @@ class _InteractionDetailScreenState extends State<InteractionDetailScreen> {
           l10n.interactionDetailTitle,
           key: InteractionDetailKeys.title,
         ),
+        actions: [
+          ValueListenableBuilder<InteractionDetailScreenState>(
+            valueListenable: _viewModel.stateNotifier,
+            builder: (context, state, _) {
+              return AppBarLoadingIndicator(
+                isRefreshing: state.isRefreshing,
+                indicatorKey: InteractionDetailKeys.refreshIndicator,
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Center(

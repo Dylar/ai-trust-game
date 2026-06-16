@@ -75,4 +75,39 @@ void main() {
       ),
     );
   });
+
+  test('loads restored sessions with user header from backend', () async {
+    late http.Request capturedRequest;
+    final client = SessionApiClient(
+      httpClient: MockClient((request) async {
+        capturedRequest = request;
+        return http.Response(
+          jsonEncode(<String, Object>{
+            'sessions': <Object>[
+              <String, String>{
+                'sessionId': 'session-1',
+                'userId': 'user-123',
+                'role': 'admin',
+                'mode': 'hard',
+                'createdAt': '2026-06-11T15:00:00Z',
+                'updatedAt': '2026-06-11T15:00:00Z',
+              },
+            ],
+          }),
+          200,
+        );
+      }),
+      apiBaseUri: Uri.parse('http://localhost:8080'),
+      selectedUser: selectedUser,
+    );
+
+    final response = await client.listSessionsForUser('user-123');
+
+    expect(capturedRequest.method, 'GET');
+    expect(capturedRequest.url.path, '/session/list');
+    expect(capturedRequest.headers['X-User-Id'], 'user-123');
+    expect(response.sessions.single.id, 'session-1');
+    expect(response.sessions.single.role, Role.admin);
+    expect(response.sessions.single.mode, Mode.hard);
+  });
 }

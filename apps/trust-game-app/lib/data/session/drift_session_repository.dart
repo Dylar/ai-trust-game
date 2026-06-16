@@ -31,7 +31,9 @@ class DriftSessionRepository implements SessionRepository {
     final userId = selectedUser.requiredUser.id;
     final rows = await statements.listSessions(userId: userId);
     final sessions = rows.map(_toSession).toList();
-    _sessions.value = List<Session>.unmodifiable(sessions);
+    if (!_sameSessions(_sessions.value, sessions)) {
+      _sessions.value = List<Session>.unmodifiable(sessions);
+    }
     return _sessions.value;
   }
 
@@ -64,4 +66,23 @@ Session _toSession(SessionRow row) {
     role: Role.values.byName(row.role),
     mode: Mode.values.byName(row.mode),
   );
+}
+
+bool _sameSessions(List<Session> left, List<Session> right) {
+  if (left.length != right.length) {
+    return false;
+  }
+
+  for (var index = 0; index < left.length; index += 1) {
+    final leftSession = left[index];
+    final rightSession = right[index];
+
+    if (leftSession.id != rightSession.id ||
+        leftSession.role != rightSession.role ||
+        leftSession.mode != rightSession.mode) {
+      return false;
+    }
+  }
+
+  return true;
 }

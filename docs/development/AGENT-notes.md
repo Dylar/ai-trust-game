@@ -230,14 +230,14 @@ interaction state.
 
 #### 14. Update session and interaction UI flows
 
-- Ensure session start sends the selected user id through the existing request metadata path.
-- Ensure interaction requests continue to include session id and user id metadata.
-- Update home/session screens to show restored sessions from local persistence.
-- Update detail screens to read from local persistence first and refresh from backend when online.
-- Preserve current loading and error handling patterns.
+- Ensure session start sends the selected user id through the existing request metadata path. (DONE)
+- Ensure interaction requests continue to include session id and user id metadata. (DONE)
+- Update home/session screens to show restored sessions from local persistence. (DONE)
+- Update detail screens to read from local persistence first and refresh from backend when online. (DONE)
+- Preserve current loading and error handling patterns. (DONE)
 - Add tests for session start metadata, interaction metadata, restored session display, detail-screen cached reads, and
-  offline action errors.
-- Update app README for local persistence and offline restore behavior.
+  offline action errors. (DONE)
+- Update app README for local persistence and offline restore behavior. (DONE)
 
 #### 15. Run end-to-end verification
 
@@ -260,3 +260,6 @@ interaction state.
 
 #### 17. App Test like architecture readmes dictates
 - Check frontend test which one is correct.
+
+#### 18. Create doc for agent to plan phase
+- Write doc for agent to plan phase, which includes how to break down the phase into smaller steps, how to make decisions on the implementation.

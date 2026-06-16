@@ -17,6 +17,7 @@ class HomeViewModel {
 
   final InteractionRepository _interactionRepository;
   final SessionRepository _sessionRepository;
+  var _disposed = false;
 
   final ValueNotifier<HomeScreenState> stateNotifier;
 
@@ -24,12 +25,19 @@ class HomeViewModel {
 
   Future<void> _handleSessionsChanged() async {
     final sessions = await _sessionRepository.listSessions();
+    if (_disposed) {
+      return;
+    }
+
     final summaries = <SessionSummary>[];
 
     for (final session in sessions) {
       final lastInteraction = await _interactionRepository.getLastInteraction(
         session.id,
       );
+      if (_disposed) {
+        return;
+      }
 
       summaries.add(
         SessionSummary(session: session, lastInteraction: lastInteraction),
@@ -40,6 +48,7 @@ class HomeViewModel {
   }
 
   void dispose() {
+    _disposed = true;
     _interactionRepository.changes.removeListener(_handleSessionsChanged);
     _sessionRepository.sessionsListenable.removeListener(
       _handleSessionsChanged,

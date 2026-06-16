@@ -84,4 +84,34 @@ void main() {
     // Then
     context.screenBot.expectErrorDialogVisible();
   });
+
+  testWidgets('opens a dialog when preparing a session is offline', (
+    tester,
+  ) async {
+    final context = SessionStartTestContext(tester);
+    final dependencies = buildTestDependencies(
+      httpClient: buildBackendMockClient(
+        override: (request) async {
+          if (request.url.path == '/session/start') {
+            throw http.ClientException('offline');
+          }
+
+          return null;
+        },
+      ),
+    );
+
+    // Given
+    await context.appBot.startApp(
+      dependencies: dependencies,
+      homeBuilder: (router) => router.buildSessionStartScreen(),
+    );
+
+    // When
+    await context.screenBot.tapPrepareSession();
+    await tester.pumpAndSettle();
+
+    // Then
+    context.screenBot.expectErrorDialogVisible();
+  });
 }

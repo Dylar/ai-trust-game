@@ -1,4 +1,8 @@
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/data/drift/drift_db.dart';
+import 'package:app/data/interaction/drift_interaction_repository.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
+import 'package:app/data/session/drift_session_repository.dart';
 import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
@@ -8,6 +12,7 @@ import 'package:http/http.dart' as http;
 
 import '../../testing/mocks/backend_mock_client.dart';
 import '../../testing/test_dependencies.dart';
+import '../../testing/test_user_profile.dart';
 import 'interaction_test_context.dart';
 
 void main() {
@@ -46,6 +51,60 @@ void main() {
     // Then
     await context.process.expectSessionDetailsLoaded('local-admin-hard');
     await context.screenBot.expectInteractionVisible('request-1');
+  });
+
+  testWidgets('shows restored local interactions from Drift persistence', (
+    tester,
+  ) async {
+    final context = InteractionTestContext(tester);
+    final database = DriftDB.forTest(migrations: [InitialDriftMigration()]);
+    final selectedUser = SelectedUserController(
+      initialUser: testUserProfile('user-1'),
+    );
+    addTearDown(() async {
+      selectedUser.dispose();
+      await database.close();
+    });
+    final interactionRepository = DriftInteractionRepository(
+      database: database,
+      selectedUser: selectedUser,
+    );
+    final sessionRepository = DriftSessionRepository(
+      database: database,
+      selectedUser: selectedUser,
+    );
+    await sessionRepository.saveSession(
+      const Session(
+        id: 'restored-session',
+        role: Role.employee,
+        mode: Mode.medium,
+      ),
+    );
+    await interactionRepository.saveInteraction(
+      const Interaction(
+        sessionId: 'restored-session',
+        interactionId: 'request-1',
+        message: 'Restored local message',
+        answer: 'Restored local answer',
+      ),
+    );
+    final dependencies = buildTestDependencies(
+      interactionRepository: interactionRepository,
+      selectedUser: selectedUser,
+      sessionRepository: sessionRepository,
+    );
+
+    await context.appBot.startApp(
+      dependencies: dependencies,
+      homeBuilder: (router) =>
+          router.buildInteractionScreen(sessionId: 'restored-session'),
+    );
+
+    await context.process.expectSessionDetailsLoaded('restored-session');
+    await context.screenBot.expectInteractionVisible('request-1');
+    await context.screenBot.expectInteractionMessageShown(
+      'Restored local message',
+    );
   });
 
   testWidgets('shows not found when the session is missing', (tester) async {
@@ -143,6 +202,48 @@ void main() {
         override: (request) async {
           if (request.url.path == '/interaction') {
             return http.Response('', 500);
+          }
+
+          return null;
+        },
+      ),
+      sessionRepository: repository,
+    );
+
+    // Given
+    await context.appBot.startApp(
+      dependencies: dependencies,
+      homeBuilder: (router) =>
+          router.buildInteractionScreen(sessionId: 'local-admin-hard'),
+    );
+    await context.process.expectSessionDetailsLoaded('local-admin-hard');
+
+    // When
+    await context.process.sendMessage('Can I access the vault?');
+    await tester.pumpAndSettle();
+
+    // Then
+    context.screenBot.expectSessionDetailsVisible();
+    context.screenBot.expectSendErrorDialogVisible();
+    context.screenBot.expectMessageInputText('Can I access the vault?');
+  });
+
+  testWidgets('keeps the failed message visible when sending offline', (
+    tester,
+  ) async {
+    final context = InteractionTestContext(tester);
+    final interactionRepository = InMemoryInteractionRepository();
+    final repository = InMemorySessionRepository(
+      initialSessions: const [
+        Session(id: 'local-admin-hard', role: Role.admin, mode: Mode.hard),
+      ],
+    );
+    final dependencies = buildTestDependencies(
+      interactionRepository: interactionRepository,
+      httpClient: buildBackendMockClient(
+        override: (request) async {
+          if (request.url.path == '/interaction') {
+            throw http.ClientException('offline');
           }
 
           return null;
