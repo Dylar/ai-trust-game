@@ -242,15 +242,15 @@ interaction state.
 #### 15. Run end-to-end verification
 
 - Start the full compose stack with PostgreSQL, RabbitMQ, gateway, auth-service, game-service, audit-service,
-  logging-service, and Flutter web.
-- Create/select a user.
-- Start a session and complete at least one interaction.
-- Verify session, interaction, and audit data are written to persistent storage.
-- Restart backend services and confirm the app can restore the same user/session state.
-- Restart the browser/app and confirm local restore works.
-- Stop backend connectivity and confirm offline read-only behavior works.
-- Restart RabbitMQ and confirm durable queued messages behave according to the configured persistence rules.
-- Run backend tests, Flutter tests, linting, and formatting after the full persistence path works.
+  logging-service, and Flutter web. (DONE)
+- Create/select a user. (DONE)
+- Start a session and complete at least one interaction. (DONE)
+- Verify session, interaction, and audit data are written to persistent storage. (DONE)
+- Restart backend services and confirm the app can restore the same user/session state. (DONE)
+- Restart the browser/app and confirm local restore works. (DONE)
+- Stop backend connectivity and confirm offline read-only behavior works. (DONE)
+- Restart RabbitMQ and confirm durable queued messages behave according to the configured persistence rules. (DONE)
+- Run backend tests, Flutter tests, linting, and formatting after the full persistence path works. (DONE)
 
 #### 16. Final documentation cleanup
 

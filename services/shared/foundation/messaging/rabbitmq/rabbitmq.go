@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
@@ -34,10 +35,10 @@ type ConsumerConfig struct {
 }
 
 type Publisher struct {
-	conn       *amqp.Connection
-	channel    *amqp.Channel
-	exchange   string
-	routingKey string
+	mu      sync.Mutex
+	conn    *amqp.Connection
+	channel *amqp.Channel
+	cfg     PublisherConfig
 }
 
 func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
@@ -45,45 +46,77 @@ func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 		return nil, ErrMissingURL
 	}
 
-	conn, err := amqp.Dial(cfg.URL)
-	if err != nil {
+	publisher := &Publisher{cfg: cfg}
+	if err := publisher.connect(); err != nil {
 		return nil, err
+	}
+	return publisher, nil
+}
+
+func (publisher *Publisher) connect() error {
+	conn, err := amqp.Dial(publisher.cfg.URL)
+	if err != nil {
+		return err
 	}
 
 	channel, err := conn.Channel()
 	if err != nil {
 		_ = conn.Close()
-		return nil, err
+		return err
 	}
 
-	if err := declareExchange(channel, cfg.Exchange); err != nil {
+	if err := declareExchange(channel, publisher.cfg.Exchange); err != nil {
 		_ = channel.Close()
 		_ = conn.Close()
-		return nil, err
+		return err
 	}
 
-	return &Publisher{
-		conn:       conn,
-		channel:    channel,
-		exchange:   cfg.Exchange,
-		routingKey: cfg.RoutingKey,
-	}, nil
+	publisher.conn = conn
+	publisher.channel = channel
+	return nil
 }
 
 func (publisher *Publisher) Publish(ctx context.Context, message messaging.Message) error {
+	publisher.mu.Lock()
+	defer publisher.mu.Unlock()
+
+	err := publisher.publish(ctx, message)
+	if err == nil || ctx.Err() != nil {
+		return err
+	}
+
+	if reconnectErr := publisher.reconnect(); reconnectErr != nil {
+		return errors.Join(err, reconnectErr)
+	}
+
+	return publisher.publish(ctx, message)
+}
+
+func (publisher *Publisher) publish(ctx context.Context, message messaging.Message) error {
 	return publisher.channel.PublishWithContext(
 		ctx,
-		publisher.exchange,
-		publisher.routingKey,
+		publisher.cfg.Exchange,
+		publisher.cfg.RoutingKey,
 		false,
 		false,
 		persistentPublishing(message.ContentType, message.Body, nil),
 	)
 }
 
+func (publisher *Publisher) reconnect() error {
+	_ = publisher.close()
+	return publisher.connect()
+}
+
 func (publisher *Publisher) Close() error {
-	err := publisher.channel.Close()
-	connErr := publisher.conn.Close()
+	publisher.mu.Lock()
+	defer publisher.mu.Unlock()
+	return publisher.close()
+}
+
+func (publisher *Publisher) close() error {
+	err := closeChannel(publisher.channel)
+	connErr := closeConnection(publisher.conn)
 	if err != nil {
 		return err
 	}
@@ -109,34 +142,64 @@ func NewConsumer(cfg ConsumerConfig, handler messaging.Handler, logger logging.L
 		logger = logging.NewNoopLogger()
 	}
 
-	conn, err := amqp.Dial(cfg.URL)
-	if err != nil {
+	cfg = cfg.withDefaults()
+	consumer := &Consumer{
+		cfg:     cfg,
+		handler: handler,
+		logger:  logger,
+	}
+	if err := consumer.connect(); err != nil {
 		return nil, err
+	}
+	return consumer, nil
+}
+
+func (consumer *Consumer) connect() error {
+	conn, err := amqp.Dial(consumer.cfg.URL)
+	if err != nil {
+		return err
 	}
 
 	channel, err := conn.Channel()
 	if err != nil {
 		_ = conn.Close()
-		return nil, err
+		return err
 	}
 
-	cfg = cfg.withDefaults()
-	if err := declareRoute(channel, cfg); err != nil {
+	if err := declareRoute(channel, consumer.cfg); err != nil {
 		_ = channel.Close()
 		_ = conn.Close()
-		return nil, err
+		return err
 	}
 
-	return &Consumer{
-		conn:    conn,
-		channel: channel,
-		cfg:     cfg,
-		handler: handler,
-		logger:  logger,
-	}, nil
+	consumer.conn = conn
+	consumer.channel = channel
+	return nil
 }
 
 func (consumer *Consumer) Run(ctx context.Context) error {
+	for {
+		err := consumer.run(ctx)
+		if ctx.Err() != nil {
+			return nil
+		}
+		if err != nil {
+			consumer.logger.Warn(ctx, "rabbitmq consumer reconnecting", logging.WithError(err))
+		}
+		for {
+			err := consumer.reconnect(ctx)
+			if ctx.Err() != nil {
+				return nil
+			}
+			if err == nil {
+				break
+			}
+			consumer.logger.Warn(ctx, "rabbitmq consumer reconnect failed", logging.WithError(err))
+		}
+	}
+}
+
+func (consumer *Consumer) run(ctx context.Context) error {
 	deliveries, err := consumer.channel.Consume(
 		consumer.cfg.Queue,
 		"",
@@ -156,20 +219,48 @@ func (consumer *Consumer) Run(ctx context.Context) error {
 			return nil
 		case delivery, ok := <-deliveries:
 			if !ok {
-				return nil
+				return amqp.ErrClosed
 			}
 			consumer.handleDelivery(ctx, delivery)
 		}
 	}
 }
 
+func (consumer *Consumer) reconnect(ctx context.Context) error {
+	_ = consumer.close()
+	select {
+	case <-ctx.Done():
+		return nil
+	case <-time.After(time.Second):
+	}
+	return consumer.connect()
+}
+
 func (consumer *Consumer) Close() error {
-	err := consumer.channel.Close()
-	connErr := consumer.conn.Close()
+	return consumer.close()
+}
+
+func (consumer *Consumer) close() error {
+	err := closeChannel(consumer.channel)
+	connErr := closeConnection(consumer.conn)
 	if err != nil {
 		return err
 	}
 	return connErr
+}
+
+func closeChannel(channel *amqp.Channel) error {
+	if channel == nil {
+		return nil
+	}
+	return channel.Close()
+}
+
+func closeConnection(conn *amqp.Connection) error {
+	if conn == nil {
+		return nil
+	}
+	return conn.Close()
 }
 
 func (consumer *Consumer) handleDelivery(ctx context.Context, delivery amqp.Delivery) {

@@ -1,10 +1,10 @@
 import 'package:app/data/analysis/tables/request_analyses.dart';
 import 'package:app/data/analysis/tables/session_analyses.dart';
+import 'package:app/data/drift/drift_test_executor.dart';
 import 'package:app/data/drift/tables/users.dart';
 import 'package:app/data/interaction/tables/interactions.dart';
 import 'package:app/data/session/tables/sessions.dart';
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 part 'drift_db.g.dart';
@@ -58,9 +58,18 @@ class DriftDB extends _$DriftDB {
   }
 
   DriftDB({required this.migrations})
-    : super(driftDatabase(name: aiTrustGameDriftDatabaseName));
+    : super(
+        driftDatabase(
+          name: aiTrustGameDriftDatabaseName,
+          web: DriftWebOptions(
+            sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+            driftWorker: Uri.parse('drift_worker.js'),
+          ),
+        ),
+      );
 
-  DriftDB.forTest({required this.migrations}) : super(NativeDatabase.memory());
+  DriftDB.forTest({required this.migrations})
+    : super(createDriftTestExecutor());
 
   final List<DriftMigration> migrations;
 
