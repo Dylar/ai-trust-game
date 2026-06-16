@@ -1,4 +1,4 @@
-# Development Commands
+# Project Commands
 
 The repository root `Makefile` is a small entrypoint that includes focused files under
 [`../../infrastructure/make`](../../infrastructure/make/):

@@ -92,10 +92,12 @@ You MUST update documentation if ANY of the following changes:
 
 ### Working notes
 
-* Use [AGENT-notes.md](./AGENT-notes.md) to turn the broad project plan into a concrete phase definition before implementation starts.
+* Use [AGENT-planning.md](./AGENT-planning.md) to guide phase planning with the developer before implementation starts.
+* Use [AGENT-plan.md](./AGENT-plan.md) for the concrete implementation plan of the current phase.
+* Use [AGENT-notes.md](./AGENT-notes.md) for raw planning notes, open questions, and temporary reasoning while shaping a phase.
 * The AGENT-notes file is a temporary planning area for discussed decisions, open questions, and follow-up items during the current phase.
-* The AGENT-notes file is NOT the project source of truth. Nothing there is final until it is implemented and reflected in the focused documentation.
-* When a phase is complete, move durable decisions from AGENT-notes into the stable docs and remove obsolete working notes.
+* The AGENT-notes/AGENT-planning file is NOT the project source of truth. Nothing there is final until it is implemented and reflected in the focused documentation.
+* When a phase is complete, move durable decisions from AGENT-notes/AGENT-planning into the stable docs and remove obsolete working notes.
 * You can remind contributors to check AGENT-notes if they are planning or continuing a phase, but you should not refer to it as stable project documentation.
 
 ### Update architecture docs if:

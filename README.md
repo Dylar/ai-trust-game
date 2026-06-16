@@ -54,7 +54,7 @@ RabbitMQ Management UI is available at localhost:15672 during the local compose 
 
 For more commands and development scripts, see the documentation:<br>
 
-- [Development commands and example scripts](./docs/development/commands.md)
+- [Project commands and example scripts](./docs/project/commands.md)
 
 ## Project Navigation
 

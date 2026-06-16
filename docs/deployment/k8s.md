@@ -103,7 +103,7 @@ Use Kubernetes commands when you want to build, deploy, inspect, or validate the
 
 The command reference is split into `Local`, `Deploy`, `Lint / Check`, and `Cleanup`.
 
-[Kubernetes commands](../development/commands.md#kubernetes)
+[Kubernetes commands](../project/commands.md#kubernetes)
 
 ## Current Entry Point
 

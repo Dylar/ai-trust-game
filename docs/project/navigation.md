@@ -13,8 +13,13 @@ Detailed code-near documentation is linked from the owning app, service, shared-
 ## Development
 
 - [Agent working contract and documentation rules](../development/AGENT.md)
-- [Development commands](../development/commands.md)
+- [Agent planning playbook](../development/AGENT-planning.md)
+- [Current agent phase plan](../development/AGENT-plan.md)
 - [AGENT phase planning notes](../development/AGENT-notes.md)
+
+## Commands
+
+- [Project commands](commands.md)
 
 ## Architecture
 

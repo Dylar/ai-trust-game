@@ -3,8 +3,9 @@
 This document is a broad project plan.
 It describes the intended direction and phase order, but it is not a detailed implementation roadmap.
 
-Use [AGENT-notes.md](../development/AGENT-notes.md) to turn the current phase into an actionable working plan before implementation
-starts.
+Use the [agent planning playbook](../development/AGENT-planning.md) and
+[AGENT-notes.md](../development/AGENT-notes.md) to turn the current phase into an actionable working plan before
+implementation starts.
 
 ## Tech Stack
 

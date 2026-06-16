@@ -261,5 +261,10 @@ interaction state.
 #### 17. App Test like architecture readmes dictates
 - Check frontend test which one is correct.
 
-#### 18. Create doc for agent to plan phase
-- Write doc for agent to plan phase, which includes how to break down the phase into smaller steps, how to make decisions on the implementation.
+#### 18. Create doc for agent to plan phase (DONE)
+
+- Write doc for agent to plan phase, which includes how to break down the phase into smaller steps, how to make
+  decisions on the implementation. (DONE)
+- Rename the first guide draft to `AGENT-planning.md` and make it a playbook for collaborative planning with the
+  developer. (DONE)
+- Add `AGENT-plan.md` as the concrete current-phase plan file. (DONE)
