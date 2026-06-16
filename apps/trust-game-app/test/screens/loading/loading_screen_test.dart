@@ -113,16 +113,12 @@ class _FakeAuthService implements AuthService {
 
 class _FakeSyncService implements SyncService {
   @override
-  Future<SyncResult> syncLoadedUsers() async {
-    return const SyncResult(
-      status: SyncStatus.noLoadedUsers,
-      refreshedUserCount: 0,
-      refreshedSessionCount: 0,
-    );
+  Future<SyncResult> syncStartup() async {
+    return const SyncResult.synced();
   }
 
   @override
-  Future<SyncResult> syncUser(UserProfile user) {
+  Future<SyncResult> syncUserRestore(UserProfile user) {
     throw UnimplementedError();
   }
 }

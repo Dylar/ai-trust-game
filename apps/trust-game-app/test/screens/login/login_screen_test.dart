@@ -66,6 +66,64 @@ void main() {
   });
 
   testWidgets(
+    'GIVEN loaded user and failed sync WHEN selecting user THEN logs in',
+    (tester) async {
+      final user = _loadedUserProfile('loaded-user');
+      final authService = _FakeAuthService();
+      final syncService = _FakeSyncService(syncUserStatus: SyncStatus.failed);
+      final userRepository = _FakeUserRepository(
+        loadedUsers: <UserProfile>[user],
+      );
+
+      await _pumpLoginScreen(
+        tester,
+        authService: authService,
+        userRepository: userRepository,
+        syncService: syncService,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(LoginKeys.user('loaded-user')));
+      await tester.pumpAndSettle();
+
+      expect(authService.selectedUser, user);
+      expect(syncService.syncedUser, user);
+      expect(find.byKey(HomeKeys.screen), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'GIVEN unloaded user and failed sync WHEN selecting user THEN stays on login',
+    (tester) async {
+      final user = testUserProfile('unloaded-user');
+      final authService = _FakeAuthService();
+      final syncService = _FakeSyncService(syncUserStatus: SyncStatus.failed);
+      final userRepository = _FakeUserRepository(
+        unloadedUsers: <UserProfile>[user],
+      );
+
+      await _pumpLoginScreen(
+        tester,
+        authService: authService,
+        userRepository: userRepository,
+        syncService: syncService,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(LoginKeys.user('unloaded-user')));
+      await tester.pumpAndSettle();
+
+      expect(authService.selectedUser, isNull);
+      expect(syncService.syncedUser, user);
+      expect(
+        find.text('The selected user could not be loaded.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(LoginKeys.screen), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     'GIVEN sync exception WHEN selecting user THEN logs and shows error dialog',
     (tester) async {
       final user = testUserProfile('unloaded-user');
@@ -284,31 +342,30 @@ class _FakeUserRepository implements UserRepository {
 }
 
 class _FakeSyncService implements SyncService {
-  _FakeSyncService({this.shouldFailSyncUser = false});
+  _FakeSyncService({
+    this.shouldFailSyncUser = false,
+    this.syncUserStatus = SyncStatus.synced,
+  });
 
   final bool shouldFailSyncUser;
+  final SyncStatus syncUserStatus;
   UserProfile? syncedUser;
 
   @override
-  Future<SyncResult> syncLoadedUsers() async {
-    return const SyncResult(
-      status: SyncStatus.noLoadedUsers,
-      refreshedUserCount: 0,
-      refreshedSessionCount: 0,
-    );
+  Future<SyncResult> syncStartup() async {
+    return const SyncResult.synced();
   }
 
   @override
-  Future<SyncResult> syncUser(UserProfile user) async {
+  Future<SyncResult> syncUserRestore(UserProfile user) async {
     syncedUser = user;
     if (shouldFailSyncUser) {
       throw Exception('sync failed');
     }
-    return SyncResult(
-      status: SyncStatus.refreshed,
-      refreshedUserCount: 1,
-      refreshedSessionCount: 0,
-    );
+    return switch (syncUserStatus) {
+      SyncStatus.synced => const SyncResult.synced(),
+      SyncStatus.failed => const SyncResult.failed(),
+    };
   }
 }
 

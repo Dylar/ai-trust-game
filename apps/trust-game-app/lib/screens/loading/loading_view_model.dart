@@ -54,8 +54,8 @@ class LoadingViewModel {
         status: LoadingScreenStatus.userSyncing,
       );
       await doStep(
-        step: LoadingSteps.syncLoadedUsers,
-        doIt: _syncService.syncLoadedUsers,
+        step: LoadingSteps.syncStartup,
+        doIt: _syncService.syncStartup,
       );
       stateNotifier.value = LoadingScreenState(
         status: LoadingScreenStatus.finished,

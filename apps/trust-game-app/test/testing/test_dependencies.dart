@@ -119,20 +119,12 @@ class _NoopSyncService implements SyncService {
   const _NoopSyncService();
 
   @override
-  Future<SyncResult> syncLoadedUsers() async {
-    return const SyncResult(
-      status: SyncStatus.noLoadedUsers,
-      refreshedUserCount: 0,
-      refreshedSessionCount: 0,
-    );
+  Future<SyncResult> syncStartup() async {
+    return const SyncResult.synced();
   }
 
   @override
-  Future<SyncResult> syncUser(UserProfile user) async {
-    return const SyncResult(
-      status: SyncStatus.refreshed,
-      refreshedUserCount: 1,
-      refreshedSessionCount: 0,
-    );
+  Future<SyncResult> syncUserRestore(UserProfile user) async {
+    return const SyncResult.synced();
   }
 }

@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/core/user/selected_user_controller.dart';
 import 'package:app/core/user/user_profile.dart';
-import 'package:app/data/analysis/analysis_api_client.dart';
-import 'package:app/data/analysis/drift_analysis_repository.dart';
 import 'package:app/data/interaction/drift_interaction_repository.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/drift/drift_db.dart';
@@ -22,17 +20,12 @@ import '../testing/test_user_profile.dart';
 
 void main() {
   late DriftDB database;
-  late DriftAnalysisRepository analysisRepository;
   late DriftInteractionRepository interactionRepository;
   late DriftUserRepository userRepository;
   late DriftSessionRepository sessionRepository;
 
   setUp(() {
     database = DriftDB.forTest(migrations: [InitialDriftMigration()]);
-    analysisRepository = DriftAnalysisRepository(
-      database: database,
-      selectedUser: SelectedUserController(),
-    );
     interactionRepository = DriftInteractionRepository(
       database: database,
       selectedUser: SelectedUserController(),
@@ -49,7 +42,7 @@ void main() {
   });
 
   test(
-    'GIVEN loaded users WHEN sync runs THEN sessions interactions and analyses are cached per user',
+    'GIVEN loaded users WHEN sync runs THEN sessions and interactions are cached per user',
     () async {
       await _saveUser(userRepository, 'user-1');
       await _saveUser(userRepository, 'user-2');
@@ -92,51 +85,10 @@ void main() {
           );
         }
 
-        if (request.url.path.startsWith('/analysis/session/')) {
-          return http.Response(
-            jsonEncode(<String, Object>{
-              'session_id': request.url.pathSegments.last,
-              'classification': 'suspicious',
-              'signals': <String>['prompt-injection'],
-              'attack_patterns': <String>['secret-extraction'],
-              'intent_summary': 'Session looked suspicious.',
-              'request_count': 1,
-              'suspicion_count': 1,
-              'model_fail_count': 0,
-              'requests': <Object>[],
-            }),
-            200,
-          );
-        }
-
-        if (request.url.path.startsWith('/analysis/request/')) {
-          return http.Response(
-            jsonEncode(<String, Object>{
-              'request_id': request.url.pathSegments.last,
-              'session_id': 'session-${request.headers['X-User-Id']}',
-              'completed_at': '2026-06-11T15:00:01Z',
-              'classification': 'clean',
-              'signals': <String>[],
-              'attack_patterns': <String>[],
-              'intent_summary': '',
-              'event_count': 3,
-              'suspicion_count': 0,
-              'model_fail_count': 0,
-            }),
-            200,
-          );
-        }
-
         return http.Response('not found', 404);
       });
       final service = SyncServiceImpl(
         appLogger: _silentLogger,
-        analysisApiClient: AnalysisApiClient(
-          httpClient: httpClient,
-          apiBaseUri: Uri.parse('http://localhost:8080'),
-          selectedUser: SelectedUserController(),
-        ),
-        analysisRepository: analysisRepository,
         interactionApiClient: InteractionApiClient(
           httpClient: httpClient,
           apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -152,11 +104,9 @@ void main() {
         sessionRepository: sessionRepository,
       );
 
-      final result = await service.syncLoadedUsers();
+      final result = await service.syncStartup();
 
-      expect(result.status, SyncStatus.refreshed);
-      expect(result.refreshedUserCount, 2);
-      expect(result.refreshedSessionCount, 2);
+      expect(result.status, SyncStatus.synced);
       expect(
         await _sessionsForUser(database, 'user-1'),
         contains('session-user-1'),
@@ -173,34 +123,44 @@ void main() {
         await _interactionsForUser(database, 'user-2', 'session-user-2'),
         contains('request-user-2'),
       );
-      expect(
-        await _sessionAnalysisForUser(database, 'user-1', 'session-user-1'),
-        'suspicious',
-      );
-      expect(
-        await _requestAnalysisForUser(database, 'user-1', 'request-user-1'),
-        'clean',
-      );
     },
   );
 
   test(
-    'GIVEN loaded users WHEN backend is unreachable THEN returns offline fallback',
+    'GIVEN existing local session WHEN user sync runs THEN keeps local history and adds backend sessions',
     () async {
       await _saveUser(userRepository, 'user-1');
       await _saveLoadedSession(sessionRepository, 'user-1');
-      final sink = RecordingAppLogSink();
-      final httpClient = MockClient((_) async {
-        throw http.ClientException('offline');
+      final httpClient = MockClient((request) async {
+        if (request.url.path == '/session/list') {
+          return http.Response(
+            jsonEncode(<String, Object>{
+              'sessions': <Object>[
+                <String, String>{
+                  'sessionId': 'session-user-1',
+                  'userId': 'user-1',
+                  'role': 'admin',
+                  'mode': 'hard',
+                  'createdAt': '2026-06-11T15:00:00Z',
+                  'updatedAt': '2026-06-11T15:00:00Z',
+                },
+              ],
+            }),
+            200,
+          );
+        }
+
+        if (request.url.path.startsWith('/interaction/session/')) {
+          return http.Response(
+            jsonEncode(<String, Object>{'interactions': <Object>[]}),
+            200,
+          );
+        }
+
+        return http.Response('not found', 404);
       });
       final service = SyncServiceImpl(
-        appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-        analysisApiClient: AnalysisApiClient(
-          httpClient: httpClient,
-          apiBaseUri: Uri.parse('http://localhost:8080'),
-          selectedUser: SelectedUserController(),
-        ),
-        analysisRepository: analysisRepository,
+        appLogger: _silentLogger,
         interactionApiClient: InteractionApiClient(
           httpClient: httpClient,
           apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -216,16 +176,51 @@ void main() {
         sessionRepository: sessionRepository,
       );
 
-      final result = await service.syncLoadedUsers();
+      final result = await service.syncUserRestore(testUserProfile('user-1'));
 
-      expect(result.status, SyncStatus.offlineFallback);
-      expect(result.failedUserIds, <String>['user-1']);
+      expect(result.status, SyncStatus.synced);
+      expect(
+        await _sessionsForUser(database, 'user-1'),
+        containsAll(<String>['loaded-session-user-1', 'session-user-1']),
+      );
+    },
+  );
+
+  test(
+    'GIVEN loaded users WHEN backend is unreachable THEN returns failed sync',
+    () async {
+      await _saveUser(userRepository, 'user-1');
+      await _saveLoadedSession(sessionRepository, 'user-1');
+      final sink = RecordingAppLogSink();
+      final httpClient = MockClient((_) async {
+        throw http.ClientException('offline');
+      });
+      final service = SyncServiceImpl(
+        appLogger: AppLogger(sinks: <AppLogSink>[sink]),
+        interactionApiClient: InteractionApiClient(
+          httpClient: httpClient,
+          apiBaseUri: Uri.parse('http://localhost:8080'),
+          selectedUser: SelectedUserController(),
+        ),
+        interactionRepository: interactionRepository,
+        userRepository: userRepository,
+        sessionApiClient: SessionApiClient(
+          httpClient: httpClient,
+          apiBaseUri: Uri.parse('http://localhost:8080'),
+          selectedUser: SelectedUserController(),
+        ),
+        sessionRepository: sessionRepository,
+      );
+
+      final result = await service.syncStartup();
+
+      expect(result.status, SyncStatus.failed);
       expect(sink.events, hasLength(1));
       expect(sink.events.single.category, 'sync');
       expect(sink.events.single.message, 'User sync failed');
       expect(sink.events.single.attributes, <String, Object?>{
         'userId': 'user-1',
-        'syncStatus': 'offlineFallback',
+        'syncStatus': 'failed',
         'httpStatusCode': null,
         'errorCode': 'backend_unreachable',
       });
@@ -288,36 +283,4 @@ Future<List<String>> _interactionsForUser(
   return interactions
       .map((interaction) => interaction.interactionId)
       .toList(growable: false);
-}
-
-Future<String?> _sessionAnalysisForUser(
-  DriftDB database,
-  String userId,
-  String sessionId,
-) async {
-  final selectedUser = SelectedUserController(
-    initialUser: testUserProfile(userId),
-  );
-  final repository = DriftAnalysisRepository(
-    database: database,
-    selectedUser: selectedUser,
-  );
-  final analysis = await repository.getSessionAnalysis(sessionId);
-  return analysis?.classification;
-}
-
-Future<String?> _requestAnalysisForUser(
-  DriftDB database,
-  String userId,
-  String requestId,
-) async {
-  final selectedUser = SelectedUserController(
-    initialUser: testUserProfile(userId),
-  );
-  final repository = DriftAnalysisRepository(
-    database: database,
-    selectedUser: selectedUser,
-  );
-  final analysis = await repository.getRequestAnalysis(requestId);
-  return analysis?.classification;
 }

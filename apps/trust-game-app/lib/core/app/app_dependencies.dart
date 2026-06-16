@@ -122,8 +122,6 @@ class AppDependencies {
       ),
       syncService: SyncServiceImpl(
         appLogger: appLogger,
-        analysisApiClient: analysisApiClient,
-        analysisRepository: analysisRepository,
         interactionApiClient: interactionApiClient,
         interactionRepository: interactionRepository,
         userRepository: userRepository,

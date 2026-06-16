@@ -181,7 +181,10 @@ interaction state.
 - Defer session, interaction, and analysis restore for a user until that user is explicitly selected.
 - If the app is offline during startup, keep showing the login/user-selection screen from local drift data.
 - Do not block offline read-only usage when cached data exists.
-- Add sync tests for loaded-user refresh, interaction cache refresh, offline fallback, and partial backend failure.
+- Keep app sync as a use-case orchestration boundary with `syncStartup()` and `syncUserRestore(user)`, and keep
+  `SyncResult` limited to success/failure. (DONE)
+- Add sync tests for loaded-user refresh, interaction cache refresh, failed backend sync, and offline login fallback for
+  users with cached local activity. (DONE)
 
 #### 12. Create login screen
 
@@ -191,23 +194,24 @@ interaction state.
 - Treat users without locally persisted sessions or interactions as unloaded users. (DONE)
 - Sort loaded users by latest local session/interaction timestamp, newest first. (DONE)
 - Sort unloaded users alphabetically by display name. (DONE)
-- Treat loaded users as available for offline read-only use.
-- Treat unloaded users as requiring an online backend load before entering their app state.
+- Treat loaded users as available for offline read-only use. (DONE)
+- Treat unloaded users as requiring an online backend load before entering their app state. (DONE)
 - Use the loading-screen result and drift state as the initial user list. (DONE)
 - If online, refresh the user list from auth-service during loading before the login screen is shown. (DONE)
-- Add a manual retry for refreshing the login user list from auth-service.
+- Do not add a manual retry for refreshing the login user list from auth-service; startup loading and reopening the app
+  are enough for this phase. (DONE)
 - Add an input for creating a new user. (DONE)
 - On selection or creation, update the app-level selected-user state. (DONE)
 - Make the copy/UI clear and lightweight without presenting it as secure login. (DONE)
 - Handle offline startup by allowing loaded users to be selected, but prevent loading an unloaded user while offline.
   (DONE)
-- Prevent creating a new user while offline with a clear login-screen error.
+- Prevent creating a new user while offline with a clear login-screen error. (DONE)
 - Add UI/state tests for user list sorting, user creation, and user selection. (DONE)
-- Add UI/state tests for offline restrictions.
+- Add UI/state tests for offline restrictions. (DONE)
 
 #### 13. Implement app startup and restore flow
 
-- On startup, load users and cached state from drift.
+- On startup, load users and cached state from drift. (DONE)
 - Show the startup sync/loading screen before the login/user-selection screen. (DONE)
 - Prepare the user-selection lists while the startup loading screen is visible. (DONE)
 - Route to the login/user-selection screen before entering the main app flow. (DONE)
@@ -215,11 +219,14 @@ interaction state.
 - If the selected user is loaded locally, allow offline read-only entry. (DONE)
 - If the selected user is not loaded locally, require online backend access to load that user's app state first. (DONE)
 - If online, fetch authoritative resumable sessions for the selected user on explicit login selection. (DONE)
-- If offline, show cached sessions, interactions, and analysis views read-only.
-- When the user tries to continue a backend-dependent flow offline, show a clear offline error.
-- Reconcile stale local session references when the backend no longer has a session.
+- If offline, show cached sessions, interactions, and analysis views read-only. (DONE)
+- Keep user sync focused on sessions and interactions; analysis views are loaded lazily by detail screens and cached
+  after a detail request succeeds. (DONE)
+- When the user tries to continue a backend-dependent flow offline, show a clear offline error. (DONE)
+- Keep locally cached sessions append-only during sync; do not delete local sessions just because they are absent from a
+  later sync response. (DONE)
 - Add app startup tests for user selection, startup sync, online refresh, offline read-only entry,
-  unloaded-user online loading, and stale local session handling.
+  unloaded-user online loading, and append-only local session handling. (DONE)
 
 #### 14. Update session and interaction UI flows
 
@@ -249,3 +256,7 @@ interaction state.
 
 - Confirm all changed stable docs are linked from the proper README ownership chain.
 - Move durable decisions from these notes into stable docs and delete obsolete phase-planning notes.
+
+
+#### 17. App Test like architecture readmes dictates
+- Check frontend test which one is correct.

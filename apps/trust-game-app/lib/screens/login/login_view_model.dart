@@ -55,7 +55,15 @@ class LoginViewModel {
   Future<void> selectUser(UserProfile user) async {
     stateNotifier.value = state.copyWith(status: LoginScreenStatus.loadUser);
     try {
-      await _syncService.syncUser(user);
+      final result = await _syncService.syncUserRestore(user);
+      if (!_canEnterApp(user: user, syncResult: result)) {
+        stateNotifier.value = state.copyWith(
+          status: LoginScreenStatus.ready,
+          error: LoginError.selectUserFailed,
+        );
+        return;
+      }
+
       _authService.selectUser(user);
       stateNotifier.value = state.copyWith(status: LoginScreenStatus.loggedIn);
     } on Object catch (error, stackTrace) {
@@ -104,4 +112,11 @@ class LoginViewModel {
   void clearError() {
     stateNotifier.value = state.copyWith(clearError: true);
   }
+}
+
+bool _canEnterApp({required UserProfile user, required SyncResult syncResult}) {
+  return switch (syncResult.status) {
+    SyncStatus.synced => true,
+    SyncStatus.failed => user.isLoaded,
+  };
 }

@@ -1,6 +1,6 @@
 enum LoadingScreenStatus { userLoading, userSyncing, finished, retryableError }
 
-enum LoadingSteps { loadUserProfiles, syncLoadedUsers }
+enum LoadingSteps { loadUserProfiles, syncStartup }
 
 class LoadingScreenState {
   const LoadingScreenState({required this.status});
