@@ -1,7 +1,4 @@
-import 'package:http/http.dart' as http;
 import 'package:flutter_test/flutter_test.dart';
-import '../../testing/test_dependencies.dart';
-import '../../testing/mocks/backend_mock_client.dart';
 import 'session_start_test_context.dart';
 
 void main() {
@@ -9,9 +6,7 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp(
-      homeBuilder: (router) => router.buildSessionStartScreen(),
-    );
+    await context.process.startSessionStartScreen();
 
     // When
 
@@ -28,9 +23,7 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp(
-      homeBuilder: (router) => router.buildSessionStartScreen(),
-    );
+    await context.process.startSessionStartScreen();
 
     // When
     await context.screenBot.tapPrepareSession();
@@ -46,40 +39,23 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.appBot.startApp(
-      homeBuilder: (router) => router.buildSessionStartScreen(),
-    );
+    await context.process.startSessionStartScreen();
 
     // When
     await context.process.prepareAdminHardSession();
 
     // Then
-    expect(find.textContaining('Started'), findsNothing);
+    context.screenBot.expectPreparedFeedbackHidden();
   });
 
   testWidgets('opens a dialog when preparing a session fails', (tester) async {
     final context = SessionStartTestContext(tester);
-    final dependencies = buildTestDependencies(
-      httpClient: buildBackendMockClient(
-        override: (request) async {
-          if (request.url.path == '/session/start') {
-            return http.Response('', 500);
-          }
-
-          return null;
-        },
-      ),
-    );
 
     // Given
-    await context.appBot.startApp(
-      dependencies: dependencies,
-      homeBuilder: (router) => router.buildSessionStartScreen(),
-    );
+    await context.process.startWithSessionStartFailure(statusCode: 500);
 
     // When
-    await context.screenBot.tapPrepareSession();
-    await tester.pumpAndSettle();
+    await context.process.prepareSessionExpectingDialog();
 
     // Then
     context.screenBot.expectErrorDialogVisible();
@@ -89,27 +65,12 @@ void main() {
     tester,
   ) async {
     final context = SessionStartTestContext(tester);
-    final dependencies = buildTestDependencies(
-      httpClient: buildBackendMockClient(
-        override: (request) async {
-          if (request.url.path == '/session/start') {
-            throw http.ClientException('offline');
-          }
-
-          return null;
-        },
-      ),
-    );
 
     // Given
-    await context.appBot.startApp(
-      dependencies: dependencies,
-      homeBuilder: (router) => router.buildSessionStartScreen(),
-    );
+    await context.process.startWithOfflineSessionStart();
 
     // When
-    await context.screenBot.tapPrepareSession();
-    await tester.pumpAndSettle();
+    await context.process.prepareSessionExpectingDialog();
 
     // Then
     context.screenBot.expectErrorDialogVisible();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class BaseScreenBot {
+abstract class BaseScreenBot {
   BaseScreenBot(this.tester);
 
   final WidgetTester tester;
@@ -47,5 +47,9 @@ class BaseScreenBot {
 
   Future<void> pump(Duration duration) async {
     await tester.pump(duration);
+  }
+
+  Future<void> pumpAndSettle() async {
+    await tester.pumpAndSettle();
   }
 }

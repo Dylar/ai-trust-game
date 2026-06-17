@@ -84,4 +84,14 @@ class InteractionScreenBot extends BaseScreenBot {
   void expectSendErrorDialogVisible() {
     expect(find.text('Message could not be sent'), findsOneWidget);
   }
+
+  void expectLoadErrorDialogVisible() {
+    expect(find.text('Interaction could not be loaded'), findsOneWidget);
+    expect(
+      find.text(
+        'The session could not be loaded. Please go back and try again.',
+      ),
+      findsWidgets,
+    );
+  }
 }

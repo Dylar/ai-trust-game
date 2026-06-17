@@ -25,4 +25,23 @@ class SessionDetailScreenBot extends BaseScreenBot {
   void expectRequestVisible(String requestId) {
     expect(isVisible(SessionDetailKeys.requestCard(requestId)), isTrue);
   }
+
+  void expectEmptyAnalysisVisible() {
+    expect(isVisible(SessionDetailKeys.emptyAnalysisState), isTrue);
+    expect(
+      find.text('No analysis is available for this session yet.'),
+      findsOneWidget,
+    );
+    expect(isVisible(SessionDetailKeys.errorState), isFalse);
+    expect(find.text('The analysis could not be loaded yet.'), findsNothing);
+    expect(find.text('HTTP status: 404'), findsNothing);
+  }
+
+  void expectRefreshVisible() {
+    expect(isVisible(SessionDetailKeys.refreshIndicator), isTrue);
+  }
+
+  void expectRefreshHidden() {
+    expect(isVisible(SessionDetailKeys.refreshIndicator), isFalse);
+  }
 }

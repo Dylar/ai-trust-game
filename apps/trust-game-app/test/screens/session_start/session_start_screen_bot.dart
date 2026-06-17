@@ -51,6 +51,10 @@ class SessionStartScreenBot extends BaseScreenBot {
     expect(find.text('Preparing session...'), findsOneWidget);
   }
 
+  void expectPreparedFeedbackHidden() {
+    expect(find.textContaining('Started'), findsNothing);
+  }
+
   void expectErrorDialogVisible() {
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(find.text('Session start failed'), findsWidgets);
