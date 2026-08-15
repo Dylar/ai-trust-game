@@ -87,7 +87,7 @@ void main() {
 
         return http.Response('not found', 404);
       });
-      final service = SyncServiceImpl(
+      final service = SyncService(
         appLogger: _silentLogger,
         interactionApiClient: InteractionApiClient(
           httpClient: httpClient,
@@ -159,7 +159,7 @@ void main() {
 
         return http.Response('not found', 404);
       });
-      final service = SyncServiceImpl(
+      final service = SyncService(
         appLogger: _silentLogger,
         interactionApiClient: InteractionApiClient(
           httpClient: httpClient,
@@ -195,7 +195,7 @@ void main() {
       final httpClient = MockClient((_) async {
         throw http.ClientException('offline');
       });
-      final service = SyncServiceImpl(
+      final service = SyncService(
         appLogger: AppLogger(sinks: <AppLogSink>[sink]),
         interactionApiClient: InteractionApiClient(
           httpClient: httpClient,

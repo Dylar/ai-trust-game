@@ -28,7 +28,7 @@ void main() {
       suspicionCount: 0,
       modelFailCount: 0,
     );
-    final service = AnalysisServiceImpl(
+    final service = AnalysisService(
       analysisRepository: InMemoryAnalysisRepository(
         initialSessionAnalyses: const <String, SessionAnalysis>{
           'session-1': cached,
@@ -55,7 +55,7 @@ void main() {
     () async {
       var requestCount = 0;
       final repository = InMemoryAnalysisRepository();
-      final service = AnalysisServiceImpl(
+      final service = AnalysisService(
         analysisRepository: repository,
         apiClient: AnalysisApiClient(
           httpClient: MockClient((_) async {
@@ -107,7 +107,7 @@ void main() {
         'session-1': cached,
       },
     );
-    final service = AnalysisServiceImpl(
+    final service = AnalysisService(
       analysisRepository: repository,
       apiClient: AnalysisApiClient(
         httpClient: MockClient((_) async {
@@ -153,7 +153,7 @@ void main() {
       suspicionCount: 0,
       modelFailCount: 0,
     );
-    final service = AnalysisServiceImpl(
+    final service = AnalysisService(
       analysisRepository: InMemoryAnalysisRepository(
         initialRequestAnalyses: <String, RequestAnalysis>{'request-1': cached},
       ),

@@ -1,4 +1,8 @@
+import 'package:app/data/analysis/analysis_repository.dart';
+import 'package:app/models/analysis_models.dart';
+
 import '../../testing/app_process.dart';
+import '../../testing/mocks/analysis_api_mocks.dart';
 import '../../testing/test_dependencies.dart';
 import 'interaction_detail_fakes.dart';
 import 'interaction_detail_screen_bot.dart';
@@ -25,17 +29,25 @@ class InteractionDetailProcess {
     );
   }
 
-  Future<PendingRefreshRequestAnalysisService> startWithPendingRefresh({
+  Future<PendingRefreshRequestAnalysisApi> startWithPendingRefresh({
     required String requestId,
   }) async {
-    final analysisService = PendingRefreshRequestAnalysisService(
-      requestId: requestId,
-    );
+    final analysisApi = PendingRefreshRequestAnalysisApi(requestId: requestId);
     await appProcess.startInteractionDetail(
       requestId: requestId,
-      dependencies: buildTestDependencies(analysisService: analysisService),
+      dependencies: buildTestDependencies(
+        analysisApi: analysisApi,
+        analysisRepository: InMemoryAnalysisRepository(
+          initialRequestAnalyses: <String, RequestAnalysis>{
+            requestId: testRequestAnalysis(
+              requestId: requestId,
+              classification: 'cached',
+            ),
+          },
+        ),
+      ),
     );
-    return analysisService;
+    return analysisApi;
   }
 
   Future<void> waitUntilLoaded() async {

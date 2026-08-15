@@ -3,20 +3,15 @@ import 'package:app/data/session/session_repository.dart';
 import 'package:app/data/session/start_session_dto.dart';
 import 'package:app/models/session_models.dart';
 
-abstract interface class SessionService {
-  Future<Session> startSession({required Role role, required Mode mode});
-}
-
-class SessionServiceImpl implements SessionService {
-  const SessionServiceImpl({
+class SessionService {
+  const SessionService({
     required this.apiClient,
     required this.sessionRepository,
   });
 
-  final SessionApiClient apiClient;
+  final SessionApi apiClient;
   final SessionRepository sessionRepository;
 
-  @override
   Future<Session> startSession({required Role role, required Mode mode}) async {
     final result = await apiClient.startSession(
       StartSessionRequest(role: role, mode: mode),

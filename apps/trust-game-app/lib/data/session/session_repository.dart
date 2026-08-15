@@ -10,6 +10,11 @@ abstract interface class SessionRepository {
   Future<Session?> getSession(String id);
 
   Future<void> saveSession(Session session);
+
+  Future<void> saveSessionForUser({
+    required String userId,
+    required Session session,
+  });
 }
 
 class InMemorySessionRepository implements SessionRepository {
@@ -45,5 +50,13 @@ class InMemorySessionRepository implements SessionRepository {
       session,
       ..._sessions.value.where((item) => item.id != session.id),
     ]);
+  }
+
+  @override
+  Future<void> saveSessionForUser({
+    required String userId,
+    required Session session,
+  }) async {
+    await saveSession(session);
   }
 }

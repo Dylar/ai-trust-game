@@ -12,6 +12,10 @@ Nothing here is final until it is implemented and reflected in the focused docum
 
 ## Open Task/Questions
 
-### 17. App tests according to architecture README
+#### 1. interaction repo save user interaction ignores userId? Auch bei Session repo
 
-- Check which frontend tests should be adjusted to match the testing style described in the architecture playbooks.
+#### 2. HttpStatusCode not as magic number 
+
+#### 3. zb in interaction detail view model test wird wieder service erstellt ... aber das is ok, weil es ja nen unit test is?
+
+#### 4. 

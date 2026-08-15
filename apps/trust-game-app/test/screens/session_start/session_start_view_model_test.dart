@@ -1,18 +1,23 @@
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/api/api_error.dart';
+import 'package:app/data/session/session_repository.dart';
 import 'package:app/screens/session_start/session_start_screen_state.dart';
 import 'package:app/screens/session_start/session_start_view_model.dart';
+import 'package:app/services/session_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../testing/mocks/recording_app_log_sink.dart';
-import '../../testing/mocks/session_service_mocks.dart';
+import '../../testing/mocks/session_api_mocks.dart';
 
 void main() {
   test('does not log session preparation success path', () async {
     final sink = RecordingAppLogSink();
     final viewModel = SessionStartViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-      sessionService: const SuccessfulSessionService(),
+      sessionService: SessionService(
+        apiClient: const SuccessfulSessionApi(),
+        sessionRepository: InMemorySessionRepository(),
+      ),
     );
 
     await viewModel.prepareSession();
@@ -25,9 +30,12 @@ void main() {
     final sink = RecordingAppLogSink();
     final viewModel = SessionStartViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-      sessionService: const ApiFailingSessionService(
-        statusCode: 400,
-        code: ApiErrorCode.invalidMode,
+      sessionService: SessionService(
+        apiClient: const ApiFailingSessionApi(
+          statusCode: 400,
+          code: ApiErrorCode.invalidMode,
+        ),
+        sessionRepository: InMemorySessionRepository(),
       ),
     );
 

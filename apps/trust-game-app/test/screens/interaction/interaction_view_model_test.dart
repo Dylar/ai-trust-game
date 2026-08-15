@@ -5,10 +5,11 @@ import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/session_models.dart';
 import 'package:app/screens/interaction/interaction_screen_state.dart';
 import 'package:app/screens/interaction/interaction_view_model.dart';
+import 'package:app/services/interaction_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../testing/mocks/interaction_service_mocks.dart';
+import '../../testing/mocks/interaction_api_mocks.dart';
 import '../../testing/mocks/recording_app_log_sink.dart';
 
 void main() {
@@ -18,7 +19,8 @@ void main() {
     final viewModel = InteractionViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
       interactionRepository: interactionRepository,
-      interactionService: SuccessfulInteractionService(
+      interactionService: InteractionService(
+        apiClient: const SuccessfulInteractionApi(),
         interactionRepository: interactionRepository,
       ),
       sessionRepository: InMemorySessionRepository(
@@ -41,9 +43,12 @@ void main() {
     final viewModel = InteractionViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
       interactionRepository: InMemoryInteractionRepository(),
-      interactionService: const ApiFailingInteractionService(
-        statusCode: 400,
-        code: ApiErrorCode.emptyMessage,
+      interactionService: InteractionService(
+        apiClient: const ApiFailingInteractionApi(
+          statusCode: 400,
+          code: ApiErrorCode.emptyMessage,
+        ),
+        interactionRepository: InMemoryInteractionRepository(),
       ),
       sessionRepository: InMemorySessionRepository(
         initialSessions: const <Session>[
@@ -73,9 +78,12 @@ void main() {
     final viewModel = InteractionViewModel(
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
       interactionRepository: InMemoryInteractionRepository(),
-      interactionService: const ApiFailingInteractionService(
-        statusCode: 400,
-        code: ApiErrorCode.emptyMessage,
+      interactionService: InteractionService(
+        apiClient: const ApiFailingInteractionApi(
+          statusCode: 400,
+          code: ApiErrorCode.emptyMessage,
+        ),
+        interactionRepository: InMemoryInteractionRepository(),
       ),
       sessionRepository: _FailingSessionRepository(),
       sessionId: 'session-1',
@@ -113,4 +121,10 @@ class _FailingSessionRepository implements SessionRepository {
 
   @override
   Future<void> saveSession(Session session) async {}
+
+  @override
+  Future<void> saveSessionForUser({
+    required String userId,
+    required Session session,
+  }) async {}
 }

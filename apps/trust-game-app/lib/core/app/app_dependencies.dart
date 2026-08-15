@@ -94,12 +94,12 @@ class AppDependencies {
     );
 
     return AppDependencies(
-      analysisService: AnalysisServiceImpl(
+      analysisService: AnalysisService(
         analysisRepository: analysisRepository,
         apiClient: analysisApiClient,
       ),
       appLogger: appLogger,
-      authService: AuthServiceImpl(
+      authService: AuthService(
         appLogger: appLogger,
         userRepository: userRepository,
         selectedUser: resolvedSelectedUser,
@@ -108,7 +108,7 @@ class AppDependencies {
       config: resolvedConfig,
       httpClient: resolvedHttpClient,
       interactionRepository: interactionRepository,
-      interactionService: InteractionServiceImpl(
+      interactionService: InteractionService(
         interactionRepository: interactionRepository,
         apiClient: interactionApiClient,
       ),
@@ -116,11 +116,11 @@ class AppDependencies {
       userRepository: userRepository,
       selectedUser: resolvedSelectedUser,
       sessionRepository: sessionRepository,
-      sessionService: SessionServiceImpl(
+      sessionService: SessionService(
         sessionRepository: sessionRepository,
         apiClient: sessionApiClient,
       ),
-      syncService: SyncServiceImpl(
+      syncService: SyncService(
         appLogger: appLogger,
         interactionApiClient: interactionApiClient,
         interactionRepository: interactionRepository,

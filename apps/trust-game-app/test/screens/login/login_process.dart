@@ -1,4 +1,6 @@
 import 'package:app/core/logging/app_logger.dart';
+import 'package:app/core/user/selected_user_controller.dart';
+import 'package:app/data/session/session_repository.dart';
 
 import '../../testing/app_process.dart';
 import '../../testing/test_dependencies.dart';
@@ -9,25 +11,34 @@ class LoginProcess {
   LoginProcess({
     required this.appLogger,
     required this.appProcess,
-    required this.authService,
+    required this.authApi,
+    required this.interactionApi,
     required this.screenBot,
-    required this.syncService,
+    required this.selectedUser,
+    required this.sessionApi,
+    required this.sessionRepository,
     required this.userRepository,
   });
 
   final AppLogger appLogger;
   final AppProcess appProcess;
-  final FakeLoginAuthService authService;
+  final FakeLoginAuthApi authApi;
+  final FakeLoginInteractionApi interactionApi;
   final LoginScreenBot screenBot;
-  final FakeLoginSyncService syncService;
+  final SelectedUserController selectedUser;
+  final FakeLoginSessionApi sessionApi;
+  final SessionRepository sessionRepository;
   final FakeLoginUserRepository userRepository;
 
   Future<void> startLoginScreen() async {
     await appProcess.startLogin(
       dependencies: buildTestDependencies(
         appLogger: appLogger,
-        authService: authService,
-        syncService: syncService,
+        authApi: authApi,
+        interactionApi: interactionApi,
+        selectedUser: selectedUser,
+        sessionApi: sessionApi,
+        sessionRepository: sessionRepository,
         userRepository: userRepository,
       ),
     );

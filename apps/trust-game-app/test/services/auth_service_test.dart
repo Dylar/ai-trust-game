@@ -18,7 +18,7 @@ void main() {
     'GIVEN existing user WHEN selecting user THEN stores selected user in controller',
     () async {
       final selectedUser = SelectedUserController();
-      final service = AuthServiceImpl(
+      final service = AuthService(
         appLogger: _silentLogger,
         userRepository: _FakeUserRepository(),
         selectedUser: selectedUser,
@@ -36,7 +36,7 @@ void main() {
     () async {
       final repository = _FakeUserRepository();
       final selectedUser = SelectedUserController();
-      final service = AuthServiceImpl(
+      final service = AuthService(
         appLogger: _silentLogger,
         userRepository: repository,
         selectedUser: selectedUser,
@@ -69,7 +69,7 @@ void main() {
     'GIVEN backend users WHEN loading users THEN mirrors users into local repository',
     () async {
       final repository = _FakeUserRepository();
-      final service = AuthServiceImpl(
+      final service = AuthService(
         appLogger: _silentLogger,
         userRepository: repository,
         selectedUser: SelectedUserController(),
@@ -103,7 +103,7 @@ void main() {
     'GIVEN unreachable backend WHEN loading users THEN logs local fallback',
     () async {
       final sink = RecordingAppLogSink();
-      final service = AuthServiceImpl(
+      final service = AuthService(
         appLogger: AppLogger(sinks: <AppLogSink>[sink]),
         userRepository: _FakeUserRepository(),
         selectedUser: SelectedUserController(),
@@ -132,7 +132,7 @@ void main() {
     'GIVEN missing backend WHEN creating user THEN fails without local fallback',
     () async {
       final selectedUser = SelectedUserController();
-      final service = AuthServiceImpl(
+      final service = AuthService(
         appLogger: _silentLogger,
         userRepository: _FakeUserRepository(),
         selectedUser: selectedUser,

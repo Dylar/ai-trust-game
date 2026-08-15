@@ -1,6 +1,6 @@
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/core/user/user_profile.dart';
-import 'package:app/services/sync_service.dart';
+import 'package:app/models/session_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../testing/mocks/recording_app_log_sink.dart';
@@ -45,7 +45,7 @@ void main() {
     await context.process.selectUser('loaded-user');
 
     // Then
-    expect(context.authService.selectedUser, user);
+    expect(context.selectedUser.value, user);
     context.screenBot.expectHomeVisible();
   });
 
@@ -53,12 +53,10 @@ void main() {
     'GIVEN loaded user and failed sync WHEN selecting user THEN logs in',
     (tester) async {
       final user = loadedLoginUserProfile('loaded-user');
-      final syncService = FakeLoginSyncService(
-        syncUserStatus: SyncStatus.failed,
-      );
+      final sessionApi = FakeLoginSessionApi(shouldFailListSessions: true);
       final context = LoginTestContext(
         tester,
-        syncService: syncService,
+        sessionApi: sessionApi,
         loadedUsers: <UserProfile>[user],
       );
 
@@ -70,8 +68,8 @@ void main() {
       await context.process.selectUser('loaded-user');
 
       // Then
-      expect(context.authService.selectedUser, user);
-      expect(syncService.syncedUser, user);
+      expect(context.selectedUser.value, user);
+      expect(sessionApi.listedUserId, user.id);
       context.screenBot.expectHomeVisible();
     },
   );
@@ -80,12 +78,10 @@ void main() {
     'GIVEN unloaded user and failed sync WHEN selecting user THEN stays on login',
     (tester) async {
       final user = unloadedLoginUserProfile('unloaded-user');
-      final syncService = FakeLoginSyncService(
-        syncUserStatus: SyncStatus.failed,
-      );
+      final sessionApi = FakeLoginSessionApi(shouldFailListSessions: true);
       final context = LoginTestContext(
         tester,
-        syncService: syncService,
+        sessionApi: sessionApi,
         unloadedUsers: <UserProfile>[user],
       );
 
@@ -97,8 +93,8 @@ void main() {
       await context.process.selectUser('unloaded-user');
 
       // Then
-      expect(context.authService.selectedUser, isNull);
-      expect(syncService.syncedUser, user);
+      expect(context.selectedUser.value, isNull);
+      expect(sessionApi.listedUserId, user.id);
       context.screenBot.expectSelectedUserLoadErrorVisible();
       context.screenBot.expectScreenVisible();
     },
@@ -109,11 +105,16 @@ void main() {
     (tester) async {
       final user = unloadedLoginUserProfile('unloaded-user');
       final sink = RecordingAppLogSink();
-      final syncService = FakeLoginSyncService(shouldFailSyncUser: true);
+      final sessionApi = FakeLoginSessionApi(
+        sessions: const <Session>[
+          Session(id: 'session-1', role: Role.guest, mode: Mode.easy),
+        ],
+      );
       final context = LoginTestContext(
         tester,
         appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-        syncService: syncService,
+        sessionApi: sessionApi,
+        sessionRepository: ThrowingSaveLoginSessionRepository(),
         unloadedUsers: <UserProfile>[user],
       );
 
@@ -125,8 +126,8 @@ void main() {
       await context.process.selectUser('unloaded-user');
 
       // Then
-      expect(context.authService.selectedUser, isNull);
-      expect(syncService.syncedUser, user);
+      expect(context.selectedUser.value, isNull);
+      expect(sessionApi.listedUserId, user.id);
       expect(sink.events, hasLength(1));
       expect(sink.events.single.category, 'login');
       expect(sink.events.single.message, 'Login user selection failed');
@@ -149,7 +150,7 @@ void main() {
       await context.process.createUser('Alice');
 
       // Then
-      expect(context.authService.createdDisplayName, 'Alice');
+      expect(context.authApi.createdDisplayName, 'Alice');
       context.screenBot.expectHomeVisible();
     },
   );
@@ -168,7 +169,7 @@ void main() {
 
       // Then
       context.screenBot.expectEmptyDisplayNameErrorVisible();
-      expect(context.authService.createdDisplayName, isNull);
+      expect(context.authApi.createdDisplayName, isNull);
       context.screenBot.expectScreenVisible();
     },
   );
@@ -180,7 +181,7 @@ void main() {
       final context = LoginTestContext(
         tester,
         appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-        authService: FakeLoginAuthService(shouldFailCreate: true),
+        authApi: FakeLoginAuthApi(shouldFailCreate: true),
       );
 
       // Given
@@ -196,7 +197,7 @@ void main() {
       expect(sink.events.single.category, 'login');
       expect(sink.events.single.message, 'Login user creation failed');
       expect(sink.events.single.attributes['displayNameLength'], 5);
-      expect(context.authService.createdDisplayName, isNull);
+      expect(context.authApi.createdDisplayName, isNull);
       context.screenBot.expectScreenVisible();
     },
   );

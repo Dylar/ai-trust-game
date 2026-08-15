@@ -4,23 +4,15 @@ import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/models/interaction_models.dart';
 
-abstract interface class InteractionService {
-  Future<Interaction> createInteraction({
-    required String sessionId,
-    required String message,
-  });
-}
-
-class InteractionServiceImpl implements InteractionService {
-  const InteractionServiceImpl({
+class InteractionService {
+  const InteractionService({
     required this.apiClient,
     required this.interactionRepository,
   });
 
-  final InteractionApiClient apiClient;
+  final InteractionApi apiClient;
   final InteractionRepository interactionRepository;
 
-  @override
   Future<Interaction> createInteraction({
     required String sessionId,
     required String message,

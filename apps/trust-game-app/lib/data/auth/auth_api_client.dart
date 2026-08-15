@@ -7,12 +7,19 @@ import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/auth/auth_dto.dart';
 import 'package:http/http.dart' as http;
 
-class AuthApiClient {
+abstract interface class AuthApi {
+  Future<List<UserProfile>> listUsers();
+
+  Future<UserProfile> createUser(String displayName);
+}
+
+class AuthApiClient implements AuthApi {
   const AuthApiClient({required this.httpClient, required this.apiBaseUri});
 
   final http.Client httpClient;
   final Uri apiBaseUri;
 
+  @override
   Future<List<UserProfile>> listUsers() async {
     try {
       final json = await sendGetJsonRequest(
@@ -26,6 +33,7 @@ class AuthApiClient {
     }
   }
 
+  @override
   Future<UserProfile> createUser(String displayName) async {
     try {
       final response = await sendPostRequest(

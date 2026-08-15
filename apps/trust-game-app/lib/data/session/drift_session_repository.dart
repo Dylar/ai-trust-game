@@ -44,6 +44,7 @@ class DriftSessionRepository implements SessionRepository {
     await listSessions();
   }
 
+  @override
   Future<void> saveSessionForUser({
     required String userId,
     required Session session,

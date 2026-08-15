@@ -37,7 +37,7 @@ void main() {
       final context = LoadingTestContext(
         tester,
         appLogger: AppLogger(sinks: <AppLogSink>[sink]),
-        authService: const FakeLoadingAuthService(shouldFailLoad: true),
+        authApi: const FakeLoadingAuthApi(shouldFailLoad: true),
       );
 
       // Given

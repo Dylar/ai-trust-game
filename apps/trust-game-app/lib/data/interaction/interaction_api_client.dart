@@ -5,7 +5,16 @@ import 'package:app/data/api/api_error.dart';
 import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/interaction/interaction_dto.dart';
 
-class InteractionApiClient {
+abstract interface class InteractionApi {
+  Future<InteractionResponse> createInteraction(InteractionRequest request);
+
+  Future<ListInteractionsResponse> listInteractionsForSession({
+    required String userId,
+    required String sessionId,
+  });
+}
+
+class InteractionApiClient implements InteractionApi {
   const InteractionApiClient({
     required this.httpClient,
     required this.apiBaseUri,
@@ -16,6 +25,7 @@ class InteractionApiClient {
   final Uri apiBaseUri;
   final SelectedUserController selectedUser;
 
+  @override
   Future<InteractionResponse> createInteraction(
     InteractionRequest request,
   ) async {
@@ -46,6 +56,7 @@ class InteractionApiClient {
     }
   }
 
+  @override
   Future<ListInteractionsResponse> listInteractionsForSession({
     required String userId,
     required String sessionId,

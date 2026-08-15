@@ -9,23 +9,20 @@ class LoadingProcess {
   LoadingProcess({
     required this.appLogger,
     required this.appProcess,
-    required this.authService,
+    required this.authApi,
     required this.screenBot,
-    required this.syncService,
   });
 
   final AppLogger appLogger;
   final AppProcess appProcess;
-  final FakeLoadingAuthService authService;
+  final FakeLoadingAuthApi authApi;
   final LoadingScreenBot screenBot;
-  final FakeLoadingSyncService syncService;
 
   Future<void> startLoadingScreen() async {
     await appProcess.startLoading(
       dependencies: buildTestDependencies(
         appLogger: appLogger,
-        authService: authService,
-        syncService: syncService,
+        authApi: authApi,
       ),
     );
   }

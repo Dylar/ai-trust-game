@@ -1,24 +1,25 @@
 import 'package:app/core/user/user_profile.dart';
+import 'package:app/data/api/api_error.dart';
+import 'package:app/data/auth/auth_api_client.dart';
 import 'package:app/data/drift/drift_user_repository.dart';
-import 'package:app/services/auth_service.dart';
-import 'package:app/services/sync_service.dart';
+import 'package:app/data/interaction/interaction_api_client.dart';
+import 'package:app/data/interaction/interaction_dto.dart';
+import 'package:app/data/session/session_api_client.dart';
+import 'package:app/data/session/start_session_dto.dart';
+import 'package:app/data/session/session_repository.dart';
+import 'package:app/models/session_models.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../testing/test_user_profile.dart';
 
-class FakeLoginAuthService implements AuthService {
-  FakeLoginAuthService({this.shouldFailCreate = false});
+class FakeLoginAuthApi implements AuthApi {
+  FakeLoginAuthApi({this.shouldFailCreate = false});
 
   final bool shouldFailCreate;
-  UserProfile? selectedUser;
   String? createdDisplayName;
 
   @override
-  Future<void> loadUserProfiles() async {}
-
-  @override
-  void selectUser(UserProfile user) {
-    selectedUser = user;
-  }
+  Future<List<UserProfile>> listUsers() async => const <UserProfile>[];
 
   @override
   Future<UserProfile> createUser(String displayName) async {
@@ -32,7 +33,6 @@ class FakeLoginAuthService implements AuthService {
       createdAt: DateTime.utc(2026),
       updatedAt: DateTime.utc(2026),
     );
-    selectedUser = user;
     return user;
   }
 }
@@ -61,31 +61,81 @@ class FakeLoginUserRepository implements UserRepository {
   Future<void> saveUser(UserProfile user) async {}
 }
 
-class FakeLoginSyncService implements SyncService {
-  FakeLoginSyncService({
-    this.shouldFailSyncUser = false,
-    this.syncUserStatus = SyncStatus.synced,
+class FakeLoginSessionApi implements SessionApi {
+  FakeLoginSessionApi({
+    this.sessions = const <Session>[],
+    this.shouldFailListSessions = false,
   });
 
-  final bool shouldFailSyncUser;
-  final SyncStatus syncUserStatus;
-  UserProfile? syncedUser;
+  final List<Session> sessions;
+  final bool shouldFailListSessions;
+  String? listedUserId;
 
   @override
-  Future<SyncResult> syncStartup() async {
-    return const SyncResult.synced();
+  Future<ListSessionsResponse> listSessionsForUser(String userId) async {
+    listedUserId = userId;
+    if (shouldFailListSessions) {
+      throw const ApiException(
+        error: ApiError(code: ApiErrorCode.backendUnreachable),
+      );
+    }
+    return ListSessionsResponse(sessions: sessions);
   }
 
   @override
-  Future<SyncResult> syncUserRestore(UserProfile user) async {
-    syncedUser = user;
-    if (shouldFailSyncUser) {
-      throw Exception('sync failed');
-    }
-    return switch (syncUserStatus) {
-      SyncStatus.synced => const SyncResult.synced(),
-      SyncStatus.failed => const SyncResult.failed(),
-    };
+  Future<StartSessionResponse> startSession(StartSessionRequest request) async {
+    throw UnimplementedError();
+  }
+}
+
+class FakeLoginInteractionApi implements InteractionApi {
+  const FakeLoginInteractionApi();
+
+  @override
+  Future<InteractionResponse> createInteraction(
+    InteractionRequest request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ListInteractionsResponse> listInteractionsForSession({
+    required String userId,
+    required String sessionId,
+  }) async {
+    return const ListInteractionsResponse(
+      interactions: <InteractionResponse>[],
+    );
+  }
+}
+
+class ThrowingSaveLoginSessionRepository implements SessionRepository {
+  ThrowingSaveLoginSessionRepository();
+
+  final ValueNotifier<List<Session>> _sessions = ValueNotifier<List<Session>>(
+    const <Session>[],
+  );
+
+  @override
+  ValueListenable<List<Session>> get sessionsListenable => _sessions;
+
+  @override
+  Future<Session?> getSession(String id) async => null;
+
+  @override
+  Future<List<Session>> listSessions() async => const <Session>[];
+
+  @override
+  Future<void> saveSession(Session session) async {
+    throw Exception('sync failed');
+  }
+
+  @override
+  Future<void> saveSessionForUser({
+    required String userId,
+    required Session session,
+  }) async {
+    throw Exception('sync failed');
   }
 }
 

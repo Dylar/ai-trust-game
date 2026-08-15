@@ -5,7 +5,23 @@ import 'package:app/data/api/api_error.dart';
 import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/analysis/analysis_dto.dart';
 
-class AnalysisApiClient {
+abstract interface class AnalysisApi {
+  Future<SessionAnalysisResponse> getSessionAnalysis(String sessionId);
+
+  Future<SessionAnalysisResponse> getSessionAnalysisForUser({
+    required String userId,
+    required String sessionId,
+  });
+
+  Future<RequestAnalysisResponse> getRequestAnalysis(String requestId);
+
+  Future<RequestAnalysisResponse> getRequestAnalysisForUser({
+    required String userId,
+    required String requestId,
+  });
+}
+
+class AnalysisApiClient implements AnalysisApi {
   const AnalysisApiClient({
     required this.httpClient,
     required this.apiBaseUri,
@@ -16,6 +32,7 @@ class AnalysisApiClient {
   final Uri apiBaseUri;
   final SelectedUserController selectedUser;
 
+  @override
   Future<SessionAnalysisResponse> getSessionAnalysis(String sessionId) async {
     return getSessionAnalysisForUser(
       userId: selectedUser.requiredUser.id,
@@ -23,6 +40,7 @@ class AnalysisApiClient {
     );
   }
 
+  @override
   Future<SessionAnalysisResponse> getSessionAnalysisForUser({
     required String userId,
     required String sessionId,
@@ -39,6 +57,7 @@ class AnalysisApiClient {
     }
   }
 
+  @override
   Future<RequestAnalysisResponse> getRequestAnalysis(String requestId) async {
     return getRequestAnalysisForUser(
       userId: selectedUser.requiredUser.id,
@@ -46,6 +65,7 @@ class AnalysisApiClient {
     );
   }
 
+  @override
   Future<RequestAnalysisResponse> getRequestAnalysisForUser({
     required String userId,
     required String requestId,

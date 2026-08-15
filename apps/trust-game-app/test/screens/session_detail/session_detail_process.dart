@@ -1,4 +1,8 @@
+import 'package:app/data/analysis/analysis_repository.dart';
+import 'package:app/models/analysis_models.dart';
+
 import '../../testing/app_process.dart';
+import '../../testing/mocks/analysis_api_mocks.dart';
 import '../../testing/test_dependencies.dart';
 import 'session_detail_fakes.dart';
 import 'session_detail_screen_bot.dart';
@@ -25,17 +29,25 @@ class SessionDetailProcess {
     );
   }
 
-  Future<PendingRefreshSessionAnalysisService> startWithPendingRefresh({
+  Future<PendingRefreshSessionAnalysisApi> startWithPendingRefresh({
     required String sessionId,
   }) async {
-    final analysisService = PendingRefreshSessionAnalysisService(
-      sessionId: sessionId,
-    );
+    final analysisApi = PendingRefreshSessionAnalysisApi(sessionId: sessionId);
     await appProcess.startSessionDetail(
       sessionId: sessionId,
-      dependencies: buildTestDependencies(analysisService: analysisService),
+      dependencies: buildTestDependencies(
+        analysisApi: analysisApi,
+        analysisRepository: InMemoryAnalysisRepository(
+          initialSessionAnalyses: <String, SessionAnalysis>{
+            sessionId: testSessionAnalysis(
+              sessionId: sessionId,
+              classification: 'cached',
+            ),
+          },
+        ),
+      ),
     );
-    return analysisService;
+    return analysisApi;
   }
 
   Future<void> waitUntilLoaded() async {

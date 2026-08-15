@@ -25,6 +25,12 @@ class FailingSessionRepository implements SessionRepository {
 
   @override
   Future<void> saveSession(Session session) async {}
+
+  @override
+  Future<void> saveSessionForUser({
+    required String userId,
+    required Session session,
+  }) async {}
 }
 
 http.Client interactionFailureClient({required int statusCode}) {

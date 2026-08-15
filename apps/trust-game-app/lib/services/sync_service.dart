@@ -2,10 +2,10 @@ import 'package:app/core/logging/app_logger.dart';
 import 'package:app/core/user/user_profile.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/drift/drift_user_repository.dart';
-import 'package:app/data/interaction/drift_interaction_repository.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
-import 'package:app/data/session/drift_session_repository.dart';
+import 'package:app/data/interaction/interaction_repository.dart';
 import 'package:app/data/session/session_api_client.dart';
+import 'package:app/data/session/session_repository.dart';
 import 'package:app/models/interaction_models.dart';
 import 'package:app/services/sync_logger.dart';
 
@@ -23,14 +23,8 @@ class SyncResult {
   bool get isSuccess => status == SyncStatus.synced;
 }
 
-abstract interface class SyncService {
-  Future<SyncResult> syncStartup();
-
-  Future<SyncResult> syncUserRestore(UserProfile user);
-}
-
-class SyncServiceImpl implements SyncService {
-  SyncServiceImpl({
+class SyncService {
+  SyncService({
     required AppLogger appLogger,
     required this.interactionApiClient,
     required this.interactionRepository,
@@ -40,13 +34,12 @@ class SyncServiceImpl implements SyncService {
   }) : _logger = SyncLogger(appLogger: appLogger);
 
   final SyncLogger _logger;
-  final InteractionApiClient interactionApiClient;
-  final DriftInteractionRepository interactionRepository;
+  final InteractionApi interactionApiClient;
+  final InteractionRepository interactionRepository;
   final UserRepository userRepository;
-  final SessionApiClient sessionApiClient;
-  final DriftSessionRepository sessionRepository;
+  final SessionApi sessionApiClient;
+  final SessionRepository sessionRepository;
 
-  @override
   Future<SyncResult> syncStartup() async {
     final users = await userRepository.listLoadedUsers();
     if (users.isEmpty) {
@@ -63,7 +56,6 @@ class SyncServiceImpl implements SyncService {
     return const SyncResult.synced();
   }
 
-  @override
   Future<SyncResult> syncUserRestore(UserProfile user) async {
     try {
       await _syncUserSessionsAndInteractions(user);

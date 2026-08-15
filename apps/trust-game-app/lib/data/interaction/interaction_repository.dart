@@ -10,6 +10,11 @@ abstract interface class InteractionRepository {
   Future<List<Interaction>> listInteractions(String sessionId);
 
   Future<void> saveInteraction(Interaction interaction);
+
+  Future<void> saveInteractionForUser({
+    required String userId,
+    required Interaction interaction,
+  });
 }
 
 class InMemoryInteractionRepository implements InteractionRepository {
@@ -57,6 +62,14 @@ class InMemoryInteractionRepository implements InteractionRepository {
     _interactionsBySession.value = Map<String, List<Interaction>>.unmodifiable(
       nextBySession,
     );
+  }
+
+  @override
+  Future<void> saveInteractionForUser({
+    required String userId,
+    required Interaction interaction,
+  }) async {
+    await saveInteraction(interaction);
   }
 
   static Map<String, List<Interaction>> _groupBySession(

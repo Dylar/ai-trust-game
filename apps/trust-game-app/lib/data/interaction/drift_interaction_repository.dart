@@ -42,6 +42,7 @@ class DriftInteractionRepository implements InteractionRepository {
     _changes.emitChange();
   }
 
+  @override
   Future<void> saveInteractionForUser({
     required String userId,
     required Interaction interaction,

@@ -6,20 +6,12 @@ import 'package:app/data/auth/auth_api_client.dart';
 import 'package:app/data/drift/drift_user_repository.dart';
 import 'package:app/services/auth_logger.dart';
 
-abstract interface class AuthService {
-  Future<UserProfile> createUser(String displayName);
-
-  Future<void> loadUserProfiles();
-
-  void selectUser(UserProfile user);
-}
-
-class AuthServiceImpl implements AuthService {
-  AuthServiceImpl({
+class AuthService {
+  AuthService({
     required AppLogger appLogger,
     required UserRepository userRepository,
     required SelectedUserController selectedUser,
-    AuthApiClient? apiClient,
+    AuthApi? apiClient,
   }) : _userRepository = userRepository,
        _selectedUser = selectedUser,
        _logger = AuthLogger(appLogger: appLogger),
@@ -28,9 +20,8 @@ class AuthServiceImpl implements AuthService {
   final UserRepository _userRepository;
   final SelectedUserController _selectedUser;
   final AuthLogger _logger;
-  final AuthApiClient? _apiClient;
+  final AuthApi? _apiClient;
 
-  @override
   Future<UserProfile> createUser(String displayName) async {
     final trimmedDisplayName = displayName.trim();
     final apiClient = _apiClient;
@@ -46,7 +37,6 @@ class AuthServiceImpl implements AuthService {
     return user;
   }
 
-  @override
   Future<void> loadUserProfiles() async {
     final apiClient = _apiClient;
     if (apiClient == null) {
@@ -67,7 +57,6 @@ class AuthServiceImpl implements AuthService {
     }
   }
 
-  @override
   void selectUser(UserProfile user) {
     _selectedUser.select(user);
   }

@@ -6,6 +6,7 @@ import 'package:app/core/user/selected_user_controller.dart';
 import 'package:app/core/user/user_profile.dart';
 import 'package:app/data/analysis/analysis_api_client.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
+import 'package:app/data/auth/auth_api_client.dart';
 import 'package:app/data/drift/drift_user_repository.dart';
 import 'package:app/data/interaction/interaction_api_client.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
@@ -22,18 +23,17 @@ import 'mocks/backend_mock_client.dart';
 import 'test_user_profile.dart';
 
 AppDependencies buildTestDependencies({
+  AnalysisApi? analysisApi,
   AnalysisRepository? analysisRepository,
-  AnalysisService? analysisService,
   AppLogger? appLogger,
-  AuthService? authService,
+  AuthApi? authApi,
   http.Client? httpClient,
+  InteractionApi? interactionApi,
   InteractionRepository? interactionRepository,
-  InteractionService? interactionService,
+  SessionApi? sessionApi,
   UserRepository? userRepository,
   SelectedUserController? selectedUser,
   SessionRepository? sessionRepository,
-  SessionService? sessionService,
-  SyncService? syncService,
 }) {
   final config = AppConfig(
     apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -51,53 +51,68 @@ AppDependencies buildTestDependencies({
       sessionRepository ?? InMemorySessionRepository();
   final resolvedUserRepository = userRepository ?? _EmptyUserRepository();
   final resolvedAppLogger = appLogger ?? const AppLogger(sinks: <AppLogSink>[]);
+  final analysisApiClient =
+      analysisApi ??
+      AnalysisApiClient(
+        httpClient: resolvedHttpClient,
+        apiBaseUri: config.apiBaseUri,
+        selectedUser: resolvedSelectedUser,
+      );
+  final authApiClient =
+      authApi ??
+      AuthApiClient(
+        httpClient: resolvedHttpClient,
+        apiBaseUri: config.apiBaseUri,
+      );
+  final interactionApiClient =
+      interactionApi ??
+      InteractionApiClient(
+        httpClient: resolvedHttpClient,
+        apiBaseUri: config.apiBaseUri,
+        selectedUser: resolvedSelectedUser,
+      );
+  final sessionApiClient =
+      sessionApi ??
+      SessionApiClient(
+        httpClient: resolvedHttpClient,
+        apiBaseUri: config.apiBaseUri,
+        selectedUser: resolvedSelectedUser,
+      );
 
   return AppDependencies(
-    analysisService:
-        analysisService ??
-        AnalysisServiceImpl(
-          analysisRepository: resolvedAnalysisRepository,
-          apiClient: AnalysisApiClient(
-            httpClient: resolvedHttpClient,
-            apiBaseUri: config.apiBaseUri,
-            selectedUser: resolvedSelectedUser,
-          ),
-        ),
+    analysisService: AnalysisService(
+      analysisRepository: resolvedAnalysisRepository,
+      apiClient: analysisApiClient,
+    ),
     appLogger: resolvedAppLogger,
-    authService:
-        authService ??
-        AuthServiceImpl(
-          appLogger: resolvedAppLogger,
-          userRepository: resolvedUserRepository,
-          selectedUser: resolvedSelectedUser,
-        ),
+    authService: AuthService(
+      appLogger: resolvedAppLogger,
+      userRepository: resolvedUserRepository,
+      selectedUser: resolvedSelectedUser,
+      apiClient: authApiClient,
+    ),
     config: config,
     httpClient: resolvedHttpClient,
     interactionRepository: resolvedInteractionRepository,
-    interactionService:
-        interactionService ??
-        InteractionServiceImpl(
-          apiClient: InteractionApiClient(
-            httpClient: resolvedHttpClient,
-            apiBaseUri: config.apiBaseUri,
-            selectedUser: resolvedSelectedUser,
-          ),
-          interactionRepository: resolvedInteractionRepository,
-        ),
+    interactionService: InteractionService(
+      apiClient: interactionApiClient,
+      interactionRepository: resolvedInteractionRepository,
+    ),
     sessionRepository: resolvedSessionRepository,
-    sessionService:
-        sessionService ??
-        SessionServiceImpl(
-          apiClient: SessionApiClient(
-            httpClient: resolvedHttpClient,
-            apiBaseUri: config.apiBaseUri,
-            selectedUser: resolvedSelectedUser,
-          ),
-          sessionRepository: resolvedSessionRepository,
-        ),
+    sessionService: SessionService(
+      apiClient: sessionApiClient,
+      sessionRepository: resolvedSessionRepository,
+    ),
     userRepository: resolvedUserRepository,
     selectedUser: resolvedSelectedUser,
-    syncService: syncService ?? const _NoopSyncService(),
+    syncService: SyncService(
+      appLogger: resolvedAppLogger,
+      interactionApiClient: interactionApiClient,
+      interactionRepository: resolvedInteractionRepository,
+      userRepository: resolvedUserRepository,
+      sessionApiClient: sessionApiClient,
+      sessionRepository: resolvedSessionRepository,
+    ),
   );
 }
 
@@ -113,18 +128,4 @@ class _EmptyUserRepository implements UserRepository {
 
   @override
   Future<void> saveUser(UserProfile user) async {}
-}
-
-class _NoopSyncService implements SyncService {
-  const _NoopSyncService();
-
-  @override
-  Future<SyncResult> syncStartup() async {
-    return const SyncResult.synced();
-  }
-
-  @override
-  Future<SyncResult> syncUserRestore(UserProfile user) async {
-    return const SyncResult.synced();
-  }
 }

@@ -1,9 +1,8 @@
 import 'package:app/core/user/user_profile.dart';
-import 'package:app/services/auth_service.dart';
-import 'package:app/services/sync_service.dart';
+import 'package:app/data/auth/auth_api_client.dart';
 
-class FakeLoadingAuthService implements AuthService {
-  const FakeLoadingAuthService({this.shouldFailLoad = false});
+class FakeLoadingAuthApi implements AuthApi {
+  const FakeLoadingAuthApi({this.shouldFailLoad = false});
 
   final bool shouldFailLoad;
 
@@ -13,24 +12,10 @@ class FakeLoadingAuthService implements AuthService {
   }
 
   @override
-  Future<void> loadUserProfiles() async {
+  Future<List<UserProfile>> listUsers() async {
     if (shouldFailLoad) {
       throw Exception('load failed');
     }
-  }
-
-  @override
-  void selectUser(UserProfile user) {}
-}
-
-class FakeLoadingSyncService implements SyncService {
-  @override
-  Future<SyncResult> syncStartup() async {
-    return const SyncResult.synced();
-  }
-
-  @override
-  Future<SyncResult> syncUserRestore(UserProfile user) {
-    throw UnimplementedError();
+    return const <UserProfile>[];
   }
 }

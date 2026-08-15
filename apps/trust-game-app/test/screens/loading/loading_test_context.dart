@@ -11,20 +11,17 @@ class LoadingTestContext {
   LoadingTestContext(
     this.tester, {
     AppLogger? appLogger,
-    FakeLoadingAuthService? authService,
-    FakeLoadingSyncService? syncService,
+    FakeLoadingAuthApi? authApi,
   }) : appBot = AppBot(tester),
        screenBot = LoadingScreenBot(tester),
        appLogger = appLogger ?? const AppLogger(sinks: <AppLogSink>[]),
-       authService = authService ?? const FakeLoadingAuthService(),
-       syncService = syncService ?? FakeLoadingSyncService() {
+       authApi = authApi ?? const FakeLoadingAuthApi() {
     appProcess = AppProcess(appBot);
     process = LoadingProcess(
       appLogger: this.appLogger,
       appProcess: appProcess,
-      authService: this.authService,
+      authApi: this.authApi,
       screenBot: screenBot,
-      syncService: this.syncService,
     );
   }
 
@@ -33,7 +30,6 @@ class LoadingTestContext {
   late final AppProcess appProcess;
   final LoadingScreenBot screenBot;
   final AppLogger appLogger;
-  final FakeLoadingAuthService authService;
-  final FakeLoadingSyncService syncService;
+  final FakeLoadingAuthApi authApi;
   late final LoadingProcess process;
 }

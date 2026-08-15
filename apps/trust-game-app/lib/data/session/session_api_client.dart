@@ -5,7 +5,13 @@ import 'package:app/data/api/api_error.dart';
 import 'package:app/data/api/api_transport.dart';
 import 'package:app/data/session/start_session_dto.dart';
 
-class SessionApiClient {
+abstract interface class SessionApi {
+  Future<StartSessionResponse> startSession(StartSessionRequest request);
+
+  Future<ListSessionsResponse> listSessionsForUser(String userId);
+}
+
+class SessionApiClient implements SessionApi {
   const SessionApiClient({
     required this.httpClient,
     required this.apiBaseUri,
@@ -16,6 +22,7 @@ class SessionApiClient {
   final Uri apiBaseUri;
   final SelectedUserController selectedUser;
 
+  @override
   Future<StartSessionResponse> startSession(StartSessionRequest request) async {
     try {
       final json = await sendPostJsonRequest(
@@ -33,6 +40,7 @@ class SessionApiClient {
     }
   }
 
+  @override
   Future<ListSessionsResponse> listSessionsForUser(String userId) async {
     try {
       final json = await sendGetJsonRequest(
