@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/core/user/selected_user_controller.dart';
@@ -19,7 +20,7 @@ void main() {
     final client = LogApiClient(
       httpClient: MockClient((request) async {
         capturedRequest = request;
-        return http.Response('', 202);
+        return http.Response('', HttpStatus.accepted);
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
       selectedUser: selectedUser,
@@ -53,7 +54,7 @@ void main() {
     final client = LogApiClient(
       httpClient: MockClient((request) async {
         capturedRequest = request;
-        return http.Response('', 202);
+        return http.Response('', HttpStatus.accepted);
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
       selectedUser: selectedUser,
@@ -78,7 +79,7 @@ void main() {
           jsonEncode(<String, Object>{
             'error': <String, String>{'code': 'invalid_json'},
           }),
-          400,
+          HttpStatus.badRequest,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -95,7 +96,11 @@ void main() {
       ),
       throwsA(
         isA<LogApiException>()
-            .having((error) => error.statusCode, 'statusCode', 400)
+            .having(
+              (error) => error.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            )
             .having((error) => error.code, 'code', ApiErrorCode.invalidJson),
       ),
     );
@@ -106,7 +111,7 @@ void main() {
     final client = LogApiClient(
       httpClient: MockClient((request) async {
         capturedRequest = request;
-        return http.Response('', 202);
+        return http.Response('', HttpStatus.accepted);
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
       selectedUser: SelectedUserController(),

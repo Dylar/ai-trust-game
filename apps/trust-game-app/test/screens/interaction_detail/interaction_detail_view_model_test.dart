@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/analysis/analysis_repository.dart';
 import 'package:app/data/api/api_error.dart';
@@ -73,7 +75,7 @@ void main() {
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
       analysisService: AnalysisService(
         apiClient: const FailingRequestAnalysisApi(
-          statusCode: 404,
+          statusCode: HttpStatus.notFound,
           code: ApiErrorCode.requestAnalysisNotFound,
         ),
         analysisRepository: InMemoryAnalysisRepository(),
@@ -96,7 +98,7 @@ void main() {
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
       analysisService: AnalysisService(
         apiClient: const FailingRequestAnalysisApi(
-          statusCode: 500,
+          statusCode: HttpStatus.internalServerError,
           code: ApiErrorCode.internalError,
         ),
         analysisRepository: InMemoryAnalysisRepository(),
@@ -111,7 +113,7 @@ void main() {
     expect(sink.events.single.message, 'Request analysis loading failed');
     expect(sink.events.single.attributes, <String, Object?>{
       'requestId': 'request-1',
-      'httpStatusCode': 500,
+      'httpStatusCode': HttpStatus.internalServerError,
       'errorCode': 'internal_error',
     });
   });
@@ -124,7 +126,7 @@ void main() {
         appLogger: AppLogger(sinks: <AppLogSink>[sink]),
         analysisService: AnalysisService(
           apiClient: const FailingRequestAnalysisApi(
-            statusCode: 500,
+            statusCode: HttpStatus.internalServerError,
             code: ApiErrorCode.internalError,
           ),
           analysisRepository: InMemoryAnalysisRepository(
@@ -148,7 +150,7 @@ void main() {
       expect(sink.events.single.message, 'Request analysis loading failed');
       expect(sink.events.single.attributes, <String, Object?>{
         'requestId': 'request-1',
-        'httpStatusCode': 500,
+        'httpStatusCode': HttpStatus.internalServerError,
         'errorCode': 'internal_error',
       });
     },

@@ -114,7 +114,8 @@ void ensureSuccessResponse(
 }) {
   final isSuccessfulStatus =
       successStatusCodes?.contains(response.statusCode) ??
-      (response.statusCode >= 200 && response.statusCode < 300);
+      (response.statusCode >= HttpStatus.ok &&
+          response.statusCode < HttpStatus.multipleChoices);
 
   if (isSuccessfulStatus) {
     return;

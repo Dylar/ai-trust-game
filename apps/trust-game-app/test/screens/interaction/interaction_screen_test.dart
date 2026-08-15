@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app/models/interaction_models.dart';
 import 'package:app/models/session_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -123,7 +125,7 @@ void main() {
     // Given
     await context.process.startWithInteractionFailure(
       session: session,
-      statusCode: 500,
+      statusCode: HttpStatus.internalServerError,
     );
     await context.process.expectSessionDetailsLoaded('local-admin-hard');
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/auth/auth_api_client.dart';
@@ -25,7 +26,7 @@ void main() {
                 },
               ],
             }),
-            200,
+            HttpStatus.ok,
           );
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -54,7 +55,7 @@ void main() {
               'createdAt': '2026-06-11T10:00:00Z',
               'updatedAt': '2026-06-11T10:00:00Z',
             }),
-            201,
+            HttpStatus.created,
           );
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -81,7 +82,7 @@ void main() {
             jsonEncode(<String, Object>{
               'error': <String, String>{'code': 'duplicate_user_display_name'},
             }),
-            409,
+            HttpStatus.conflict,
           );
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -91,7 +92,11 @@ void main() {
         () => client.createUser('Alice'),
         throwsA(
           isA<AuthApiException>()
-              .having((error) => error.statusCode, 'statusCode', 409)
+              .having(
+                (error) => error.statusCode,
+                'statusCode',
+                HttpStatus.conflict,
+              )
               .having(
                 (error) => error.code,
                 'code',

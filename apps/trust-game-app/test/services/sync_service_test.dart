@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/core/user/selected_user_controller.dart';
@@ -63,7 +64,7 @@ void main() {
                 },
               ],
             }),
-            200,
+            HttpStatus.ok,
           );
         }
 
@@ -81,11 +82,11 @@ void main() {
                 },
               ],
             }),
-            200,
+            HttpStatus.ok,
           );
         }
 
-        return http.Response('not found', 404);
+        return http.Response('not found', HttpStatus.notFound);
       });
       final service = SyncService(
         appLogger: _silentLogger,
@@ -146,18 +147,18 @@ void main() {
                 },
               ],
             }),
-            200,
+            HttpStatus.ok,
           );
         }
 
         if (request.url.path.startsWith('/interaction/session/')) {
           return http.Response(
             jsonEncode(<String, Object>{'interactions': <Object>[]}),
-            200,
+            HttpStatus.ok,
           );
         }
 
-        return http.Response('not found', 404);
+        return http.Response('not found', HttpStatus.notFound);
       });
       final service = SyncService(
         appLogger: _silentLogger,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/session/session_repository.dart';
@@ -32,7 +34,7 @@ void main() {
       appLogger: AppLogger(sinks: <AppLogSink>[sink]),
       sessionService: SessionService(
         apiClient: const ApiFailingSessionApi(
-          statusCode: 400,
+          statusCode: HttpStatus.badRequest,
           code: ApiErrorCode.invalidMode,
         ),
         sessionRepository: InMemorySessionRepository(),
@@ -48,7 +50,7 @@ void main() {
     expect(sink.events.single.attributes, <String, Object?>{
       'role': 'guest',
       'mode': 'easy',
-      'httpStatusCode': 400,
+      'httpStatusCode': HttpStatus.badRequest,
       'errorCode': 'invalid_mode',
     });
   });

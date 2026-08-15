@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/core/user/selected_user_controller.dart';
 import '../../testing/test_user_profile.dart';
@@ -30,7 +31,7 @@ void main() {
             'model_fail_count': 0,
             'requests': <Object>[],
           }),
-          200,
+          HttpStatus.ok,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -64,7 +65,7 @@ void main() {
             'suspicion_count': 0,
             'model_fail_count': 0,
           }),
-          200,
+          HttpStatus.ok,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -87,7 +88,7 @@ void main() {
           jsonEncode(<String, Object>{
             'error': <String, String>{'code': 'request_analysis_not_found'},
           }),
-          404,
+          HttpStatus.notFound,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -98,7 +99,11 @@ void main() {
       () => client.getRequestAnalysis('missing-request'),
       throwsA(
         isA<AnalysisApiException>()
-            .having((error) => error.statusCode, 'statusCode', 404)
+            .having(
+              (error) => error.statusCode,
+              'statusCode',
+              HttpStatus.notFound,
+            )
             .having(
               (error) => error.code,
               'code',

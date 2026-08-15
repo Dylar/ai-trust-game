@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/core/user/selected_user_controller.dart';
@@ -49,7 +50,7 @@ void main() {
                 'createdAt': '2026-06-11T10:00:00Z',
                 'updatedAt': '2026-06-11T10:00:00Z',
               }),
-              201,
+              HttpStatus.created,
             );
           }),
           apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -86,7 +87,7 @@ void main() {
                   },
                 ],
               }),
-              200,
+              HttpStatus.ok,
             );
           }),
           apiBaseUri: Uri.parse('http://localhost:8080'),

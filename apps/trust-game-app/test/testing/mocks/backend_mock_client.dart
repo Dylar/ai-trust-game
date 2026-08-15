@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -22,7 +23,7 @@ http.Client buildBackendMockClient({BackendMockOverride? override}) {
           'role': body['role'] as String,
           'mode': body['mode'] as String,
         }),
-        200,
+        HttpStatus.ok,
       );
     }
 
@@ -32,7 +33,7 @@ http.Client buildBackendMockClient({BackendMockOverride? override}) {
         jsonEncode(<String, String>{
           'message': 'Backend answer for: "${body['message']}"',
         }),
-        200,
+        HttpStatus.ok,
         headers: const <String, String>{'x-request-id': 'request-1'},
       );
     }
@@ -52,7 +53,7 @@ http.Client buildBackendMockClient({BackendMockOverride? override}) {
             },
           ],
         }),
-        200,
+        HttpStatus.ok,
       );
     }
 
@@ -83,7 +84,7 @@ http.Client buildBackendMockClient({BackendMockOverride? override}) {
             },
           ],
         }),
-        200,
+        HttpStatus.ok,
       );
     }
 
@@ -102,14 +103,14 @@ http.Client buildBackendMockClient({BackendMockOverride? override}) {
           'suspicion_count': 0,
           'model_fail_count': 0,
         }),
-        200,
+        HttpStatus.ok,
       );
     }
 
     if (request.url.path == '/logs/client') {
-      return http.Response('', 202);
+      return http.Response('', HttpStatus.accepted);
     }
 
-    return http.Response('', 404);
+    return http.Response('', HttpStatus.notFound);
   });
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/core/user/selected_user_controller.dart';
 import '../../testing/test_user_profile.dart';
@@ -21,7 +22,7 @@ void main() {
         capturedRequest = request;
         return http.Response(
           jsonEncode(<String, String>{'message': 'No.'}),
-          200,
+          HttpStatus.ok,
           headers: const <String, String>{'x-request-id': 'request-1'},
         );
       }),
@@ -57,7 +58,7 @@ void main() {
           jsonEncode(<String, Object>{
             'error': <String, String>{'code': 'session_not_found'},
           }),
-          404,
+          HttpStatus.notFound,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -70,7 +71,11 @@ void main() {
       ),
       throwsA(
         isA<InteractionApiException>()
-            .having((error) => error.statusCode, 'statusCode', 404)
+            .having(
+              (error) => error.statusCode,
+              'statusCode',
+              HttpStatus.notFound,
+            )
             .having(
               (error) => error.code,
               'code',
@@ -98,7 +103,7 @@ void main() {
               },
             ],
           }),
-          200,
+          HttpStatus.ok,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),

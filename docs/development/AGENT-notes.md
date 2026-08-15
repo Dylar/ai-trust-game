@@ -12,10 +12,20 @@ Nothing here is final until it is implemented and reflected in the focused docum
 
 ## Open Task/Questions
 
-#### 1. interaction repo save user interaction ignores userId? Auch bei Session repo
+#### 1. Test architecture follow-up
 
-#### 2. HttpStatusCode not as magic number 
+Review whether screen `Process` objects still do too much dependency wiring.
+The direction is `TestContext` as the feature composition root and `Process` as flow orchestration.
+Do not change this immediately; revisit after the current service/API/repository cleanup settles.
 
-#### 3. zb in interaction detail view model test wird wieder service erstellt ... aber das is ok, weil es ja nen unit test is?
+#### 2. App README follow-up
 
-#### 4. 
+Update the Trust Game App README with the current boundary decision:
+Services are concrete orchestrators; API clients and repositories own the mockable interfaces.
+Do not change this immediately.
+
+#### 3. Frontend UML follow-up
+
+Update frontend UML diagrams so they match the current app flow:
+`ViewModel -> Service -> API client + Repository`, with repositories as local persistence/state boundaries.
+Do not change this immediately.

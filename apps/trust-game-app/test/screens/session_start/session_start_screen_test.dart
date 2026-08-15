@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'session_start_test_context.dart';
 
@@ -52,7 +54,9 @@ void main() {
     final context = SessionStartTestContext(tester);
 
     // Given
-    await context.process.startWithSessionStartFailure(statusCode: 500);
+    await context.process.startWithSessionStartFailure(
+      statusCode: HttpStatus.internalServerError,
+    );
 
     // When
     await context.process.prepareSessionExpectingDialog();

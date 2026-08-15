@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/api/api_transport.dart';
@@ -9,7 +10,7 @@ import 'package:http/testing.dart';
 void main() {
   test('parses success JSON for status 200', () {
     final json = parseJsonResponse(
-      http.Response(jsonEncode(<String, String>{'value': 'ok'}), 200),
+      http.Response(jsonEncode(<String, String>{'value': 'ok'}), HttpStatus.ok),
     );
 
     expect(json, <String, String>{'value': 'ok'});
@@ -20,14 +21,18 @@ void main() {
       jsonEncode(<String, Object>{
         'error': <String, String>{'code': 'session_not_found'},
       }),
-      404,
+      HttpStatus.notFound,
     );
 
     expect(
       () => parseJsonResponse(response),
       throwsA(
         isA<ApiException>()
-            .having((error) => error.statusCode, 'statusCode', 404)
+            .having(
+              (error) => error.statusCode,
+              'statusCode',
+              HttpStatus.notFound,
+            )
             .having(
               (error) => error.code,
               'code',
@@ -39,10 +44,15 @@ void main() {
 
   test('throws ApiException without error code for malformed error body', () {
     expect(
-      () => parseJsonResponse(http.Response('', 500)),
+      () =>
+          parseJsonResponse(http.Response('', HttpStatus.internalServerError)),
       throwsA(
         isA<ApiException>()
-            .having((error) => error.statusCode, 'statusCode', 500)
+            .having(
+              (error) => error.statusCode,
+              'statusCode',
+              HttpStatus.internalServerError,
+            )
             .having((error) => error.code, 'code', isNull),
       ),
     );
@@ -70,7 +80,7 @@ void main() {
   test('maps timeouts to request timeout', () async {
     final client = MockClient((_) async {
       await Future<void>.delayed(const Duration(milliseconds: 10));
-      return http.Response('', 200);
+      return http.Response('', HttpStatus.ok);
     });
 
     await expectLater(

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/core/user/selected_user_controller.dart';
 import '../../testing/test_user_profile.dart';
@@ -26,7 +27,7 @@ void main() {
             'role': 'admin',
             'mode': 'hard',
           }),
-          200,
+          HttpStatus.ok,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -57,7 +58,7 @@ void main() {
           jsonEncode(<String, Object>{
             'error': <String, String>{'code': 'invalid_role'},
           }),
-          400,
+          HttpStatus.badRequest,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -70,7 +71,11 @@ void main() {
       ),
       throwsA(
         isA<SessionApiException>()
-            .having((error) => error.statusCode, 'statusCode', 400)
+            .having(
+              (error) => error.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            )
             .having((error) => error.code, 'code', ApiErrorCode.invalidRole),
       ),
     );
@@ -94,7 +99,7 @@ void main() {
               },
             ],
           }),
-          200,
+          HttpStatus.ok,
         );
       }),
       apiBaseUri: Uri.parse('http://localhost:8080'),

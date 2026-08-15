@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -11,7 +12,7 @@ MockClient missingRequestAnalysisClient() {
       jsonEncode(<String, Object>{
         'error': <String, String>{'code': 'request_analysis_not_found'},
       }),
-      404,
+      HttpStatus.notFound,
     ),
   );
 }

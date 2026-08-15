@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app/core/logging/app_logger.dart';
 import 'package:app/data/api/api_error.dart';
 import 'package:app/data/interaction/interaction_repository.dart';
@@ -45,7 +47,7 @@ void main() {
       interactionRepository: InMemoryInteractionRepository(),
       interactionService: InteractionService(
         apiClient: const ApiFailingInteractionApi(
-          statusCode: 400,
+          statusCode: HttpStatus.badRequest,
           code: ApiErrorCode.emptyMessage,
         ),
         interactionRepository: InMemoryInteractionRepository(),
@@ -68,7 +70,7 @@ void main() {
     expect(sink.events.single.attributes, <String, Object?>{
       'sessionId': 'session-1',
       'messageLength': 11,
-      'httpStatusCode': 400,
+      'httpStatusCode': HttpStatus.badRequest,
       'errorCode': 'empty_message',
     });
   });
@@ -80,7 +82,7 @@ void main() {
       interactionRepository: InMemoryInteractionRepository(),
       interactionService: InteractionService(
         apiClient: const ApiFailingInteractionApi(
-          statusCode: 400,
+          statusCode: HttpStatus.badRequest,
           code: ApiErrorCode.emptyMessage,
         ),
         interactionRepository: InMemoryInteractionRepository(),

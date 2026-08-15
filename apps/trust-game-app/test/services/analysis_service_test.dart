@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/core/user/selected_user_controller.dart';
 import '../testing/test_user_profile.dart';
@@ -37,7 +38,7 @@ void main() {
       apiClient: AnalysisApiClient(
         httpClient: MockClient((_) async {
           requestCount++;
-          return http.Response('', 500);
+          return http.Response('', HttpStatus.internalServerError);
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
         selectedUser: selectedUser,
@@ -72,7 +73,7 @@ void main() {
                 'model_fail_count': 0,
                 'requests': <Object>[],
               }),
-              200,
+              HttpStatus.ok,
             );
           }),
           apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -123,7 +124,7 @@ void main() {
               'model_fail_count': 0,
               'requests': <Object>[],
             }),
-            200,
+            HttpStatus.ok,
           );
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
@@ -160,7 +161,7 @@ void main() {
       apiClient: AnalysisApiClient(
         httpClient: MockClient((_) async {
           requestCount++;
-          return http.Response('', 500);
+          return http.Response('', HttpStatus.internalServerError);
         }),
         apiBaseUri: Uri.parse('http://localhost:8080'),
         selectedUser: selectedUser,
