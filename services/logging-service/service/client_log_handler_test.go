@@ -109,7 +109,7 @@ func TestHandleClientLog(t *testing.T) {
 
 		t.Run(scenario.name, func(t *testing.T) {
 			logger := &recordingLogger{}
-			handler := NewClientLogHandler(logger)
+			handler := NewClientLogHandler(NewStructuredClientLogSink(logger))
 
 			err := handler.handleClientLog(context.Background(), given.request)
 

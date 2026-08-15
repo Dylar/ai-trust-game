@@ -5,7 +5,8 @@ This package contains generic RabbitMQ publisher and consumer helpers for backen
 It owns broker mechanics such as durable exchange declaration, durable queue binding, persistent messages, manual
 acknowledgement, retry publishing, and dead-letter routing for rejected messages.
 
-Publishers reconnect once and retry the publish when the current RabbitMQ channel or connection has been closed.
+Publishers use persistent messages and publisher confirms. They reconnect once and retry the publish when the current
+RabbitMQ channel or connection has been closed or the broker does not confirm the publish.
 Consumers keep reconnecting after the delivery stream closes, for example while the broker is restarting.
 
 Retryable processing errors are republished to the configured retry exchange as persistent messages, then acknowledged

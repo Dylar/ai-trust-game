@@ -13,7 +13,7 @@ import (
 func TestClientLogRoute(t *testing.T) {
 	mux := http.NewServeMux()
 	logger := logging.NewConsoleLogger()
-	handler := NewClientLogHandler(logger)
+	handler := NewClientLogHandler(NewStructuredClientLogSink(logger))
 
 	setupClientLogRoute(mux, logger, handler)
 

@@ -14,6 +14,7 @@ import (
 const DefaultURL = "amqp://guest:guest@rabbitmq:5672/"
 
 var ErrMissingURL = errors.New("missing rabbitmq url")
+var ErrPublishNotConfirmed = errors.New("rabbitmq publish was not confirmed")
 
 type PublisherConfig struct {
 	URL        string
@@ -35,10 +36,11 @@ type ConsumerConfig struct {
 }
 
 type Publisher struct {
-	mu      sync.Mutex
-	conn    *amqp.Connection
-	channel *amqp.Channel
-	cfg     PublisherConfig
+	mu       sync.Mutex
+	conn     *amqp.Connection
+	channel  *amqp.Channel
+	confirms <-chan amqp.Confirmation
+	cfg      PublisherConfig
 }
 
 func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
@@ -70,9 +72,15 @@ func (publisher *Publisher) connect() error {
 		_ = conn.Close()
 		return err
 	}
+	if err := channel.Confirm(false); err != nil {
+		_ = channel.Close()
+		_ = conn.Close()
+		return err
+	}
 
 	publisher.conn = conn
 	publisher.channel = channel
+	publisher.confirms = channel.NotifyPublish(make(chan amqp.Confirmation, 1))
 	return nil
 }
 
@@ -81,7 +89,11 @@ func (publisher *Publisher) Publish(ctx context.Context, message messaging.Messa
 	defer publisher.mu.Unlock()
 
 	err := publisher.publish(ctx, message)
-	if err == nil || ctx.Err() != nil {
+	if err == nil {
+		return err
+	}
+	if ctx.Err() != nil {
+		_ = publisher.reconnect()
 		return err
 	}
 
@@ -93,14 +105,26 @@ func (publisher *Publisher) Publish(ctx context.Context, message messaging.Messa
 }
 
 func (publisher *Publisher) publish(ctx context.Context, message messaging.Message) error {
-	return publisher.channel.PublishWithContext(
+	if err := publisher.channel.PublishWithContext(
 		ctx,
 		publisher.cfg.Exchange,
 		publisher.cfg.RoutingKey,
 		false,
 		false,
 		persistentPublishing(message.ContentType, message.Body, nil),
-	)
+	); err != nil {
+		return err
+	}
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case confirmation, ok := <-publisher.confirms:
+		if !ok || !confirmation.Ack {
+			return ErrPublishNotConfirmed
+		}
+		return nil
+	}
 }
 
 func (publisher *Publisher) reconnect() error {

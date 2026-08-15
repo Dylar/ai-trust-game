@@ -32,10 +32,25 @@ ghcr.io/dylar/atg-logging-service
 Current ConfigMap keys:
 
 ```text
-APP_ENV  environment label used by logs and runtime behavior
-PORT     HTTP listen port inside the container
+APP_ENV                                environment label used by logs and runtime behavior
+PORT                                   HTTP listen port inside the container
+CLIENT_LOGS_EXCHANGE                   exchange used for client log publishing and consumption
+CLIENT_LOGS_QUEUE                      queue consumed by logging-service
+CLIENT_LOGS_ROUTING_KEY                routing key used for client logs
+CLIENT_LOGS_RETRY_EXCHANGE             exchange used for retry publishing
+CLIENT_LOGS_RETRY_QUEUE                queue used for delayed retries
+CLIENT_LOGS_RETRY_DELAY_MILLIS         retry delay in milliseconds
+CLIENT_LOGS_DEAD_LETTER_EXCHANGE       exchange used for rejected client logs
+CLIENT_LOGS_DEAD_LETTER_QUEUE          queue used for rejected client logs
+```
+
+Current Secret keys:
+
+```text
+RABBITMQ_URL  RabbitMQ endpoint for async client logs
 ```
 
 ## Traffic
 
-`logging-service` is reached through `gateway-service` for public app log ingestion.
+`logging-service` is reached through `gateway-service` for public app log ingestion. It publishes accepted requests to
+RabbitMQ and consumes the queue in a separate worker component inside the same process.

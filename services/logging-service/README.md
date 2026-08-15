@@ -6,9 +6,11 @@ It currently owns:
 
 - local logging-service health checks
 - client-side app log ingestion at `POST /logs/client`
-- validation and normalization of incoming app log events into backend structured logs
+- validation and persistent RabbitMQ publishing of incoming app log events
+- RabbitMQ consumption and normalization of queued app log events into backend structured logs
 
-The logging service does not own game rules, session state, audit semantics, public routing, or persistence.
+The logging service does not own game rules, session state, audit semantics, public routing, or log persistence.
+Backend services do not call this API; they write structured logs to stdout for later platform-level collection.
 
 ## Structure
 
@@ -29,8 +31,13 @@ It creates:
 
 - a logging-service logger
 - the local health handler
-- the client log ingestion handler
+- the client log ingestion handler and RabbitMQ publisher
+- the RabbitMQ client-log consumer and structured-log worker
 - the HTTP server and route registration
+
+The HTTP handler validates a client log and returns `202 Accepted` only after RabbitMQ accepts the persistent message.
+The worker consumes the queue in the same service process. Invalid messages are dead-lettered; transient processing
+failures use the configured delayed retry route.
 
 ## HTTP Surface
 
@@ -42,7 +49,7 @@ Current routes:
   returns local logging-service health for container and Kubernetes probes
 
 - `POST /logs/client`
-  accepts client-side app log events routed through `gateway-service`
+  validates and queues client-side app log events routed through `gateway-service`
 
 ## Client Log Request
 
@@ -67,11 +74,16 @@ Validation errors:
 
 ## Environment Variables
 
-- `PORT`
-  HTTP port, defaults through [`services/shared/foundation/infra`](../shared/foundation/infra/)
-
-- `APP_ENV`
-  environment label used in logs
+- `PORT`, `APP_ENV`
+  standard service runtime configuration
+- `RABBITMQ_URL`
+  RabbitMQ endpoint used for client-log publishing and consumption
+- `CLIENT_LOGS_EXCHANGE`, `CLIENT_LOGS_QUEUE`, `CLIENT_LOGS_ROUTING_KEY`
+  main client-log route
+- `CLIENT_LOGS_RETRY_EXCHANGE`, `CLIENT_LOGS_RETRY_QUEUE`, `CLIENT_LOGS_RETRY_DELAY_MILLIS`
+  delayed retry route and delay
+- `CLIENT_LOGS_DEAD_LETTER_EXCHANGE`, `CLIENT_LOGS_DEAD_LETTER_QUEUE`
+  rejected-message route
 
 ## Kubernetes
 

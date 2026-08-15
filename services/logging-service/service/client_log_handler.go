@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Dylar/ai-trust-game/services/shared/foundation/logging"
 	"github.com/Dylar/ai-trust-game/services/shared/foundation/network"
 )
 
@@ -15,11 +14,11 @@ var ErrMissingClientLogMessage = errors.New("client log message is missing")
 var ErrMissingClientLogCategory = errors.New("client log category is missing")
 
 type ClientLogHandler struct {
-	logger logging.Logger
+	sink ClientLogSink
 }
 
-func NewClientLogHandler(logger logging.Logger) *ClientLogHandler {
-	return &ClientLogHandler{logger: logger}
+func NewClientLogHandler(sink ClientLogSink) *ClientLogHandler {
+	return &ClientLogHandler{sink: sink}
 }
 
 func (handler *ClientLogHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -49,38 +48,10 @@ func (handler *ClientLogHandler) ServeHTTP(w http.ResponseWriter, req *http.Requ
 }
 
 func (handler *ClientLogHandler) handleClientLog(ctx context.Context, req ClientLogRequest) error {
-	if req.Message == "" {
-		return ErrMissingClientLogMessage
+	if err := ValidateClientLog(req); err != nil {
+		return err
 	}
-
-	if req.Category == "" {
-		return ErrMissingClientLogCategory
-	}
-
-	fields := []logging.Field{
-		logging.WithField("client_log_category", req.Category),
-		logging.WithField("client_log_message", req.Message),
-	}
-
-	if len(req.Attributes) > 0 {
-		fields = append(fields, logging.WithField("client_log_attributes", req.Attributes))
-	}
-
-	logMsg := "client log received"
-	switch logging.LogLevel(req.Level) {
-	case logging.Debug:
-		handler.logger.Debug(ctx, logMsg, fields...)
-	case logging.Info:
-		handler.logger.Info(ctx, logMsg, fields...)
-	case logging.Warn:
-		handler.logger.Warn(ctx, logMsg, fields...)
-	case logging.Error:
-		handler.logger.Error(ctx, logMsg, fields...)
-	default:
-		return ErrInvalidClientLogLevel
-	}
-
-	return nil
+	return handler.sink.WriteClientLog(ctx, req)
 }
 
 func (handler *ClientLogHandler) mapClientLogError(err error) (int, string) {

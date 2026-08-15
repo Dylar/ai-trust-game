@@ -9,6 +9,13 @@ services:
     environment:
       APP_ENV: dev
       PORT: 8080
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      CLIENT_LOGS_EXCHANGE: client.logs
+      CLIENT_LOGS_QUEUE: logging-service.client-logs
+      CLIENT_LOGS_ROUTING_KEY: client.log
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
       interval: 10s

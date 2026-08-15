@@ -22,3 +22,14 @@ resources:
 
 config:
   PORT: "8080"
+  CLIENT_LOGS_EXCHANGE: client.logs
+  CLIENT_LOGS_QUEUE: logging-service.client-logs
+  CLIENT_LOGS_ROUTING_KEY: client.log
+  CLIENT_LOGS_RETRY_EXCHANGE: client.logs.retry
+  CLIENT_LOGS_RETRY_QUEUE: logging-service.client-logs.retry
+  CLIENT_LOGS_RETRY_DELAY_MILLIS: "5000"
+  CLIENT_LOGS_DEAD_LETTER_EXCHANGE: client.logs.dead-letter
+  CLIENT_LOGS_DEAD_LETTER_QUEUE: logging-service.client-logs.dead-letter
+
+secretConfig:
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/

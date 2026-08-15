@@ -148,7 +148,7 @@ Goal: validate system behavior through real user interaction
 
 Goal: run the system in a production-like environment
 
-### Phase 12 - Service Decomposition
+### Phase 12 - Service Decomposition (DONE)
 
 - split backend responsibilities into explicit services
 - introduce `gateway-service` as the public backend entry point
@@ -157,7 +157,7 @@ Goal: run the system in a production-like environment
 
 Goal: move towards scalable architecture
 
-### Phase 13 - Persistence
+### Phase 13 - Persistence (DONE)
 
 - Backend: PostgreSQL integration
 - Frontend: drift integration

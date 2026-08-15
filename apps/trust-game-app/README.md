@@ -64,6 +64,7 @@ Current frontend architecture choices:
 - `AppConfig.fromEnvironment()` reads `APP_ENV` and `API_BASE_URL`
 - `AppLogger` is the frontend logging boundary under `core/logging/`
 - backend log shipping is implemented as a concrete adapter under `data/logging/`
+- backend log shipping is best-effort and does not block user flows while the HTTP request completes
 - `AppDependencies.defaults()` creates repositories and API clients around shared app state without inventing a user ID
 - `SelectedUserController` owns the currently selected user identity for user-scoped backend requests and local reads
 - selected-user state is in-memory only; each app restart returns to user selection
